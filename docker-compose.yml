@@ -14,7 +14,8 @@ services:
             dockerfile: PHP.Dockerfile
         volumes:
             - ./app:/app
-            - ./.env:/app/.env:ro
+        env_file:
+            - ./.env
     mysql:
         image: mariadb:latest
         environment:
