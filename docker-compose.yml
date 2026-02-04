@@ -18,10 +18,10 @@ services:
     mysql:
         image: mariadb:latest
         environment:
-            MYSQL_ROOT_PASSWORD: 'secret123'
-            MYSQL_USER: 'developer'
-            MYSQL_PASSWORD: 'secret123'
-            MYSQL_DATABASE: 'developmentdb'
+            MYSQL_ROOT_PASSWORD: ${password}
+            MYSQL_USER: ${user}
+            MYSQL_PASSWORD: ${password}
+            MYSQL_DATABASE: ${dbname}
         volumes:
             - mysqldata:/var/lib/mysql
         ports:
