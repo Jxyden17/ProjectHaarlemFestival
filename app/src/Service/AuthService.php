@@ -15,9 +15,9 @@ class AuthService implements IAuthService
         $this->userRepo = $userRepo;
     }
 
-    public function login(string $username, string $password): UserModel
+    public function login(string $email, string $password): UserModel
     {
-        $user = $this->userRepo->findByUsername($username);
+        $user = $this->userRepo->findByEmail($email);
 
         if (!$user) {
             throw new \Exception("User not found");
@@ -30,15 +30,15 @@ class AuthService implements IAuthService
         return $user;
     }
 
-    public function register(string $username, string $password): UserModel
+    public function register(string $email, string $password): UserModel
     {
-        // Check if username already exists
-        $existing = $this->userRepo->findByUsername($username);
+        // Check if email already exists
+        $existing = $this->userRepo->findByEmail($email);
         if ($existing) {
-            throw new \Exception("Username already taken");
+            throw new \Exception("Email already taken");
         }
 
         // Create new user
-        return $this->userRepo->create($username, $password);
+        return $this->userRepo->create($email, $password);
     }
 }

@@ -29,7 +29,7 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `users` (
   `id` int(11) NOT NULL,
-  `username` varchar(50) NOT NULL,
+  `email` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
@@ -38,8 +38,8 @@ CREATE TABLE `users` (
 -- Gegevens worden geëxporteerd voor tabel `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `password`, `created_at`) VALUES
-(1, 'jayden', '$2y$12$c9vRmZav6WomdvRoojMvz.RPXQn/JFDoJbJ7bOqeqbkWQSzHJ5KbK', '2026-02-03 16:52:38');
+INSERT INTO `users` (`id`, `email`, `password`, `created_at`) VALUES
+(1, 'jayden@example.com', '$2y$12$c9vRmZav6WomdvRoojMvz.RPXQn/JFDoJbJ7bOqeqbkWQSzHJ5KbK', '2026-02-03 16:52:38');
 
 --
 -- Indexen voor geëxporteerde tabellen
@@ -50,7 +50,7 @@ INSERT INTO `users` (`id`, `username`, `password`, `created_at`) VALUES
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `username` (`username`);
+  ADD UNIQUE KEY `email` (`email`);
 
 --
 -- AUTO_INCREMENT voor geëxporteerde tabellen

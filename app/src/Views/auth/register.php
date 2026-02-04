@@ -4,8 +4,8 @@
 
 <form method="post" action="/register" class="mt-3">
     <div class="mb-3">
-        <label for="username" class="form-label">Username</label>
-        <input type="text" name="username" id="username" class="form-control" placeholder="Enter username" required>
+        <label for="email" class="form-label">Email</label>
+        <input type="email" name="email" id="email" class="form-control" placeholder="Enter email" required>
     </div>
 
     <div class="mb-3">

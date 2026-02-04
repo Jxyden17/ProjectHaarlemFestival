@@ -16,18 +16,18 @@ class UserRepository implements IUserRepository
         $this->db = Database::getInstance();
     }
 
-    // Find a user by their username.
-    public function findByUsername(string $username): ?UserModel
+    // Find a user by their email.
+    public function findByEmail(string $email): ?UserModel
     {
-        $stmt = $this->db->prepare("SELECT * FROM users WHERE username = :username");
-        $stmt->execute([':username' => $username]);
+        $stmt = $this->db->prepare("SELECT * FROM users WHERE email = :email");
+        $stmt->execute([':email' => $email]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$row) return null;
 
         return new UserModel(
             (int)$row['id'],
-            $row['username'],
+            $row['email'],
             $row['password']
         );
     }
@@ -43,26 +43,26 @@ class UserRepository implements IUserRepository
 
         return new UserModel(
             (int)$row['id'],
-            $row['username'],
+            $row['email'],
             $row['password']
         );
     }
 
     // Create a new user.
-    public function create(string $username, string $password): UserModel
+    public function create(string $email, string $password): UserModel
     {
         $stmt = $this->db->prepare(
-            "INSERT INTO users (username, password) VALUES (:username, :password)"
+            "INSERT INTO users (email, password) VALUES (:email, :password)"
         );
 
         $stmt->execute([
-            ':username' => $username,
+            ':email' => $email,
             ':password' => password_hash($password, PASSWORD_DEFAULT)
         ]);
 
         $id = (int)$this->db->lastInsertId();
 
-        return new UserModel($id, $username, '');
+        return new UserModel($id, $email, '');
     }
 
     // Update the user's password.

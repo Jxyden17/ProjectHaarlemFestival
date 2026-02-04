@@ -25,18 +25,18 @@ class AuthController extends BaseController
 
     public function login()
     {
-        $username = trim($_POST['username'] ?? '');
+        $email = trim($_POST['email'] ?? '');
         $password = $_POST['password'] ?? '';
 
-        if (!$this->isValidUsername($username) || !$this->isValidPassword($password)) {
-            $this->render('auth/login', ['error' => 'Invalid username or password.']);
+        if (!$this->isValidEmail($email) || !$this->isValidPassword($password)) {
+            $this->render('auth/login', ['error' => 'Invalid email or password.']);
             return;
         }
 
         try {
-            $user = $this->authService->login($username, $password);
+            $user = $this->authService->login($email, $password);
             $_SESSION['user_id'] = $user->id;
-            $_SESSION['username'] = $user->username;
+            $_SESSION['email'] = $user->email;
 
             header('Location: /');
             exit;
@@ -48,16 +48,16 @@ class AuthController extends BaseController
 
     public function register()
     {
-        $username = trim($_POST['username'] ?? '');
+        $email = trim($_POST['email'] ?? '');
         $password = $_POST['password'] ?? '';
 
-        if (!$this->isValidUsername($username) || !$this->isValidPassword($password)) {
-            $this->render('auth/register', ['error' => 'Invalid username or password.']);
+        if (!$this->isValidEmail($email) || !$this->isValidPassword($password)) {
+            $this->render('auth/register', ['error' => 'Invalid email or password.']);
             return;
         }
 
         try {
-            $this->authService->register($username, $password);
+            $this->authService->register($email, $password);
             header('Location: /login');
             exit;
         } catch (\Exception $e) {
@@ -73,18 +73,9 @@ class AuthController extends BaseController
         exit;
     }
 
-    private function isValidUsername(string $username): bool
+    private function isValidEmail(string $email): bool
     {
-        if ($username === '') {
-            return false;
-        }
-
-        // Make sure the username is between 3 and 20 characters and only allows letters, numbers, and underscores.
-        if (!preg_match('/^[a-zA-Z0-9_]{3,20}$/', $username)) {
-            return false;
-        }
-
-        return true;
+        return $email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
     }
 
     private function isValidPassword(string $password): bool

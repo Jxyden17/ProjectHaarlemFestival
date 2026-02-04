@@ -6,11 +6,11 @@ class HomeController extends BaseController
 {
     public function index(): void
     {
-        $username = $_SESSION['username'] ?? null;
+        $email = $_SESSION['email'] ?? null;
 
         $this->render('home/index', [
             'title' => 'Home',
-            'username' => $username
+            'email' => $email
         ]);
     }
 }
