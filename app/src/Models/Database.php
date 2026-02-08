@@ -16,13 +16,14 @@ class Database
             // Load configuration
             $config = require __DIR__ . '/../Config/database.php';
 
-            $host = $config['host'] ?? 'localhost';
-            $db   = $config['dbname'] ?? 'blackjack';
-            $user = $config['user'] ?? 'root';
-            $pass = $config['password'] ?? '';
-            $charset = $config['charset'] ?? 'utf8mb4';
+            $host = $config['host'];
+            $port = $config['port'];
+            $db   = $config['dbname'];
+            $user = $config['user'];
+            $pass = $config['password'];
+            $charset = $config['charset'];
 
-            $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
+            $dsn = "mysql:host=$host;port=$port;dbname=$db;charset=$charset";
 
             $options = [
                 PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,

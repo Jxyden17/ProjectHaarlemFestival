@@ -1,5 +1,22 @@
+:root
+{
+    /* Keluren van desing */
+    --primary-color: #0F2035;
+    --accent-color: #C79636;
+    --natural-light: #F5F5F5;
+    --natural-dark: #222222;
+    --accent-history: #FFD0B4;
+
+    /* Tekst stijl */
+    --font-main: 'Playfair Display', serif;
+}
+
+
+
 body {
-    background: #f6f7fb;
+    background: var(--primary-color);
+    background-color: var(--primary-color);
+    color: var(--primary-color);
 }
 
 .navbar-brand {
