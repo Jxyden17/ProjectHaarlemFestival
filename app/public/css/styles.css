@@ -6,12 +6,13 @@
     --natural-light: #F5F5F5;
     --natural-dark: #222222;
     --accent-history: #FFD0B4;
+    --edit-button: #f39c12;
+    --delete-button: #e74c3c;
+    --add-button: #27ae60;
 
     /* Tekst stijl */
     --font-main: 'Playfair Display', serif;
 }
-
-
 
 body {
     background: var(--primary-color);
@@ -25,5 +26,5 @@ body {
 }
 
 .lead {
-    color: #4b5563;
+    color: var(--primary-color);
 }

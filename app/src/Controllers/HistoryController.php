@@ -9,8 +9,7 @@ class HistoryController extends BaseController
         $email = $_SESSION['email'] ?? null;
 
         $this->render('history/index', [
-            'title' => 'Home History',
-            'email' => $email
+            'title' => 'Home History'
         ]);
     }
 }
