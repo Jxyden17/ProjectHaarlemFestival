@@ -6,6 +6,9 @@ $turnstileSiteKey = $_ENV['TURNSTILE_SITE_KEY'] ?? getenv('TURNSTILE_SITE_KEY');
 
 <?php require __DIR__ . '/../partialsViews/error.php'; ?>
 
+<!-- Cloudflare Turnstile voor captcha -->
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
 <form method="post" action="/register" class="mt-3">
     <div class="mb-3">
         <label for="email" class="form-label">Email</label>
