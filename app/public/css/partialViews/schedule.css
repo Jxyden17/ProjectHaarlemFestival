@@ -1,0 +1,91 @@
+.section {
+    background-color: var(--primary-color);
+    padding: 60px 0;
+    margin: 0;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.header h2 {
+    font-family: var(--font-main);
+    color: var(--accent-color);
+    font-size: 1.8rem;
+}
+
+/* Filters */
+.filters {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 40px;
+}
+
+.filter-group {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    background: var(--primary-color);
+    border: 1px solid var(--accent-color);
+    color: var(--natural-light);
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: 0.3s;
+}
+
+.filter-btn.active, .filter-btn:hover {
+    background: var(--accent-color);
+    color: var(--primary-color);
+}
+
+.day-title {
+    color: var(--accent-history);
+    font-size: 1.1rem;
+    padding: 15px 0;
+    border-bottom: 1px solid var(--accent-color);
+}
+
+.schedule-row {
+    display: grid;
+    grid-template-columns: 1.5fr 1.5fr 2.5fr 1fr 1.5fr 1fr 1.5fr;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid var(--accent-color);
+    color: var(--natural-light);
+    font-size: 0.9rem;
+}
+
+.badge-lang {
+    background: var(--accent-color);
+    color: var(--primary-color);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 0.75rem;
+}
+
+.btn-book {
+    background: var(--accent-history);
+    color: var(--primary-color);
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+}
