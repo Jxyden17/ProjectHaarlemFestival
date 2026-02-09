@@ -6,39 +6,111 @@
     <title><?= $title ?? 'Project Template' ?></title>
     <!-- Bootstrap CSS CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
     <link href="/css/styles.css" rel="stylesheet">
 </head>
-<body class="bg-light">
+<body class="bg-light hf-page">
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
-    <div class="container">
-        <div class="d-flex align-items-center">
-            <a class="navbar-brand" href="/">Home</a>
-        </div>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
-                aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+<?php $isLoggedIn = isset($_SESSION['user_id']); ?>
 
-        <div class="collapse navbar-collapse" id="mainNavbar">
-            <ul class="navbar-nav ms-auto">
-                <?php if (isset($_SESSION['user_id'])): ?>
-                    <li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
-                <?php else: ?>
-                    <li class="nav-item"><a class="nav-link" href="/login">Login</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/register">Register</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/history">History</a></li>
-                <?php endif; ?>
-            </ul>
+<nav class="hf-navbar">
+    <div class="container hf-nav-inner">
+        <a class="hf-brand" href="/" aria-label="Visit Haarlem Festival">
+            <img src="/img/logo.png" alt="Visit Haarlem Festival" class="hf-logo">
+        </a>
+
+        <ul class="hf-nav-links">
+            <li>
+                <a href="/">
+                    <span class="hf-icon" aria-hidden="true">
+                        <i data-lucide="home"></i>
+                    </span>
+                    Home
+                </a>
+            </li>
+            <li>
+                <a href="/dance">
+                    <span class="hf-icon" aria-hidden="true">
+                        <i data-lucide="music"></i>
+                    </span>
+                    Dance
+                </a>
+            </li>
+            <li>
+                <a href="/tour">
+                    <span class="hf-icon" aria-hidden="true">
+                        <i data-lucide="map"></i>
+                    </span>
+                    Tour
+                </a>
+            </li>
+            <li>
+                <a href="/stories">
+                    <span class="hf-icon" aria-hidden="true">
+                        <i data-lucide="book-open"></i>
+                    </span>
+                    Stories
+                </a>
+            </li>
+            <li>
+                <a href="/jazz">
+                    <span class="hf-icon" aria-hidden="true">
+                        <i data-lucide="music-2"></i>
+                    </span>
+                    Jazz
+                </a>
+            </li>
+            <li>
+                <a href="/yummy">
+                    <span class="hf-icon" aria-hidden="true">
+                        <i data-lucide="utensils"></i>
+                    </span>
+                    Yummy
+                </a>
+            </li>
+            <li>
+                <a href="/contact">
+                    <span class="hf-icon" aria-hidden="true">
+                        <i data-lucide="mail"></i>
+                    </span>
+                    Contact
+                </a>
+            </li>
+        </ul>
+
+        <div class="hf-nav-actions">
+            <a class="hf-btn" href="/book">Book Now</a>
+            <a class="hf-icon-btn" href="/favorites" aria-label="Favorites">
+                <i data-lucide="heart"></i>
+            </a>
+            <a class="hf-icon-btn" href="/cart" aria-label="Cart">
+                <i data-lucide="shopping-cart"></i>
+            </a>
+            <?php if ($isLoggedIn): ?>
+                <a class="hf-icon-btn" href="/logout" aria-label="Logout">
+                    <i data-lucide="log-out"></i>
+                </a>
+            <?php else: ?>
+                <a class="hf-icon-btn" href="/login" aria-label="Login">
+                    <i data-lucide="log-in"></i>
+                </a>
+            <?php endif; ?>
+            <span class="hf-lang">ENG</span>
         </div>
     </div>
 </nav>
 
-<div class="container">
+<div class="container hf-page-content">
     <?= $content ?>
 </div>
 
+<?php require __DIR__ . '/partialsViews/footer.php'; ?>
+
 <!-- Bootstrap JS Bundle CDN -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+    lucide.createIcons();
+</script>
 </body>
 </html>
