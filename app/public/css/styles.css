@@ -1,17 +1,31 @@
-:root {
+:root
+{
+    /* Keluren van desing */
+    --primary-color: #0F2035;
+    --accent-color: #C79636;
+    --natural-light: #F5F5F5;
+    --natural-dark: #222222;
+    --accent-history: #FFD0B4;
     --hf-navy: #0F2035;
     --hf-navy-deep: #0b1728;
     --hf-gold: #c6952c;
     --hf-gold-strong: #d5a33c;
     --hf-cream: #f1eadc;
     --hf-muted: #bfc7d4;
+
+    /* Tekst stijl */
+    --font-main: 'Playfair Display', serif;
 }
+
+
 
 body {
-    background: #f6f7fb;
+    background: var(--primary-color);
+    background-color: var(--primary-color);
+    color: var(--primary-color);
     font-family: "Playfair Display", "Source Sans 3", system-ui, -apple-system, sans-serif;
-}
 
+  
 .hf-page {
     min-height: 100vh;
     display: flex;

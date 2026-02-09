@@ -15,6 +15,7 @@ $authService = new App\Service\AuthService($userRepo);
 // Controllers
 $authController = new App\Controllers\AuthController($authService);
 $homeController = new App\Controllers\HomeController();
+$historyController = new App\Controllers\HistoryController();
 
 // Routes
 $dispatcher = simpleDispatcher(function (RouteCollector $r) {
@@ -27,7 +28,7 @@ $dispatcher = simpleDispatcher(function (RouteCollector $r) {
     $r->addRoute('GET', '/register', ['AuthController', 'showRegister']);
     $r->addRoute('POST', '/register', ['AuthController', 'register']);
     $r->addRoute('GET', '/logout', ['AuthController', 'logout']);
-
+    $r->addRoute('GET', '/history', ['HistoryController', 'index']);
 });
 
 // Dispatch request
@@ -53,6 +54,7 @@ switch ($routeInfo[0]) {
         $controllerMap = [
             'AuthController' => $authController,
             'HomeController' => $homeController,
+            'HistoryController' => $historyController,
         ];
 
         if (!isset($controllerMap[$controllerName])) {
