@@ -2,6 +2,8 @@
 
 namespace App\Controllers;
 
+use App\Models\Enums\UserRole;
+
 class BaseController
 {
     protected function render(string $view, array $data = []): void
@@ -20,6 +22,18 @@ class BaseController
     {
         if (!isset($_SESSION['user_id'])) {
             header('Location: /login');
+            exit;
+        }
+    }
+
+    protected function requireAdmin(): void
+    {
+        $this->requireAuth();
+
+        $roleId = (int)($_SESSION['role_id'] ?? 0);
+        if ($roleId !== UserRole::Administrator->value) {
+            http_response_code(403);
+            header('Location: /');
             exit;
         }
     }

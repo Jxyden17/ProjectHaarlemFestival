@@ -15,6 +15,7 @@ class AdminController extends BaseController
 
     public function index(): void
     {
+        $this->requireAdmin();
         $users = $this->admin_service->getAllUsers();
 
         $this->render('admin/users/index', ['title' => 'Admin Users','users' => $users]);
@@ -22,14 +23,16 @@ class AdminController extends BaseController
 
     public function showCreateForm(): void
     {
+        $this->requireAdmin();
         $this->render('admin/users/create', ['title' => 'Add New User']);
     }
 
     public function addUser(): void
     {
+        $this->requireAdmin();
         try
         {
-         $this->admin_service->addUser($_POST['email'] ?? '', $_POST['password'] ?? '', $_POST['role_id'] ?? 2);
+         $this->admin_service->addUser($_POST['email'] ?? '', $_POST['password'] ?? '', $_POST['role_id'] ?? 3);
          header('Location: /users');
         }
         catch(\Exception $e)
@@ -42,11 +45,13 @@ class AdminController extends BaseController
 
     public function showEditForm(): void
     {
+        $this->requireAdmin();
         $user = $this->admin_service->getUserById($_GET['id']);
         $this->render('admin/users/edit', ['title' => 'Edit User','user' => $user]);
     }
     public function editUser(): void
     {
+        $this->requireAdmin();
         try 
         {
             $this->admin_service->updateUser($_POST['id'], $_POST['email'], $_POST['password'], $_POST['role_id']);
@@ -59,6 +64,7 @@ class AdminController extends BaseController
 
     public function showDeleteConfirmation(): void
     {
+        $this->requireAdmin();
         $user = $this->admin_service->getUserById($_GET['id']);
         $this->render('admin/users/delete', [
             'title' => 'Delete User',
@@ -69,6 +75,7 @@ class AdminController extends BaseController
 
     public function deleteUser(): void
     { 
+        $this->requireAdmin();
         try
         {
             $this->admin_service->deleteUser($_POST['id']);

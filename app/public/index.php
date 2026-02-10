@@ -9,10 +9,12 @@ use function FastRoute\simpleDispatcher;
 // Repositories
 $userRepo = new App\Repository\UserRepository();
 $passwordResetRepo = new App\Repository\PasswordResetRepository();
+$scheduleRepo = new App\Repository\ScheduleRepository();
 
 // Services
 $mailConfig = App\Models\MailConfig::fromEnvironment();
 $mailService = new App\Service\MailService($mailConfig);
+$scheduleService = new App\Service\ScheduleService($scheduleRepo);
 
 $authService = new App\Service\AuthService($userRepo, $passwordResetRepo, $mailService);;
 $adminService = new App\Service\AdminService($userRepo);
@@ -21,6 +23,7 @@ $adminService = new App\Service\AdminService($userRepo);
 $authController = new App\Controllers\AuthController($authService);
 $homeController = new App\Controllers\HomeController();
 $historyController = new App\Controllers\HistoryController();
+$danceController = new App\Controllers\DanceController($scheduleService);
 $adminController = new App\Controllers\AdminController($adminService);
 
 // Routes
@@ -41,6 +44,7 @@ $dispatcher = simpleDispatcher(function (RouteCollector $r) {
 
     // History route
     $r->addRoute('GET', '/history', ['HistoryController', 'index']);
+    $r->addRoute('GET', '/dance', ['DanceController', 'index']);
 
     // Admin routes
     $r->addRoute('GET', '/users', ['AdminController', 'index']);
@@ -76,6 +80,7 @@ switch ($routeInfo[0]) {
             'AuthController' => $authController,
             'HomeController' => $homeController,
             'HistoryController' => $historyController,
+            'DanceController' => $danceController,
             'AdminController' => $adminController,
         ];
 

@@ -9,12 +9,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
     <link href="/css/styles.css" rel="stylesheet">
 </head>
-<body class="bg-light hf-page">
+<body class="hf-page">
 
 <?php
 $isLoggedIn = isset($_SESSION['user_id']);
 $roleId = (int)($_SESSION['role_id'] ?? 0);
-$canManage = in_array($roleId, [1, 2], true); // 1=Administrator, 2=Employee
+$canManage = $roleId === 1; // 1=Administrator
 ?>
 
 <nav class="hf-navbar">
@@ -109,7 +109,7 @@ $canManage = in_array($roleId, [1, 2], true); // 1=Administrator, 2=Employee
     </div>
 </nav>
 
-<div class="container hf-page-content">
+<div class="hf-page-content">
     <?= $content ?>
 </div>
 
