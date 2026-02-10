@@ -60,7 +60,7 @@ class UserRepository implements IUserRepository
             "INSERT INTO users (email, password, role_id) VALUES (:email, :password, :role_id)"
         );
          
-        $roleId = UserRole::Customer->value; // Standaard rol is Customer (ID 2)
+        $roleId = UserRole::Customer->value; // Standaard rol is Customer (ID 1)
 
         $stmt->execute([
             ':email' => $email,
