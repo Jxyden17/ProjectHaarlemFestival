@@ -1,5 +1,4 @@
-:root
-{
+:root {
     /* Keluren van desing */
     --primary-color: #0F2035;
     --accent-color: #C79636;
@@ -11,16 +10,17 @@
     --add-button: #27ae60;
 
     /* Tekst stijl */
-    --font-main: 'Playfair Display', serif;
+    --font-main: "Playfair Display", "Source Sans 3", system-ui, -apple-system, sans-serif;
 }
 
 body {
+    font-family: var(--font-main);
     background: var(--primary-color);
     background-color: var(--primary-color);
     color: var(--primary-color);
-    font-family: "Playfair Display", "Source Sans 3", system-ui, -apple-system, sans-serif;
 
-  
+}
+
 .hf-page {
     min-height: 100vh;
     display: flex;

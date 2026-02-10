@@ -13,17 +13,9 @@ class Database
     public static function getInstance(): PDO
     {
         if (self::$instance === null) {
-            // Load configuration
-            $config = require __DIR__ . '/../Config/database.php';
+            $config = DatabaseConfig::fromEnvironment();
 
-            $host = $config['host'];
-            $port = $config['port'];
-            $db   = $config['dbname'];
-            $user = $config['user'];
-            $pass = $config['password'];
-            $charset = $config['charset'];
-
-            $dsn = "mysql:host=$host;port=$port;dbname=$db;charset=$charset";
+            $dsn = "mysql:host={$config->host};port={$config->port};dbname={$config->dbname};charset={$config->charset}";
 
             $options = [
                 PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
@@ -32,7 +24,7 @@ class Database
             ];
 
             try {
-                self::$instance = new PDO($dsn, $user, $pass, $options);
+                self::$instance = new PDO($dsn, $config->user, $config->password, $options);
             } catch (PDOException $e) {
                 throw new \Exception('Database connection failed: ' . $e->getMessage());
             }

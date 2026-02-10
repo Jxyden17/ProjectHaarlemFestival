@@ -6,9 +6,10 @@ It contains:
 * PHP FastCGI Process Manager with PDO MySQL support
 * MariaDB (GPL MySQL fork)
 * PHPMyAdmin
+* SMTP4Dev (local SMTP testing inbox)
 * Composer
 * Composer package [nikic/fast-route](https://github.com/nikic/FastRoute) for routing
-* Composer package [vlucas/phpdotenv](https://github.com/vlucas/phpdotenv) for loading `.env` config
+* Composer package [phpmailer/phpmailer](https://github.com/PHPMailer/PHPMailer) for SMTP email sending
 
 ## App info
 
@@ -112,6 +113,25 @@ Go to [http://localhost/](http://localhost/). You should see the home page.
 PHPMyAdmin provides basic database administration. It is accessible at [localhost:8080](localhost:8080).
 
 Credentials are defined in `docker-compose.yml`. They are: developer/secret123
+
+### SMTP4Dev
+
+SMTP4Dev provides a local test SMTP server and inbox UI.
+
+- Web UI: [http://localhost:8025](http://localhost:8025)
+- SMTP host/port inside Docker network: `smtp4dev:25`
+
+### Mail configuration (PHPMailer)
+
+Mail is sent through `app/src/Service/MailService.php` using PHPMailer with values from `.env`.
+
+- `MAIL_HOST=smtp4dev`
+- `MAIL_PORT=25`
+- `MAIL_FROM_ADDRESS=no-reply@...`
+- `MAIL_FROM_NAME=Haarlem Festival`
+- `MAIL_USERNAME=` (optional)
+- `MAIL_PASSWORD=` (optional)
+- `MAIL_ENCRYPTION=` (optional: `tls` or `ssl`; leave empty for smtp4dev)
 
 
 ### Stopping the docker container
