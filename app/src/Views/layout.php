@@ -37,11 +37,11 @@
                 </a>
             </li>
             <li>
-                <a href="/tour">
+                <a href="/history">
                     <span class="hf-icon" aria-hidden="true">
                         <i data-lucide="map"></i>
                     </span>
-                    Tour
+                    History
                 </a>
             </li>
             <li>

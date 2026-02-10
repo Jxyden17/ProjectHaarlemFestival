@@ -8,9 +8,12 @@ use function FastRoute\simpleDispatcher;
 
 // Repositories
 $userRepo = new App\Repository\UserRepository();
+$passwordResetRepo = new App\Repository\PasswordResetRepository();
 
 // Services
-$authService = new App\Service\AuthService($userRepo);
+$mailConfig = App\Models\MailConfig::fromEnvironment();
+$mailService = new App\Service\MailService($mailConfig);
+$authService = new App\Service\AuthService($userRepo, $passwordResetRepo, $mailService);
 
 // Controllers
 $authController = new App\Controllers\AuthController($authService);
@@ -27,6 +30,10 @@ $dispatcher = simpleDispatcher(function (RouteCollector $r) {
     $r->addRoute('POST', '/login', ['AuthController', 'login']);
     $r->addRoute('GET', '/register', ['AuthController', 'showRegister']);
     $r->addRoute('POST', '/register', ['AuthController', 'register']);
+    $r->addRoute('GET', '/forgot-password', ['AuthController', 'showForgotPassword']);
+    $r->addRoute('POST', '/forgot-password', ['AuthController', 'sendPasswordResetLink']);
+    $r->addRoute('GET', '/reset-password', ['AuthController', 'showResetPassword']);
+    $r->addRoute('POST', '/reset-password', ['AuthController', 'resetPassword']);
     $r->addRoute('GET', '/logout', ['AuthController', 'logout']);
     $r->addRoute('GET', '/history', ['HistoryController', 'index']);
 });

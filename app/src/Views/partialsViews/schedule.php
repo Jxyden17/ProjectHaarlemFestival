@@ -35,7 +35,7 @@
                     <div class="col-title">A Stroll Through History</div>
                     <div class="col-lang"><span class="badge-lang">EN</span></div>
                     <div class="col-status"><span class="status-available">8 spots left</span></div>
-                    <div class="col-price">€37,50</div>
+                    <div class="col-price">â‚¬37,50</div>
                     <div class="col-action"><button class="btn-book">Book Now</button></div>
                 </div>
         </div>
