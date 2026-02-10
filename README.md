@@ -9,7 +9,6 @@ It contains:
 * SMTP4Dev (local SMTP testing inbox)
 * Composer
 * Composer package [nikic/fast-route](https://github.com/nikic/FastRoute) for routing
-* Composer package [vlucas/phpdotenv](https://github.com/vlucas/phpdotenv) for loading `.env` config
 * Composer package [phpmailer/phpmailer](https://github.com/PHPMailer/PHPMailer) for SMTP email sending
 
 ## App info
