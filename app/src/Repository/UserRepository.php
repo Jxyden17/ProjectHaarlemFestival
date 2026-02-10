@@ -141,4 +141,24 @@ class UserRepository implements IUserRepository
 
         return $this->findById($id);
     }
+
+
+    public function searchUsers(string $query): array
+    {
+        $stmt = $this->db->prepare("SELECT id, email, password, role_id, created_at FROM users WHERE email LIKE :query");
+        $stmt->execute([':query' => '%' . $query . '%']);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $users = [];
+        foreach($rows as $row) {
+            $users[] = new UserModel(
+                (int)$row['id'],
+                $row['email'],
+                $row['password'],
+                (int)$row['role_id'],
+                $row['created_at']
+            );
+        }
+        return $users;
+    }
 }  

@@ -15,9 +15,14 @@ class AdminController extends BaseController
 
     public function index(): void
     {
+        $searchQuery = $_GET['search'] ?? '';
+        if (!empty($searchQuery)) {
+            $users = $this->admin_service->searchUsers($searchQuery);
+        } else {
         $users = $this->admin_service->getAllUsers();
-
-        $this->render('admin/users/index', ['title' => 'Admin Users','users' => $users]);
+        }
+        $this->render('admin/users/index', ['title' => 'Admin Users','users' => $users, 'searchQuery' => $searchQuery]);
+        
     }
 
     public function showCreateForm(): void

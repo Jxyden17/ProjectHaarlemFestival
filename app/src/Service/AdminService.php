@@ -47,4 +47,9 @@ class AdminService implements IAdminService
             }
         return $this->userRepo->updateUser($id, $email, $password, $roleId);
     }
+
+    public function searchUsers(string $query): array
+    {
+        return $this->userRepo->searchUsers($query);
+    }
 }
