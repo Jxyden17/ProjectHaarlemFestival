@@ -2,15 +2,34 @@
 
 namespace App\Controllers;
 
+use App\Service\Interfaces\IPageService;
+
 class HistoryController extends BaseController
 {
+    private IPageService $pageService;
+
+    public function __construct(IPageService $pageService) 
+    {
+        $this->pageService = $pageService;
+    }
     public function index(): void
     {
-        $email = $_SESSION['email'] ?? null;
+        $slug = 'history-stroll';
+        
+        $page = $this->pageService->buildPage($slug);
+        if (!$page) {
+            $this->render('errors/404');
+            return;
+        }
 
-        $this->render('history/index', [
-            'title' => 'Home History',
-            'email' => $email
-        ]);
+        $viewData = [
+        'pageTitle' => $page->title, //
+        'hero'      => $page->getSection('hero'),
+        'stops'     => $page->getSection('grid'),
+        'discover'  => $page->getSection('discover'),
+        'schedule' => $page->getSection('schedule'),
+        'guides'   => $page->getSection('route_guides')
+    ];
+        $this->render('history/index', $viewData);
     }
 }

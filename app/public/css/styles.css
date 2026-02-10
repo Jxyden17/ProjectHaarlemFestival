@@ -23,8 +23,8 @@ body {
     background: var(--primary-color);
     background-color: var(--primary-color);
     color: var(--primary-color);
-    font-family: "Playfair Display", "Source Sans 3", system-ui, -apple-system, sans-serif;
-
+    font-family: var(--font-main)
+}
   
 .hf-page {
     min-height: 100vh;
@@ -38,7 +38,7 @@ body {
 
 .hf-navbar {
     background: var(--hf-navy);
-    border-bottom: 0.125rem solid #0a1526;
+    border-bottom: 0.125rem solid var(--primary-color);
     padding: 0.5rem 0;
     width: 100%;
     position: relative;
@@ -80,13 +80,13 @@ body {
     margin: 0;
     padding: 0;
     flex: 1;
-    color: white;
+    color: var(--natural-light);
     white-space: nowrap;
     justify-content: center;
 }
 
 .hf-nav-links a {
-    color: white;
+    color: var(--natural-light);
     text-decoration: none;
     font-weight: 600;
     font-size: 0.9rem;
@@ -99,7 +99,7 @@ body {
 }
 
 .hf-nav-links a:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--primary-color);
 }
 
 .hf-icon {
@@ -123,7 +123,7 @@ body {
 
 .hf-btn {
     background: var(--hf-gold);
-    color: #201504;
+    color: var(--primary-color);
     padding: 0.45rem 1rem;
     border-radius: 0.63rem;
     text-decoration: none;
@@ -134,7 +134,7 @@ body {
 
 .hf-btn:hover {
     background: var(--hf-gold-strong);
-    color: #1f1404;
+    color: var(--primary-color);
 }
 
 .hf-lang {

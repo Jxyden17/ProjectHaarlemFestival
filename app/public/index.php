@@ -8,14 +8,16 @@ use function FastRoute\simpleDispatcher;
 
 // Repositories
 $userRepo = new App\Repository\UserRepository();
+$pageRepo = new App\Repository\PageRepository();
 
 // Services
 $authService = new App\Service\AuthService($userRepo);
+$pageService = new App\Service\PageService($pageRepo);
 
 // Controllers
 $authController = new App\Controllers\AuthController($authService);
 $homeController = new App\Controllers\HomeController();
-$historyController = new App\Controllers\HistoryController();
+$historyController = new App\Controllers\HistoryController($pageService);
 
 // Routes
 $dispatcher = simpleDispatcher(function (RouteCollector $r) {
@@ -28,7 +30,7 @@ $dispatcher = simpleDispatcher(function (RouteCollector $r) {
     $r->addRoute('GET', '/register', ['AuthController', 'showRegister']);
     $r->addRoute('POST', '/register', ['AuthController', 'register']);
     $r->addRoute('GET', '/logout', ['AuthController', 'logout']);
-    $r->addRoute('GET', '/history', ['HistoryController', 'index']);
+    $r->addRoute('GET', '/tour', ['HistoryController', 'index']);
 });
 
 // Dispatch request
