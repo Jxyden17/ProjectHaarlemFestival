@@ -11,11 +11,13 @@ $userRepo = new App\Repository\UserRepository();
 
 // Services
 $authService = new App\Service\AuthService($userRepo);
+$adminService = new App\Service\AdminService($userRepo);
 
 // Controllers
 $authController = new App\Controllers\AuthController($authService);
 $homeController = new App\Controllers\HomeController();
 $historyController = new App\Controllers\HistoryController();
+$adminController = new App\Controllers\AdminController($adminService);
 
 // Routes
 $dispatcher = simpleDispatcher(function (RouteCollector $r) {
@@ -28,7 +30,18 @@ $dispatcher = simpleDispatcher(function (RouteCollector $r) {
     $r->addRoute('GET', '/register', ['AuthController', 'showRegister']);
     $r->addRoute('POST', '/register', ['AuthController', 'register']);
     $r->addRoute('GET', '/logout', ['AuthController', 'logout']);
+
+    // History route
     $r->addRoute('GET', '/history', ['HistoryController', 'index']);
+
+    // Admin routes
+    $r->addRoute('GET', '/users', ['AdminController', 'index']);
+    $r->addRoute('GET', '/admin/users/edit', ['AdminController', 'showEditForm']);
+    $r->addRoute('POST', '/admin/users/edit', ['AdminController', 'editUser']);
+    $r->addRoute('GET', '/admin/users/delete', ['AdminController', 'showDeleteConfirmation']);
+    $r->addRoute('POST', '/admin/users/delete', ['AdminController', 'deleteUser']);
+    $r->addRoute('GET', '/admin/users/create', ['AdminController', 'showCreateForm']);
+    $r->addRoute('POST', '/admin/users/create', ['AdminController', 'addUser']);
 });
 
 // Dispatch request
@@ -55,6 +68,7 @@ switch ($routeInfo[0]) {
             'AuthController' => $authController,
             'HomeController' => $homeController,
             'HistoryController' => $historyController,
+            'AdminController' => $adminController,
         ];
 
         if (!isset($controllerMap[$controllerName])) {
