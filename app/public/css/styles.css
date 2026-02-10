@@ -148,7 +148,7 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    color: var(--hf-cream);
+    color: var(--accent-color);
     border: 0.0625rem solid rgba(255, 255, 255, 0.2);
     text-decoration: none;
     transition: all 0.2s ease;

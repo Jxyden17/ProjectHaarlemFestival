@@ -54,6 +54,7 @@ class AuthController extends BaseController
             $user = $this->authService->login($email, $password);
             $_SESSION['user_id'] = $user->id;
             $_SESSION['email'] = $user->email;
+            $_SESSION['role_id'] = $user->userRole->value;
 
             header('Location: /');
             exit;
