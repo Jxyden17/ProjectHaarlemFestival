@@ -29,13 +29,13 @@
                 <tr>
                     <th>Nr.</th> 
                     <th>
-                        <a href="/users?sort=email&order=<?= $order === 'asc' ? 'desc' : 'asc' ?>" class="sort-link">Email</a>
+                        <a href="/users?sort=email&order=<?= $order === 'asc' ? 'desc' : 'asc' ?>">Email</a>
                     </th>
                     <th>
-                        <a href="/users?sort=role_id&order=<?= $order === 'asc' ? 'desc' : 'asc' ?>" class="sort-link">Functions</a>
+                        <a href="/users?sort=role_id&order=<?= $order === 'asc' ? 'desc' : 'asc' ?>">Functions</a>
                     </th>
                     <th>
-                        <a href="/users?sort=created_at&order=<?= $order === 'asc' ? 'desc' : 'asc' ?>" class="sort-link">Account Made</a>
+                        <a href="/users?sort=created_at&order=<?= $order === 'asc' ? 'desc' : 'asc' ?>">Account Made</a>
                     </th>
                     <th>
                         Actions

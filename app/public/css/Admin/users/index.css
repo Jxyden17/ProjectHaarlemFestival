@@ -38,7 +38,16 @@ h1 {
 .user-table td {
     padding: 12px 15px;
     border-bottom: 1px solid var(--primary-color);
-    
+}
+
+th a {
+    color: var(--primary-color);
+    text-decoration: none;
+    text-decoration: underline;
+}
+
+th a:hover {
+    color: #3c536e;
 }
 
 .user-table tbody tr:nth-of-type(even) {
@@ -121,11 +130,4 @@ h1 {
 .btn-clear {
     background-color: var(--delete-button);
     color: var(--natural-light);
-}
-
-.sort-links {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-
 }
