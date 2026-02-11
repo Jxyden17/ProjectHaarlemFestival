@@ -15,21 +15,31 @@
         </div>
 
         <div class="search-bar">
-            <form method="GET" action="/users">
-                <input type="text" name="search" placeholder="Search users..." value="<?= htmlspecialchars($searchQuery) ?>">
-                <button type="submit" class="btn btn-search">Search</button>
-                <a href="/users" class="btn btn-clear">Clear</a>
+            <form method="GET" action="/users" class="search-form">
+                <div class="search-input-group">
+                    <input type="text" name="search" placeholder="Search users..." value="<?= htmlspecialchars($searchQuery) ?>" class="search-input">
+                    <button type="submit" class="btn btn-search">Search</button>
+                    <a href="/users" class="btn btn-clear">Clear</a>
+                </div>
             </form>
         </div>
-        
+
         <table class="user-table">
             <thead>
                 <tr>
                     <th>Nr.</th> 
-                    <th>Email</th>
-                    <th>Functions</th>
-                    <th>Account Made</th>
-                    <th>Actions</th>
+                    <th>
+                        <a href="/users?sort=email&order=<?= $order === 'asc' ? 'desc' : 'asc' ?>" class="sort-link">Email</a>
+                    </th>
+                    <th>
+                        <a href="/users?sort=role_id&order=<?= $order === 'asc' ? 'desc' : 'asc' ?>" class="sort-link">Functions</a>
+                    </th>
+                    <th>
+                        <a href="/users?sort=created_at&order=<?= $order === 'asc' ? 'desc' : 'asc' ?>" class="sort-link">Account Made</a>
+                    </th>
+                    <th>
+                        Actions
+                    </th>
                 </tr>
             </thead>
             <tbody>

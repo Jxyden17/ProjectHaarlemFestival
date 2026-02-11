@@ -16,12 +16,16 @@ class AdminController extends BaseController
     public function index(): void
     {
         $searchQuery = $_GET['search'] ?? '';
+        $sort = $_GET['sort'] ?? 'created_at';
+        $order = $_GET['order'] ?? 'desc';
+
         if (!empty($searchQuery)) {
             $users = $this->admin_service->searchUsers($searchQuery);
         } else {
-        $users = $this->admin_service->getAllUsers();
+        $users = $this->admin_service->sortUsers($sort, $order);
         }
-        $this->render('admin/users/index', ['title' => 'Admin Users','users' => $users, 'searchQuery' => $searchQuery]);
+
+        $this->render('admin/users/index', ['title' => 'Admin Users','users' => $users, 'searchQuery' => $searchQuery, 'sort' => $sort, 'order' => $order]);
         
     }
 
@@ -85,4 +89,5 @@ class AdminController extends BaseController
             $this ->render('/users', ['error' => 'Failed to delete user.']);
         }
     }
+    
 }

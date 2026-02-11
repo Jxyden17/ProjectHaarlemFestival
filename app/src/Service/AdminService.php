@@ -52,4 +52,10 @@ class AdminService implements IAdminService
     {
         return $this->userRepo->searchUsers($query);
     }
+
+    public function sortUsers(string $sortBy, string $sortOrder): array
+    {
+        return $this->userRepo->sortUsers($sortBy, $sortOrder);
+    }
+
 }

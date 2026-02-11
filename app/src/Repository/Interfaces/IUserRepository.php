@@ -14,5 +14,5 @@ interface IUserRepository
     public function deleteUser(int $id): void;
     public function updateUser(int $id, string $email, string $password, int $roleId): UserModel;
     public function searchUsers(string $query): array;
-
+    public function sortUsers(string $sortBy, string $sortOrder): array;
 }
