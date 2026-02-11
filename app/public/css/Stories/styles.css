@@ -1,0 +1,614 @@
+/* =============================
+   THEME / BASE
+============================= */
+:root{
+  --bg-0: #071428;
+  --bg-1: #0b1f3d;
+  --bg-2: #102b56;
+
+  --text: #e9f0ff;
+  --muted: rgba(233, 240, 255, 0.72);
+  --muted-2: rgba(233, 240, 255, 0.55);
+
+  --gold: #d4a447;
+  --gold-2: rgba(212, 164, 71, 0.35);
+
+  --card: rgba(255, 255, 255, 0.06);
+  --card-border: rgba(255, 255, 255, 0.10);
+
+  --chip: rgba(140, 86, 255, 0.18);
+  --chip-border: rgba(140, 86, 255, 0.35);
+  --chip-text: rgba(230, 220, 255, 0.95);
+
+  --shadow: 0 18px 50px rgba(0,0,0,0.45);
+  --radius: 14px;
+  --radius-lg: 18px;
+
+  --container: 1120px;
+
+  /* ✅ Cambia estos URLs si tus imágenes tienen otro nombre/ruta */
+  --img-feature: url("/img/storiesIMG/Collage-photo1.jpg");
+  --img-hero: url("/img/storiesIMG/Hero-photo.jpg");
+  --img-story-1: url("/img/storiesIMG/Collage-photo1.jpg");
+  --img-story-2: url("/img/storiesIMG/Collage-photo2.jpg");
+  --img-story-3: url("/img/storiesIMG/Collage-photo3.jpg");
+}
+
+*{ box-sizing: border-box; }
+html, body{ height: 100%; }
+
+body{
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(1200px 600px at 20% 0%, rgba(255,255,255,0.06), transparent 60%),
+    linear-gradient(180deg, var(--bg-0), #061020 70%);
+  line-height: 1.5;
+}
+
+.container{
+  width: min(var(--container), calc(100% - 48px));
+  margin: 0 auto;
+}
+
+a{ color: inherit; text-decoration: none; }
+a:focus-visible, button:focus-visible, summary:focus-visible{
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+  border-radius: 10px;
+}
+
+/* =============================
+   HERO
+============================= */
+.hero{
+  position: relative;
+  padding: 54px 0 58px;
+  background:
+    radial-gradient(900px 420px at 15% 10%, rgba(255,255,255,0.08), transparent 60%),
+    linear-gradient(90deg, var(--bg-1), var(--bg-2));
+  overflow: hidden;
+}
+
+.hero::before,
+.hero::after{
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  opacity: 0.9;
+}
+.hero::before{ top: 0; }
+.hero::after{ bottom: 0; }
+
+.hero__inner{
+  display: grid;
+  gap: 18px;
+  align-content: start;
+  min-height: 280px;
+}
+
+.hero__badge{
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--gold-2);
+  background: rgba(0,0,0,0.12);
+  color: rgba(212, 164, 71, 0.95);
+  font-size: 13px;
+  letter-spacing: 0.2px;
+}
+
+.hero__badge-icon{
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+}
+
+.hero__title{
+  margin: 0;
+  font-family: ui-serif, Georgia, "Times New Roman", Times, serif;
+  font-weight: 700;
+  font-size: clamp(40px, 4vw, 54px);
+  letter-spacing: -0.5px;
+}
+
+.hero__lead{
+  margin: 0;
+  max-width: 62ch;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.hero__sub{
+  margin: 0;
+  max-width: 62ch;
+  color: var(--muted-2);
+  font-size: 14px;
+}
+
+.hero__meta{
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.stat-card{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.25);
+  min-width: 160px;
+}
+
+.stat-card__icon{
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: rgba(212, 164, 71, 0.10);
+  border: 1px solid rgba(212, 164, 71, 0.20);
+  font-size: 16px;
+}
+
+.stat-card__label{
+  font-size: 11px;
+  color: var(--muted-2);
+}
+
+.stat-card__value{
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.stat-card__unit{
+  font-weight: 600;
+  color: rgba(233,240,255,0.78);
+}
+
+.hero__actions{ margin-top: 8px; }
+
+.btn{
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  font-weight: 650;
+  font-size: 13px;
+  box-shadow: 0 14px 32px rgba(0,0,0,0.35);
+}
+
+.btn--primary{
+  background: rgba(0,0,0,0.28);
+  border-color: rgba(212, 164, 71, 0.28);
+  color: rgba(212, 164, 71, 0.95);
+}
+
+.btn--primary:hover{
+  transform: translateY(-1px);
+  border-color: rgba(212, 164, 71, 0.45);
+}
+
+.btn__icon{
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: rgba(212, 164, 71, 0.12);
+  border: 1px solid rgba(212, 164, 71, 0.22);
+}
+
+/* =============================
+   FEATURE BANNER
+============================= */
+.feature{
+  padding: 44px 0 54px;
+}
+
+.feature-card{
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.10);
+  box-shadow: var(--shadow);
+  background: rgba(0,0,0,0.20);
+}
+
+.feature-card__media{
+  height: 240px;
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.55), rgba(0,0,0,0.15) 55%, rgba(0,0,0,0.55)),
+    var(--img-feature);
+  background-size: cover;
+  background-position: center;
+  filter: saturate(0.95) contrast(1.03);
+}
+
+.feature-card__overlay{
+  position: absolute;
+  inset: 0;
+  display: grid;
+  align-content: end;
+  padding: 26px;
+  gap: 6px;
+}
+
+.feature-card__title{
+  margin: 0;
+  font-family: ui-serif, Georgia, "Times New Roman", Times, serif;
+  font-size: 28px;
+  letter-spacing: -0.2px;
+}
+
+.feature-card__subtitle{
+  margin: 0;
+  color: rgba(233,240,255,0.78);
+  font-size: 13px;
+}
+
+.feature__text{
+  margin-top: 18px;
+  color: rgba(233,240,255,0.70);
+  font-size: 13.5px;
+  max-width: 1000px;
+}
+
+/* =============================
+   FEATURED STORYTELLERS
+============================= */
+.storytellers{
+  padding: 34px 0 52px;
+}
+
+.storytellers__header{
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+.storytellers__title{
+  margin: 0;
+  font-family: ui-serif, Georgia, "Times New Roman", Times, serif;
+  font-size: 20px;
+  letter-spacing: -0.2px;
+}
+
+.storytellers__grid{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.story-card{
+  border-radius: 14px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.10);
+  box-shadow: 0 18px 44px rgba(0,0,0,0.35);
+}
+
+.story-card__media{
+  height: 180px;
+  background: rgba(0,0,0,0.20);
+}
+
+.story-card__media img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.story-card__body{
+  padding: 16px 16px 18px;
+  background: rgba(10, 22, 44, 0.65);
+}
+
+.story-card__tag{
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  background: var(--chip);
+  border: 1px solid var(--chip-border);
+  color: var(--chip-text);
+  margin-bottom: 10px;
+}
+
+.story-card__title{
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.story-card__text{
+  margin: 0 0 14px;
+  font-size: 12.5px;
+  color: rgba(233,240,255,0.72);
+  min-height: 38px;
+}
+
+.story-card__btn{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 38px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 650;
+  background: rgba(0,0,0,0.22);
+  border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(233,240,255,0.85);
+}
+
+.story-card__btn:hover{
+  transform: translateY(-1px);
+  border-color: rgba(212, 164, 71, 0.30);
+  color: rgba(212, 164, 71, 0.95);
+}
+
+/* =============================
+   FESTIVAL VENUES
+============================= */
+.venues{
+  padding: 44px 0 58px;
+}
+
+.venues__header{
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+.venues__title{
+  margin: 0;
+  font-family: ui-serif, Georgia, "Times New Roman", Times, serif;
+  font-size: 18px;
+}
+
+.venues__subtitle{
+  margin: 6px 0 0;
+  font-size: 12.5px;
+  color: rgba(233,240,255,0.62);
+}
+
+.venues__grid{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.venue-card{
+  padding: 18px 18px 16px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.10);
+  box-shadow: 0 16px 36px rgba(0,0,0,0.30);
+}
+
+.venue-card__title{
+  margin: 0 0 6px;
+  font-size: 13.5px;
+  font-weight: 750;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.venue-card__icon{
+  width: 18px;
+  height: 18px;
+  display: inline-grid;
+  place-items: center;
+  color: rgba(212, 164, 71, 0.95);
+}
+
+.venue-card__address{
+  margin: 0 0 10px;
+  font-size: 12px;
+  color: rgba(233,240,255,0.60);
+}
+
+.venue-card__text{
+  margin: 0 0 12px;
+  font-size: 12.5px;
+  color: rgba(233,240,255,0.72);
+}
+
+.venue-card__tags{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag{
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  background: var(--chip);
+  border: 1px solid var(--chip-border);
+  color: var(--chip-text);
+}
+
+/* =============================
+   EXPLORE MORE
+============================= */
+.extras{
+  padding: 52px 0 32px;
+}
+
+.extras__header{
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+.extras__title{
+  margin: 0;
+  font-family: ui-serif, Georgia, "Times New Roman", Times, serif;
+  font-size: 18px;
+}
+
+.extras__grid{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+.extra-card{
+  text-align: center;
+  padding: 18px 16px 20px;
+}
+
+.extra-card__top{
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.extra-card__icon{
+  width: 18px;
+  height: 18px;
+  display: inline-grid;
+  place-items: center;
+  color: rgba(233,240,255,0.9);
+}
+
+.extra-card__title{
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: rgba(233,240,255,0.92);
+}
+
+.extra-card__text{
+  margin: 0 auto 14px;
+  max-width: 42ch;
+  font-size: 12px;
+  color: rgba(233,240,255,0.62);
+}
+
+.extra-card__btn{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 180px;
+  height: 42px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 650;
+  background: rgba(0,0,0,0.22);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(212, 164, 71, 0.95);
+  box-shadow: 0 14px 32px rgba(0,0,0,0.28);
+}
+
+.extra-card__btn:hover{
+  transform: translateY(-1px);
+  border-color: rgba(212, 164, 71, 0.35);
+}
+
+/* =============================
+   FAQ
+============================= */
+.faq{
+  padding: 26px 0 70px;
+}
+
+.faq__header{
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.faq__title{
+  margin: 0;
+  font-family: ui-serif, Georgia, "Times New Roman", Times, serif;
+  font-size: 18px;
+}
+
+.faq__list{
+  width: min(640px, 100%);
+  margin: 0 auto;
+  display: grid;
+  gap: 14px;
+}
+
+.faq-item{
+  border-radius: 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.10);
+  overflow: hidden;
+}
+
+.faq-item__summary{
+  list-style: none;
+  cursor: pointer;
+  padding: 16px 18px;
+  font-size: 12.5px;
+  color: rgba(233,240,255,0.90);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.faq-item__summary::-webkit-details-marker{ display: none; }
+
+.faq-item__summary::after{
+  content: "▾";
+  opacity: 0.75;
+  font-size: 14px;
+  transform: translateY(-1px);
+}
+
+.faq-item[open] .faq-item__summary::after{
+  content: "▴";
+}
+
+.faq-item__content{
+  padding: 0 18px 16px;
+  color: rgba(233,240,255,0.70);
+  font-size: 12px;
+}
+
+.faq-item__content p{
+  margin: 0;
+}
+
+/* =============================
+   RESPONSIVE
+============================= */
+@media (max-width: 900px){
+  .storytellers__grid{ grid-template-columns: 1fr; }
+  .venues__grid{ grid-template-columns: 1fr; }
+  .extras__grid{ grid-template-columns: 1fr; gap: 18px; }
+}
+
+@media (max-width: 700px){
+  .hero{ padding: 40px 0 48px; }
+  .stat-card{ min-width: 0; flex: 1; }
+  .feature-card__media{ height: 220px; }
+  .feature-card__title{ font-size: 22px; }
+}

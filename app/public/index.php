@@ -22,6 +22,7 @@ $authController = new App\Controllers\AuthController($authService);
 $homeController = new App\Controllers\HomeController();
 $historyController = new App\Controllers\HistoryController();
 $adminController = new App\Controllers\AdminController($adminService);
+$storiesController = new App\Controllers\StoriesController();
 
 // Routes
 $dispatcher = simpleDispatcher(function (RouteCollector $r) {
@@ -41,6 +42,9 @@ $dispatcher = simpleDispatcher(function (RouteCollector $r) {
 
     // History route
     $r->addRoute('GET', '/history', ['HistoryController', 'index']);
+
+    // Stories route
+    $r->addRoute('GET', '/stories', ['StoriesController', 'index']);
 
     // Admin routes
     $r->addRoute('GET', '/users', ['AdminController', 'index']);
@@ -77,6 +81,7 @@ switch ($routeInfo[0]) {
             'HomeController' => $homeController,
             'HistoryController' => $historyController,
             'AdminController' => $adminController,
+            'StoriesController' => $storiesController,
         ];
 
         if (!isset($controllerMap[$controllerName])) {
