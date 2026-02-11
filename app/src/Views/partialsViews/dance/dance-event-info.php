@@ -1,3 +1,9 @@
+<?php
+use App\Models\VenueModel;
+
+$venues = $venues ?? [];
+?>
+
 <section class="dance-event-info">
     <div class="dance-event-info-inner">
         <div class="dance-important-card">
@@ -76,30 +82,17 @@
             </h3>
 
             <div class="dance-venues-grid">
-                <div>
-                    <h4>Slachthuis</h4>
-                    <p>Rockplein 6, 2033 KK Haarlem</p>
-                </div>
-                <div>
-                    <h4>Caprera Openluchttheater</h4>
-                    <p>Hoge Duin en Daalseweg 2, 2061 AC Bloemendaal</p>
-                </div>
-                <div>
-                    <h4>Jopenkerk</h4>
-                    <p>Gedempte Voldersgracht 2, 2011 WD Haarlem</p>
-                </div>
-                <div>
-                    <h4>Lichtfabriek</h4>
-                    <p>Minckelersweg 2, 2031 EM Haarlem</p>
-                </div>
-                <div>
-                    <h4>Puncher comedy club</h4>
-                    <p>Grote Markt 10, 2011 RD Haarlem</p>
-                </div>
-                <div>
-                    <h4>XO The Club</h4>
-                    <p>Grote Markt 8, 2011 RD Haarlem</p>
-                </div>
+                <?php foreach ($venues as $venue): ?>
+                    <div>
+                        <?php if ($venue instanceof VenueModel): ?>
+                            <h4><?= htmlspecialchars($venue->venueName) ?></h4>
+                            <p><?= htmlspecialchars($venue->address ?? 'Address unavailable') ?></p>
+                        <?php else: ?>
+                            <h4>Unknown venue</h4>
+                            <p>Address unavailable</p>
+                        <?php endif; ?>
+                    </div>
+                <?php endforeach; ?>
             </div>
         </div>
     </div>

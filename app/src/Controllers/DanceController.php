@@ -18,6 +18,7 @@ class DanceController extends BaseController
         $this->render('dance/index', [
             'title' => 'Dance',
             'scheduleData' => $this->scheduleService->getDanceScheduleData(),
+            'venues' => $this->scheduleService->getDanceVenues(),
         ]);
     }
 }

@@ -28,7 +28,7 @@
                 </div>
                 <div>
                     <div class="dance-stat-card-label">Venues</div>
-                    <div class="dance-stat-card-value">7 Locations</div>
+                    <div class="dance-stat-card-value">6 Locations</div>
                 </div>
             </div>
         </div>

@@ -3,6 +3,11 @@
 namespace App\Repository;
 
 use App\Models\Database;
+use App\Models\EventModel;
+use App\Models\PerformerModel;
+use App\Models\SessionModel;
+use App\Models\SessionPerformerModel;
+use App\Models\VenueModel;
 use PDO;
 
 class ScheduleRepository
@@ -14,41 +19,116 @@ class ScheduleRepository
         $this->db = Database::getInstance();
     }
 
-    public function findEventIdByName(string $name): ?int
+    public function findEventByName(string $name): ?EventModel
     {
-        $stmt = $this->db->prepare('SELECT id FROM events WHERE name = :name LIMIT 1');
+        $stmt = $this->db->prepare('SELECT id, name, description FROM events WHERE name = :name LIMIT 1');
         $stmt->execute([':name' => $name]);
-        $id = $stmt->fetchColumn();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return $id !== false ? (int)$id : null;
+        if (!$row) {
+            return null;
+        }
+
+        return new EventModel(
+            (int)$row['id'],
+            (string)$row['name'],
+            isset($row['description']) ? (string)$row['description'] : null
+        );
     }
 
     public function getSessionsByEventId(int $eventId): array
     {
-        $sql = "
-            SELECT
-                s.id,
-                s.date,
-                s.start_time,
-                s.language,
-                s.price,
-                s.available_spots,
-                v.venue_name,
-                v.address,
-                GROUP_CONCAT(DISTINCT p.performer_name ORDER BY p.performer_name SEPARATOR ' B2B ') AS performer_lineup
-            FROM sessions s
-            INNER JOIN venues v ON v.id = s.venue_id
-            LEFT JOIN session_performers sp ON sp.session_id = s.id
-            LEFT JOIN performers p ON p.id = sp.performer_id
-            WHERE s.event_id = :event_id
-            GROUP BY
-                s.id, s.date, s.start_time, s.language, s.price, s.available_spots, v.venue_name, v.address
-            ORDER BY s.date ASC, s.start_time ASC
-        ";
-
-        $stmt = $this->db->prepare($sql);
+        $stmt = $this->db->prepare('
+            SELECT id, event_id, venue_id, date, start_time, label, price, available_spots, amount_sold
+            FROM sessions
+            WHERE event_id = :event_id
+            ORDER BY date ASC, start_time ASC
+        ');
         $stmt->execute([':event_id' => $eventId]);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return array_map(
+            static fn(array $row): SessionModel => new SessionModel(
+                (int)$row['id'],
+                isset($row['event_id']) ? (int)$row['event_id'] : null,
+                (int)$row['venue_id'],
+                (string)$row['date'],
+                (string)$row['start_time'],
+                isset($row['label']) ? (string)$row['label'] : null,
+                (float)$row['price'],
+                (int)$row['available_spots'],
+                (int)$row['amount_sold']
+            ),
+            $rows
+        );
+    }
+
+    public function getVenuesByEventId(int $eventId): array
+    {
+        $stmt = $this->db->prepare('
+            SELECT id, event_id, venue_name, address, venue_type, created_at
+            FROM venues
+            WHERE event_id = :event_id
+            ORDER BY venue_name ASC
+        ');
+        $stmt->execute([':event_id' => $eventId]);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        return array_map(
+            static fn(array $row): VenueModel => new VenueModel(
+                (int)$row['id'],
+                (int)$row['event_id'],
+                (string)$row['venue_name'],
+                isset($row['address']) ? (string)$row['address'] : null,
+                isset($row['venue_type']) ? (string)$row['venue_type'] : null,
+                isset($row['created_at']) ? (string)$row['created_at'] : null
+            ),
+            $rows
+        );
+    }
+
+    public function getPerformersByEventId(int $eventId): array
+    {
+        $stmt = $this->db->prepare('
+            SELECT id, event_id, performer_name, performer_type, description, created_at
+            FROM performers
+            WHERE event_id = :event_id
+            ORDER BY performer_name ASC
+        ');
+        $stmt->execute([':event_id' => $eventId]);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        return array_map(
+            static fn(array $row): PerformerModel => new PerformerModel(
+                (int)$row['id'],
+                (int)$row['event_id'],
+                (string)$row['performer_name'],
+                isset($row['performer_type']) ? (string)$row['performer_type'] : null,
+                isset($row['description']) ? (string)$row['description'] : null,
+                isset($row['created_at']) ? (string)$row['created_at'] : null
+            ),
+            $rows
+        );
+    }
+
+    public function getSessionPerformersByEventId(int $eventId): array
+    {
+        $stmt = $this->db->prepare('
+            SELECT sp.session_id, sp.performer_id
+            FROM session_performers sp
+            INNER JOIN sessions s ON s.id = sp.session_id
+            WHERE s.event_id = :event_id
+            ORDER BY sp.session_id ASC, sp.performer_id ASC
+        ');
+        $stmt->execute([':event_id' => $eventId]);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        return array_map(
+            static fn(array $row): SessionPerformerModel => new SessionPerformerModel(
+                (int)$row['session_id'],
+                (int)$row['performer_id']
+            ),
+            $rows
+        );
     }
 }

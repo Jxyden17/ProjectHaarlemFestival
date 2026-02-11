@@ -133,6 +133,10 @@ Mail is sent through `app/src/Service/MailService.php` using PHPMailer with valu
 - `MAIL_PASSWORD=` (optional)
 - `MAIL_ENCRYPTION=` (optional: `tls` or `ssl`; leave empty for smtp4dev)
 
+If you get an error with sending Email and it says cannot find PHPMailer:
+```bash
+docker compose exec php composer install
+```
 
 ### Stopping the docker container
 

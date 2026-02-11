@@ -1,13 +1,15 @@
 <?php
+use App\Models\ViewModels\ScheduleViewModel;
+
 $scheduleData = $scheduleData ?? null;
 
-if (!is_array($scheduleData)) {
+if (!$scheduleData instanceof ScheduleViewModel) {
     return;
 }
 
-$title = $scheduleData['title'] ?? 'Schedule';
-$dayFilters = $scheduleData['day_filters'] ?? [];
-$groups = $scheduleData['groups'] ?? [];
+$title = $scheduleData->title;
+$dayFilters = $scheduleData->dayFilters;
+$groups = $scheduleData->groups;
 ?>
 <link rel="stylesheet" href="/css/partialViews/schedule.css">
 
@@ -47,19 +49,19 @@ $groups = $scheduleData['groups'] ?? [];
             </div>
 
             <?php foreach ($groups as $group): ?>
-                <div class="schedule-day-group" data-day="<?= htmlspecialchars((string)($group['day_key'] ?? 'all')) ?>">
-                    <h3 class="schedule-day-title"><?= htmlspecialchars((string)($group['title'] ?? '')) ?></h3>
-                    <div class="schedule-day-subtitle"><?= htmlspecialchars((string)($group['subtitle'] ?? '')) ?></div>
+                <div class="schedule-day-group" data-day="<?= htmlspecialchars((string)$group['dayKey']) ?>">
+                    <h3 class="schedule-day-title"><?= htmlspecialchars((string)$group['title']) ?></h3>
+                    <div class="schedule-day-subtitle"><?= count($group['rows']) ?> events scheduled</div>
 
-                    <?php foreach (($group['rows'] ?? []) as $row): ?>
+                    <?php foreach ($group['rows'] as $row): ?>
                         <div class="schedule-row">
-                            <div><?= htmlspecialchars((string)($row['date'] ?? '')) ?></div>
-                            <div><?= htmlspecialchars((string)($row['time'] ?? '')) ?></div>
-                            <div><?= htmlspecialchars((string)($row['event'] ?? '')) ?></div>
-                            <div><?= htmlspecialchars((string)($row['location'] ?? '')) ?></div>
-                            <div class="schedule-price"><?= htmlspecialchars((string)($row['price'] ?? '')) ?></div>
+                            <div><?= htmlspecialchars((string)$row['date']) ?></div>
+                            <div><?= htmlspecialchars((string)$row['time']) ?></div>
+                            <div><?= htmlspecialchars((string)$row['event']) ?></div>
+                            <div><?= htmlspecialchars((string)$row['location']) ?></div>
+                            <div class="schedule-price"><?= htmlspecialchars((string)$row['price']) ?></div>
                             <div>
-                                <a class="schedule-book-btn" href="<?= htmlspecialchars((string)($row['book_url'] ?? '#')) ?>">
+                                <a class="schedule-book-btn" href="<?= htmlspecialchars((string)$row['bookUrl']) ?>">
                                     Book Now
                                 </a>
                             </div>
