@@ -9,7 +9,10 @@ use App\Models\VenueModel;
 use App\Models\EventModel;
 use App\Repository\ScheduleRepository;
 use App\Service\Interfaces\IScheduleService;
-use App\Models\ViewModels\ScheduleViewModel;
+use App\Models\ViewModels\Shared\ScheduleDayFilterViewModel;
+use App\Models\ViewModels\Shared\ScheduleGroupViewModel;
+use App\Models\ViewModels\Shared\ScheduleRowViewModel;
+use App\Models\ViewModels\Shared\ScheduleViewModel;
 
 class ScheduleService implements IScheduleService
 {
@@ -20,12 +23,12 @@ class ScheduleService implements IScheduleService
         $this->scheduleRepo = $scheduleRepo;
     }
 
-    public function getDanceScheduleData(): ScheduleViewModel
+    public function getScheduleDataForEvent(string $eventName, string $title): ScheduleViewModel
     {
-        $event = $this->scheduleRepo->findEventByName('Dance');
+        $event = $this->scheduleRepo->findEventByName($eventName);
 
         if ($event === null) {
-            throw new \RuntimeException('Dance event not found.');
+            throw new \RuntimeException($eventName . ' event not found.');
         }
 
         $venues = $this->scheduleRepo->getVenuesByEventId($event->id);
@@ -34,20 +37,7 @@ class ScheduleService implements IScheduleService
         $sessionPerformers = $this->scheduleRepo->getSessionPerformersByEventId($event->id);
 
         $this->linkScheduleModels($event, $venues, $sessions, $performers, $sessionPerformers);
-        $viewData = $this->buildScheduleViewData($event->sessions);
-
-        return new ScheduleViewModel('DANCE! Festival Schedule', $viewData['dayFilters'], $viewData['groups']);
-    }
-
-    public function getDanceVenues(): array
-    {
-        $event = $this->scheduleRepo->findEventByName('Dance');
-
-        if ($event === null) {
-            return [];
-        }
-
-        return $this->scheduleRepo->getVenuesByEventId($event->id);
+        return $this->buildScheduleViewModel($event->sessions, $title);
     }
 
     private function linkScheduleModels(EventModel $event,array $venues,array $sessions,array $performers,array $sessionPerformers): void {
@@ -134,7 +124,7 @@ class ScheduleService implements IScheduleService
         }
     }
 
-    private function buildScheduleViewData(array $sessions): array
+    private function buildScheduleViewModel(array $sessions, string $title): ScheduleViewModel
     {
         $groups = [];
         $dayCounts = [];
@@ -147,12 +137,10 @@ class ScheduleService implements IScheduleService
             $this->appendSessionToScheduleGroups($session, $groups, $dayCounts);
         }
 
-        $dayFilters = $this->buildDayFilters($dayCounts, count($sessions));
+        $this->finalizeGroupSubtitles($groups);
+        $dayFilters = $this->buildDayFilters($dayCounts);
 
-        return [
-            'dayFilters' => $dayFilters,
-            'groups' => $groups,
-        ];
+        return new ScheduleViewModel($title, $dayFilters, array_values($groups));
     }
 
     private function appendSessionToScheduleGroups(SessionModel $session, array &$groups, array &$dayCounts): void
@@ -163,39 +151,49 @@ class ScheduleService implements IScheduleService
         $groupKey = $session->date;
         $dayCounts[$dayLabel] = ($dayCounts[$dayLabel] ?? 0) + 1;
 
-        if (!isset($groups[$groupKey])) {
+        if (!isset($groups[$groupKey]) || !$groups[$groupKey] instanceof ScheduleGroupViewModel) {
             $groups[$groupKey] = $this->createScheduleGroup($dt, $dayKey);
         }
 
-        $groups[$groupKey]['rows'][] = $this->createScheduleRow($session, $dt);
+        $groups[$groupKey]->rows[] = $this->createScheduleRow($session, $dt);
     }
 
-    private function createScheduleGroup(\DateTime $dt, string $dayKey): array
+    private function createScheduleGroup(\DateTime $dt, string $dayKey): ScheduleGroupViewModel
     {
-        return [
-            'title' => $dt->format('l - F j, Y'),
-            'dayKey' => $dayKey,
-            'rows' => [],
-        ];
+        return new ScheduleGroupViewModel(
+            $dt->format('l - F j, Y'),
+            $dayKey,
+            ''
+        );
     }
 
-    private function createScheduleRow(SessionModel $session, \DateTime $dt): array
+    private function createScheduleRow(SessionModel $session, \DateTime $dt): ScheduleRowViewModel
+    {
+        return new ScheduleRowViewModel(
+            $dt->format('M j, Y'),
+            substr($session->startTime, 0, 5),
+            $this->buildEventLabel($session),
+            $session->venue !== null ? $session->venue->venueName : 'Unknown venue',
+            $this->formatPrice($session->price),
+            '/book?session_id=' . $session->id
+        );
+    }
+
+    private function buildEventLabel(SessionModel $session): string
     {
         $lineup = $this->buildPerformerLineup($session);
 
-        return [
-            'date' => $dt->format('M j, Y'),
-            'time' => substr($session->startTime, 0, 5),
-            'event' => !empty($lineup) ? implode(' B2B ', $lineup) : 'Session',
-            'location' => $session->venue !== null ? $session->venue->venueName : 'Unknown venue',
-            'price' => 'EUR ' . number_format($session->price, 2, '.', ''),
-            'bookUrl' => '/book?session_id=' . $session->id,
-        ];
+        if (empty($lineup)) {
+            return 'Session';
+        }
+
+        return implode(' B2B ', $lineup);
     }
 
     private function buildPerformerLineup(SessionModel $session): array
     {
         $lineup = [];
+
         foreach ($session->sessionPerformers as $sessionPerformer) {
             if (!$sessionPerformer instanceof SessionPerformerModel) {
                 continue;
@@ -211,18 +209,44 @@ class ScheduleService implements IScheduleService
         return $lineup;
     }
 
-    private function buildDayFilters(array $dayCounts, int $sessionCount): array
+    private function formatPrice(float $price): string
     {
-        $dayFilters = [['key' => 'all', 'label' => 'All Days', 'count' => $sessionCount, 'active' => true]];
+        return '€ ' . number_format($price, 2, '.', '');
+    }
+
+    private function finalizeGroupSubtitles(array $groups): void
+    {
+        foreach ($groups as $group) {
+            if (!$group instanceof ScheduleGroupViewModel) {
+                continue;
+            }
+
+            $group->subtitle = count($group->rows) . ' events scheduled';
+        }
+    }
+
+    private function buildDayFilters(array $dayCounts): array
+    {
+        $dayFilters = [new ScheduleDayFilterViewModel('all', 'All Days', '', true)];
+
         foreach ($dayCounts as $day => $count) {
-            $dayFilters[] = [
-                'key' => strtolower($day),
-                'label' => $day,
-                'count' => $count,
-                'active' => false,
-            ];
+            $dayFilters[] = new ScheduleDayFilterViewModel(
+                strtolower($day),
+                $day,
+                $this->buildFilterCountLabel($count),
+                false
+            );
         }
 
         return $dayFilters;
+    }
+
+    private function buildFilterCountLabel(int $count): string
+    {
+        if ($count <= 0) {
+            return '';
+        }
+
+        return '(' . $count . ')';
     }
 }

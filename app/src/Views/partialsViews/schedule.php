@@ -1,5 +1,5 @@
 <?php
-use App\Models\ViewModels\ScheduleViewModel;
+use App\Models\ViewModels\Shared\ScheduleViewModel;
 
 $scheduleData = $scheduleData ?? null;
 
@@ -19,19 +19,17 @@ $groups = $scheduleData->groups;
             <h2 class="schedule-title"><?= htmlspecialchars($title) ?></h2>
         </div>
 
-        <?php if (!empty($dayFilters)): ?>
+        <?php if ($scheduleData->hasFilters): ?>
             <div class="schedule-filters">
                 <div class="schedule-filter-group">
                     <?php foreach ($dayFilters as $filter): ?>
                         <button
-                            class="schedule-filter-btn<?= !empty($filter['active']) ? ' is-active' : '' ?>"
+                            class="schedule-filter-btn<?= $filter->isActive ? ' is-active' : '' ?>"
                             type="button"
-                            data-filter="<?= htmlspecialchars((string)$filter['key']) ?>"
+                            data-filter="<?= htmlspecialchars($filter->key) ?>"
                         >
-                            <?= htmlspecialchars((string)$filter['label']) ?>
-                            <?php if (!empty($filter['count']) && empty($filter['active'])): ?>
-                                (<?= (int)$filter['count'] ?>)
-                            <?php endif; ?>
+                            <?= htmlspecialchars($filter->label) ?>
+                            <?= htmlspecialchars($filter->countLabel) ?>
                         </button>
                     <?php endforeach; ?>
                 </div>
@@ -49,19 +47,19 @@ $groups = $scheduleData->groups;
             </div>
 
             <?php foreach ($groups as $group): ?>
-                <div class="schedule-day-group" data-day="<?= htmlspecialchars((string)$group['dayKey']) ?>">
-                    <h3 class="schedule-day-title"><?= htmlspecialchars((string)$group['title']) ?></h3>
-                    <div class="schedule-day-subtitle"><?= count($group['rows']) ?> events scheduled</div>
+                <div class="schedule-day-group" data-day="<?= htmlspecialchars($group->dayKey) ?>">
+                    <h3 class="schedule-day-title"><?= htmlspecialchars($group->title) ?></h3>
+                    <div class="schedule-day-subtitle"><?= htmlspecialchars($group->subtitle) ?></div>
 
-                    <?php foreach ($group['rows'] as $row): ?>
+                    <?php foreach ($group->rows as $row): ?>
                         <div class="schedule-row">
-                            <div><?= htmlspecialchars((string)$row['date']) ?></div>
-                            <div><?= htmlspecialchars((string)$row['time']) ?></div>
-                            <div><?= htmlspecialchars((string)$row['event']) ?></div>
-                            <div><?= htmlspecialchars((string)$row['location']) ?></div>
-                            <div class="schedule-price"><?= htmlspecialchars((string)$row['price']) ?></div>
+                            <div><?= htmlspecialchars($row->date) ?></div>
+                            <div><?= htmlspecialchars($row->time) ?></div>
+                            <div><?= htmlspecialchars($row->event) ?></div>
+                            <div><?= htmlspecialchars($row->location) ?></div>
+                            <div class="schedule-price"><?= htmlspecialchars($row->price) ?></div>
                             <div>
-                                <a class="schedule-book-btn" href="<?= htmlspecialchars((string)$row['bookUrl']) ?>">
+                                <a class="schedule-book-btn" href="<?= htmlspecialchars($row->bookUrl) ?>">
                                     Book Now
                                 </a>
                             </div>

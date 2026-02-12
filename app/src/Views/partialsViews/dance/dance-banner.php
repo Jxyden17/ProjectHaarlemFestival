@@ -1,3 +1,11 @@
+<?php
+use App\Models\ViewModels\Dance\DanceBannerStatsViewModel;
+
+$danceBannerStats = $danceBannerStats ?? null;
+$totalEvents = $danceBannerStats instanceof DanceBannerStatsViewModel ? $danceBannerStats->totalEvents : 0;
+$totalLocations = $danceBannerStats instanceof DanceBannerStatsViewModel ? $danceBannerStats->totalLocations : 0;
+?>
+
 <section class="dance-banner">
     <div class="dance-banner-inner">
         <div class="dance-banner-badge">
@@ -18,7 +26,9 @@
                 </div>
                 <div>
                     <div class="dance-stat-card-label">Total Events</div>
-                    <div class="dance-stat-card-value">13 Shows</div>
+                    <div class="dance-stat-card-value">
+                        <?= $totalEvents ?> <?= $totalEvents === 1 ? 'Show' : 'Shows' ?>
+                    </div>
                 </div>
             </div>
 
@@ -28,7 +38,9 @@
                 </div>
                 <div>
                     <div class="dance-stat-card-label">Venues</div>
-                    <div class="dance-stat-card-value">6 Locations</div>
+                    <div class="dance-stat-card-value">
+                        <?= $totalLocations ?> <?= $totalLocations === 1 ? 'Location' : 'Locations' ?>
+                    </div>
                 </div>
             </div>
         </div>

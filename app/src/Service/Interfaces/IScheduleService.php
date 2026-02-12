@@ -2,10 +2,9 @@
 
 namespace App\Service\Interfaces;
 
-use App\Models\ViewModels\ScheduleViewModel;
+use App\Models\ViewModels\Shared\ScheduleViewModel;
 
 interface IScheduleService
 {
-    public function getDanceScheduleData(): ScheduleViewModel;
-    public function getDanceVenues(): array;
+    public function getScheduleDataForEvent(string $eventName, string $title): ScheduleViewModel;
 }
