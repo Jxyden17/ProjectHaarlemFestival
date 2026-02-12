@@ -147,7 +147,7 @@
 }
 
 .bottom-content-section {
-    background-color: var(--primary-color); /* Jouw #0F2035 */
+    background-color: var(--primary-color);
     padding: 60px 0;
     color: var(--natural-light);
 }
@@ -156,7 +156,7 @@
     max-width: 1200px;
     margin: 0 auto;
     display: grid;
-    grid-template-columns: 1fr 1.5fr; /* Kaart is iets smaller dan de gidsen sectie */
+    grid-template-columns: 1fr 1.5fr;
     gap: 50px;
     padding: 0 20px;
 }
@@ -205,7 +205,7 @@
 .guide-img {
     width: 100px;
     height: 100px;
-    border-radius: 50%; /* Maakt de foto rond */
+    border-radius: 50%;
     border: 2px solid var(--accent-color);
     object-fit: cover;
     margin-bottom: 15px;

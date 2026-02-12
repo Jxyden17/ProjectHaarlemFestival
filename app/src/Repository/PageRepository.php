@@ -18,20 +18,23 @@ class PageRepository implements IPageRepository
     public function getPageDataByTitle($slug)
     {
       $sql = "SELECT 
-                p.page_name AS page_title, 
-                ps.id AS section_id, 
-                ps.section_type, 
-                ps.title AS section_title,
-                si.id AS item_id, 
-                si.title AS item_title, 
-                si.content, 
-                si.image_path, 
-                si.link_url
-            FROM pages p
-            JOIN page_sections ps ON p.id = ps.page_id
-            LEFT JOIN section_items si ON ps.id = si.section_id
-            WHERE p.slug = :slug
-            ORDER BY ps.order_index ASC, si.order_index ASC";
+                    p.page_name AS page_title, 
+                    ps.id AS section_id, 
+                    ps.section_type, 
+                    ps.title AS section_title,
+                    ps.subtitle,
+                    ps.description,
+                    si.id AS item_id, 
+                    si.title AS item_title, 
+                    si.content, 
+                    si.image_path, 
+                    si.link_url,
+                    si.item_category
+                FROM pages p
+                JOIN page_sections ps ON p.id = ps.page_id
+                LEFT JOIN section_items si ON ps.id = si.section_id
+                WHERE p.slug = :slug
+                ORDER BY ps.order_index ASC, si.order_index ASC";
         $stmt = $this->db->prepare($sql);
         $stmt->execute(['slug' => $slug]);
 

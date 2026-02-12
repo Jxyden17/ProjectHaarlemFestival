@@ -3,7 +3,7 @@
     <div class="hero-images">
         <?php foreach ($section->items as $item): ?>
             <div class="hero-img-item">
-                <img src="<?php echo htmlspecialchars($item->image) ?>" alt="<?php echo htmlspecialchars($item->title); ?>">
+                <img src="<?= htmlspecialchars($item->image) ?>" alt="<?= htmlspecialchars($item->title); ?>">
             </div>
             <?php endforeach; ?>
     </div>

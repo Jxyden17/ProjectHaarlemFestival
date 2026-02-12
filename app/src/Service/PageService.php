@@ -31,7 +31,7 @@ class PageService implements IPageService
 
           if(!isset($sections[$sId]))
             {
-                $sections[$sId] = new Section($sId, $row['section_type'], $row['section_title']);
+                $sections[$sId] = new Section($sId, $row['section_type'], $row['section_title'], $row['subtitle'] ?? '', $row['description'] ?? '');
             }
             $this->addItemToSection($sections[$sId], $row);
         }
@@ -39,28 +39,19 @@ class PageService implements IPageService
         return $page;
     }
 
-    private function addItemToSection(Section $section, array $row): void {
+    private function addItemToSection(Section $section, array $row): void 
+    {
         if (!$row['item_id']) return;
 
-        $key = strtolower($row['item_title']);
-
-        switch ($key) {
-            case 'description':
-            case 'main_description':
-                $section->description = $row['content']; //
-                break;
-            case 'duration':
-                $section->duration = $row['content']; //
-                break;
-            default:
-                // Als het geen speciale key is, is het een normaal lijst-item
-                $section->items[] = new SectionItem(
-                    $row['item_title'], 
-                    $row['content'], 
-                    $row['image_path'], 
-                    $row['link_url']
-                );
-                break;
-        }
+        $item = new SectionItem(
+            (int)$row['item_id'],
+            $row['item_title'],
+            $row['content'],
+            $row['image_path'],
+            $row['link_url'] ?? null,
+            $row['item_category']
+        );
+            
+        $section->addItem($item);
     }
 }

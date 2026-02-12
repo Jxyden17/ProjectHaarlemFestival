@@ -23,9 +23,9 @@ class HistoryController extends BaseController
         }
 
         $viewData = [
-        'pageTitle' => $page->title, //
+        'pageTitle' => $page->title,
         'hero'      => $page->getSection('hero'),
-        'stops'     => $page->getSection('grid'),
+        'stops'     => $page->getSection('stop'),
         'discover'  => $page->getSection('discover'),
         'schedule' => $page->getSection('schedule'),
         'guides'   => $page->getSection('route_guides')

@@ -12,15 +12,15 @@
         <?php $section = $hero; include __DIR__ . '/../partialsViews/hero.php'; ?>
     <?php endif; ?>
 
-    <?php if ($grid): ?>
-        <?php $section = $grid; include __DIR__ . '/../partialsViews/stops-grid.php'; ?>
+    <?php if ($stops): ?>
+        <?php $section = $stops; include __DIR__ . '/../partialsViews/stops-grid.php'; ?>
     <?php endif; ?>
 
-    <!-- <?php if ($discover): ?>
+    <?php if ($discover): ?>
         <?php $section = $discover; include __DIR__ . '/../partialsViews/description.php'; ?>
     <?php endif; ?>
 
-    <?php if ($schedule): ?>
+    <!--<?php if ($schedule): ?>
         <?php $section = $schedule; include __DIR__ . '/../partialsViews/schedule.php'; ?>
     <?php endif; ?>
 
