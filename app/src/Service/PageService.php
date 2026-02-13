@@ -48,8 +48,11 @@ class PageService implements IPageService
             $row['item_title'],
             $row['content'],
             $row['image_path'],
-            $row['link_url'] ?? null,
-            $row['item_category']
+            $row['link_url'],
+            $row['item_category'],
+            $row['duration'],
+            $row['icon_class'],
+            $row['item_subtitle'],
         );
             
         $section->addItem($item);

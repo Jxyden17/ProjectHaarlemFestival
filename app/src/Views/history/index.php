@@ -27,5 +27,7 @@
     <?php if ($guides): ?>
         <?php $section = $guides; include __DIR__ . '/../partialsViews/route_guides.php'; ?>
     <?php endif; ?> -->
+
+    <?php include __DIR__ . '/../partialsViews/route_guides.php'; ?>
 </body>
 </html>

@@ -25,11 +25,14 @@ class PageRepository implements IPageRepository
                     ps.subtitle,
                     ps.description,
                     si.id AS item_id, 
-                    si.title AS item_title, 
+                    si.title AS item_title,
+                    si.item_subtitle,
                     si.content, 
                     si.image_path, 
                     si.link_url,
-                    si.item_category
+                    si.item_category,
+                    si.duration,
+                    si.icon_class
                 FROM pages p
                 JOIN page_sections ps ON p.id = ps.page_id
                 LEFT JOIN section_items si ON ps.id = si.section_id

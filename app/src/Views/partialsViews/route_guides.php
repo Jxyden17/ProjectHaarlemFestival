@@ -5,7 +5,7 @@
             <h2 class="section-title-alt">The Route</h2>
             <p class="section-subtitle">A Historical Walkpath</p>
             <div class="map-wrapper">
-                <img src="/img/historyIMG/hero.png" alt="Tour Route Map">
+                <div id="map"src="https://maps.googleapis.com/maps/api/js?key=<?php echo getenv('GOOGLE_MAPS_API_KEY'); ?>&callback=initMap">></div>
             </div>
         </div>
 
