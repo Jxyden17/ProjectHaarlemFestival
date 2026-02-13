@@ -17,7 +17,7 @@ $pageService = new App\Service\PageService($pageRepo);
 // Controllers
 $authController = new App\Controllers\AuthController($authService);
 $homeController = new App\Controllers\HomeController();
-$historyController = new App\Controllers\HistoryController($pageService);
+$tourController = new App\Controllers\TourController($pageService);
 
 // Routes
 $dispatcher = simpleDispatcher(function (RouteCollector $r) {
@@ -30,7 +30,10 @@ $dispatcher = simpleDispatcher(function (RouteCollector $r) {
     $r->addRoute('GET', '/register', ['AuthController', 'showRegister']);
     $r->addRoute('POST', '/register', ['AuthController', 'register']);
     $r->addRoute('GET', '/logout', ['AuthController', 'logout']);
-    $r->addRoute('GET', '/tour', ['HistoryController', 'index']);
+
+    //Tour
+    $r->addRoute('GET', '/tour', ['TourController', 'index']);
+    $r->addRoute('GET', '/tour/details', ['TourController', 'details']);
 });
 
 // Dispatch request
@@ -56,7 +59,7 @@ switch ($routeInfo[0]) {
         $controllerMap = [
             'AuthController' => $authController,
             'HomeController' => $homeController,
-            'HistoryController' => $historyController,
+            'TourController' => $tourController,
         ];
 
         if (!isset($controllerMap[$controllerName])) {

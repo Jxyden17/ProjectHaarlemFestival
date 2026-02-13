@@ -4,5 +4,5 @@ namespace App\Repository\Interfaces;
 
 interface IPageRepository
 {
-    public function getPageDataByTitle($slug);
+    public function getPageDataById(int $PageId);
 }

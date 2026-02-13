@@ -13,21 +13,19 @@
     <?php endif; ?>
 
     <?php if ($stops): ?>
-        <?php $section = $stops; include __DIR__ . '/../partialsViews/stops-grid.php'; ?>
+        <?php $section = $stops; include __DIR__ . '/../partialsViews/Tour/stops-grid.php'; ?>
     <?php endif; ?>
 
     <?php if ($discover): ?>
-        <?php $section = $discover; include __DIR__ . '/../partialsViews/description.php'; ?>
+        <?php $section = $discover; include __DIR__ . '/../partialsViews/Tour/description.php'; ?>
     <?php endif; ?>
 
     <!--<?php if ($schedule): ?>
         <?php $section = $schedule; include __DIR__ . '/../partialsViews/schedule.php'; ?>
-    <?php endif; ?>
-
-    <?php if ($guides): ?>
-        <?php $section = $guides; include __DIR__ . '/../partialsViews/route_guides.php'; ?>
     <?php endif; ?> -->
 
-    <?php include __DIR__ . '/../partialsViews/route_guides.php'; ?>
+    <?php if ($guide): ?>
+        <?php $section = $guide; include __DIR__ . '/../partialsViews/Tour/route_guides.php'; ?>
+    <?php endif; ?> 
 </body>
 </html>

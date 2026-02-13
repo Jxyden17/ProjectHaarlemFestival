@@ -13,9 +13,10 @@ class SectionItem
     public string $category;
     public ?string $duration;
     public ?string $icon;
+    public int $position;
 
 
-    public function __construct(int $id, string $title, ?string $content, ?string $image, ?string $url, string $category, ?string $duration, ?string $icon, ?string $subTitle)
+    public function __construct(int $id, string $title, ?string $content, ?string $image, ?string $url, string $category, ?string $duration, ?string $icon, ?string $subTitle, int $position)
     {
         $this->id = $id;
         $this->title = $title;
@@ -26,5 +27,6 @@ class SectionItem
         $this->duration = $duration;
         $this->icon = $icon;
         $this->subTitle = $subTitle;
+        $this->position = $position;
     }
 }

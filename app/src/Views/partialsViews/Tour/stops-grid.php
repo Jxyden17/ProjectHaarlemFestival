@@ -10,13 +10,13 @@
         <div class="card">
             <div class="image">
                 <img src="<?= htmlspecialchars($item->image) ?>" alt="<?= htmlspecialchars($item->title) ?>">
-                <span class="letter">A</span>
+                <span class="letter"><?= htmlspecialchars($item->icon) ?></span>
             </div>
             <div class="info">
-                <span class="duration"><?= htmlspecialchars($item->url) ?></span>
+                <span class="duration"><?= htmlspecialchars($item->duration) ?></span>
                 <h3><?= htmlspecialchars($item->title) ?></h3>
                 <p><?= htmlspecialchars($item->content) ?></p>
-                <button class="read-more">Read More</button>
+                <a href="/tour/details?id=<?= $item->position ?>" class="btn-primary">Read More</a>
             </div>
         </div>
         <?php endforeach; ?>

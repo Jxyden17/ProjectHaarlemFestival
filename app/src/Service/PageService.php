@@ -17,12 +17,12 @@ class PageService implements IPageService
         $this->pageRepo = $pageRepo;
     }
 
-    public function buildPage(string $slug): ?Page
+    public function buildPage(int $pageId): ?Page
     {
-     $rows = $this->pageRepo->getPageDataByTitle($slug);
+     $rows = $this->pageRepo->getPageDataById($pageId);
      if (!$rows) return null;
 
-     $page = new Page($rows[0]['page_title'], $slug);
+     $page = new Page($rows[0]['id'], $pageId);
      $sections = [];
 
      foreach ($rows as $row) 
@@ -53,6 +53,7 @@ class PageService implements IPageService
             $row['duration'],
             $row['icon_class'],
             $row['item_subtitle'],
+            $row['order_index']
         );
             
         $section->addItem($item);

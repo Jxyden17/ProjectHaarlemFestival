@@ -15,10 +15,11 @@ class PageRepository implements IPageRepository
         $this->db = Database::getInstance();
     }
 
-    public function getPageDataByTitle($slug)
+    public function getPageDataById($pageId)
     {
       $sql = "SELECT 
                     p.page_name AS page_title, 
+                    p.id,
                     ps.id AS section_id, 
                     ps.section_type, 
                     ps.title AS section_title,
@@ -32,14 +33,15 @@ class PageRepository implements IPageRepository
                     si.link_url,
                     si.item_category,
                     si.duration,
-                    si.icon_class
+                    si.icon_class,
+                    si.order_index
                 FROM pages p
                 JOIN page_sections ps ON p.id = ps.page_id
                 LEFT JOIN section_items si ON ps.id = si.section_id
-                WHERE p.slug = :slug
+                WHERE p.id = :pageId
                 ORDER BY ps.order_index ASC, si.order_index ASC";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute(['slug' => $slug]);
+        $stmt->execute(['pageId' => $pageId]);
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
