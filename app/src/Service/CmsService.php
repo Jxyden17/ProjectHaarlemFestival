@@ -4,9 +4,9 @@ namespace App\Service;
 
 use App\Repository\Interfaces\IUserRepository;
 use App\Models\UserModel;
-use App\Service\Interfaces\IAdminService;
+use App\Service\Interfaces\ICmsService;
 
-class AdminService implements IAdminService
+class CmsService implements ICmsService
 {
     private IUserRepository $userRepo;
 

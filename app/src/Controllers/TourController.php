@@ -19,7 +19,7 @@ class TourController extends BaseController
         $page = $this->pageService->buildPage($pageId);
         if (!$page) {
             http_response_code(404);
-            $this->render('errors/error', [
+            $this->render('shared/error', [
                 'errorTitle' => 'Page not found',
                 'errorMessage' => 'The page you requested does not exist.',
             ]);
@@ -44,7 +44,7 @@ class TourController extends BaseController
         if (!$pageId) 
             {
                 http_response_code(404);
-                $this->render('errors/error', [
+                $this->render('shared/error', [
                     'errorTitle' => 'Page not found',
                     'errorMessage' => 'The page you requested does not exist.',
                 ]);

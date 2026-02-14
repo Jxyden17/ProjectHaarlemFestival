@@ -8,6 +8,16 @@ class BaseController
 {
     protected function render(string $view, array $data = []): void
     {
+        $this->renderWithLayout($view, $data, __DIR__ . '/../Views/shared/layout.php');
+    }
+
+    protected function renderCms(string $view, array $data = []): void
+    {
+        $this->renderWithLayout($view, $data, __DIR__ . '/../Views/shared/cmsLayout.php');
+    }
+
+    private function renderWithLayout(string $view, array $data, string $layoutPath): void
+    {
         extract($data);
 
         $viewPath = __DIR__ . '/../Views/' . $view . '.php';
@@ -15,14 +25,17 @@ class BaseController
             throw new \RuntimeException('View not found: ' . $view);
         }
 
-        // Capture the view output
+        if (!is_file($layoutPath)) {
+            throw new \RuntimeException('Layout not found: ' . $layoutPath);
+        }
+
         ob_start();
         require $viewPath;
         $content = ob_get_clean();
 
-        // Include the layout
-        require __DIR__ . '/../Views/layout.php';
+        require $layoutPath;
     }
+
     protected function requireAuth(): void
     {
         if (!isset($_SESSION['user_id'])) {
