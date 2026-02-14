@@ -3,7 +3,7 @@ namespace App\Service\Interfaces;
 
 use App\Models\UserModel;
 
-interface IAdminService
+interface ICmsService
 {
     public function getAllUsers(): array;
     public function getUserById(int $id): ?UserModel;

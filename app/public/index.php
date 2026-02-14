@@ -15,7 +15,7 @@ $renderErrorPage = static function (int $statusCode, string $title, string $mess
     http_response_code($statusCode);
     $errorTitle = $title;
     $errorMessage = $message;
-    require __DIR__ . '/../src/Views/errors/error.php';
+    require __DIR__ . '/../src/Views/shared/error.php';
     exit;
 };
 
@@ -36,14 +36,14 @@ try {
     $danceService = new App\Service\DanceService($danceRepo);
 
     $authService = new App\Service\AuthService($userRepo, $passwordResetRepo, $mailService);
-    $adminService = new App\Service\AdminService($userRepo);
+    $cmsService = new App\Service\CmsService($userRepo);
 
     // Controllers
     $authController = new App\Controllers\AuthController($authService);
     $homeController = new App\Controllers\HomeController();
     $danceController = new App\Controllers\DanceController($scheduleService, $danceService);
     $tourController = new App\Controllers\TourController($pageService);
-    $adminController = new App\Controllers\AdminController($adminService);
+    $cmsController = new App\Controllers\CmsController($cmsService);
 
     // Routes
     $dispatcher = simpleDispatcher(function (RouteCollector $r) {
@@ -68,14 +68,17 @@ try {
         // Dance routes
         $r->addRoute('GET', '/dance', ['DanceController', 'index']);
 
-        // Admin routes
-        $r->addRoute('GET', '/users', ['AdminController', 'index']);
-        $r->addRoute('GET', '/admin/users/edit', ['AdminController', 'showEditForm']);
-        $r->addRoute('POST', '/admin/users/edit', ['AdminController', 'editUser']);
-        $r->addRoute('GET', '/admin/users/delete', ['AdminController', 'showDeleteConfirmation']);
-        $r->addRoute('POST', '/admin/users/delete', ['AdminController', 'deleteUser']);
-        $r->addRoute('GET', '/admin/users/create', ['AdminController', 'showCreateForm']);
-        $r->addRoute('POST', '/admin/users/create', ['AdminController', 'addUser']);
+        // CMS routes
+        $r->addRoute('GET', '/cms', ['CmsController', 'index']);
+        $r->addRoute('GET', '/cms/events', ['CmsController', 'eventsIndex']);
+        $r->addRoute('GET', '/cms/tickets', ['CmsController', 'ticketsIndex']);
+        $r->addRoute('GET', '/cms/users', ['CmsController', 'usersIndex']);
+        $r->addRoute('GET', '/cms/users/create', ['CmsController', 'showCreateForm']);
+        $r->addRoute('POST', '/cms/users/create', ['CmsController', 'addUser']);
+        $r->addRoute('GET', '/cms/users/edit', ['CmsController', 'showEditForm']);
+        $r->addRoute('POST', '/cms/users/edit', ['CmsController', 'editUser']);
+        $r->addRoute('GET', '/cms/users/delete', ['CmsController', 'showDeleteConfirmation']);
+        $r->addRoute('POST', '/cms/users/delete', ['CmsController', 'deleteUser']);
     });
 
     // Dispatch request
@@ -99,7 +102,7 @@ try {
                 'HomeController' => $homeController,
                 'DanceController' => $danceController,
                 'TourController' => $tourController,
-                'AdminController' => $adminController,
+                'CmsController' => $cmsController,
             ];
 
             if (!isset($controllerMap[$controllerName])) {
