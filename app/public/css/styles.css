@@ -10,7 +10,10 @@
     --add-button: #27ae60;
 
     /* Tekst stijl */
-    --font-main: "Playfair Display", "Source Sans 3", system-ui, -apple-system, sans-serif;
+    --font-main: 'Playfair Display', serif;
+
+    /* transision */
+    --transition-fast: all 0.2s ease;
 }
 
 body {
@@ -75,13 +78,13 @@ body {
     margin: 0;
     padding: 0;
     flex: 1;
-    color: white;
+    color: var(--natural-light);
     white-space: nowrap;
     justify-content: center;
 }
 
 .hf-nav-links a {
-    color: white;
+    color: var(--natural-light);
     text-decoration: none;
     font-weight: 600;
     font-size: 0.9rem;
@@ -94,7 +97,7 @@ body {
 }
 
 .hf-nav-links a:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--primary-color);
 }
 
 .hf-icon {
@@ -117,6 +120,7 @@ body {
 }
 
 .hf-btn {
+    color: var(--primary-color);
     background: var(--accent-color);
     color: #201504;
     padding: 0.45rem 1rem;
@@ -128,8 +132,10 @@ body {
 }
 
 .hf-btn:hover {
+    color: var(--primary-color);
     background: var(--accent-color);
     color: #1f1404;
+
 }
 
 .hf-lang {

@@ -8,9 +8,12 @@ use function FastRoute\simpleDispatcher;
 
 // Repositories
 $userRepo = new App\Repository\UserRepository();
+$pageRepo = new App\Repository\PageRepository();
 $passwordResetRepo = new App\Repository\PasswordResetRepository();
 
 // Services
+$pageService = new App\Service\PageService($pageRepo);
+
 $mailConfig = App\Models\MailConfig::fromEnvironment();
 $mailService = new App\Service\MailService($mailConfig);
 
@@ -20,6 +23,7 @@ $adminService = new App\Service\AdminService($userRepo);
 // Controllers
 $authController = new App\Controllers\AuthController($authService);
 $homeController = new App\Controllers\HomeController();
+$tourController = new App\Controllers\TourController($pageService);
 $historyController = new App\Controllers\HistoryController();
 $adminController = new App\Controllers\AdminController($adminService);
 
@@ -39,6 +43,10 @@ $dispatcher = simpleDispatcher(function (RouteCollector $r) {
     $r->addRoute('POST', '/reset-password', ['AuthController', 'resetPassword']);
     $r->addRoute('GET', '/logout', ['AuthController', 'logout']);
 
+    //Tour
+    $r->addRoute('GET', '/tour', ['TourController', 'index']);
+    $r->addRoute('GET', '/tour/details', ['TourController', 'details']);
+    
     // History route
     $r->addRoute('GET', '/history', ['HistoryController', 'index']);
 
@@ -75,6 +83,7 @@ switch ($routeInfo[0]) {
         $controllerMap = [
             'AuthController' => $authController,
             'HomeController' => $homeController,
+            'TourController' => $tourController,
             'HistoryController' => $historyController,
             'AdminController' => $adminController,
         ];
