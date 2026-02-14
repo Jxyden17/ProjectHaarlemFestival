@@ -19,9 +19,9 @@
             <ul>
                 <li><a href="#">Haarlem Jazz</a></li>
                 <li><a href="#">Yummy</a></li>
-                <li><a href="#">Dance</a></li>
+                <li><a href="/dance">Dance</a></li>
                 <li><a href="#">Stories in Haarlem</a></li>
-                <li><a href="#">A Stroll through History</a></li>
+                <li><a href="/tour">A Stroll through History</a></li>
             </ul>
         </div>
 
