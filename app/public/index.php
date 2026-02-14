@@ -6,6 +6,11 @@ require __DIR__ . '/../vendor/autoload.php';
 use FastRoute\RouteCollector;
 use function FastRoute\simpleDispatcher;
 
+$showDebug = filter_var($_ENV['APP_DEBUG'] ?? getenv('APP_DEBUG') ?? false, FILTER_VALIDATE_BOOLEAN);
+ini_set('display_errors', $showDebug ? '1' : '0');
+ini_set('display_startup_errors', $showDebug ? '1' : '0');
+error_reporting(E_ALL);
+
 $renderErrorPage = static function (int $statusCode, string $title, string $message, bool $showDebug = false, string $debugError = ''): void {
     http_response_code($statusCode);
     $errorTitle = $title;
@@ -20,9 +25,12 @@ try {
     $passwordResetRepo = new App\Repository\PasswordResetRepository();
     $scheduleRepo = new App\Repository\ScheduleRepository();
     $danceRepo = new App\Repository\DanceRepository();
+    $pageRepo = new App\Repository\PageRepository();
+
 
     // Services
     $mailConfig = App\Models\MailConfig::fromEnvironment();
+    $pageService = new App\Service\PageService($pageRepo);
     $mailService = new App\Service\MailService($mailConfig);
     $scheduleService = new App\Service\ScheduleService($scheduleRepo);
     $danceService = new App\Service\DanceService($danceRepo);
@@ -33,8 +41,8 @@ try {
     // Controllers
     $authController = new App\Controllers\AuthController($authService);
     $homeController = new App\Controllers\HomeController();
-    $historyController = new App\Controllers\HistoryController();
     $danceController = new App\Controllers\DanceController($scheduleService, $danceService);
+    $tourController = new App\Controllers\TourController($pageService);
     $adminController = new App\Controllers\AdminController($adminService);
 
     // Routes
@@ -53,8 +61,11 @@ try {
         $r->addRoute('POST', '/reset-password', ['AuthController', 'resetPassword']);
         $r->addRoute('GET', '/logout', ['AuthController', 'logout']);
 
-        // History route
-        $r->addRoute('GET', '/history', ['HistoryController', 'index']);
+        //Tour
+        $r->addRoute('GET', '/tour', ['TourController', 'index']);
+        $r->addRoute('GET', '/tour/details', ['TourController', 'details']);
+
+        // Dance routes
         $r->addRoute('GET', '/dance', ['DanceController', 'index']);
 
         // Admin routes
@@ -86,13 +97,12 @@ try {
             $controllerMap = [
                 'AuthController' => $authController,
                 'HomeController' => $homeController,
-                'HistoryController' => $historyController,
                 'DanceController' => $danceController,
+                'TourController' => $tourController,
                 'AdminController' => $adminController,
             ];
 
             if (!isset($controllerMap[$controllerName])) {
-                $showDebug = filter_var($_ENV['APP_DEBUG'] ?? getenv('APP_DEBUG') ?? false, FILTER_VALIDATE_BOOLEAN);
                 $renderErrorPage(500, 'Application error', 'The requested controller could not be resolved.', $showDebug, "Controller not found: {$controllerName}");
             }
 
@@ -103,7 +113,6 @@ try {
             break;
     }
 } catch (\Throwable $e) {
-    $showDebug = filter_var($_ENV['APP_DEBUG'] ?? getenv('APP_DEBUG') ?? false, FILTER_VALIDATE_BOOLEAN);
     $debugError = $e->getMessage();
     $renderErrorPage(503, 'Service temporarily unavailable', 'We cannot connect to the database right now. Please try again in a moment.', $showDebug, $debugError
     );

@@ -41,7 +41,7 @@ $canManage = $roleId === 1; // 1=Administrator
                 </a>
             </li>
             <li>
-                <a href="/history">
+                <a href="/tour">
                     <span class="hf-icon" aria-hidden="true">
                         <i data-lucide="map"></i>
                     </span>

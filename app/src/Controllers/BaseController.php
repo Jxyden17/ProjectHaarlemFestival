@@ -10,9 +10,14 @@ class BaseController
     {
         extract($data);
 
+        $viewPath = __DIR__ . '/../Views/' . $view . '.php';
+        if (!is_file($viewPath)) {
+            throw new \RuntimeException('View not found: ' . $view);
+        }
+
         // Capture the view output
         ob_start();
-        require __DIR__ . '/../Views/' . $view . '.php';
+        require $viewPath;
         $content = ob_get_clean();
 
         // Include the layout
