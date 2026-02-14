@@ -96,9 +96,6 @@ class AdminController extends BaseController
             $this ->render('/users', ['error' => 'Failed to delete user.']);
         }
     }
-<<<<<<< HEAD
+
     
 }
-=======
-}
->>>>>>> c414e77b68eff01d2a061ffe1577f897d9bd47dc
