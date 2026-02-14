@@ -161,4 +161,33 @@ class UserRepository implements IUserRepository
         }
         return $users;
     }
+
+        public function sortUsers(string $sortBy, string $sortOrder): array
+        {
+            $allowedSortBy = ['email', 'role_id', 'created_at'];
+            $allowedSortOrder = ['ASC', 'DESC'];
+    
+            if (!in_array($sortBy, $allowedSortBy)) {
+                $sortBy = 'created_at'; 
+            }
+            if (!in_array(strtoupper($sortOrder), $allowedSortOrder)) {
+                $sortOrder = 'DESC'; 
+            }
+    
+            $stmt = $this->db->prepare("SELECT id, email, password, role_id, created_at FROM users ORDER BY $sortBy $sortOrder");
+            $stmt->execute();
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+            $users = [];
+            foreach($rows as $row) {
+                $users[] = new UserModel(
+                    (int)$row['id'],
+                    $row['email'],
+                    $row['password'],
+                    (int)$row['role_id'],
+                    $row['created_at']
+                );
+            }
+            return $users;
+        }
 }  
