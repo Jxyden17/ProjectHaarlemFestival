@@ -1,3 +1,4 @@
+<link rel="stylesheet" href="/css/partialViews/Tour/infoGrid.css">
 <section class="section-wrapper">
     <h2 class="main-grid-title"><?= htmlspecialchars($section->title) ?></h2>
     

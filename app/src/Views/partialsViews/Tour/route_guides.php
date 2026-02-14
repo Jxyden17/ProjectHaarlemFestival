@@ -5,7 +5,7 @@
             <h2 class="section-title-alt"><?= htmlspecialchars($section->title) ?></h2>
             <p class="section-subtitle"><?= htmlspecialchars($section->subTitle) ?></p>
             <div class="map-wrapper">
-                <!-- <div id="map"src="https://maps.googleapis.com/maps/api/js?key=<?php echo getenv('GOOGLE_MAPS_API_KEY'); ?>&callback=initMap">></div> -->
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d38964.15988079062!2d4.601593642506887!3d52.38383699756545!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47c5ef6c60e1e9fb%3A0x8ae15680b8a17e39!2sHaarlem!5e0!3m2!1spl!2snl!4v1771002968860!5m2!1spl!2snl" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
             </div>
         </div>
 

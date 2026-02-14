@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Haarlem Festival</title>
-    <link href="/css/History/index.css" rel="stylesheet">
+    <link href="/css/Tour/index.css" rel="stylesheet">
 </head>
 <body>
 

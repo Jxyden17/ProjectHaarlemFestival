@@ -34,4 +34,17 @@ class Section
             return $item->category === $category;
         });
     }
+
+    public function getFirstItemImage(string $category): ?string 
+{
+    $items = $this->getItemsByCategorie($category);
+
+    // Controleer of het item een afbeelding heeft
+    foreach ($items as $item) {
+        if (!empty($item->image)) { 
+            return $item->image;
+        }
+    }
+    return '/img/historyIMG/hero.png';
+}
 }

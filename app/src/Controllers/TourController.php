@@ -50,7 +50,7 @@ class TourController extends BaseController
         'header'      => $page->getSection('header'),
         'history'     => $page->getSection('history'),
         'did_you_know'  => $page->getSection('did_you_know'),
-        'contact_info' => $page->getSection('contact_info')
+        'openingTime' => $page->getSection('openings_time')
     ];
 
         $this->render('Tour/details', $viewData);

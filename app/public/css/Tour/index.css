@@ -1,5 +1,5 @@
-
-.discover-section {
+.discover-section 
+{
     background: var(--primary-color);
     color: var(--natural-light);
     padding: 60px 20px;
@@ -7,7 +7,8 @@
     overflow: hidden;
 }
 
-.discover-container {
+.discover-container 
+{
     max-width: 1000px;
     margin: 0 auto;
     border: 2px solid var(--accent-color);
@@ -16,7 +17,8 @@
     background: var(--primary-color);
 }
 
-.discover-title {
+.discover-title 
+{
     font-family: var(--font-main);
     font-size: 2rem;
     text-align: center;
@@ -24,7 +26,8 @@
     color: var(--natural-light);
 }
 
-.discover-description {
+.discover-description 
+{
     text-align: center;
     font-size: 0.95rem;
     line-height: 1.6;
@@ -33,7 +36,8 @@
 }
 
 /* Info Grid */
-.info-grid {
+.info-grid 
+{
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 20px;
@@ -41,31 +45,36 @@
     justify-items: center;
 }
 
-.info-item {
+.info-item 
+{
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
 }
 
-.info-icon {
+.info-icon 
+{
     font-size: 2rem;
     margin-bottom: 10px;
 }
 
-.info-label {
+.info-label 
+{
     font-size: 0.85rem;
     color: var(--natural-light);
     margin-bottom: 5px;
 }
 
-.info-value {
+.info-value 
+{
     font-size: 0.9rem;
     font-weight: 600;
     color: var(--natural-light);
 }
 
-.pricing-info-row {
+.pricing-info-row 
+{
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 40px;
@@ -74,19 +83,22 @@
     border-top: 1px solid var(--accent-color);
 }
 
-.section-title {
+.section-title 
+{
     font-family: var(--font-main);
     font-size: 1.3rem;
     color: var(--accent-color);
     margin-bottom: 20px;
 }
 
-.pricing-section {
+.pricing-section 
+{
     display: flex;
     flex-direction: column;
 }
 
-.price-item {
+.price-item 
+{
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -94,33 +106,39 @@
     border-bottom: 1px solid var(--accent-color);
 }
 
-.price-item:last-child {
+.price-item:last-child 
+{
     border-bottom: none;
 }
 
-.price-label {
+.price-label 
+{
     display: flex;
     flex-direction: column;
 }
 
-.price-name {
+.price-name 
+{
     font-weight: 600;
     color: var(--natural-light);
     font-size: 0.95rem;
 }
 
-.price-subtitle {
+.price-subtitle 
+{
     font-size: 0.8rem;
     color: var(--natural-light);
 }
 
-.price-value {
+.price-value 
+{
     font-size: 1.2rem;
     font-weight: bold;
     color: var(--accent-color);
 }
 
-.info-section {
+.info-section 
+{
     display: flex;
     flex-direction: column;
 }
@@ -130,7 +148,8 @@
     padding: 0;
 }
 
-.info-list li {
+.info-list li 
+{
     padding: 10px 0;
     padding-left: 25px;
     position: relative;
@@ -138,7 +157,8 @@
     font-size: 0.95rem;
 }
 
-.info-list li:before {
+.info-list li:before 
+{
     content: "•";
     position: absolute;
     left: 0;
@@ -146,13 +166,15 @@
     font-weight: bold;
 }
 
-.bottom-content-section {
+.bottom-content-section 
+{
     background-color: var(--primary-color);
     padding: 60px 0;
     color: var(--natural-light);
 }
 
-.route-guides-row {
+.route-guides-row 
+{
     max-width: 1200px;
     margin: 0 auto;
     display: grid;
@@ -162,7 +184,8 @@
 }
 
 /* Titels */
-.section-title-alt {
+.section-title-alt 
+{
     font-family: var(--font-main);
     color: var(--natural-light);
     font-size: 2rem;
@@ -170,7 +193,8 @@
     margin-bottom: 5px;
 }
 
-.section-subtitle, .guide-intro {
+.section-subtitle, .guide-intro 
+{
     text-align: center;
     font-size: 0.9rem;
     color: var(--accent-history);
@@ -178,31 +202,36 @@
 }
 
 /* Kaart styling */
-.map-wrapper {
+.map-wrapper 
+{
     border: 1px solid var(--accent-color);
     border-radius: 10px;
     overflow: hidden;
     height: 400px;
 }
 
-.map-wrapper img {
+.map-wrapper img 
+{
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
 /* Gidsen styling */
-.guides-grid {
+.guides-grid 
+{
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 20px;
 }
 
-.guide-card {
+.guide-card 
+{
     text-align: center;
 }
 
-.guide-img {
+.guide-img 
+{
     width: 100px;
     height: 100px;
     border-radius: 50%;
@@ -211,20 +240,23 @@
     margin-bottom: 15px;
 }
 
-.guide-card h4 {
+.guide-card h4 
+{
     font-family: var(--font-main);
     color: var(--natural-light);
     margin-bottom: 5px;
 }
 
-.guide-role {
+.guide-role 
+{
     font-size: 0.8rem;
     color: var(--accent-color);
     text-transform: uppercase;
     margin-bottom: 10px;
 }
 
-.guide-desc {
+.guide-desc 
+{
     font-size: 0.85rem;
     line-height: 1.4;
     opacity: 0.8;

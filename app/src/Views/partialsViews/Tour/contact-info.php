@@ -1,32 +1,38 @@
+<link rel="stylesheet" href="/css/partialViews/Tour/contactTime.css">
 <section class="contact-details-section">
     <div class="contact-container">
         <div class="map-wrapper">
-            <iframe 
-                width="100%" 
-                height="100%" 
-                frameborder="0" 
-                scrolling="no" 
-                marginheight="0" 
-                marginwidth="0" 
-                src="<?= $section->items[0]->content ?>" 
-                style="border: 0; min-height: 450px; width: 100%;">
-            </iframe>
+            <iframe src="<?= htmlspecialchars($section->description) ?>" width="100%" height="450" style="border:0;"></iframe>
         </div>
 
         <div class="info-wrapper-box">
             <div class="entrance-image">
-                <img src="<?= htmlspecialchars($section->items[1]->image) ?>" alt="Entrance">
+                <?php $img = $section->getFirstItemImage('opening_hours'); ?>
+                <?php if ($img): ?>
+                    <img src="<?= htmlspecialchars($img) ?>" alt="Entrance">
+                <?php endif; ?>
             </div>
             
             <div class="details-flex">
                 <div class="contact-col">
-                    <h3 class="info-title">Contact</h3>
-                    <div class="wysiwyg-content"><?= $section->items[1]->content ?></div>
+                    <h2 class="column-title"><?= htmlspecialchars($section->subTitle) ?></h2>
+                    <?php foreach($section->getItemsByCategorie('info') as $item): ?>
+                        <p><strong><?= htmlspecialchars($item->title) ?>:</strong> <?= htmlspecialchars($item->content) ?></p>
+                    <?php endforeach; ?>
                 </div>
                 
                 <div class="hours-col">
-                    <h3 class="info-title">Opening Hours</h3>
-                    <div class="wysiwyg-content"><?= $section->items[2]->content ?></div>
+                    <h2 class="column-title"><?= htmlspecialchars($section->title) ?></h2>
+                    <?php foreach ($section->getItemsByCategorie('opening_hours') as $item): ?>
+                        <?php if ($item->title !== 'extra'): ?>
+                        <div class="hour-row">
+                            <span class="day"><?= htmlspecialchars($item->title) ?></span>
+                            <span class="time"><?= htmlspecialchars($item->content) ?></span>
+                        </div>
+                        <?php else: ?>
+                            <p class="extra-info"><?= htmlspecialchars($item->content) ?></p>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
                 </div>
             </div>
         </div>

@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= htmlspecialchars($section->title)?></title>
-    <link href="/css/History/index.css" rel="stylesheet">
-    <link rel="stylesheet" href="/css/partialViews/infoGrid.css">
+    <link href="/css/Tour/index.css" rel="stylesheet">
 </head>
 <body>
 
@@ -19,6 +18,10 @@
 
     <?php if ($did_you_know): ?>
         <?php $section = $did_you_know; include __DIR__ . '/../partialsViews/Tour/info-grid.php'; ?>
+    <?php endif; ?>
+
+    <?php if ($openingTime): ?>
+        <?php $section = $openingTime; include __DIR__ . '/../partialsViews/Tour/contact-info.php'; ?>
     <?php endif; ?>
 </body>
 </html>
