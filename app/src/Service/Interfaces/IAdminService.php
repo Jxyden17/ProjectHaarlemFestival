@@ -10,4 +10,5 @@ interface IAdminService
     public function addUser(string $email, string $password, int $roleId): UserModel;
     public function updateUser(int $id, string $email, string $password, int $roleId): UserModel;
     public function deleteUser(int $id): void;
+    public function searchUsers(string $query): array;
 }

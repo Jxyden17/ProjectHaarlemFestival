@@ -14,6 +14,14 @@
             <a href="/admin/users/create" class="btn btn-add">Add New User</a>
         </div>
 
+        <div class="search-bar">
+            <form method="GET" action="/users">
+                <input type="text" name="search" placeholder="Search users..." value="<?= htmlspecialchars($searchQuery) ?>">
+                <button type="submit" class="btn btn-search">Search</button>
+                <a href="/users" class="btn btn-clear">Clear</a>
+            </form>
+        </div>
+        
         <table class="user-table">
             <thead>
                 <tr>
