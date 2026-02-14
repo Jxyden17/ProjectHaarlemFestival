@@ -1,43 +1,74 @@
-<!DOCTYPE html>
-<head>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" href="/css/partialViews/schedule.css">
-</head>
-<section class="section">
-    <div class="container">
-        <div class="header">
-            <h2 class="title">Tour Schedule</h2>    
+<?php
+use App\Models\ViewModels\Shared\ScheduleViewModel;
+
+$scheduleData = $scheduleData ?? null;
+
+if (!$scheduleData instanceof ScheduleViewModel) {
+    return;
+}
+
+$title = $scheduleData->title;
+$dayFilters = $scheduleData->dayFilters;
+$groups = $scheduleData->groups;
+?>
+<link rel="stylesheet" href="/css/partialViews/schedule.css">
+
+<section class="schedule-section">
+    <div class="schedule-container">
+        <div class="schedule-header">
+            <h2 class="schedule-title"><?= htmlspecialchars($title) ?></h2>
         </div>
 
-        <div class="filters">
-            <div class="filter-group">
-                <button class="filter-btn active" data-filter="all">All Days</button>
-                <button class="filter-btn" data-filter="day1">Thursday</button>
-                <button class="filter-btn" data-filter="day2">Friday</button>
-                <button class="filter-btn" data-filter="day3">Saturday</button>
-                <button class="filter-btn" data-filter="day4">Sunday</button>
-            </div>
-            <div class="filter-group">
-                <button class="filter-btn active" data-filter="all">All Languages</button>
-                <button class="filter-btn" data-filter="nl">Dutch</button>
-                <button class="filter-btn" data-filter="en">English</button>
-                <button class="filter-btn" data-filter="ch">Chinese</button>
-            </div>
-        </div>
-        
-        <div class="schedule-list">
-            <div class="day-group">
-                <h3 class="day-title">Thursday - July 26, 2026</h3>
-                
-                <div class="schedule-row">
-                    <div class="col-date">July 26, 2026</div>
-                    <div class="col-time">10:00 - 12:30</div>
-                    <div class="col-title">A Stroll Through History</div>
-                    <div class="col-lang"><span class="badge-lang">EN</span></div>
-                    <div class="col-status"><span class="status-available">8 spots left</span></div>
-                    <div class="col-price">â‚¬37,50</div>
-                    <div class="col-action"><button class="btn-book">Book Now</button></div>
+        <?php if ($scheduleData->hasFilters): ?>
+            <div class="schedule-filters">
+                <div class="schedule-filter-group">
+                    <?php foreach ($dayFilters as $filter): ?>
+                        <button
+                            class="schedule-filter-btn<?= $filter->isActive ? ' is-active' : '' ?>"
+                            type="button"
+                            data-filter="<?= htmlspecialchars($filter->key) ?>"
+                        >
+                            <?= htmlspecialchars($filter->label) ?>
+                            <?= htmlspecialchars($filter->countLabel) ?>
+                        </button>
+                    <?php endforeach; ?>
                 </div>
+            </div>
+        <?php endif; ?>
+
+        <div class="schedule-list">
+            <div class="schedule-row schedule-row-head">
+                <div>DATE</div>
+                <div>TIME</div>
+                <div>EVENT</div>
+                <div>LOCATION</div>
+                <div>PRICE</div>
+                <div></div>
+            </div>
+
+            <?php foreach ($groups as $group): ?>
+                <div class="schedule-day-group" data-day="<?= htmlspecialchars($group->dayKey) ?>">
+                    <h3 class="schedule-day-title"><?= htmlspecialchars($group->title) ?></h3>
+                    <div class="schedule-day-subtitle"><?= htmlspecialchars($group->subtitle) ?></div>
+
+                    <?php foreach ($group->rows as $row): ?>
+                        <div class="schedule-row">
+                            <div><?= htmlspecialchars($row->date) ?></div>
+                            <div><?= htmlspecialchars($row->time) ?></div>
+                            <div><?= htmlspecialchars($row->event) ?></div>
+                            <div><?= htmlspecialchars($row->location) ?></div>
+                            <div class="schedule-price"><?= htmlspecialchars($row->price) ?></div>
+                            <div>
+                                <a class="schedule-book-btn" href="<?= htmlspecialchars($row->bookUrl) ?>">
+                                    Book Now
+                                </a>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endforeach; ?>
         </div>
     </div>
 </section>
+
+<script src="/js/schedule-filters.js"></script>

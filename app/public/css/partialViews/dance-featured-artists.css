@@ -1,0 +1,108 @@
+.dance-artists {
+    background: var(--primary-color);
+    padding: 2.5rem 0 3.1rem;
+}
+
+.dance-artists-inner {
+    max-width: 66rem;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+.dance-artists-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--natural-light);
+    font-size: 1.55rem;
+    line-height: 1.2;
+    margin: 0 0 1rem;
+}
+
+.dance-artists-title-icon {
+    color: var(--accent-color);
+    display: inline-flex;
+}
+
+.dance-artists-title-icon i {
+    color: inherit;
+    width: 1.15rem;
+    height: 1.15rem;
+}
+
+.dance-artists-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+}
+
+.dance-artist-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 0.45rem;
+    border: 0.0625rem solid var(--dance-card-border);
+    aspect-ratio: 1.55 / 1;
+    background: var(--dance-card-bg);
+}
+
+.dance-artist-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.dance-artist-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, var(--dance-overlay-start) 35%, var(--dance-overlay-end) 100%);
+}
+
+.dance-artist-card-content {
+    position: absolute;
+    left: 0.72rem;
+    right: 0.72rem;
+    bottom: 0.64rem;
+    z-index: 1;
+}
+
+.dance-artist-card-genre {
+    display: inline-block;
+    color: var(--dance-genre-text);
+    border: 0.0625rem solid var(--dance-genre-border);
+    background: var(--dance-genre-bg);
+    border-radius: 0.24rem;
+    font-size: 0.72rem;
+    line-height: 1.2;
+    padding: 0.14rem 0.42rem;
+    margin-bottom: 0.32rem;
+}
+
+.dance-artist-card-name {
+    color: var(--natural-light);
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.25;
+    text-shadow: 0 0.06rem 0.4rem var(--dance-name-shadow);
+}
+
+@media (max-width: 62rem) {
+    .dance-artists-title {
+        font-size: 1.35rem;
+    }
+
+    .dance-artists-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 36rem) {
+    .dance-artists-title {
+        font-size: 1.2rem;
+    }
+
+    .dance-artists-grid {
+        grid-template-columns: 1fr;
+    }
+}

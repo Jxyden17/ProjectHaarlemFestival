@@ -8,6 +8,14 @@
     --edit-button: #f39c12;
     --delete-button: #e74c3c;
     --add-button: #27ae60;
+    --dance-card-border: rgba(74, 136, 214, 0.28);
+    --dance-card-bg: #08172b;
+    --dance-overlay-start: rgba(6, 12, 24, 0.18);
+    --dance-overlay-end: rgba(2, 7, 16, 0.9);
+    --dance-genre-text: #76dbff;
+    --dance-genre-border: rgba(40, 207, 255, 0.82);
+    --dance-genre-bg: rgba(4, 42, 72, 0.72);
+    --dance-name-shadow: rgba(0, 0, 0, 0.65);
 
     /* Tekst stijl */
     --font-main: 'Playfair Display', serif;
