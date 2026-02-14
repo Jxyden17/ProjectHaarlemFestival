@@ -11,7 +11,11 @@
 </head>
 <body class="bg-light hf-page">
 
-<?php $isLoggedIn = isset($_SESSION['user_id']); ?>
+<?php
+$isLoggedIn = isset($_SESSION['user_id']);
+$roleId = (int)($_SESSION['role_id'] ?? 0);
+$canManage = in_array($roleId, [1, 2], true); // 1=Administrator, 2=Employee
+?>
 
 <nav class="hf-navbar">
     <div class="container hf-nav-inner">
@@ -37,7 +41,7 @@
                 </a>
             </li>
             <li>
-                <a href="/tour">
+                <a href="/history">
                     <span class="hf-icon" aria-hidden="true">
                         <i data-lucide="map"></i>
                     </span>
@@ -80,6 +84,11 @@
 
         <div class="hf-nav-actions">
             <a class="hf-btn" href="/book">Book Now</a>
+            <?php if ($isLoggedIn && $canManage): ?>
+                <a class="hf-icon-btn" href="/users" aria-label="Management">
+                    <i data-lucide="shield-check"></i>
+                </a>
+            <?php endif; ?>
             <a class="hf-icon-btn" href="/favorites" aria-label="Favorites">
                 <i data-lucide="heart"></i>
             </a>

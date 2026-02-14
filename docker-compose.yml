@@ -33,5 +33,10 @@ services:
             - 8080:80
         environment:
             - PMA_HOST=mysql
+    smtp4dev:
+        image: rnwood/smtp4dev:latest
+        ports:
+            - "8025:80"
+            - "2525:25"
 volumes:
     mysqldata: {}

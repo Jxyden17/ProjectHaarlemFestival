@@ -1,6 +1,7 @@
 <h2>Login</h2>
 
 <?php require __DIR__ . '/../partialsViews/error.php'; ?>
+<?php require __DIR__ . '/../partialsViews/info.php'; ?>
 
 <form method="post" action="/login" class="mb-3">
     <div class="mb-3">
@@ -13,4 +14,6 @@
     </div>
     <button type="submit" class="btn btn-success">Login</button>
 </form>
-<a href="/register">Register</a>
+
+<p><a href="/forgot-password">Forgot your password?</a></p>
+<p><a href="/register">Register</a></p>

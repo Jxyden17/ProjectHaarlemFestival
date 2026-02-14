@@ -23,6 +23,23 @@ class AuthController extends BaseController
         $this->render('auth/register');
     }
 
+    public function showForgotPassword()
+    {
+        $this->render('auth/forgot_password');
+    }
+
+    public function showResetPassword()
+    {
+        $token = trim($_GET['token'] ?? '');
+
+        if ($token === '') {
+            $this->render('auth/forgot_password', ['error' => 'Invalid reset link.']);
+            return;
+        }
+
+        $this->render('auth/reset_password', ['token' => $token]);
+    }
+
     public function login()
     {
         $email = trim($_POST['email'] ?? '');
@@ -37,6 +54,7 @@ class AuthController extends BaseController
             $user = $this->authService->login($email, $password);
             $_SESSION['user_id'] = $user->id;
             $_SESSION['email'] = $user->email;
+            $_SESSION['role_id'] = $user->userRole->value;
 
             header('Location: /');
             exit;
@@ -72,6 +90,64 @@ class AuthController extends BaseController
         }
     }
 
+    public function sendPasswordResetLink()
+    {
+        $email = trim($_POST['email'] ?? '');
+        $genericMessage = 'If an account exists for that email, a reset link has been sent.';
+
+        if ($email === '' || filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
+            $this->render('auth/forgot_password', ['message' => $genericMessage]);
+            return;
+        }
+
+        try {
+            $this->authService->requestPasswordReset($email, $this->getBaseUrl());
+        } catch (\Exception $e) {
+            error_log($e->getMessage());
+        }
+
+        $this->render('auth/forgot_password', ['message' => $genericMessage]);
+    }
+
+    public function resetPassword()
+    {
+        $token = trim($_POST['token'] ?? '');
+        $password = $_POST['password'] ?? '';
+        $confirmPassword = $_POST['confirm_password'] ?? '';
+
+        if ($token === '') {
+            $this->render('auth/forgot_password', ['error' => 'Invalid reset link.']);
+            return;
+        }
+
+        if (!$this->isValidPassword($password)) {
+            $this->render('auth/reset_password', [
+                'token' => $token,
+                'error' => 'Password must be at least 6 characters.',
+            ]);
+            return;
+        }
+
+        if ($password !== $confirmPassword) {
+            $this->render('auth/reset_password', [
+                'token' => $token,
+                'error' => 'Passwords do not match.',
+            ]);
+            return;
+        }
+
+        try {
+            $this->authService->resetPassword($token, $password);
+            $this->render('auth/login', ['message' => 'Your password has been reset. You can now log in.']);
+        } catch (\Exception $e) {
+            error_log($e->getMessage());
+            $this->render('auth/reset_password', [
+                'token' => $token,
+                'error' => 'Invalid or expired reset link.',
+            ]);
+        }
+    }
+
     public function logout()
     {
         session_destroy();
@@ -87,6 +163,15 @@ class AuthController extends BaseController
     private function isValidPassword(string $password): bool
     {
         return strlen($password) >= 6;
+    }
+
+    private function getBaseUrl(): string
+    {
+        $isHttps = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
+        $scheme = $isHttps ? 'https' : 'http';
+        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+
+        return $scheme . '://' . $host;
     }
 
     private function verifyTurnstileToken(string $token): bool
@@ -128,7 +213,7 @@ class AuthController extends BaseController
 
         $payload = json_decode($response, true);
 
-        if($payload['success'] == true) {
+        if ($payload['success'] == true) {
             return true;
         }
         return false;
