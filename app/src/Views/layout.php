@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
     <link href="/css/styles.css" rel="stylesheet">
 </head>
-<body class="bg-light hf-page">
+<body class="hf-page">
 
 <?php
 $isLoggedIn = isset($_SESSION['user_id']);

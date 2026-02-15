@@ -1,0 +1,53 @@
+.yummy-map-section {
+    margin-bottom: 70px;
+}
+
+.yummy-map-card {
+    background-color: var(--primary-color);
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.45);
+}
+
+.map-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.map-header h2 {
+    font-size: 20px;
+    color: white;
+}
+
+.map-tag {
+    background-color: var(--primary-color);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    color: #9bb3c9;
+}
+
+.map-container {
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.yummy-map-image {
+    width: 100%;
+    display: block;
+    border-radius: 12px;
+    transition: transform 0.4s ease;
+}
+
+.yummy-map-image:hover {
+    transform: scale(1.02);
+}
+
+.map-description {
+    margin-top: 15px;
+    font-size: 14px;
+    color: #9bb3c9;
+}

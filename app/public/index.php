@@ -9,6 +9,7 @@ use function FastRoute\simpleDispatcher;
 // Repositories
 $userRepo = new App\Repository\UserRepository();
 $passwordResetRepo = new App\Repository\PasswordResetRepository();
+$yummyRepo = new App\Repository\YummyRepository();
 
 // Services
 $mailConfig = App\Models\MailConfig::fromEnvironment();
@@ -16,11 +17,13 @@ $mailService = new App\Service\MailService($mailConfig);
 
 $authService = new App\Service\AuthService($userRepo, $passwordResetRepo, $mailService);;
 $adminService = new App\Service\AdminService($userRepo);
+$yummyService = new App\Service\YummyService($yummyRepo);
 
 // Controllers
 $authController = new App\Controllers\AuthController($authService);
 $homeController = new App\Controllers\HomeController();
 $historyController = new App\Controllers\HistoryController();
+$yummyController = new App\Controllers\YummyController();
 $adminController = new App\Controllers\AdminController($adminService);
 
 // Routes
@@ -41,6 +44,9 @@ $dispatcher = simpleDispatcher(function (RouteCollector $r) {
 
     // History route
     $r->addRoute('GET', '/history', ['HistoryController', 'index']);
+
+    // Yummy route
+    $r->addRoute('GET', '/yummy', ['YummyController', 'index']);
 
     // Admin routes
     $r->addRoute('GET', '/users', ['AdminController', 'index']);
@@ -76,6 +82,7 @@ switch ($routeInfo[0]) {
             'AuthController' => $authController,
             'HomeController' => $homeController,
             'HistoryController' => $historyController,
+            'YummyController' => $yummyController,
             'AdminController' => $adminController,
         ];
 
