@@ -9,6 +9,7 @@ use function FastRoute\simpleDispatcher;
 // Repositories
 $userRepo = new App\Repository\UserRepository();
 $passwordResetRepo = new App\Repository\PasswordResetRepository();
+$jazzRepo = new App\Repository\JazzDummyRepository();
 
 // Services
 $mailConfig = App\Models\MailConfig::fromEnvironment();
@@ -16,12 +17,14 @@ $mailService = new App\Service\MailService($mailConfig);
 
 $authService = new App\Service\AuthService($userRepo, $passwordResetRepo, $mailService);;
 $adminService = new App\Service\AdminService($userRepo);
+$jazzService = new App\Service\JazzService($jazzRepo);
 
 // Controllers
 $authController = new App\Controllers\AuthController($authService);
 $homeController = new App\Controllers\HomeController();
 $historyController = new App\Controllers\HistoryController();
 $adminController = new App\Controllers\AdminController($adminService);
+$jazzController = new App\Controllers\JazzController($jazzService);
 
 // Routes
 $dispatcher = simpleDispatcher(function (RouteCollector $r) {
@@ -50,6 +53,9 @@ $dispatcher = simpleDispatcher(function (RouteCollector $r) {
     $r->addRoute('POST', '/admin/users/delete', ['AdminController', 'deleteUser']);
     $r->addRoute('GET', '/admin/users/create', ['AdminController', 'showCreateForm']);
     $r->addRoute('POST', '/admin/users/create', ['AdminController', 'addUser']);
+
+    // Jazz route
+    $r->addRoute('GET', '/jazz', ['JazzController', 'index']);
 });
 
 // Dispatch request
@@ -77,6 +83,7 @@ switch ($routeInfo[0]) {
             'HomeController' => $homeController,
             'HistoryController' => $historyController,
             'AdminController' => $adminController,
+            'JazzController' => $jazzController,
         ];
 
         if (!isset($controllerMap[$controllerName])) {
