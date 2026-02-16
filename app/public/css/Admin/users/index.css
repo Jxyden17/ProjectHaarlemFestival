@@ -40,6 +40,16 @@ h1 {
     border-bottom: 1px solid var(--primary-color);
 }
 
+th a {
+    color: var(--primary-color);
+    text-decoration: none;
+    text-decoration: underline;
+}
+
+th a:hover {
+    color: #3c536e;
+}
+
 .user-table tbody tr:nth-of-type(even) {
     background-color: var(--natural-light);
 }
@@ -84,4 +94,40 @@ h1 {
 .actions {
     display: flex;
     align-items: center;
+}
+
+
+/* Search function */
+.search-bar {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.search-form {
+    display: flex;
+    align-items: center;
+}
+
+.search-input-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.search-input {
+    padding: 8px 12px;
+    border: 1px solid var(--primary-color);
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.btn-search {
+    background-color: var(--primary-color);
+    color: var(--natural-light);
+}
+
+.btn-clear {
+    background-color: var(--delete-button);
+    color: var(--natural-light);
 }

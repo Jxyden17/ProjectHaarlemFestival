@@ -8,9 +8,20 @@
     --edit-button: #f39c12;
     --delete-button: #e74c3c;
     --add-button: #27ae60;
+    --dance-card-border: rgba(74, 136, 214, 0.28);
+    --dance-card-bg: #08172b;
+    --dance-overlay-start: rgba(6, 12, 24, 0.18);
+    --dance-overlay-end: rgba(2, 7, 16, 0.9);
+    --dance-genre-text: #76dbff;
+    --dance-genre-border: rgba(40, 207, 255, 0.82);
+    --dance-genre-bg: rgba(4, 42, 72, 0.72);
+    --dance-name-shadow: rgba(0, 0, 0, 0.65);
 
     /* Tekst stijl */
-    --font-main: "Playfair Display", "Source Sans 3", system-ui, -apple-system, sans-serif;
+    --font-main: 'Playfair Display', serif;
+
+    /* transision */
+    --transition-fast: all 0.2s ease;
 }
 
 body {
@@ -75,13 +86,13 @@ body {
     margin: 0;
     padding: 0;
     flex: 1;
-    color: white;
+    color: var(--natural-light);
     white-space: nowrap;
     justify-content: center;
 }
 
 .hf-nav-links a {
-    color: white;
+    color: var(--natural-light);
     text-decoration: none;
     font-weight: 600;
     font-size: 0.9rem;
@@ -94,7 +105,7 @@ body {
 }
 
 .hf-nav-links a:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--primary-color);
 }
 
 .hf-icon {
@@ -117,6 +128,7 @@ body {
 }
 
 .hf-btn {
+    color: var(--primary-color);
     background: var(--accent-color);
     color: #201504;
     padding: 0.45rem 1rem;
@@ -128,8 +140,10 @@ body {
 }
 
 .hf-btn:hover {
+    color: var(--primary-color);
     background: var(--accent-color);
     color: #1f1404;
+
 }
 
 .hf-lang {
