@@ -37,3 +37,4 @@
         </tbody>
     </table>
 </div>
+<?php require __DIR__ . '/../partialsViews/schedule.php'; ?>

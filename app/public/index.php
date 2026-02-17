@@ -26,6 +26,7 @@ try {
     $scheduleRepo = new App\Repository\ScheduleRepository();
     $danceRepo = new App\Repository\DanceRepository();
     $pageRepo = new App\Repository\PageRepository();
+    $jazzRepo = new App\Repository\JazzDummyRepository();
 
 
     // Services
@@ -34,6 +35,7 @@ try {
     $mailService = new App\Service\MailService($mailConfig);
     $scheduleService = new App\Service\ScheduleService($scheduleRepo);
     $danceService = new App\Service\DanceService($danceRepo);
+    $jazzService = new App\Service\JazzService($jazzRepo);
 
     $authService = new App\Service\AuthService($userRepo, $passwordResetRepo, $mailService);
     $cmsService = new App\Service\CmsService($userRepo);
@@ -44,6 +46,7 @@ try {
     $danceController = new App\Controllers\DanceController($scheduleService, $danceService);
     $tourController = new App\Controllers\TourController($pageService);
     $cmsController = new App\Controllers\CmsController($cmsService);
+    $jazzController = new App\Controllers\JazzController($scheduleService, $jazzService);
 
     // Routes
     $dispatcher = simpleDispatcher(function (RouteCollector $r) {
@@ -79,6 +82,9 @@ try {
         $r->addRoute('POST', '/cms/users/edit', ['CmsController', 'editUser']);
         $r->addRoute('GET', '/cms/users/delete', ['CmsController', 'showDeleteConfirmation']);
         $r->addRoute('POST', '/cms/users/delete', ['CmsController', 'deleteUser']);
+
+        // Jazz routes
+        $r->addRoute('GET', '/jazz', ['JazzController', 'index']);
     });
 
     // Dispatch request
@@ -103,6 +109,7 @@ try {
                 'DanceController' => $danceController,
                 'TourController' => $tourController,
                 'CmsController' => $cmsController,
+                'JazzController' => $jazzController,
             ];
 
             if (!isset($controllerMap[$controllerName])) {
