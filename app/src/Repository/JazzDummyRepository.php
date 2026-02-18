@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Models\JazzEvent;
 use App\Models\Database;
 use App\Repository\Interfaces\IJazzRepository;
+use App\img\jazzIMG;
 
 
 class JazzDummyRepository implements IJazzRepository
