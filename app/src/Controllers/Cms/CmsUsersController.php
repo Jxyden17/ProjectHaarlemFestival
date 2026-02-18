@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Controllers;
+namespace App\Controllers\Cms;
 
+use App\Controllers\BaseController;
 use App\Service\Interfaces\ICmsService;
 
-class CmsController extends BaseController
+class CmsUsersController extends BaseController
 {
     private ICmsService $cmsService;
 
@@ -14,12 +15,6 @@ class CmsController extends BaseController
     }
 
     public function index(): void
-    {
-        $this->requireAdmin();
-        $this->renderCms('cms/index', ['title' => 'CMS Dashboard']);
-    }
-
-    public function usersIndex(): void
     {
         $this->requireAdmin();
         $searchQuery = $_GET['search'] ?? '';
@@ -33,18 +28,6 @@ class CmsController extends BaseController
         }
 
         $this->renderCms('cms/users/index', ['title' => 'User Management', 'users' => $users, 'searchQuery' => $searchQuery, 'sort' => $sort, 'order' => $order]);
-    }
-
-    public function eventsIndex(): void
-    {
-        $this->requireAdmin();
-        $this->renderCms('cms/events/index', ['title' => 'Event Management']);
-    }
-
-    public function ticketsIndex(): void
-    {
-        $this->requireAdmin();
-        $this->renderCms('cms/tickets/index', ['title' => 'Ticket Management']);
     }
 
     public function showCreateForm(): void

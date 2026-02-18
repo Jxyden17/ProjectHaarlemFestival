@@ -1,4 +1,3 @@
-<link rel="stylesheet" href="/css/partialViews/Tour/contactTime.css">
 <section class="contact-details-section">
     <div class="contact-container">
         <div class="map-wrapper">

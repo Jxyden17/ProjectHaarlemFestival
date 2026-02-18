@@ -60,7 +60,7 @@ class AuthController extends BaseController
             exit;
         } catch (\Exception $e) {
             error_log($e->getMessage());
-            $this->render('auth/login', ['error' => 'Login failed.']);
+            $this->render('auth/login', ['error' => 'Invalid email or password.']);
         }
     }
 

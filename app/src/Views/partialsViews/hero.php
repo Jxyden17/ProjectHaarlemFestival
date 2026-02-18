@@ -11,7 +11,6 @@ $items = is_array($section->items) ? $section->items : [];
 $firstItem = $items[0] ?? null;
 ?>
 
-<link rel="stylesheet" href="/css/partialViews/hero.css">
 <section class="hero-section">
     <div class="hero-images">
         <?php foreach ($items as $item): ?>

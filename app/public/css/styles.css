@@ -285,3 +285,216 @@ body {
         grid-template-columns: 1fr;
     }
 }
+
+/* ===== BEGIN merged from partialViews/hero.css ===== */
+.hero-section 
+{
+    position: relative;
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    margin-right: calc(-50vw + 50%);
+    height: 60vh;
+    overflow: hidden;
+    background: #000;
+}
+
+.hero-images 
+{
+    display: flex;
+    width: 100%;
+    height: 100%;
+    gap: 0;
+}
+
+.hero-img-item 
+{
+    flex: 1;
+    height: 100%;
+    border: none;
+}
+
+.hero-img-item img 
+{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.hero-overlay 
+{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(10, 25, 47, 0.6);
+    z-index: 1;
+}
+
+.hero-text 
+{
+    position: absolute;
+    top: 60%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: #ffffff;
+    z-index: 10;
+    width: 100%;
+    padding: 0 20px;
+}
+
+.hero-text h1 
+{
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 400;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+}
+
+.hero-text p 
+{
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 300;
+    line-height: 1.5;
+    max-width: 600px;
+    margin: 0 auto;
+    opacity: 0.9;
+}
+/* ===== END merged from partialViews/hero.css ===== */
+
+/* ===== BEGIN merged from partialViews/schedule.css ===== */
+.schedule-section {
+    background: var(--primary-color);
+    padding: 2rem 0 2.4rem;
+}
+
+.schedule-container {
+    max-width: 66rem;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+.schedule-header {
+    margin-bottom: 0.9rem;
+}
+
+.schedule-title {
+    margin: 0;
+    color: var(--natural-light);
+    font-size: 1.85rem;
+}
+
+.schedule-filters {
+    margin-bottom: 1rem;
+}
+
+.schedule-filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+}
+
+.schedule-filter-btn {
+    border: 0;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--natural-light);
+    border-radius: 0.45rem;
+    padding: 0.4rem 0.78rem;
+    font-size: 0.8rem;
+}
+
+.schedule-filter-btn.is-active {
+    background: var(--accent-color);
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+.schedule-list {
+    border: 0.0625rem solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.schedule-row {
+    display: grid;
+    grid-template-columns: 1.35fr 1fr 2.15fr 1.35fr 0.8fr 0.9fr;
+    gap: 0.55rem;
+    align-items: center;
+    padding: 0.7rem 0.85rem;
+    color: var(--natural-light);
+    border-top: 0.0625rem solid rgba(255, 255, 255, 0.08);
+    font-size: 0.84rem;
+}
+
+.schedule-row-head {
+    background: rgba(255, 255, 255, 0.04);
+    border-top: 0;
+    color: rgba(245, 245, 245, 0.76);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.schedule-day-group {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.schedule-day-title {
+    margin: 0;
+    padding: 0.78rem 0.85rem 0.1rem;
+    color: var(--natural-light);
+    font-size: 1.05rem;
+    border-top: 0.0625rem solid rgba(255, 255, 255, 0.09);
+}
+
+.schedule-day-subtitle {
+    padding: 0 0.85rem 0.6rem;
+    color: rgba(245, 245, 245, 0.7);
+    font-size: 0.72rem;
+}
+
+.schedule-price {
+    color: var(--accent-color);
+    font-weight: 700;
+}
+
+.schedule-book-btn {
+    display: inline-flex;
+    justify-content: center;
+    width: 100%;
+    background: var(--accent-color);
+    color: var(--primary-color);
+    border-radius: 0.35rem;
+    padding: 0.35rem 0.5rem;
+    text-decoration: none;
+    font-size: 0.74rem;
+    font-weight: 700;
+}
+
+@media (max-width: 62rem) {
+    .schedule-row {
+        grid-template-columns: 1fr 0.9fr 1.4fr 1fr 0.7fr 0.9fr;
+        font-size: 0.78rem;
+    }
+}
+
+@media (max-width: 48rem) {
+    .schedule-row {
+        grid-template-columns: 1fr;
+        gap: 0.3rem;
+        padding: 0.65rem 0.8rem;
+    }
+
+    .schedule-row-head {
+        display: none;
+    }
+
+    .schedule-book-btn {
+        max-width: 9rem;
+    }
+}
+/* ===== END merged from partialViews/schedule.css ===== */
