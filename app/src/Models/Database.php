@@ -13,25 +13,8 @@ class Database
     public static function getInstance(): PDO
     {
         if (self::$instance === null) {
-            // Load configuration
-            $config = require __DIR__ . '/../Config/database.php';
-
-            $host = $config['host'] ?? 'localhost';
-            $db   = $config['dbname'] ?? 'blackjack';
-            $user = $config['user'] ?? 'root';
-            $pass = $config['password'] ?? '';
-            $charset = $config['charset'] ?? 'utf8mb4';
-
-            $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
-
-            $options = [
-                PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                PDO::ATTR_EMULATE_PREPARES   => false,
-            ];
-
             try {
-                self::$instance = new PDO($dsn, $user, $pass, $options);
+                self::$instance = self::createConnection();
             } catch (PDOException $e) {
                 throw new \Exception('Database connection failed: ' . $e->getMessage());
             }
@@ -39,4 +22,20 @@ class Database
 
         return self::$instance;
     }
+
+    private static function createConnection(): PDO
+    {
+        $config = DatabaseConfig::fromEnvironment();
+
+        $dsn = "mysql:host={$config->host};port={$config->port};dbname={$config->dbname};charset={$config->charset}";
+
+        $options = [
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES   => false,
+        ];
+
+        return new PDO($dsn, $config->user, $config->password, $options);
+    }
+
 }

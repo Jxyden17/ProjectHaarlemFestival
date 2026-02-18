@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Models\UserModel;
+use App\Models\Enums\UserRole;
 use App\Models\Database;
 use App\Repository\Interfaces\IUserRepository;
 use PDO;
@@ -19,7 +20,7 @@ class UserRepository implements IUserRepository
     // Find a user by their email.
     public function findByEmail(string $email): ?UserModel
     {
-        $stmt = $this->db->prepare("SELECT * FROM users WHERE email = :email");
+        $stmt = $this->db->prepare("SELECT id, email, password, role_id, created_at FROM users WHERE email = :email");
         $stmt->execute([':email' => $email]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -28,14 +29,16 @@ class UserRepository implements IUserRepository
         return new UserModel(
             (int)$row['id'],
             $row['email'],
-            $row['password']
+            $row['password'],
+            (int)$row['role_id'],
+            $row['created_at']
         );
     }
 
     // Find a user by their ID.
     public function findById(int $id): ?UserModel
     {
-        $stmt = $this->db->prepare("SELECT * FROM users WHERE id = :id");
+        $stmt = $this->db->prepare("SELECT id, email, password, role_id, created_at FROM users WHERE id = :id");
         $stmt->execute([':id' => $id]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -44,7 +47,9 @@ class UserRepository implements IUserRepository
         return new UserModel(
             (int)$row['id'],
             $row['email'],
-            $row['password']
+            $row['password'],
+            (int)$row['role_id'],
+            $row['created_at']
         );
     }
 
@@ -52,17 +57,21 @@ class UserRepository implements IUserRepository
     public function create(string $email, string $password): UserModel
     {
         $stmt = $this->db->prepare(
-            "INSERT INTO users (email, password) VALUES (:email, :password)"
+            "INSERT INTO users (email, password, role_id) VALUES (:email, :password, :role_id)"
         );
+         
+        $roleId = UserRole::Customer->value; // Standaard rol is Customer (ID 1)
 
         $stmt->execute([
             ':email' => $email,
-            ':password' => password_hash($password, PASSWORD_DEFAULT)
+            ':password' => password_hash($password, PASSWORD_DEFAULT),
+            ':role_id' => $roleId
         ]);
 
         $id = (int)$this->db->lastInsertId();
+        $createdAt = date('Y-m-d H:i:s');
 
-        return new UserModel($id, $email, '');
+        return new UserModel($id, $email, '', $roleId, $createdAt);
     }
 
     // Update the user's password.
@@ -74,4 +83,111 @@ class UserRepository implements IUserRepository
             ':id' => $userId
         ]);
     }
-}
+
+    public function getAllUsers(): array
+    {
+        $stmt = $this->db->query("SELECT id, email, password, role_id, created_at FROM users");
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $users = [];
+        foreach($rows as $row) {
+            $users[] = new UserModel(
+                (int)$row['id'],
+                $row['email'],
+                $row['password'],
+                (int)$row['role_id'],
+                $row['created_at']
+            );
+        }
+        return $users;
+    }
+
+    public function addUsers(string $email, string $password, int $roleId): UserModel
+    {
+        $stmt = $this->db->prepare(
+            "INSERT INTO users (email, password, role_id) VALUES (:email, :password, :role_id)"
+        );
+
+        $stmt->execute([
+            ':email' => $email,
+            ':password' => password_hash($password, PASSWORD_DEFAULT),
+            ':role_id' => $roleId
+        ]);
+
+        $id = (int)$this->db->lastInsertId();
+        $createdAt = date('Y-m-d H:i:s');
+
+        return new UserModel($id, $email, '', $roleId, $createdAt);
+    }
+
+     public function deleteUser(int $id): void
+    {
+        $stmt = $this->db->prepare("DELETE FROM users WHERE id = :id");
+        $stmt->execute([':id' => $id]);
+    }
+
+    public function updateUser(int $id, string $email, string $password, int $roleId): UserModel
+    {
+        $stmt = $this->db->prepare(
+            "UPDATE users SET email = :email, password = :password, role_id = :role_id WHERE id = :id"
+        );
+
+        $stmt->execute([
+            ':email' => $email,
+            ':password' => password_hash($password, PASSWORD_DEFAULT),
+            ':role_id' => $roleId,
+            ':id' => $id
+        ]);
+
+        return $this->findById($id);
+    }
+
+
+    public function searchUsers(string $query): array
+    {
+        $stmt = $this->db->prepare("SELECT id, email, password, role_id, created_at FROM users WHERE email LIKE :query");
+        $stmt->execute([':query' => '%' . $query . '%']);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $users = [];
+        foreach($rows as $row) {
+            $users[] = new UserModel(
+                (int)$row['id'],
+                $row['email'],
+                $row['password'],
+                (int)$row['role_id'],
+                $row['created_at']
+            );
+        }
+        return $users;
+    }
+
+        public function sortUsers(string $sortBy, string $sortOrder): array
+        {
+            $allowedSortBy = ['email', 'role_id', 'created_at'];
+            $allowedSortOrder = ['ASC', 'DESC'];
+    
+            if (!in_array($sortBy, $allowedSortBy)) {
+                $sortBy = 'created_at'; 
+            }
+            if (!in_array(strtoupper($sortOrder), $allowedSortOrder)) {
+                $sortOrder = 'DESC'; 
+            }
+    
+            $stmt = $this->db->prepare("SELECT id, email, password, role_id, created_at FROM users ORDER BY $sortBy $sortOrder");
+            $stmt->execute();
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+            $users = [];
+            foreach($rows as $row) {
+                $users[] = new UserModel(
+                    (int)$row['id'],
+                    $row['email'],
+                    $row['password'],
+                    (int)$row['role_id'],
+                    $row['created_at']
+                );
+            }
+            return $users;
+        }
+}  
