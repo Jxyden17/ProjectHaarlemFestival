@@ -35,7 +35,7 @@ try {
     $mailService = new App\Service\MailService($mailConfig);
     $scheduleService = new App\Service\ScheduleService($scheduleRepo);
     $danceService = new App\Service\DanceService($danceRepo);
-    $jazzService = new App\Service\JazzService($jazzRepo);
+    $jazzService = new App\Service\JazzService($jazzRepo,$scheduleRepo);
 
     $authService = new App\Service\AuthService($userRepo, $passwordResetRepo, $mailService);
     $cmsService = new App\Service\CmsService($userRepo);
@@ -123,7 +123,8 @@ try {
             break;
     }
 } catch (\Throwable $e) {
-    $debugError = $e->getMessage();
-    $renderErrorPage(503, 'Service temporarily unavailable', 'We cannot connect to the database right now. Please try again in a moment.', $showDebug, $debugError
-    );
+  # $debugError = $e->getMessage();
+   # $renderErrorPage(503, 'Service temporarily unavailable', 'We cannot connect to the database right now. Please try again in a moment.', $showDebug, $debugError
+    #);
+    var_dump($e);
 }
