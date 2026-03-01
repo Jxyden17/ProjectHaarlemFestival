@@ -1,7 +1,26 @@
 <?php
+use App\Models\Page\Section;
+use App\Models\Page\SectionItem;
 use App\Models\VenueModel;
 
 $venues = $venues ?? [];
+$danceInfoSection = $danceInfoSection ?? null;
+$dancePassesSection = $dancePassesSection ?? null;
+$danceCapacitySection = $danceCapacitySection ?? null;
+$danceSpecialSection = $danceSpecialSection ?? null;
+
+if (!$danceInfoSection instanceof Section || !$dancePassesSection instanceof Section || !$danceCapacitySection instanceof Section || !$danceSpecialSection instanceof Section) {
+    return;
+}
+
+$importantInformationTitle = $danceInfoSection->title;
+$importantInformationHtml = (string)$danceInfoSection->description;
+$passesTitle = $dancePassesSection->title;
+$passes = $dancePassesSection->getItemsByCategorie('pass');
+$capacityTitle = $danceCapacitySection->title;
+$capacityHtml = (string)$danceCapacitySection->description;
+$specialTitle = $danceSpecialSection->title;
+$specialHtml = (string)$danceSpecialSection->description;
 ?>
 
 <section class="dance-event-info">
@@ -11,14 +30,9 @@ $venues = $venues ?? [];
                 <span class="dance-important-icon">
                     <i data-lucide="info" aria-hidden="true"></i>
                 </span>
-                Important Information
+                <?= htmlspecialchars($importantInformationTitle) ?>
             </h2>
-            <ul class="dance-important-list">
-                <li>All shows are 18+ with valid ID required</li>
-                <li>Limited capacity - book early to avoid disappointment</li>
-                <li>Doors open 1 hour before show time</li>
-                <li>No refunds on purchased tickets</li>
-            </ul>
+            <div class="dance-important-list"><?= $importantInformationHtml ?></div>
         </div>
 
         <div class="dance-info-cards-grid">
@@ -27,20 +41,26 @@ $venues = $venues ?? [];
                     <span class="dance-info-card-icon">
                         <i data-lucide="calendar-days" aria-hidden="true"></i>
                     </span>
-                    All-Access Passes
+                    <?= htmlspecialchars($passesTitle) ?>
                 </h3>
-                <div class="dance-pass-row">
-                    <span>Friday</span>
-                    <strong>€125,00</strong>
-                </div>
-                <div class="dance-pass-row">
-                    <span>Saturday & Sunday</span>
-                    <strong>€150,00</strong>
-                </div>
-                <div class="dance-pass-row dance-pass-row-highlight">
-                    <span>Full Weekend (Fri-Sun)</span>
-                    <strong>€250,00</strong>
-                </div>
+                <?php foreach ($passes as $pass): ?>
+                    <?php
+                    if (!$pass instanceof SectionItem) {
+                        continue;
+                    }
+
+                    $label = trim($pass->title);
+                    $price = trim((string)($pass->content ?? ''));
+                    if ($label === '' || $price === '') {
+                        continue;
+                    }
+                    $rowClass = (string)($pass->url ?? '') === 'highlight' ? 'dance-pass-row dance-pass-row-highlight' : 'dance-pass-row';
+                    ?>
+                    <div class="<?= htmlspecialchars($rowClass) ?>">
+                        <span><?= htmlspecialchars($label) ?></span>
+                        <strong><?= htmlspecialchars($price) ?></strong>
+                    </div>
+                <?php endforeach; ?>
             </article>
 
             <article class="dance-info-card dance-info-card-accent">
@@ -48,15 +68,9 @@ $venues = $venues ?? [];
                     <span class="dance-info-card-icon dance-info-card-icon-warn">
                         <i data-lucide="alert-triangle" aria-hidden="true"></i>
                     </span>
-                    Capacity & Entry
+                    <?= htmlspecialchars($capacityTitle) ?>
                 </h3>
-                <ul class="dance-info-list">
-                    <li>Club sessions have very limited capacity</li>
-                    <li>All-Access Pass entry is not guaranteed, due to safety regulations</li>
-                    <li>Ticket allocation:</li>
-                </ul>
-                <p class="dance-info-card-text">90% Single tickets</p>
-                <p class="dance-info-card-text">10% Walk-ins & All-Access Pass holders</p>
+                <div class="dance-info-list"><?= $capacityHtml ?></div>
             </article>
 
             <article class="dance-info-card">
@@ -64,12 +78,9 @@ $venues = $venues ?? [];
                     <span class="dance-info-card-icon dance-info-card-icon-music">
                         <i data-lucide="music-2" aria-hidden="true"></i>
                     </span>
-                    Special Session: TiestoWorld
+                    <?= htmlspecialchars($specialTitle) ?>
                 </h3>
-                <ul class="dance-info-list">
-                    <li>A career-spanning Tiesto experience</li>
-                    <li>Includes special guest appearances</li>
-                </ul>
+                <div class="dance-info-list"><?= $specialHtml ?></div>
             </article>
         </div>
 

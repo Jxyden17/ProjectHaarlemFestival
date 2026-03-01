@@ -19,8 +19,11 @@ class DanceController extends BaseController
 
     public function index(): void
     {
+        $homeContent = $this->danceService->getDanceHomePage();
         $bannerStats = $this->danceService->getDanceBannerStats();
-        $schedule = $this->scheduleService->getScheduleDataForEvent('Dance', 'DANCE! Festival Schedule');
+        $scheduleSection = $homeContent->getSection('dance_schedule');
+        $scheduleTitle = $scheduleSection !== null ? $scheduleSection->title : '';
+        $schedule = $this->scheduleService->getScheduleDataForEvent('Dance', $scheduleTitle);
         $venues = $this->danceService->getDanceVenues();
 
         $this->render('dance/index', [
@@ -28,7 +31,8 @@ class DanceController extends BaseController
             'danceIndexViewModel' => new DanceIndexViewModel(
                 $schedule,
                 $bannerStats,
-                $venues
+                $venues,
+                $homeContent
             ),
         ]);
     }

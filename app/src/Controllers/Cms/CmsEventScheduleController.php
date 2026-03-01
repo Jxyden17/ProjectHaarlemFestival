@@ -1,0 +1,83 @@
+<?php
+
+namespace App\Controllers\Cms;
+
+use App\Controllers\BaseController;
+use App\Service\Interfaces\IScheduleService;
+
+class CmsEventScheduleController extends BaseController
+{
+    private IScheduleService $scheduleService;
+
+    public function __construct(IScheduleService $scheduleService)
+    {
+        $this->scheduleService = $scheduleService;
+    }
+
+    public function index(array $vars = []): void
+    {
+        $this->requireAdmin();
+
+        $eventName = $this->resolveEventName($vars);
+        $eventSlug = $this->toEventSlug($eventName);
+        $editorData = $this->scheduleService->getScheduleEditorData($eventName);
+        $this->renderCms('cms/events/dance-schedule', [
+            'title' => $eventName . ' Schedule',
+            'editorData' => $editorData,
+            'formAction' => '/cms/events/' . $eventSlug . '/schedule',
+            'success' => isset($_GET['saved']),
+        ]);
+    }
+
+    public function update(array $vars = []): void
+    {
+        $this->requireAdmin();
+
+        $eventName = $this->resolveEventName($vars);
+        $eventSlug = $this->toEventSlug($eventName);
+
+        try {
+            $this->scheduleService->saveScheduleData($eventName, $_POST);
+            header('Location: /cms/events/' . $eventSlug . '/schedule?saved=1');
+            exit;
+        } catch (\Throwable $e) {
+            $editorData = $this->scheduleService->getScheduleEditorData($eventName);
+            $postedVenues = is_array($_POST['venues'] ?? null) ? $_POST['venues'] : [];
+            $postedPerformers = is_array($_POST['performers'] ?? null) ? $_POST['performers'] : [];
+            $postedSessions = is_array($_POST['sessions'] ?? null) ? $_POST['sessions'] : [];
+            if (!empty($postedVenues)) {
+                $editorData['venues'] = $postedVenues;
+            }
+            if (!empty($postedPerformers)) {
+                $editorData['performers'] = $postedPerformers;
+            }
+            if (!empty($postedSessions)) {
+                $editorData['sessions'] = $postedSessions;
+            }
+
+            $this->renderCms('cms/events/dance-schedule', [
+                'title' => $eventName . ' Schedule',
+                'editorData' => $editorData,
+                'formAction' => '/cms/events/' . $eventSlug . '/schedule',
+                'error' => $e->getMessage(),
+                'success' => false,
+            ]);
+        }
+    }
+
+    private function resolveEventName(array $vars): string
+    {
+        $slug = trim((string)($vars['eventSlug'] ?? ''));
+        if ($slug === '') {
+            throw new \InvalidArgumentException('Event slug is required.');
+        }
+
+        $name = str_replace('-', ' ', strtolower($slug));
+        return ucwords($name);
+    }
+
+    private function toEventSlug(string $eventName): string
+    {
+        return str_replace(' ', '-', strtolower(trim($eventName)));
+    }
+}

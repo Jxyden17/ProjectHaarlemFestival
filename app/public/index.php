@@ -47,6 +47,9 @@ try {
     $cmsEventsController = new App\Controllers\Cms\CmsEventsController($cmsService);
     $cmsTicketsController = new App\Controllers\Cms\CmsTicketsController($cmsService);
     $cmsUsersController = new App\Controllers\Cms\CmsUsersController($cmsService);
+    $cmsDanceContentController = new App\Controllers\Cms\CmsDanceContentController($danceService);
+    $cmsEventScheduleController = new App\Controllers\Cms\CmsEventScheduleController($scheduleService);
+    $cmsMediaController = new App\Controllers\Cms\CmsMediaController();
 
     // Routes
     $dispatcher = simpleDispatcher(function (RouteCollector $r) {
@@ -74,6 +77,11 @@ try {
         // CMS routes
         $r->addRoute('GET', '/cms', ['CmsController', 'index']);
         $r->addRoute('GET', '/cms/events', ['CmsEventsController', 'index']);
+        $r->addRoute('GET', '/cms/events/{eventSlug}/schedule', ['CmsEventScheduleController', 'index']);
+        $r->addRoute('POST', '/cms/events/{eventSlug}/schedule', ['CmsEventScheduleController', 'update']);
+        $r->addRoute('GET', '/cms/events/dance-home', ['CmsDanceContentController', 'index']);
+        $r->addRoute('POST', '/cms/events/dance-home', ['CmsDanceContentController', 'update']);
+        $r->addRoute('POST', '/cms/media/upload-replace', ['CmsMediaController', 'uploadReplace']);
         $r->addRoute('GET', '/cms/tickets', ['CmsTicketsController', 'index']);
         $r->addRoute('GET', '/cms/users', ['CmsUsersController', 'index']);
         $r->addRoute('GET', '/cms/users/create', ['CmsUsersController', 'showCreateForm']);
@@ -109,6 +117,9 @@ try {
                 'CmsEventsController' => $cmsEventsController,
                 'CmsTicketsController' => $cmsTicketsController,
                 'CmsUsersController' => $cmsUsersController,
+                'CmsEventScheduleController' => $cmsEventScheduleController,
+                'CmsDanceContentController' => $cmsDanceContentController,
+                'CmsMediaController' => $cmsMediaController,
             ];
 
             if (!isset($controllerMap[$controllerName])) {

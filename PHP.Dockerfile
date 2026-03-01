@@ -6,6 +6,7 @@ RUN apt-get update \
     && docker-php-ext-install pdo pdo_mysql \
     && curl -sS https://getcomposer.org/installer -o composer-setup.php \
     && php composer-setup.php --install-dir=/usr/local/bin --filename=composer \
+    && printf "upload_max_filesize=10M\npost_max_size=10M\n" > /usr/local/etc/php/conf.d/uploads.ini \
     && rm composer-setup.php \
     && rm -rf /var/lib/apt/lists/*
 
