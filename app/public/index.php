@@ -32,8 +32,9 @@ try {
     $mailConfig = App\Models\MailConfig::fromEnvironment();
     $pageService = new App\Service\PageService($pageRepo);
     $mailService = new App\Service\MailService($mailConfig);
+    $htmlSanitizerService = new App\Service\HtmlSanitizerService();
     $scheduleService = new App\Service\ScheduleService($scheduleRepo);
-    $danceService = new App\Service\DanceService($danceRepo);
+    $danceService = new App\Service\DanceService($danceRepo, $htmlSanitizerService);
 
     $authService = new App\Service\AuthService($userRepo, $passwordResetRepo, $mailService);
     $cmsService = new App\Service\CmsService($userRepo);

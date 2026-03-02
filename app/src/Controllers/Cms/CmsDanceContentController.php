@@ -5,6 +5,7 @@ namespace App\Controllers\Cms;
 use App\Controllers\BaseController;
 use App\Models\Page\Page;
 use App\Models\Page\SectionItem;
+use App\Models\Requests\Cms\DanceHomeContentRequest;
 use App\Service\Interfaces\IDanceService;
 
 class CmsDanceContentController extends BaseController
@@ -31,15 +32,16 @@ class CmsDanceContentController extends BaseController
     public function update(): void
     {
         $this->requireAdmin();
+        $request = DanceHomeContentRequest::fromArray($_POST);
 
         try {
-            $this->danceService->saveDanceHomePage($_POST);
+            $this->danceService->saveDanceHomePage($request->toArray());
             header('Location: /cms/events/dance-home?saved=1');
             exit;
         } catch (\Throwable $e) {
             $this->renderCms('cms/events/dance-home', [
                 'title' => 'Dance Home Content',
-                'contentData' => $this->mapPostToFormData($_POST),
+                'contentData' => $this->mapPostToFormData($request->toArray()),
                 'error' => $e->getMessage(),
                 'success' => false,
             ]);

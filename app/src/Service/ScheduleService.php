@@ -45,67 +45,13 @@ class ScheduleService implements IScheduleService
         $sessions = $this->scheduleRepo->getSessionsByEventId((int)$event->id);
         $sessionPerformers = $this->scheduleRepo->getSessionPerformersByEventId((int)$event->id);
 
-        $venueRows = [];
-        foreach ($venues as $venue) {
-            if ($venue instanceof VenueModel) {
-                $venueRows[] = [
-                    'id' => $venue->id,
-                    'name' => $venue->venueName,
-                    'address' => (string)($venue->address ?? ''),
-                    'type' => (string)($venue->venueType ?? ''),
-                ];
-            }
-        }
-
-        $performerRows = [];
-        foreach ($performers as $performer) {
-            if ($performer instanceof PerformerModel) {
-                $performerRows[] = [
-                    'id' => $performer->id,
-                    'name' => $performer->performerName,
-                    'type' => (string)($performer->performerType ?? ''),
-                    'description' => (string)($performer->description ?? ''),
-                ];
-            }
-        }
-
-        $sessionPerformerMap = [];
-        foreach ($sessionPerformers as $sessionPerformer) {
-            if (!$sessionPerformer instanceof SessionPerformerModel) {
-                continue;
-            }
-
-            $sessionId = $sessionPerformer->sessionId;
-            if (!isset($sessionPerformerMap[$sessionId])) {
-                $sessionPerformerMap[$sessionId] = [];
-            }
-            $sessionPerformerMap[$sessionId][] = $sessionPerformer->performerId;
-        }
-
-        $sessionRows = [];
-        foreach ($sessions as $session) {
-            if (!$session instanceof SessionModel) {
-                continue;
-            }
-
-            $sessionRows[] = [
-                'id' => $session->id,
-                'date' => $session->date,
-                'start_time' => substr($session->startTime, 0, 5),
-                'venue_id' => $session->venueId,
-                'label' => (string)($session->language ?? ''),
-                'price' => number_format($session->price, 2, '.', ''),
-                'available_spots' => $session->availableSpots,
-                'amount_sold' => $session->amountSold,
-                'performer_ids' => $sessionPerformerMap[$session->id] ?? [],
-            ];
-        }
+        $sessionPerformerMap = $this->buildSessionPerformerMap($sessionPerformers);
 
         return [
             'event_name' => $event->name,
-            'venues' => $venueRows,
-            'performers' => $performerRows,
-            'sessions' => $sessionRows,
+            'venues' => $this->mapVenueRows($venues),
+            'performers' => $this->mapPerformerRows($performers),
+            'sessions' => $this->mapSessionRows($sessions, $sessionPerformerMap),
         ];
     }
 
@@ -117,30 +63,10 @@ class ScheduleService implements IScheduleService
         $performers = $this->scheduleRepo->getPerformersByEventId((int)$event->id);
         $sessions = $this->scheduleRepo->getSessionsByEventId((int)$event->id);
 
-        $allowedVenueIds = [];
-        foreach ($venues as $venue) {
-            if ($venue instanceof VenueModel) {
-                $allowedVenueIds[] = $venue->id;
-            }
-        }
-
-        $allowedPerformerIds = [];
-        foreach ($performers as $performer) {
-            if ($performer instanceof PerformerModel) {
-                $allowedPerformerIds[] = $performer->id;
-            }
-        }
-
-        $allowedSessionIds = [];
-        foreach ($sessions as $session) {
-            if ($session instanceof SessionModel) {
-                $allowedSessionIds[] = $session->id;
-            }
-        }
-
-        $venueRowsInput = is_array($input['venues'] ?? null) ? $input['venues'] : [];
-        $performerRowsInput = is_array($input['performers'] ?? null) ? $input['performers'] : [];
-        $sessionRowsInput = is_array($input['sessions'] ?? null) ? $input['sessions'] : [];
+        $allowedVenueIds = $this->extractVenueIds($venues);
+        $allowedPerformerIds = $this->extractPerformerIds($performers);
+        $allowedSessionIds = $this->extractSessionIds($sessions);
+        [$venueRowsInput, $performerRowsInput, $sessionRowsInput] = $this->extractScheduleEditorInputRows($input);
 
         $venueRows = $this->normalizeVenueRows($venueRowsInput);
         $performerRows = $this->normalizePerformerRows($performerRowsInput);
@@ -161,6 +87,139 @@ class ScheduleService implements IScheduleService
         }
 
         return $event;
+    }
+
+    private function mapVenueRows(array $venues): array
+    {
+        $rows = [];
+
+        foreach ($venues as $venue) {
+            if (!$venue instanceof VenueModel) {
+                continue;
+            }
+
+            $rows[] = [
+                'id' => $venue->id,
+                'name' => $venue->venueName,
+                'address' => (string)($venue->address ?? ''),
+                'type' => (string)($venue->venueType ?? ''),
+            ];
+        }
+
+        return $rows;
+    }
+
+    private function mapPerformerRows(array $performers): array
+    {
+        $rows = [];
+
+        foreach ($performers as $performer) {
+            if (!$performer instanceof PerformerModel) {
+                continue;
+            }
+
+            $rows[] = [
+                'id' => $performer->id,
+                'name' => $performer->performerName,
+                'type' => (string)($performer->performerType ?? ''),
+                'description' => (string)($performer->description ?? ''),
+            ];
+        }
+
+        return $rows;
+    }
+
+    private function buildSessionPerformerMap(array $sessionPerformers): array
+    {
+        $sessionPerformerMap = [];
+
+        foreach ($sessionPerformers as $sessionPerformer) {
+            if (!$sessionPerformer instanceof SessionPerformerModel) {
+                continue;
+            }
+
+            $sessionId = $sessionPerformer->sessionId;
+            if (!isset($sessionPerformerMap[$sessionId])) {
+                $sessionPerformerMap[$sessionId] = [];
+            }
+
+            $sessionPerformerMap[$sessionId][] = $sessionPerformer->performerId;
+        }
+
+        return $sessionPerformerMap;
+    }
+
+    private function mapSessionRows(array $sessions, array $sessionPerformerMap): array
+    {
+        $rows = [];
+
+        foreach ($sessions as $session) {
+            if (!$session instanceof SessionModel) {
+                continue;
+            }
+
+            $rows[] = [
+                'id' => $session->id,
+                'date' => $session->date,
+                'start_time' => substr($session->startTime, 0, 5),
+                'venue_id' => $session->venueId,
+                'label' => (string)($session->language ?? ''),
+                'price' => number_format($session->price, 2, '.', ''),
+                'available_spots' => $session->availableSpots,
+                'amount_sold' => $session->amountSold,
+                'performer_ids' => $sessionPerformerMap[$session->id] ?? [],
+            ];
+        }
+
+        return $rows;
+    }
+
+    private function extractVenueIds(array $venues): array
+    {
+        $ids = [];
+
+        foreach ($venues as $venue) {
+            if ($venue instanceof VenueModel) {
+                $ids[] = $venue->id;
+            }
+        }
+
+        return $ids;
+    }
+
+    private function extractPerformerIds(array $performers): array
+    {
+        $ids = [];
+
+        foreach ($performers as $performer) {
+            if ($performer instanceof PerformerModel) {
+                $ids[] = $performer->id;
+            }
+        }
+
+        return $ids;
+    }
+
+    private function extractSessionIds(array $sessions): array
+    {
+        $ids = [];
+
+        foreach ($sessions as $session) {
+            if ($session instanceof SessionModel) {
+                $ids[] = $session->id;
+            }
+        }
+
+        return $ids;
+    }
+
+    private function extractScheduleEditorInputRows(array $input): array
+    {
+        $venueRowsInput = is_array($input['venues'] ?? null) ? $input['venues'] : [];
+        $performerRowsInput = is_array($input['performers'] ?? null) ? $input['performers'] : [];
+        $sessionRowsInput = is_array($input['sessions'] ?? null) ? $input['sessions'] : [];
+
+        return [$venueRowsInput, $performerRowsInput, $sessionRowsInput];
     }
 
     private function normalizeVenueRows(array $rows): array
@@ -232,83 +291,107 @@ class ScheduleService implements IScheduleService
                 continue;
             }
 
-            $id = (int)($row['id'] ?? 0);
-            $venueId = (int)($row['venue_id'] ?? 0);
-            $date = trim((string)($row['date'] ?? ''));
-            $startTime = trim((string)($row['start_time'] ?? ''));
-            $label = trim((string)($row['label'] ?? ''));
-            $priceRaw = trim((string)($row['price'] ?? ''));
-            $spots = (int)($row['available_spots'] ?? 0);
-            $amountSold = (int)($row['amount_sold'] ?? 0);
+            $normalizedSessionRow = $this->normalizeSingleSessionRow($row, $allowedVenueIds, $allowedSessionIds);
+            $sessionRows[] = $normalizedSessionRow;
 
-            if ($id <= 0 || $venueId <= 0 || $date === '' || $startTime === '' || $priceRaw === '') {
-                throw new \InvalidArgumentException('All schedule rows must include id, venue, date, time, and price.');
-            }
+            $normalizedSessionPerformerRows = $this->normalizeSessionPerformerRows(
+                $normalizedSessionRow['id'],
+                $row,
+                $allowedPerformerIds,
+                $seenSessionPerformer
+            );
 
-            if (!in_array($id, $allowedSessionIds, true)) {
-                throw new \InvalidArgumentException('One or more session ids are invalid for this event.');
-            }
-
-            if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
-                throw new \InvalidArgumentException('Date must be in YYYY-MM-DD format.');
-            }
-
-            if (!preg_match('/^\d{2}:\d{2}$/', $startTime)) {
-                throw new \InvalidArgumentException('Start time must be in HH:MM format.');
-            }
-
-            if (!in_array($venueId, $allowedVenueIds, true)) {
-                throw new \InvalidArgumentException('Selected venue is not valid for this event.');
-            }
-
-            if (!is_numeric($priceRaw)) {
-                throw new \InvalidArgumentException('Price must be numeric.');
-            }
-
-            $price = (float)$priceRaw;
-            if ($price < 0) {
-                throw new \InvalidArgumentException('Price cannot be negative.');
-            }
-
-            if ($spots < $amountSold) {
-                throw new \InvalidArgumentException('Available spots cannot be lower than amount sold.');
-            }
-
-            $sessionRows[] = [
-                'id' => $id,
-                'venue_id' => $venueId,
-                'date' => $date,
-                'start_time' => $startTime . ':00',
-                'label' => $label !== '' ? $label : null,
-                'price' => $price,
-                'available_spots' => $spots,
-            ];
-
-            $performerIds = is_array($row['performer_ids'] ?? null) ? $row['performer_ids'] : [];
-            foreach ($performerIds as $performerIdRaw) {
-                $performerId = (int)$performerIdRaw;
-                if ($performerId <= 0) {
-                    continue;
-                }
-
-                if (!in_array($performerId, $allowedPerformerIds, true)) {
-                    throw new \InvalidArgumentException('One or more selected performers are invalid for this event.');
-                }
-
-                $key = $id . '-' . $performerId;
-                if (isset($seenSessionPerformer[$key])) {
-                    continue;
-                }
-
-                $seenSessionPerformer[$key] = true;
-                $sessionPerformerRows[] = [
-                    'session_id' => $id,
-                    'performer_id' => $performerId,
-                ];
+            foreach ($normalizedSessionPerformerRows as $sessionPerformerRow) {
+                $sessionPerformerRows[] = $sessionPerformerRow;
             }
         }
 
         return [$sessionRows, $sessionPerformerRows];
+    }
+
+    private function normalizeSingleSessionRow(array $row, array $allowedVenueIds, array $allowedSessionIds): array
+    {
+        $id = (int)($row['id'] ?? 0);
+        $venueId = (int)($row['venue_id'] ?? 0);
+        $date = trim((string)($row['date'] ?? ''));
+        $startTime = trim((string)($row['start_time'] ?? ''));
+        $label = trim((string)($row['label'] ?? ''));
+        $priceRaw = trim((string)($row['price'] ?? ''));
+        $spots = (int)($row['available_spots'] ?? 0);
+        $amountSold = (int)($row['amount_sold'] ?? 0);
+
+        if ($id <= 0 || $venueId <= 0 || $date === '' || $startTime === '' || $priceRaw === '') {
+            throw new \InvalidArgumentException('All schedule rows must include id, venue, date, time, and price.');
+        }
+
+        if (!in_array($id, $allowedSessionIds, true)) {
+            throw new \InvalidArgumentException('One or more session ids are invalid for this event.');
+        }
+
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+            throw new \InvalidArgumentException('Date must be in YYYY-MM-DD format.');
+        }
+
+        if (!preg_match('/^\d{2}:\d{2}$/', $startTime)) {
+            throw new \InvalidArgumentException('Start time must be in HH:MM format.');
+        }
+
+        if (!in_array($venueId, $allowedVenueIds, true)) {
+            throw new \InvalidArgumentException('Selected venue is not valid for this event.');
+        }
+
+        if (!is_numeric($priceRaw)) {
+            throw new \InvalidArgumentException('Price must be numeric.');
+        }
+
+        $price = (float)$priceRaw;
+        if ($price < 0) {
+            throw new \InvalidArgumentException('Price cannot be negative.');
+        }
+
+        if ($spots < $amountSold) {
+            throw new \InvalidArgumentException('Available spots cannot be lower than amount sold.');
+        }
+
+        return [
+            'id' => $id,
+            'venue_id' => $venueId,
+            'date' => $date,
+            'start_time' => $startTime . ':00',
+            'label' => $label !== '' ? $label : null,
+            'price' => $price,
+            'available_spots' => $spots,
+        ];
+    }
+
+    private function normalizeSessionPerformerRows(int $sessionId, array $row, array $allowedPerformerIds, array &$seenSessionPerformer): array
+    {
+        $normalizedRows = [];
+        $performerIds = is_array($row['performer_ids'] ?? null) ? $row['performer_ids'] : [];
+
+        foreach ($performerIds as $performerIdRaw) {
+            $performerId = (int)$performerIdRaw;
+            if ($performerId <= 0) {
+                continue;
+            }
+
+            if (!in_array($performerId, $allowedPerformerIds, true)) {
+                throw new \InvalidArgumentException('One or more selected performers are invalid for this event.');
+            }
+
+            $key = $sessionId . '-' . $performerId;
+            if (isset($seenSessionPerformer[$key])) {
+                continue;
+            }
+
+            $seenSessionPerformer[$key] = true;
+            $normalizedRows[] = [
+                'session_id' => $sessionId,
+                'performer_id' => $performerId,
+            ];
+        }
+
+        return $normalizedRows;
     }
 
     private function linkScheduleModels(EventModel $event,array $venues,array $sessions,array $performers,array $sessionPerformers): void {

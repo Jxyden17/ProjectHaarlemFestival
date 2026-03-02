@@ -12,10 +12,12 @@ use App\Service\Interfaces\IDanceService;
 class DanceService implements IDanceService
 {
     private DanceRepository $danceRepository;
+    private HtmlSanitizerService $htmlSanitizer;
 
-    public function __construct(DanceRepository $danceRepository)
+    public function __construct(DanceRepository $danceRepository, HtmlSanitizerService $htmlSanitizer)
     {
         $this->danceRepository = $danceRepository;
+        $this->htmlSanitizer = $htmlSanitizer;
     }
 
     public function getDanceBannerStats(): DanceBannerStatsViewModel
@@ -69,14 +71,19 @@ class DanceService implements IDanceService
             'artists_title' => trim((string)($input['artists_title'] ?? '')),
             'artist_items' => $this->normalizeArtists($artists),
             'important_information_title' => trim((string)($input['important_information_title'] ?? '')),
-            'important_information_html' => trim((string)($input['important_information_html'] ?? '')),
+            'important_information_html' => $this->sanitizeWysiwygField((string)($input['important_information_html'] ?? '')),
             'passes_title' => trim((string)($input['passes_title'] ?? '')),
             'pass_items' => $this->normalizePasses($passes),
             'capacity_title' => trim((string)($input['capacity_title'] ?? '')),
-            'capacity_html' => trim((string)($input['capacity_html'] ?? '')),
+            'capacity_html' => $this->sanitizeWysiwygField((string)($input['capacity_html'] ?? '')),
             'special_title' => trim((string)($input['special_title'] ?? '')),
-            'special_html' => trim((string)($input['special_html'] ?? '')),
+            'special_html' => $this->sanitizeWysiwygField((string)($input['special_html'] ?? '')),
         ];
+    }
+
+    private function sanitizeWysiwygField(string $value): string
+    {
+        return $this->htmlSanitizer->sanitizeWysiwygHtml($value);
     }
 
     private function validateHomePageInput(array $input): void

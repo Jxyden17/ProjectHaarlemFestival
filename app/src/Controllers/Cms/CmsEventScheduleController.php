@@ -3,6 +3,7 @@
 namespace App\Controllers\Cms;
 
 use App\Controllers\BaseController;
+use App\Models\Requests\Cms\ScheduleEditorRequest;
 use App\Service\Interfaces\IScheduleService;
 
 class CmsEventScheduleController extends BaseController
@@ -35,16 +36,17 @@ class CmsEventScheduleController extends BaseController
 
         $eventName = $this->resolveEventName($vars);
         $eventSlug = $this->toEventSlug($eventName);
+        $request = ScheduleEditorRequest::fromArray($_POST);
 
         try {
-            $this->scheduleService->saveScheduleData($eventName, $_POST);
+            $this->scheduleService->saveScheduleData($eventName, $request->toArray());
             header('Location: /cms/events/' . $eventSlug . '/schedule?saved=1');
             exit;
         } catch (\Throwable $e) {
             $editorData = $this->scheduleService->getScheduleEditorData($eventName);
-            $postedVenues = is_array($_POST['venues'] ?? null) ? $_POST['venues'] : [];
-            $postedPerformers = is_array($_POST['performers'] ?? null) ? $_POST['performers'] : [];
-            $postedSessions = is_array($_POST['sessions'] ?? null) ? $_POST['sessions'] : [];
+            $postedVenues = $request->venues();
+            $postedPerformers = $request->performers();
+            $postedSessions = $request->sessions();
             if (!empty($postedVenues)) {
                 $editorData['venues'] = $postedVenues;
             }
