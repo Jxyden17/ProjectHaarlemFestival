@@ -1,6 +1,6 @@
 .contact-details-section 
 {
-    background-color: var(--hf-navy-deep);
+    background-color: var(--main-color);
     width: 100%;
     overflow: hidden;
 }
@@ -30,7 +30,7 @@
 {
     flex: 1;
     padding: 3.75rem;
-    background-color: var(--hf-navy-deep);
+    background-color: var(--main-color);
     display: flex;
     flex-direction: column;
 }
@@ -47,7 +47,7 @@
     height: 15.625rem;
     object-fit: cover;
     border-radius: 0.25rem;
-    border: 0.0625rem solid rgba(255, 255, 255, 0.1);
+    border: 0.0625rem solid var(--main-color);
 }
 
 /* De kolommen Contact en Opening Hours*/
@@ -76,7 +76,7 @@
 /* Contacttekst styling */
 .contact-col p 
 {
-    color: var(--hf-muted);
+    color: var(--natural-light);
     font-size: 1rem;
     line-height: 1.8;
     margin-bottom: 0.5rem;
@@ -84,7 +84,7 @@
 
 .contact-col strong 
 {
-    color: var(--hf-gold);
+    color: var(--accent-color);
     font-weight: 600;
 }
 
@@ -94,9 +94,9 @@
     display: flex;
     justify-content: space-between;
     padding: 0.35rem 0;
-    border-bottom: 0.0625rem solid rgba(255, 255, 255, 0.05);
+    border-bottom: 0.0625rem solid var(--natural-dark);
     font-size: 0.95rem;
-    color: var(--hf-muted);
+    color: var(--natural-light);
 }
 
 .hour-row .day 
@@ -109,6 +109,6 @@
     margin-top: 1.5rem;
     font-style: italic;
     font-size: 0.9rem;
-    color: var(--hf-muted);
+    color: var(--natural-light);
     text-align: right;
 }

@@ -36,6 +36,23 @@ class ScheduleRepository
         );
     }
 
+    public function findEventById(int $id): ?EventModel
+    {
+        $stmt = $this->db->prepare('SELECT id, name, description FROM events WHERE id = :id LIMIT 1');
+        $stmt->execute([':id' => $id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$row) {
+            return null;
+        }
+
+        return new EventModel(
+            (int)$row['id'],
+            (string)$row['name'],
+            isset($row['description']) ? (string)$row['description'] : null
+        );
+    }
+
     public function getSessionsByEventId(int $eventId): array
     {
         $stmt = $this->db->prepare('
