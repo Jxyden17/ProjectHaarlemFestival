@@ -25,6 +25,7 @@ try {
     $passwordResetRepo = new App\Repository\PasswordResetRepository();
     $scheduleRepo = new App\Repository\ScheduleRepository();
     $danceRepo = new App\Repository\DanceRepository();
+    $mediaRepo = new App\Repository\MediaRepository();
     $pageRepo = new App\Repository\PageRepository();
 
 
@@ -35,6 +36,7 @@ try {
     $htmlSanitizerService = new App\Service\HtmlSanitizerService();
     $scheduleService = new App\Service\ScheduleService($scheduleRepo);
     $danceService = new App\Service\DanceService($danceRepo, $htmlSanitizerService);
+    $mediaService = new App\Service\MediaService($mediaRepo);
 
     $authService = new App\Service\AuthService($userRepo, $passwordResetRepo, $mailService);
     $cmsService = new App\Service\CmsService($userRepo);
@@ -50,7 +52,7 @@ try {
     $cmsUsersController = new App\Controllers\Cms\CmsUsersController($cmsService);
     $cmsDanceContentController = new App\Controllers\Cms\CmsDanceContentController($danceService);
     $cmsEventScheduleController = new App\Controllers\Cms\CmsEventScheduleController($scheduleService);
-    $cmsMediaController = new App\Controllers\Cms\CmsMediaController();
+    $cmsMediaController = new App\Controllers\Cms\CmsMediaController($mediaService);
 
     // Routes
     $dispatcher = simpleDispatcher(function (RouteCollector $r) {

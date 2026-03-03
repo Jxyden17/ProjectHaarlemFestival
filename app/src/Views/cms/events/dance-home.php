@@ -76,10 +76,7 @@ $passes = is_array($contentData['passes'] ?? null) ? $contentData['passes'] : []
 
             <hr>
 
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <h2 class="h5 mb-0">Featured Artists</h2>
-                <button type="button" class="btn btn-sm btn-outline-primary" id="add-artist">Add Artist</button>
-            </div>
+            <h2 class="h5 mb-2">Featured Artists</h2>
             <div class="mb-3">
                 <label for="artists_title" class="form-label">Artists Section Title</label>
                 <input
@@ -102,6 +99,7 @@ $passes = is_array($contentData['passes'] ?? null) ? $contentData['passes'] : []
                             <label class="form-label">Genre</label>
                             <input type="text" name="artists[<?= (int)$index ?>][genre]" class="form-control artist-genre" value="<?= htmlspecialchars((string)($artist['genre'] ?? '')) ?>">
                         </div>
+                        <input type="hidden" name="artists[<?= (int)$index ?>][id]" class="artist-item-id" value="<?= (int)($artist['id'] ?? 0) ?>">
                         <input type="hidden" name="artists[<?= (int)$index ?>][image]" class="artist-image" value="<?= htmlspecialchars((string)($artist['image'] ?? '')) ?>">
                         <div class="mb-2">
                             <label class="form-label">Replace Image</label>
@@ -118,7 +116,6 @@ $passes = is_array($contentData['passes'] ?? null) ? $contentData['passes'] : []
                             </div>
                             <div class="form-text">Upload replaces the same artist image file on the server.</div>
                         </div>
-                        <button type="button" class="btn btn-sm btn-outline-danger remove-artist">Remove</button>
                     </div>
                 <?php endforeach; ?>
             </div>
@@ -150,10 +147,7 @@ $passes = is_array($contentData['passes'] ?? null) ? $contentData['passes'] : []
 
             <hr>
 
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <h2 class="h5 mb-0">All-Access Passes</h2>
-                <button type="button" class="btn btn-sm btn-outline-primary" id="add-pass">Add Pass Row</button>
-            </div>
+            <h2 class="h5 mb-2">All-Access Passes</h2>
             <div class="mb-3">
                 <label for="passes_title" class="form-label">Passes Section Title</label>
                 <input
@@ -186,7 +180,6 @@ $passes = is_array($contentData['passes'] ?? null) ? $contentData['passes'] : []
                             >
                             <label class="form-check-label">Highlighted row</label>
                         </div>
-                        <button type="button" class="btn btn-sm btn-outline-danger remove-pass">Remove</button>
                     </div>
                 <?php endforeach; ?>
             </div>
@@ -247,46 +240,5 @@ $passes = is_array($contentData['passes'] ?? null) ? $contentData['passes'] : []
     </form>
 </div>
 
-<template id="artist-template">
-    <div class="border rounded p-3 mb-2 artist-row">
-        <div class="mb-2">
-            <label class="form-label">Artist Name</label>
-            <input type="text" name="" class="form-control artist-name">
-        </div>
-        <div class="mb-2">
-            <label class="form-label">Genre</label>
-            <input type="text" name="" class="form-control artist-genre">
-        </div>
-        <input type="hidden" name="" class="artist-image">
-        <div class="mb-2">
-            <label class="form-label">Replace Image</label>
-            <div class="d-flex flex-wrap gap-2 align-items-center">
-                <input type="file" class="form-control artist-upload-input" accept="image/jpeg,image/png,image/webp">
-                <button type="button" class="btn btn-sm btn-outline-primary upload-artist-image">Upload</button>
-                <a href="#" class="btn btn-sm btn-outline-secondary artist-download-link d-none" download>Download</a>
-            </div>
-            <div class="form-text">Upload replaces the same artist image file on the server.</div>
-        </div>
-        <button type="button" class="btn btn-sm btn-outline-danger remove-artist">Remove</button>
-    </div>
-</template>
-
-<template id="pass-template">
-    <div class="border rounded p-3 mb-2 pass-row">
-        <div class="mb-2">
-            <label class="form-label">Label</label>
-            <input type="text" name="" class="form-control pass-label">
-        </div>
-        <div class="mb-2">
-            <label class="form-label">Price</label>
-            <input type="text" name="" class="form-control pass-price">
-        </div>
-        <div class="form-check mb-2">
-            <input type="checkbox" class="form-check-input pass-highlight" value="1">
-            <label class="form-check-label">Highlighted row</label>
-        </div>
-        <button type="button" class="btn btn-sm btn-outline-danger remove-pass">Remove</button>
-    </div>
-</template>
-
-<script src="/js/cms/dance-home.js"></script>
+<?php $danceHomeJsVersion = @filemtime(__DIR__ . '/../../../../public/js/cms/dance-home.js') ?: time(); ?>
+<script src="/js/cms/dance-home.js?v=<?= (int)$danceHomeJsVersion ?>"></script>

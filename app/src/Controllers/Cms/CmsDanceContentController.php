@@ -86,6 +86,7 @@ class CmsDanceContentController extends BaseController
                 }
 
                 $artistRows[] = [
+                    'id' => $item->id,
                     'name' => $item->title,
                     'genre' => (string)($item->content ?? ''),
                     'image' => (string)($item->image ?? ''),
