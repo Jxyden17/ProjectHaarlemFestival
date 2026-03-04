@@ -19,16 +19,22 @@ class DanceController extends BaseController
 
     public function index(): void
     {
+        $homeContent = $this->danceService->getDanceHomePage();
         $bannerStats = $this->danceService->getDanceBannerStats();
-        $schedule = $this->scheduleService->getScheduleDataForEvent('Dance', 'DANCE! Festival Schedule');
+        $scheduleSection = $homeContent->getSection('dance_schedule');
+        $scheduleTitle = $scheduleSection !== null ? $scheduleSection->title : '';
+        $schedule = $this->scheduleService->getScheduleDataForEvent('Dance', $scheduleTitle);
         $venues = $this->danceService->getDanceVenues();
+        $performers = $this->danceService->getDancePerformers();
 
         $this->render('dance/index', [
             'title' => 'Dance',
             'danceIndexViewModel' => new DanceIndexViewModel(
                 $schedule,
                 $bannerStats,
-                $venues
+                $venues,
+                $performers,
+                $homeContent
             ),
         ]);
     }

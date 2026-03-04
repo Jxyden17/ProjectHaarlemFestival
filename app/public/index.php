@@ -25,6 +25,7 @@ try {
     $passwordResetRepo = new App\Repository\PasswordResetRepository();
     $scheduleRepo = new App\Repository\ScheduleRepository();
     $danceRepo = new App\Repository\DanceRepository();
+    $mediaRepo = new App\Repository\MediaRepository();
     $pageRepo = new App\Repository\PageRepository();
     $jazzRepo = new App\Repository\JazzDummyRepository();
 
@@ -33,23 +34,32 @@ try {
     $mailConfig = App\Models\MailConfig::fromEnvironment();
     $pageService = new App\Service\PageService($pageRepo);
     $mailService = new App\Service\MailService($mailConfig);
+    $htmlSanitizerService = new App\Service\HtmlSanitizerService();
     $scheduleService = new App\Service\ScheduleService($scheduleRepo);
-    $danceService = new App\Service\DanceService($danceRepo);
+
+    $danceService = new App\Service\DanceService($danceRepo, $pageRepo, $htmlSanitizerService);
+    $mediaService = new App\Service\MediaService($mediaRepo);
     $jazzService = new App\Service\JazzService($jazzRepo,$scheduleRepo);
 
     $authService = new App\Service\AuthService($userRepo, $passwordResetRepo, $mailService);
     $cmsService = new App\Service\CmsService($userRepo);
+    $cmsEventEditorService = new App\Service\CmsEventEditorService($scheduleService, $danceService);
 
     // Controllers
     $authController = new App\Controllers\AuthController($authService);
     $homeController = new App\Controllers\HomeController();
     $danceController = new App\Controllers\DanceController($scheduleService, $danceService);
     $tourController = new App\Controllers\TourController($pageService);
+    $jazzController = new App\Controllers\JazzController($scheduleService, $jazzService);
+    
     $cmsController = new App\Controllers\Cms\CmsController($cmsService);
     $cmsEventsController = new App\Controllers\Cms\CmsEventsController($cmsService);
     $cmsTicketsController = new App\Controllers\Cms\CmsTicketsController($cmsService);
     $cmsUsersController = new App\Controllers\Cms\CmsUsersController($cmsService);
-    $jazzController = new App\Controllers\JazzController($scheduleService, $jazzService);
+    $cmsDanceContentController = new App\Controllers\Cms\CmsDanceContentController($danceService);
+    $cmsEventEditorController = new App\Controllers\Cms\CmsEventEditorController($scheduleService, $cmsEventEditorService);
+    $cmsMediaController = new App\Controllers\Cms\CmsMediaController($mediaService);
+
 
     // Routes
     $dispatcher = simpleDispatcher(function (RouteCollector $r) {
@@ -77,6 +87,11 @@ try {
         // CMS routes
         $r->addRoute('GET', '/cms', ['CmsController', 'index']);
         $r->addRoute('GET', '/cms/events', ['CmsEventsController', 'index']);
+        $r->addRoute('GET', '/cms/events/{eventSlug}/schedule', ['CmsEventEditorController', 'index']);
+        $r->addRoute('POST', '/cms/events/{eventSlug}/schedule', ['CmsEventEditorController', 'update']);
+        $r->addRoute('GET', '/cms/events/dance-home', ['CmsDanceContentController', 'index']);
+        $r->addRoute('POST', '/cms/events/dance-home', ['CmsDanceContentController', 'update']);
+        $r->addRoute('POST', '/cms/media/upload-replace', ['CmsMediaController', 'uploadReplace']);
         $r->addRoute('GET', '/cms/tickets', ['CmsTicketsController', 'index']);
         $r->addRoute('GET', '/cms/users', ['CmsUsersController', 'index']);
         $r->addRoute('GET', '/cms/users/create', ['CmsUsersController', 'showCreateForm']);
@@ -115,6 +130,9 @@ try {
                 'CmsEventsController' => $cmsEventsController,
                 'CmsTicketsController' => $cmsTicketsController,
                 'CmsUsersController' => $cmsUsersController,
+                'CmsEventEditorController' => $cmsEventEditorController,
+                'CmsDanceContentController' => $cmsDanceContentController,
+                'CmsMediaController' => $cmsMediaController,
             ];
 
             if (!isset($controllerMap[$controllerName])) {
