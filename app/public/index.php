@@ -27,6 +27,7 @@ try {
     $danceRepo = new App\Repository\DanceRepository();
     $mediaRepo = new App\Repository\MediaRepository();
     $pageRepo = new App\Repository\PageRepository();
+    $jazzRepo = new App\Repository\JazzDummyRepository();
 
 
     // Services
@@ -35,25 +36,30 @@ try {
     $mailService = new App\Service\MailService($mailConfig);
     $htmlSanitizerService = new App\Service\HtmlSanitizerService();
     $scheduleService = new App\Service\ScheduleService($scheduleRepo);
+
     $danceService = new App\Service\DanceService($danceRepo, $pageRepo, $htmlSanitizerService);
     $mediaService = new App\Service\MediaService($mediaRepo);
+    $jazzService = new App\Service\JazzService($jazzRepo,$scheduleRepo);
 
     $authService = new App\Service\AuthService($userRepo, $passwordResetRepo, $mailService);
     $cmsService = new App\Service\CmsService($userRepo);
+    $cmsEventEditorService = new App\Service\CmsEventEditorService($scheduleService, $danceService);
 
     // Controllers
     $authController = new App\Controllers\AuthController($authService);
     $homeController = new App\Controllers\HomeController();
     $danceController = new App\Controllers\DanceController($scheduleService, $danceService);
     $tourController = new App\Controllers\TourController($pageService);
+    $jazzController = new App\Controllers\JazzController($scheduleService, $jazzService);
+    
     $cmsController = new App\Controllers\Cms\CmsController($cmsService);
     $cmsEventsController = new App\Controllers\Cms\CmsEventsController($cmsService);
     $cmsTicketsController = new App\Controllers\Cms\CmsTicketsController($cmsService);
     $cmsUsersController = new App\Controllers\Cms\CmsUsersController($cmsService);
     $cmsDanceContentController = new App\Controllers\Cms\CmsDanceContentController($danceService);
-    $cmsEventEditorService = new App\Service\CmsEventEditorService($scheduleService, $danceService);
     $cmsEventEditorController = new App\Controllers\Cms\CmsEventEditorController($scheduleService, $cmsEventEditorService);
     $cmsMediaController = new App\Controllers\Cms\CmsMediaController($mediaService);
+
 
     // Routes
     $dispatcher = simpleDispatcher(function (RouteCollector $r) {
@@ -94,6 +100,8 @@ try {
         $r->addRoute('POST', '/cms/users/edit', ['CmsUsersController', 'editUser']);
         $r->addRoute('GET', '/cms/users/delete', ['CmsUsersController', 'showDeleteConfirmation']);
         $r->addRoute('POST', '/cms/users/delete', ['CmsUsersController', 'deleteUser']);
+         // Jazz routes
+        $r->addRoute('GET', '/jazz', ['JazzController', 'index']);
     });
 
     // Dispatch request
@@ -118,6 +126,7 @@ try {
                 'DanceController' => $danceController,
                 'TourController' => $tourController,
                 'CmsController' => $cmsController,
+                'JazzController' => $jazzController,
                 'CmsEventsController' => $cmsEventsController,
                 'CmsTicketsController' => $cmsTicketsController,
                 'CmsUsersController' => $cmsUsersController,
@@ -137,7 +146,8 @@ try {
             break;
     }
 } catch (\Throwable $e) {
-    $debugError = $e->getMessage();
-    $renderErrorPage(503, 'Service temporarily unavailable', 'We cannot connect to the database right now. Please try again in a moment.', $showDebug, $debugError
-    );
+  # $debugError = $e->getMessage();
+   # $renderErrorPage(503, 'Service temporarily unavailable', 'We cannot connect to the database right now. Please try again in a moment.', $showDebug, $debugError
+    #);
+    var_dump($e);
 }
