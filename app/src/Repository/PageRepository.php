@@ -18,35 +18,21 @@ class PageRepository implements IPageRepository
         $this->db = Database::getInstance();
     }
 
-    public function getPageDataById($pageId)
+    public function getPageById(int $pageId): ?Page
     {
-      $sql = "SELECT 
-                    p.page_name AS page_title, 
-                    p.id,
-                    ps.id AS section_id, 
-                    ps.section_type, 
-                    ps.title AS section_title,
-                    ps.subtitle,
-                    ps.description,
-                    si.id AS item_id, 
-                    si.title AS item_title,
-                    si.item_subtitle,
-                    si.content, 
-                    si.image_path, 
-                    si.link_url,
-                    si.item_category,
-                    si.duration,
-                    si.icon_class,
-                    si.order_index
-                FROM pages p
-                JOIN page_sections ps ON p.id = ps.page_id
-                LEFT JOIN section_items si ON ps.id = si.section_id
-                WHERE p.id = :pageId
-                ORDER BY ps.order_index ASC, si.order_index ASC";
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute(['pageId' => $pageId]);
+        if ($pageId <= 0) {
+            return null;
+        }
 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $pageRow = $this->findPageRowById($pageId);
+        if ($pageRow === null) {
+            return null;
+        }
+
+        $page = new Page((string)($pageRow['page_name'] ?? ''), (string)($pageRow['slug'] ?? ''));
+        $page->sections = $this->buildSectionsForPage($pageId);
+
+        return $page;
     }
 
     public function getPageBySlug(string $slug, string $fallbackTitle = ''): Page
@@ -59,24 +45,7 @@ class PageRepository implements IPageRepository
             return $page;
         }
 
-        $rows = $this->getPageSectionsByPageId($pageId);
-        if (empty($rows)) {
-            return $page;
-        }
-
-        $sectionIds = array_map(static fn(array $row): int => (int)$row['id'], $rows);
-        $itemsBySection = $this->getItemsBySectionIds($sectionIds);
-
-        foreach ($rows as $row) {
-            $sectionId = (int)$row['id'];
-            $section = $this->mapSectionRow($row);
-
-            foreach (($itemsBySection[$sectionId] ?? []) as $itemRow) {
-                $section->addItem($this->mapSectionItemRow($itemRow));
-            }
-
-            $page->sections[] = $section;
-        }
+        $page->sections = $this->buildSectionsForPage($pageId);
 
         return $page;
     }
@@ -180,6 +149,15 @@ class PageRepository implements IPageRepository
         return (int)$row['id'];
     }
 
+    private function findPageRowById(int $pageId): ?array
+    {
+        $stmt = $this->db->prepare('SELECT id, page_name, slug FROM pages WHERE id = :id LIMIT 1');
+        $stmt->execute([':id' => $pageId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $row ?: null;
+    }
+
     private function getPageSectionsByPageId(int $pageId): array
     {
         $stmt = $this->db->prepare('
@@ -200,7 +178,7 @@ class PageRepository implements IPageRepository
         }
 
         $placeholders = implode(',', array_fill(0, count($sectionIds), '?'));
-        $stmt = $this->db->prepare('SELECT id, section_id, item_category, title, content, image_path, link_url, order_index FROM section_items WHERE section_id IN (' . $placeholders . ') ORDER BY order_index ASC');
+        $stmt = $this->db->prepare('SELECT id, section_id, item_category, title, item_subtitle, content, image_path, link_url, duration, icon_class, order_index FROM section_items WHERE section_id IN (' . $placeholders . ') ORDER BY order_index ASC');
         $stmt->execute($sectionIds);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -214,6 +192,31 @@ class PageRepository implements IPageRepository
         }
 
         return $grouped;
+    }
+
+    private function buildSectionsForPage(int $pageId): array
+    {
+        $sectionRows = $this->getPageSectionsByPageId($pageId);
+        if (empty($sectionRows)) {
+            return [];
+        }
+
+        $sectionIds = array_map(static fn(array $row): int => (int)$row['id'], $sectionRows);
+        $itemsBySection = $this->getItemsBySectionIds($sectionIds);
+        $sections = [];
+
+        foreach ($sectionRows as $row) {
+            $sectionId = (int)$row['id'];
+            $section = $this->mapSectionRow($row);
+
+            foreach (($itemsBySection[$sectionId] ?? []) as $itemRow) {
+                $section->addItem($this->mapSectionItemRow($itemRow));
+            }
+
+            $sections[] = $section;
+        }
+
+        return $sections;
     }
 
     private function mapSectionRow(array $row): Section
@@ -236,9 +239,9 @@ class PageRepository implements IPageRepository
             isset($row['image_path']) ? (string)$row['image_path'] : null,
             isset($row['link_url']) ? (string)$row['link_url'] : null,
             (string)($row['item_category'] ?? ''),
-            null,
-            null,
-            null,
+            isset($row['duration']) ? (string)$row['duration'] : null,
+            isset($row['icon_class']) ? (string)$row['icon_class'] : null,
+            isset($row['item_subtitle']) ? (string)$row['item_subtitle'] : null,
             (int)($row['order_index'] ?? 0)
         );
     }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?= htmlspecialchars($section->title)?></title>
+    <title><?= htmlspecialchars((string)($pageTitle ?? 'Haarlem Festival')) ?></title>
     <link href="/css/Tour/index.css" rel="stylesheet">
 </head>
 <body>

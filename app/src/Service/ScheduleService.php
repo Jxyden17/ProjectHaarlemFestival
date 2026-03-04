@@ -232,9 +232,9 @@ class ScheduleService implements IScheduleService
             }
 
             $id = $row->id();
-            $name = trim($row->name());
-            $address = trim($row->address());
-            $type = trim($row->type());
+            $name = $row->name();
+            $address = $row->address();
+            $type = $row->type();
 
             if ($id <= 0 || $name === '') {
                 throw new \InvalidArgumentException('Each venue row requires id and venue name.');
@@ -261,9 +261,9 @@ class ScheduleService implements IScheduleService
             }
 
             $id = $row->id();
-            $name = trim($row->name());
-            $type = trim($row->type());
-            $description = trim($row->description());
+            $name = $row->name();
+            $type = $row->type();
+            $description = $row->description();
 
             if ($id <= 0 || $name === '') {
                 throw new \InvalidArgumentException('Each performer row requires id and name.');
@@ -313,10 +313,10 @@ class ScheduleService implements IScheduleService
     {
         $id = $row->id();
         $venueId = $row->venueId();
-        $date = trim($row->date());
-        $startTime = trim($row->startTime());
-        $label = trim($row->label());
-        $priceRaw = trim($row->price());
+        $date = $row->date();
+        $startTime = $row->startTime();
+        $label = $row->label();
+        $priceRaw = $row->price();
         $spots = $row->availableSpots();
         $amountSold = $row->amountSold();
 

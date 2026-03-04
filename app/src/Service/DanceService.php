@@ -161,19 +161,19 @@ class DanceService implements IDanceService
         $passes = $command->passes();
 
         return [
-            'schedule_title' => trim($command->scheduleTitle()),
-            'banner_badge' => trim($command->bannerBadge()),
-            'banner_title' => trim($command->bannerTitle()),
-            'banner_description' => trim($command->bannerDescription()),
-            'artists_title' => trim($command->artistsTitle()),
+            'schedule_title' => $command->scheduleTitle(),
+            'banner_badge' => $command->bannerBadge(),
+            'banner_title' => $command->bannerTitle(),
+            'banner_description' => $command->bannerDescription(),
+            'artists_title' => $command->artistsTitle(),
             'artist_items' => $this->normalizeArtists($artists),
-            'important_information_title' => trim($command->importantInformationTitle()),
+            'important_information_title' => $command->importantInformationTitle(),
             'important_information_html' => $this->sanitizeWysiwygField($command->importantInformationHtml()),
-            'passes_title' => trim($command->passesTitle()),
+            'passes_title' => $command->passesTitle(),
             'pass_items' => $this->normalizePasses($passes),
-            'capacity_title' => trim($command->capacityTitle()),
+            'capacity_title' => $command->capacityTitle(),
             'capacity_html' => $this->sanitizeWysiwygField($command->capacityHtml()),
-            'special_title' => trim($command->specialTitle()),
+            'special_title' => $command->specialTitle(),
             'special_html' => $this->sanitizeWysiwygField($command->specialHtml()),
         ];
     }
@@ -259,9 +259,9 @@ class DanceService implements IDanceService
                 continue;
             }
 
-            $name = trim($artist->name());
-            $genre = trim($artist->genre());
-            $image = trim($artist->image());
+            $name = $artist->name();
+            $genre = $artist->genre();
+            $image = $artist->image();
 
             if ($name === '') {
                 continue;
@@ -316,8 +316,8 @@ class DanceService implements IDanceService
                 continue;
             }
 
-            $label = trim($pass->label());
-            $price = trim($pass->price());
+            $label = $pass->label();
+            $price = $pass->price();
             if ($label === '' || $price === '') {
                 continue;
             }
