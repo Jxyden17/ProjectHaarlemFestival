@@ -1,15 +1,20 @@
 <?php
 use App\Models\Page\Section;
 use App\Models\Page\SectionItem;
+use App\Models\PerformerModel;
 
 $danceArtistsSection = $danceArtistsSection ?? null;
+$dancePerformers = is_array($dancePerformers ?? null) ? $dancePerformers : [];
 
 if (!$danceArtistsSection instanceof Section) {
     return;
 }
 
 $artistsTitle = $danceArtistsSection->title;
-$artists = $danceArtistsSection->getItemsByCategorie('artist');
+$artistImageRows = array_values(array_filter(
+    $danceArtistsSection->getItemsByCategorie('artist'),
+    static fn($item) => $item instanceof SectionItem
+));
 ?>
 
 <section class="dance-artists">
@@ -22,18 +27,22 @@ $artists = $danceArtistsSection->getItemsByCategorie('artist');
         </h2>
 
         <div class="dance-artists-grid">
-            <?php foreach ($artists as $artist): ?>
+            <?php foreach ($dancePerformers as $index => $performer): ?>
                 <?php
-                if (!$artist instanceof SectionItem) {
+                if (!$performer instanceof PerformerModel) {
                     continue;
                 }
 
-                $name = trim($artist->title);
+                $name = trim($performer->performerName);
                 if ($name === '') {
                     continue;
                 }
-                $genre = (string)($artist->content ?? '');
-                $image = trim((string)($artist->image ?? ''));
+                $genre = trim((string)($performer->description ?? ''));
+                if ($genre === '') {
+                    $genre = 'DJ';
+                }
+                $imageRow = $artistImageRows[$index] ?? null;
+                $image = $imageRow instanceof SectionItem ? trim((string)($imageRow->image ?? '')) : '';
                 if ($image === '') {
                     continue;
                 }

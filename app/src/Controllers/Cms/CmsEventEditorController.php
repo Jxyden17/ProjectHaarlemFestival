@@ -4,15 +4,18 @@ namespace App\Controllers\Cms;
 
 use App\Controllers\BaseController;
 use App\Models\Requests\Cms\ScheduleEditorRequest;
+use App\Service\Interfaces\ICmsEventEditorService;
 use App\Service\Interfaces\IScheduleService;
 
-class CmsEventScheduleController extends BaseController
+class CmsEventEditorController extends BaseController
 {
     private IScheduleService $scheduleService;
+    private ICmsEventEditorService $cmsEventEditorService;
 
-    public function __construct(IScheduleService $scheduleService)
+    public function __construct(IScheduleService $scheduleService, ICmsEventEditorService $cmsEventEditorService)
     {
         $this->scheduleService = $scheduleService;
+        $this->cmsEventEditorService = $cmsEventEditorService;
     }
 
     public function index(array $vars = []): void
@@ -21,7 +24,7 @@ class CmsEventScheduleController extends BaseController
 
         $eventName = $this->resolveEventName($vars);
         $eventSlug = $this->toEventSlug($eventName);
-        $editorData = $this->scheduleService->getScheduleEditorData($eventName);
+        $editorData = $this->cmsEventEditorService->getEditorData($eventName);
         $this->renderCms('cms/events/dance-schedule', [
             'title' => $eventName . ' Schedule',
             'editorData' => $editorData,
@@ -43,19 +46,14 @@ class CmsEventScheduleController extends BaseController
             header('Location: /cms/events/' . $eventSlug . '/schedule?saved=1');
             exit;
         } catch (\Throwable $e) {
-            $editorData = $this->scheduleService->getScheduleEditorData($eventName);
-            $postedVenues = $request->venues();
-            $postedPerformers = $request->performers();
-            $postedSessions = $request->sessions();
-            if (!empty($postedVenues)) {
-                $editorData['venues'] = $postedVenues;
-            }
-            if (!empty($postedPerformers)) {
-                $editorData['performers'] = $postedPerformers;
-            }
-            if (!empty($postedSessions)) {
-                $editorData['sessions'] = $postedSessions;
-            }
+            $editorData = $this->cmsEventEditorService->getEditorData($eventName);
+            $editorData = $this->cmsEventEditorService->mergePostedEditorData(
+                $eventName,
+                $editorData,
+                $request->venues(),
+                $request->performers(),
+                $request->sessions()
+            );
 
             $this->renderCms('cms/events/dance-schedule', [
                 'title' => $eventName . ' Schedule',

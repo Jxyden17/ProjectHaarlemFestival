@@ -7,7 +7,7 @@ use App\Models\SessionModel;
 use App\Models\SessionPerformerModel;
 use App\Models\VenueModel;
 use App\Models\EventModel;
-use App\Repository\ScheduleRepository;
+use App\Repository\Interfaces\IScheduleRepository;
 use App\Service\Interfaces\IScheduleService;
 use App\Models\ViewModels\Shared\ScheduleDayFilterViewModel;
 use App\Models\ViewModels\Shared\ScheduleGroupViewModel;
@@ -16,9 +16,9 @@ use App\Models\ViewModels\Shared\ScheduleViewModel;
 
 class ScheduleService implements IScheduleService
 {
-    private ScheduleRepository $scheduleRepo;
+    private IScheduleRepository $scheduleRepo;
 
-    public function __construct(ScheduleRepository $scheduleRepo)
+    public function __construct(IScheduleRepository $scheduleRepo)
     {
         $this->scheduleRepo = $scheduleRepo;
     }

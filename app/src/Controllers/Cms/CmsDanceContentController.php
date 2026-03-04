@@ -5,6 +5,7 @@ namespace App\Controllers\Cms;
 use App\Controllers\BaseController;
 use App\Models\Page\Page;
 use App\Models\Page\SectionItem;
+use App\Models\PerformerModel;
 use App\Models\Requests\Cms\DanceHomeContentRequest;
 use App\Service\Interfaces\IDanceService;
 
@@ -79,19 +80,32 @@ class CmsDanceContentController extends BaseController
         $special = $page->getSection('dance_special_session');
 
         $artistRows = [];
+        $performers = $this->danceService->getDancePerformers();
+        $artistImageRows = [];
         if ($artists !== null) {
             foreach ($artists->getItemsByCategorie('artist') as $item) {
-                if (!$item instanceof SectionItem) {
-                    continue;
+                if ($item instanceof SectionItem) {
+                    $artistImageRows[] = $item;
                 }
-
-                $artistRows[] = [
-                    'id' => $item->id,
-                    'name' => $item->title,
-                    'genre' => (string)($item->content ?? ''),
-                    'image' => (string)($item->image ?? ''),
-                ];
             }
+        }
+
+        foreach ($performers as $index => $performer) {
+            if (!$performer instanceof PerformerModel) {
+                continue;
+            }
+
+            $imageRow = $artistImageRows[$index] ?? null;
+            if (!$imageRow instanceof SectionItem) {
+                continue;
+            }
+
+            $artistRows[] = [
+                'id' => $imageRow->id,
+                'name' => $performer->performerName,
+                'genre' => (string)($performer->performerType ?? ''),
+                'image' => (string)($imageRow->image ?? ''),
+            ];
         }
 
         $passRows = [];
@@ -102,6 +116,7 @@ class CmsDanceContentController extends BaseController
                 }
 
                 $passRows[] = [
+                    'id' => $item->id,
                     'label' => $item->title,
                     'price' => (string)($item->content ?? ''),
                     'highlight' => (string)($item->url ?? '') === 'highlight',

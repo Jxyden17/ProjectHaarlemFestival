@@ -72,6 +72,7 @@ $formAction = (string)($formAction ?? '/cms/events/dance-schedule');
                             <th>Name</th>
                             <th>Type</th>
                             <th>Description</th>
+                            <th>Artist Image</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -89,6 +90,21 @@ $formAction = (string)($formAction ?? '/cms/events/dance-schedule');
                                 </td>
                                 <td>
                                     <input type="text" class="form-control form-control-sm" name="performers[<?= (int)$index ?>][description]" value="<?= htmlspecialchars((string)($performer['description'] ?? '')) ?>">
+                                </td>
+                                <td style="min-width: 300px;">
+                                    <input type="hidden" class="performer-artist-item-id" value="<?= (int)($performer['artist_section_item_id'] ?? 0) ?>">
+                                    <input type="hidden" class="performer-artist-image" value="<?= htmlspecialchars((string)($performer['artist_image_path'] ?? '')) ?>">
+                                    <div class="d-flex flex-wrap gap-2 align-items-center performer-image-row">
+                                        <input type="file" class="form-control form-control-sm performer-upload-input" accept="image/jpeg,image/png,image/webp">
+                                        <button type="button" class="btn btn-sm btn-outline-primary upload-performer-image">Upload</button>
+                                        <a
+                                            href="<?= htmlspecialchars((string)($performer['artist_image_path'] ?? '')) ?>"
+                                            class="btn btn-sm btn-outline-secondary performer-download-link<?= empty($performer['artist_image_path']) ? ' d-none' : '' ?>"
+                                            download
+                                        >
+                                            Download
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -178,3 +194,6 @@ $formAction = (string)($formAction ?? '/cms/events/dance-schedule');
         </div>
     </form>
 </div>
+
+<?php $danceScheduleJsVersion = @filemtime(__DIR__ . '/../../../../public/js/cms/dance-schedule.js') ?: time(); ?>
+<script src="/js/cms/dance-schedule.js?v=<?= (int)$danceScheduleJsVersion ?>"></script>

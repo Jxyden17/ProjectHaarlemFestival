@@ -3,9 +3,10 @@
 namespace App\Repository;
 
 use App\Models\Database;
+use App\Repository\Interfaces\IMediaRepository;
 use PDO;
 
-class MediaRepository
+class MediaRepository implements IMediaRepository
 {
     private PDO $db;
 

@@ -3,6 +3,7 @@ $contentData = $contentData ?? [];
 $artists = is_array($contentData['artists'] ?? null) ? $contentData['artists'] : [];
 $passes = is_array($contentData['passes'] ?? null) ? $contentData['passes'] : [];
 ?>
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
 
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -69,6 +70,7 @@ $passes = is_array($contentData['passes'] ?? null) ? $contentData['passes'] : []
                     id="banner_description"
                     name="banner_description"
                     class="form-control"
+                    data-quill="1"
                     rows="4"
                     required
                 ><?= htmlspecialchars((string)($contentData['banner_description'] ?? '')) ?></textarea>
@@ -76,49 +78,13 @@ $passes = is_array($contentData['passes'] ?? null) ? $contentData['passes'] : []
 
             <hr>
 
-            <h2 class="h5 mb-2">Featured Artists</h2>
-            <div class="mb-3">
-                <label for="artists_title" class="form-label">Artists Section Title</label>
-                <input
-                    type="text"
-                    id="artists_title"
-                    name="artists_title"
-                    class="form-control"
-                    value="<?= htmlspecialchars((string)($contentData['artists_title'] ?? '')) ?>"
-                    required
-                >
-            </div>
-            <div id="artists-container">
-                <?php foreach ($artists as $index => $artist): ?>
-                    <div class="border rounded p-3 mb-2 artist-row">
-                        <div class="mb-2">
-                            <label class="form-label">Artist Name</label>
-                            <input type="text" name="artists[<?= (int)$index ?>][name]" class="form-control artist-name" value="<?= htmlspecialchars((string)($artist['name'] ?? '')) ?>">
-                        </div>
-                        <div class="mb-2">
-                            <label class="form-label">Genre</label>
-                            <input type="text" name="artists[<?= (int)$index ?>][genre]" class="form-control artist-genre" value="<?= htmlspecialchars((string)($artist['genre'] ?? '')) ?>">
-                        </div>
-                        <input type="hidden" name="artists[<?= (int)$index ?>][id]" class="artist-item-id" value="<?= (int)($artist['id'] ?? 0) ?>">
-                        <input type="hidden" name="artists[<?= (int)$index ?>][image]" class="artist-image" value="<?= htmlspecialchars((string)($artist['image'] ?? '')) ?>">
-                        <div class="mb-2">
-                            <label class="form-label">Replace Image</label>
-                            <div class="d-flex flex-wrap gap-2 align-items-center">
-                                <input type="file" class="form-control artist-upload-input" accept="image/jpeg,image/png,image/webp">
-                                <button type="button" class="btn btn-sm btn-outline-primary upload-artist-image">Upload</button>
-                                <a
-                                    href="<?= htmlspecialchars((string)($artist['image'] ?? '')) ?>"
-                                    class="btn btn-sm btn-outline-secondary artist-download-link<?= empty($artist['image']) ? ' d-none' : '' ?>"
-                                    download
-                                >
-                                    Download
-                                </a>
-                            </div>
-                            <div class="form-text">Upload replaces the same artist image file on the server.</div>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-            </div>
+            <input type="hidden" name="artists_title" value="<?= htmlspecialchars((string)($contentData['artists_title'] ?? 'Featured Artists')) ?>">
+            <?php foreach ($artists as $index => $artist): ?>
+                <input type="hidden" name="artists[<?= (int)$index ?>][id]" value="<?= (int)($artist['id'] ?? 0) ?>">
+                <input type="hidden" name="artists[<?= (int)$index ?>][name]" value="<?= htmlspecialchars((string)($artist['name'] ?? '')) ?>">
+                <input type="hidden" name="artists[<?= (int)$index ?>][genre]" value="<?= htmlspecialchars((string)($artist['genre'] ?? '')) ?>">
+                <input type="hidden" name="artists[<?= (int)$index ?>][image]" value="<?= htmlspecialchars((string)($artist['image'] ?? '')) ?>">
+            <?php endforeach; ?>
 
             <hr>
 
@@ -140,6 +106,7 @@ $passes = is_array($contentData['passes'] ?? null) ? $contentData['passes'] : []
                     id="important_information_html"
                     name="important_information_html"
                     class="form-control"
+                    data-quill="1"
                     rows="6"
                     required
                 ><?= htmlspecialchars((string)($contentData['important_information_html'] ?? '')) ?></textarea>
@@ -170,6 +137,7 @@ $passes = is_array($contentData['passes'] ?? null) ? $contentData['passes'] : []
                             <label class="form-label">Price</label>
                             <input type="text" name="passes[<?= (int)$index ?>][price]" class="form-control pass-price" value="<?= htmlspecialchars((string)($pass['price'] ?? '')) ?>">
                         </div>
+                        <input type="hidden" name="passes[<?= (int)$index ?>][id]" value="<?= (int)($pass['id'] ?? 0) ?>">
                         <div class="form-check mb-2">
                             <input
                                 type="checkbox"
@@ -204,6 +172,7 @@ $passes = is_array($contentData['passes'] ?? null) ? $contentData['passes'] : []
                     id="capacity_html"
                     name="capacity_html"
                     class="form-control"
+                    data-quill="1"
                     rows="6"
                     required
                 ><?= htmlspecialchars((string)($contentData['capacity_html'] ?? '')) ?></textarea>
@@ -229,6 +198,7 @@ $passes = is_array($contentData['passes'] ?? null) ? $contentData['passes'] : []
                     id="special_html"
                     name="special_html"
                     class="form-control"
+                    data-quill="1"
                     rows="6"
                     required
                 ><?= htmlspecialchars((string)($contentData['special_html'] ?? '')) ?></textarea>
@@ -240,5 +210,6 @@ $passes = is_array($contentData['passes'] ?? null) ? $contentData['passes'] : []
     </form>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
 <?php $danceHomeJsVersion = @filemtime(__DIR__ . '/../../../../public/js/cms/dance-home.js') ?: time(); ?>
 <script src="/js/cms/dance-home.js?v=<?= (int)$danceHomeJsVersion ?>"></script>

@@ -35,7 +35,7 @@ try {
     $mailService = new App\Service\MailService($mailConfig);
     $htmlSanitizerService = new App\Service\HtmlSanitizerService();
     $scheduleService = new App\Service\ScheduleService($scheduleRepo);
-    $danceService = new App\Service\DanceService($danceRepo, $htmlSanitizerService);
+    $danceService = new App\Service\DanceService($danceRepo, $pageRepo, $htmlSanitizerService);
     $mediaService = new App\Service\MediaService($mediaRepo);
 
     $authService = new App\Service\AuthService($userRepo, $passwordResetRepo, $mailService);
@@ -51,7 +51,8 @@ try {
     $cmsTicketsController = new App\Controllers\Cms\CmsTicketsController($cmsService);
     $cmsUsersController = new App\Controllers\Cms\CmsUsersController($cmsService);
     $cmsDanceContentController = new App\Controllers\Cms\CmsDanceContentController($danceService);
-    $cmsEventScheduleController = new App\Controllers\Cms\CmsEventScheduleController($scheduleService);
+    $cmsEventEditorService = new App\Service\CmsEventEditorService($scheduleService, $danceService);
+    $cmsEventEditorController = new App\Controllers\Cms\CmsEventEditorController($scheduleService, $cmsEventEditorService);
     $cmsMediaController = new App\Controllers\Cms\CmsMediaController($mediaService);
 
     // Routes
@@ -80,8 +81,8 @@ try {
         // CMS routes
         $r->addRoute('GET', '/cms', ['CmsController', 'index']);
         $r->addRoute('GET', '/cms/events', ['CmsEventsController', 'index']);
-        $r->addRoute('GET', '/cms/events/{eventSlug}/schedule', ['CmsEventScheduleController', 'index']);
-        $r->addRoute('POST', '/cms/events/{eventSlug}/schedule', ['CmsEventScheduleController', 'update']);
+        $r->addRoute('GET', '/cms/events/{eventSlug}/schedule', ['CmsEventEditorController', 'index']);
+        $r->addRoute('POST', '/cms/events/{eventSlug}/schedule', ['CmsEventEditorController', 'update']);
         $r->addRoute('GET', '/cms/events/dance-home', ['CmsDanceContentController', 'index']);
         $r->addRoute('POST', '/cms/events/dance-home', ['CmsDanceContentController', 'update']);
         $r->addRoute('POST', '/cms/media/upload-replace', ['CmsMediaController', 'uploadReplace']);
@@ -120,7 +121,7 @@ try {
                 'CmsEventsController' => $cmsEventsController,
                 'CmsTicketsController' => $cmsTicketsController,
                 'CmsUsersController' => $cmsUsersController,
-                'CmsEventScheduleController' => $cmsEventScheduleController,
+                'CmsEventEditorController' => $cmsEventEditorController,
                 'CmsDanceContentController' => $cmsDanceContentController,
                 'CmsMediaController' => $cmsMediaController,
             ];

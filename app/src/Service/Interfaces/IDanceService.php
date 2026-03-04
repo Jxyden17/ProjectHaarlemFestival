@@ -9,6 +9,7 @@ interface IDanceService
 {
     public function getDanceBannerStats(): DanceBannerStatsViewModel;
     public function getDanceVenues(): array;
+    public function getDancePerformers(): array;
     public function getDanceHomePage(): Page;
     public function saveDanceHomePage(array $input): void;
 }

@@ -6,17 +6,21 @@ use App\Models\Page\Page;
 use App\Models\Page\Section;
 use App\Models\Page\SectionItem;
 use App\Models\ViewModels\Dance\DanceBannerStatsViewModel;
-use App\Repository\DanceRepository;
+use App\Repository\Interfaces\IDanceRepository;
+use App\Repository\Interfaces\IPageRepository;
 use App\Service\Interfaces\IDanceService;
+use App\Service\Interfaces\IHtmlSanitizerService;
 
 class DanceService implements IDanceService
 {
-    private DanceRepository $danceRepository;
-    private HtmlSanitizerService $htmlSanitizer;
+    private IDanceRepository $danceRepository;
+    private IPageRepository $pageRepository;
+    private IHtmlSanitizerService $htmlSanitizer;
 
-    public function __construct(DanceRepository $danceRepository, HtmlSanitizerService $htmlSanitizer)
+    public function __construct(IDanceRepository $danceRepository, IPageRepository $pageRepository, IHtmlSanitizerService $htmlSanitizer)
     {
         $this->danceRepository = $danceRepository;
+        $this->pageRepository = $pageRepository;
         $this->htmlSanitizer = $htmlSanitizer;
     }
 
@@ -45,14 +49,26 @@ class DanceService implements IDanceService
         return $this->danceRepository->getVenuesByEventId($event->id);
     }
 
+    public function getDancePerformers(): array
+    {
+        $event = $this->danceRepository->findDanceEvent();
+
+        if ($event === null) {
+            return [];
+        }
+
+        return $this->danceRepository->getPerformersByEventId($event->id);
+    }
+
     public function getDanceHomePage(): Page
     {
-        return $this->danceRepository->getDanceHomePage();
+        return $this->pageRepository->getPageBySlug('dance-home', 'Dance Home');
     }
 
     public function saveDanceHomePage(array $input): void
     {
         $normalizedInput = $this->normalizeHomePageInput($input);
+        $normalizedInput['artist_items'] = $this->synchronizeArtistItemsWithPerformers($normalizedInput['artist_items']);
         $this->validateHomePageInput($normalizedInput);
         $page = $this->buildDanceHomePage($normalizedInput);
         $this->persistDanceHomePage($page);
@@ -170,10 +186,45 @@ class DanceService implements IDanceService
                 continue;
             }
 
-            $result[] = new SectionItem(0, $name, $genre, $image, null, 'artist', null, null, null, count($result) + 1);
+            $id = (int)($artist['id'] ?? 0);
+            $result[] = new SectionItem($id, $name, $genre, $image, null, 'artist', null, null, null, count($result) + 1);
         }
 
         return $result;
+    }
+
+    private function synchronizeArtistItemsWithPerformers(array $artistItems): array
+    {
+        $performers = $this->getDancePerformers();
+        $synced = [];
+
+        foreach ($performers as $index => $performer) {
+            if (!$performer instanceof \App\Models\PerformerModel) {
+                continue;
+            }
+
+            $existing = $artistItems[$index] ?? null;
+            $existingId = $existing instanceof SectionItem ? (int)$existing->id : 0;
+            $existingImage = $existing instanceof SectionItem ? trim((string)($existing->image ?? '')) : '';
+            if ($existingId <= 0) {
+                continue;
+            }
+
+            $synced[] = new SectionItem(
+                $existingId,
+                $performer->performerName,
+                trim((string)($performer->performerType ?? '')),
+                $existingImage,
+                null,
+                'artist',
+                null,
+                null,
+                null,
+                count($synced) + 1
+            );
+        }
+
+        return $synced;
     }
 
     private function normalizePasses(array $passes): array
@@ -190,7 +241,8 @@ class DanceService implements IDanceService
                 continue;
             }
 
-            $result[] = new SectionItem(0, $label, $price, null, !empty($pass['highlight']) ? 'highlight' : null, 'pass', null, null, null, count($result) + 1);
+            $id = (int)($pass['id'] ?? 0);
+            $result[] = new SectionItem($id, $label, $price, null, !empty($pass['highlight']) ? 'highlight' : null, 'pass', null, null, null, count($result) + 1);
         }
 
         return $result;
@@ -203,7 +255,7 @@ class DanceService implements IDanceService
             throw new \RuntimeException('Dance event not found.');
         }
 
-        $pageId = $this->danceRepository->ensureDanceHomePage((int)$event->id);
+        $pageId = $this->pageRepository->ensurePageBySlug((int)$event->id, 'dance-home', 'Dance Home');
 
         $scheduleSection = $page->getSection('dance_schedule');
         $bannerSection = $page->getSection('dance_banner');
@@ -217,21 +269,19 @@ class DanceService implements IDanceService
             throw new \RuntimeException('Required dance sections are missing.');
         }
 
-        $this->danceRepository->saveOrUpdateSection($pageId, 'dance_schedule', $scheduleSection->title, null, null, 5);
-        $this->danceRepository->saveOrUpdateSection($pageId, 'dance_banner', $bannerSection->title, $bannerSection->subTitle, $bannerSection->description, 10);
+        $this->pageRepository->saveOrUpdateSection($pageId, 'dance_schedule', $scheduleSection->title, null, null, 5);
+        $this->pageRepository->saveOrUpdateSection($pageId, 'dance_banner', $bannerSection->title, $bannerSection->subTitle, $bannerSection->description, 10);
 
-        $infoSectionId = $this->danceRepository->saveOrUpdateSection($pageId, 'dance_info', $infoSection->title, null, $infoSection->description, 20);
+        $this->pageRepository->saveOrUpdateSection($pageId, 'dance_info', $infoSection->title, null, $infoSection->description, 20);
 
-        $artistsSectionId = $this->danceRepository->saveOrUpdateSection($pageId, 'dance_artists', $artistsSection->title, null, null, 30);
-        $this->danceRepository->replaceSectionItems($artistsSectionId, $this->mapArtistRows($artistsSection->items));
+        $artistsSectionId = $this->pageRepository->saveOrUpdateSection($pageId, 'dance_artists', $artistsSection->title, null, null, 30);
+        $this->pageRepository->upsertSectionItems($artistsSectionId, $this->mapArtistRows($artistsSection->items));
 
-        $passesSectionId = $this->danceRepository->saveOrUpdateSection($pageId, 'dance_passes', $passesSection->title, null, null, 40);
-        $this->danceRepository->replaceSectionItems($passesSectionId, $this->mapPassRows($passesSection->items));
+        $passesSectionId = $this->pageRepository->saveOrUpdateSection($pageId, 'dance_passes', $passesSection->title, null, null, 40);
+        $this->pageRepository->upsertSectionItems($passesSectionId, $this->mapPassRows($passesSection->items));
 
-        $this->danceRepository->saveOrUpdateSection($pageId, 'dance_capacity', $capacitySection->title, null, $capacitySection->description, 50);
-        $this->danceRepository->saveOrUpdateSection($pageId, 'dance_special_session', $specialSection->title, null, $specialSection->description, 60);
-
-        $this->danceRepository->replaceSectionItems($infoSectionId, []);
+        $this->pageRepository->saveOrUpdateSection($pageId, 'dance_capacity', $capacitySection->title, null, $capacitySection->description, 50);
+        $this->pageRepository->saveOrUpdateSection($pageId, 'dance_special_session', $specialSection->title, null, $specialSection->description, 60);
     }
 
     private function mapArtistRows(array $artists): array
@@ -253,6 +303,7 @@ class DanceService implements IDanceService
             }
 
             $rows[] = [
+                'id' => $artist->id,
                 'title' => $name,
                 'content' => $genre,
                 'image_path' => $image,
@@ -284,6 +335,7 @@ class DanceService implements IDanceService
             }
 
             $rows[] = [
+                'id' => $pass->id,
                 'title' => $label,
                 'content' => $price,
                 'image_path' => null,

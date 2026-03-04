@@ -2,7 +2,9 @@
 
 namespace App\Service;
 
-class HtmlSanitizerService
+use App\Service\Interfaces\IHtmlSanitizerService;
+
+class HtmlSanitizerService implements IHtmlSanitizerService
 {
     public function sanitizeWysiwygHtml(string $html): string
     {

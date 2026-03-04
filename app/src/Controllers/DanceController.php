@@ -25,6 +25,7 @@ class DanceController extends BaseController
         $scheduleTitle = $scheduleSection !== null ? $scheduleSection->title : '';
         $schedule = $this->scheduleService->getScheduleDataForEvent('Dance', $scheduleTitle);
         $venues = $this->danceService->getDanceVenues();
+        $performers = $this->danceService->getDancePerformers();
 
         $this->render('dance/index', [
             'title' => 'Dance',
@@ -32,6 +33,7 @@ class DanceController extends BaseController
                 $schedule,
                 $bannerStats,
                 $venues,
+                $performers,
                 $homeContent
             ),
         ]);

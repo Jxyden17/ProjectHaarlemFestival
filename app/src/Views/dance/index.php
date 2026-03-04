@@ -12,6 +12,7 @@ if (!$danceIndexViewModel instanceof DanceIndexViewModel) {
 $scheduleData = $danceIndexViewModel->schedule;
 $danceBannerStats = $danceIndexViewModel->bannerStats;
 $venues = $danceIndexViewModel->venues;
+$dancePerformers = $danceIndexViewModel->performers;
 $danceHomePage = $danceIndexViewModel->homeContent;
 
 if (!$danceHomePage instanceof Page) {

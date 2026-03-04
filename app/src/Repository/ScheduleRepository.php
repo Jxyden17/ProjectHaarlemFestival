@@ -8,9 +8,10 @@ use App\Models\PerformerModel;
 use App\Models\SessionModel;
 use App\Models\SessionPerformerModel;
 use App\Models\VenueModel;
+use App\Repository\Interfaces\IScheduleRepository;
 use PDO;
 
-class ScheduleRepository
+class ScheduleRepository implements IScheduleRepository
 {
     private PDO $db;
 

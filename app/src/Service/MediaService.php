@@ -4,14 +4,14 @@ namespace App\Service;
 
 use App\Models\Media\MediaModuleConfig;
 use App\Models\Media\MediaUploadRequest;
-use App\Repository\MediaRepository;
+use App\Repository\Interfaces\IMediaRepository;
 use App\Service\Interfaces\IMediaService;
 
 class MediaService implements IMediaService
 {
-    private MediaRepository $mediaRepository;
+    private IMediaRepository $mediaRepository;
 
-    public function __construct(MediaRepository $mediaRepository)
+    public function __construct(IMediaRepository $mediaRepository)
     {
         $this->mediaRepository = $mediaRepository;
     }
