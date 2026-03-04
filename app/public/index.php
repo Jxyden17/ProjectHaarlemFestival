@@ -45,8 +45,10 @@ try {
     $homeController = new App\Controllers\HomeController();
     $danceController = new App\Controllers\DanceController($scheduleService, $danceService);
     $tourController = new App\Controllers\TourController($pageService);
-    $cmsController = new App\Controllers\CmsController($cmsService);
-    $jazzController = new App\Controllers\JazzController($scheduleService, $jazzService);
+    $cmsController = new App\Controllers\Cms\CmsController($cmsService);
+    $cmsEventsController = new App\Controllers\Cms\CmsEventsController($cmsService);
+    $cmsTicketsController = new App\Controllers\Cms\CmsTicketsController($cmsService);
+    $cmsUsersController = new App\Controllers\Cms\CmsUsersController($cmsService);
 
     // Routes
     $dispatcher = simpleDispatcher(function (RouteCollector $r) {
@@ -73,18 +75,15 @@ try {
 
         // CMS routes
         $r->addRoute('GET', '/cms', ['CmsController', 'index']);
-        $r->addRoute('GET', '/cms/events', ['CmsController', 'eventsIndex']);
-        $r->addRoute('GET', '/cms/tickets', ['CmsController', 'ticketsIndex']);
-        $r->addRoute('GET', '/cms/users', ['CmsController', 'usersIndex']);
-        $r->addRoute('GET', '/cms/users/create', ['CmsController', 'showCreateForm']);
-        $r->addRoute('POST', '/cms/users/create', ['CmsController', 'addUser']);
-        $r->addRoute('GET', '/cms/users/edit', ['CmsController', 'showEditForm']);
-        $r->addRoute('POST', '/cms/users/edit', ['CmsController', 'editUser']);
-        $r->addRoute('GET', '/cms/users/delete', ['CmsController', 'showDeleteConfirmation']);
-        $r->addRoute('POST', '/cms/users/delete', ['CmsController', 'deleteUser']);
-
-        // Jazz routes
-        $r->addRoute('GET', '/jazz', ['JazzController', 'index']);
+        $r->addRoute('GET', '/cms/events', ['CmsEventsController', 'index']);
+        $r->addRoute('GET', '/cms/tickets', ['CmsTicketsController', 'index']);
+        $r->addRoute('GET', '/cms/users', ['CmsUsersController', 'index']);
+        $r->addRoute('GET', '/cms/users/create', ['CmsUsersController', 'showCreateForm']);
+        $r->addRoute('POST', '/cms/users/create', ['CmsUsersController', 'addUser']);
+        $r->addRoute('GET', '/cms/users/edit', ['CmsUsersController', 'showEditForm']);
+        $r->addRoute('POST', '/cms/users/edit', ['CmsUsersController', 'editUser']);
+        $r->addRoute('GET', '/cms/users/delete', ['CmsUsersController', 'showDeleteConfirmation']);
+        $r->addRoute('POST', '/cms/users/delete', ['CmsUsersController', 'deleteUser']);
     });
 
     // Dispatch request
@@ -110,6 +109,9 @@ try {
                 'TourController' => $tourController,
                 'CmsController' => $cmsController,
                 'JazzController' => $jazzController,
+                'CmsEventsController' => $cmsEventsController,
+                'CmsTicketsController' => $cmsTicketsController,
+                'CmsUsersController' => $cmsUsersController,
             ];
 
             if (!isset($controllerMap[$controllerName])) {

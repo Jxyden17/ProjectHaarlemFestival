@@ -261,3 +261,272 @@
     line-height: 1.4;
     opacity: 0.8;
 }
+
+/* ===== BEGIN from partialViews/Tour/infoGrid.css ===== */
+.section-wrapper 
+{
+    padding: 4rem 2rem;
+    background-color: var(--primary-color);
+    text-align: center;
+}
+
+.main-grid-title 
+{
+    font-family: var(--font-main);
+    color: var(--natural-light);
+    font-size: 3rem;
+    margin-bottom: 3rem;
+    font-weight: 400;
+}
+
+.three-column-grid 
+{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.grid-item-card 
+{
+    background-color: var(--hf-navy-deep);
+    border: 0.0625rem solid rgba(255, 255, 255, 0.1);
+    border-radius: 1.25rem;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: var(--transition-fast);
+}
+
+.grid-item-card:hover 
+{
+    border-color: var(--hf-gold);
+    transform: translateY(-5px);
+}
+
+.image-box 
+{
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    padding: 1rem;
+}
+
+.image-box img 
+{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 1rem;
+}
+
+.text-box 
+{
+    padding: 1.5rem;
+    color: var(--natural-light);
+    text-align: center;
+}
+
+.item-title 
+{
+    font-family: var(--font-main);
+    font-size: 1.5rem;
+    color: var(--natural-light);
+    margin-bottom: 1rem;
+}
+
+.item-content 
+{
+    font-family: var(--font-main);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--hf-muted);
+}
+/* ===== END from partialViews/Tour/infoGrid.css ===== */
+
+/* ===== BEGIN from partialViews/Tour/contactTime.css ===== */
+.contact-details-section 
+{
+    background-color: var(--hf-navy-deep);
+    width: 100%;
+    overflow: hidden;
+}
+
+.contact-container 
+{
+    display: flex;
+    flex-direction: row;
+    min-height: 31.25rem;
+}
+
+.map-wrapper 
+{
+    flex: 1;
+    min-height: 28.125rem;
+}
+
+.map-wrapper iframe 
+{
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+}
+
+.info-wrapper-box 
+{
+    flex: 1;
+    padding: 3.75rem;
+    background-color: var(--hf-navy-deep);
+    display: flex;
+    flex-direction: column;
+}
+
+.entrance-image 
+{
+    width: 100%;
+    margin-bottom: 2.5rem;
+}
+
+.entrance-image img 
+{
+    width: 100%;
+    height: 15.625rem;
+    object-fit: cover;
+    border-radius: 0.25rem;
+    border: 0.0625rem solid rgba(255, 255, 255, 0.1);
+}
+
+.details-flex 
+{
+    display: flex;
+    justify-content: space-between;
+    gap: 2.5rem;
+}
+
+.contact-col, .hours-col 
+{
+    flex: 1;
+}
+
+.column-title 
+{
+    font-family: var(--font-main);
+    color: var(--natural-light);
+    font-size: 2.25rem;
+    margin-bottom: 1.5rem;
+    font-weight: 400;
+}
+
+.contact-col p 
+{
+    color: var(--hf-muted);
+    font-size: 1rem;
+    line-height: 1.8;
+    margin-bottom: 0.5rem;
+}
+
+.contact-col strong 
+{
+    color: var(--hf-gold);
+    font-weight: 600;
+}
+
+.hour-row 
+{
+    display: flex;
+    justify-content: space-between;
+    padding: 0.35rem 0;
+    border-bottom: 0.0625rem solid rgba(255, 255, 255, 0.05);
+    font-size: 0.95rem;
+    color: var(--hf-muted);
+}
+
+.hour-row .day 
+{
+    font-weight: 600;
+}
+
+.extra-info 
+{
+    margin-top: 1.5rem;
+    font-style: italic;
+    font-size: 0.9rem;
+    color: var(--hf-muted);
+    text-align: right;
+}
+/* ===== END from partialViews/Tour/contactTime.css ===== */
+
+/* ===== BEGIN from partialViews/Tour/stopGrid.css ===== */
+.stops-section
+{
+    max-width: 1200px;
+    margin: 60px auto;
+    padding: 0 20px;
+}
+
+.title
+{
+    text-align: center;
+    font-family: var(--font-main);
+    font-size: 2.5rem;
+    margin-bottom: 40px;
+    color: var(--primary-color);
+}
+
+.grid
+{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 30px;
+}
+
+.card
+{
+    background: var(--primary-color);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px var(--accent-color);
+    transition: transform 0.3s ease;
+}
+
+.card:hover
+{
+    transform: translateY(-5px);
+}
+
+.image
+{
+    position: relative;
+    height: 200px;
+}
+
+.image img 
+{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.info
+{
+    color: var(--natural-light);
+}
+
+.letter
+{
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: var(--accent-color);
+    color: var(--natural-light);
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-weight: bold;
+}
+/* ===== END from partialViews/Tour/stopGrid.css ===== */

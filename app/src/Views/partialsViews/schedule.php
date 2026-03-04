@@ -11,8 +11,6 @@ $title = $scheduleData->title;
 $dayFilters = $scheduleData->dayFilters;
 $groups = $scheduleData->groups;
 ?>
-<link rel="stylesheet" href="/css/partialViews/schedule.css">
-
 <section class="schedule-section">
     <div class="schedule-container">
         <div class="schedule-header">
