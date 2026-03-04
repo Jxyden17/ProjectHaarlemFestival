@@ -3,11 +3,11 @@
 namespace App\Repository;
 
 use App\Models\Database;
-use App\Models\EventModel;
-use App\Models\PerformerModel;
-use App\Models\SessionModel;
-use App\Models\SessionPerformerModel;
-use App\Models\VenueModel;
+use App\Models\Event\EventModel;
+use App\Models\Event\PerformerModel;
+use App\Models\Event\SessionModel;
+use App\Models\Event\SessionPerformerModel;
+use App\Models\Event\VenueModel;
 use App\Repository\Interfaces\IScheduleRepository;
 use PDO;
 

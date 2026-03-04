@@ -3,9 +3,9 @@
 namespace App\Repository;
 
 use App\Models\Database;
-use App\Models\EventModel;
-use App\Models\PerformerModel;
-use App\Models\VenueModel;
+use App\Models\Event\EventModel;
+use App\Models\Event\PerformerModel;
+use App\Models\Event\VenueModel;
 use App\Repository\Interfaces\IDanceRepository;
 use PDO;
 

@@ -1,7 +1,7 @@
 <?php
 use App\Models\Page\Section;
 use App\Models\Page\SectionItem;
-use App\Models\PerformerModel;
+use App\Models\Event\PerformerModel;
 
 $danceArtistsSection = $danceArtistsSection ?? null;
 $dancePerformers = is_array($dancePerformers ?? null) ? $dancePerformers : [];

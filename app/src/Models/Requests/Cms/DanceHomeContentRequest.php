@@ -2,6 +2,10 @@
 
 namespace App\Models\Requests\Cms;
 
+use App\Models\Commands\Cms\Dance\DanceHomeSaveCommand;
+use App\Models\Requests\Cms\Dance\DanceHomeArtistRowRequest;
+use App\Models\Requests\Cms\Dance\DanceHomePassRowRequest;
+
 class DanceHomeContentRequest
 {
     private string $scheduleTitle;
@@ -59,11 +63,11 @@ class DanceHomeContentRequest
             (string)($input['banner_title'] ?? ''),
             (string)($input['banner_description'] ?? ''),
             (string)($input['artists_title'] ?? ''),
-            is_array($input['artists'] ?? null) ? $input['artists'] : [],
+            self::mapArtists(is_array($input['artists'] ?? null) ? $input['artists'] : []),
             (string)($input['important_information_title'] ?? ''),
             (string)($input['important_information_html'] ?? ''),
             (string)($input['passes_title'] ?? ''),
-            is_array($input['passes'] ?? null) ? $input['passes'] : [],
+            self::mapPasses(is_array($input['passes'] ?? null) ? $input['passes'] : []),
             (string)($input['capacity_title'] ?? ''),
             (string)($input['capacity_html'] ?? ''),
             (string)($input['special_title'] ?? ''),
@@ -71,24 +75,32 @@ class DanceHomeContentRequest
         );
     }
 
-    public function toArray(): array
+    private static function mapArtists(array $input): array
     {
-        return [
-            'schedule_title' => $this->scheduleTitle,
-            'banner_badge' => $this->bannerBadge,
-            'banner_title' => $this->bannerTitle,
-            'banner_description' => $this->bannerDescription,
-            'artists_title' => $this->artistsTitle,
-            'artists' => $this->artists,
-            'important_information_title' => $this->importantInformationTitle,
-            'important_information_html' => $this->importantInformationHtml,
-            'passes_title' => $this->passesTitle,
-            'passes' => $this->passes,
-            'capacity_title' => $this->capacityTitle,
-            'capacity_html' => $this->capacityHtml,
-            'special_title' => $this->specialTitle,
-            'special_html' => $this->specialHtml,
-        ];
+        $rows = [];
+        foreach ($input as $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+
+            $rows[] = DanceHomeArtistRowRequest::fromArray($row);
+        }
+
+        return $rows;
+    }
+
+    private static function mapPasses(array $input): array
+    {
+        $rows = [];
+        foreach ($input as $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+
+            $rows[] = DanceHomePassRowRequest::fromArray($row);
+        }
+
+        return $rows;
     }
 
     public function scheduleTitle(): string
@@ -99,6 +111,11 @@ class DanceHomeContentRequest
     public function bannerTitle(): string
     {
         return trim($this->bannerTitle);
+    }
+
+    public function bannerBadge(): string
+    {
+        return trim($this->bannerBadge);
     }
 
     public function bannerDescription(): string
@@ -154,5 +171,25 @@ class DanceHomeContentRequest
     public function specialHtml(): string
     {
         return trim($this->specialHtml);
+    }
+
+    public function toSaveCommand(): DanceHomeSaveCommand
+    {
+        return new DanceHomeSaveCommand(
+            $this->scheduleTitle(),
+            $this->bannerBadge(),
+            $this->bannerTitle(),
+            $this->bannerDescription(),
+            $this->artistsTitle(),
+            $this->artists(),
+            $this->importantInformationTitle(),
+            $this->importantInformationHtml(),
+            $this->passesTitle(),
+            $this->passes(),
+            $this->capacityTitle(),
+            $this->capacityHtml(),
+            $this->specialTitle(),
+            $this->specialHtml()
+        );
     }
 }

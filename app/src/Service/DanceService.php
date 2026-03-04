@@ -2,9 +2,16 @@
 
 namespace App\Service;
 
+use App\Models\Commands\Cms\Dance\DanceHomeSaveCommand;
 use App\Models\Page\Page;
 use App\Models\Page\Section;
 use App\Models\Page\SectionItem;
+use App\Models\Event\PerformerModel;
+use App\Models\Requests\Cms\Dance\DanceHomeArtistRowRequest;
+use App\Models\Requests\Cms\Dance\DanceHomePassRowRequest;
+use App\Models\ViewModels\Cms\Dance\DanceHomeArtistRowViewModel;
+use App\Models\ViewModels\Cms\Dance\DanceHomeContentViewModel;
+use App\Models\ViewModels\Cms\Dance\DanceHomePassRowViewModel;
 use App\Models\ViewModels\Dance\DanceBannerStatsViewModel;
 use App\Repository\Interfaces\IDanceRepository;
 use App\Repository\Interfaces\IPageRepository;
@@ -65,35 +72,109 @@ class DanceService implements IDanceService
         return $this->pageRepository->getPageBySlug('dance-home', 'Dance Home');
     }
 
-    public function saveDanceHomePage(array $input): void
+    public function getDanceHomeFormData(): DanceHomeContentViewModel
     {
-        $normalizedInput = $this->normalizeHomePageInput($input);
+        $page = $this->getDanceHomePage();
+        $schedule = $page->getSection('dance_schedule');
+        $banner = $page->getSection('dance_banner');
+        $artists = $page->getSection('dance_artists');
+        $info = $page->getSection('dance_info');
+        $passes = $page->getSection('dance_passes');
+        $capacity = $page->getSection('dance_capacity');
+        $special = $page->getSection('dance_special_session');
+
+        $artistRows = [];
+        $performers = $this->getDancePerformers();
+        $artistImageRows = [];
+        if ($artists !== null) {
+            foreach ($artists->getItemsByCategorie('artist') as $item) {
+                if ($item instanceof SectionItem) {
+                    $artistImageRows[] = $item;
+                }
+            }
+        }
+
+        foreach ($performers as $index => $performer) {
+            if (!$performer instanceof PerformerModel) {
+                continue;
+            }
+
+            $imageRow = $artistImageRows[$index] ?? null;
+            if (!$imageRow instanceof SectionItem) {
+                continue;
+            }
+
+            $artistRows[] = new DanceHomeArtistRowViewModel(
+                $imageRow->id,
+                $performer->performerName,
+                (string)($performer->performerType ?? ''),
+                (string)($imageRow->image ?? '')
+            );
+        }
+
+        $passRows = [];
+        if ($passes !== null) {
+            foreach ($passes->getItemsByCategorie('pass') as $item) {
+                if (!$item instanceof SectionItem) {
+                    continue;
+                }
+
+                $passRows[] = new DanceHomePassRowViewModel(
+                    $item->id,
+                    $item->title,
+                    (string)($item->content ?? ''),
+                    (string)($item->url ?? '') === 'highlight'
+                );
+            }
+        }
+
+        return new DanceHomeContentViewModel(
+            $schedule !== null ? $schedule->title : '',
+            $banner !== null ? (string)$banner->subTitle : '',
+            $banner !== null ? $banner->title : '',
+            $banner !== null ? (string)$banner->description : '',
+            $artists !== null ? $artists->title : '',
+            $artistRows,
+            $info !== null ? $info->title : '',
+            $info !== null ? (string)$info->description : '',
+            $passes !== null ? $passes->title : '',
+            $passRows,
+            $capacity !== null ? $capacity->title : '',
+            $capacity !== null ? (string)$capacity->description : '',
+            $special !== null ? $special->title : '',
+            $special !== null ? (string)$special->description : ''
+        );
+    }
+
+    public function saveDanceHomePage(DanceHomeSaveCommand $command): void
+    {
+        $normalizedInput = $this->normalizeHomePageInput($command);
         $normalizedInput['artist_items'] = $this->synchronizeArtistItemsWithPerformers($normalizedInput['artist_items']);
         $this->validateHomePageInput($normalizedInput);
         $page = $this->buildDanceHomePage($normalizedInput);
         $this->persistDanceHomePage($page);
     }
 
-    private function normalizeHomePageInput(array $input): array
+    private function normalizeHomePageInput(DanceHomeSaveCommand $command): array
     {
-        $artists = is_array($input['artists'] ?? null) ? $input['artists'] : [];
-        $passes = is_array($input['passes'] ?? null) ? $input['passes'] : [];
+        $artists = $command->artists();
+        $passes = $command->passes();
 
         return [
-            'schedule_title' => trim((string)($input['schedule_title'] ?? '')),
-            'banner_badge' => trim((string)($input['banner_badge'] ?? '')),
-            'banner_title' => trim((string)($input['banner_title'] ?? '')),
-            'banner_description' => trim((string)($input['banner_description'] ?? '')),
-            'artists_title' => trim((string)($input['artists_title'] ?? '')),
+            'schedule_title' => trim($command->scheduleTitle()),
+            'banner_badge' => trim($command->bannerBadge()),
+            'banner_title' => trim($command->bannerTitle()),
+            'banner_description' => trim($command->bannerDescription()),
+            'artists_title' => trim($command->artistsTitle()),
             'artist_items' => $this->normalizeArtists($artists),
-            'important_information_title' => trim((string)($input['important_information_title'] ?? '')),
-            'important_information_html' => $this->sanitizeWysiwygField((string)($input['important_information_html'] ?? '')),
-            'passes_title' => trim((string)($input['passes_title'] ?? '')),
+            'important_information_title' => trim($command->importantInformationTitle()),
+            'important_information_html' => $this->sanitizeWysiwygField($command->importantInformationHtml()),
+            'passes_title' => trim($command->passesTitle()),
             'pass_items' => $this->normalizePasses($passes),
-            'capacity_title' => trim((string)($input['capacity_title'] ?? '')),
-            'capacity_html' => $this->sanitizeWysiwygField((string)($input['capacity_html'] ?? '')),
-            'special_title' => trim((string)($input['special_title'] ?? '')),
-            'special_html' => $this->sanitizeWysiwygField((string)($input['special_html'] ?? '')),
+            'capacity_title' => trim($command->capacityTitle()),
+            'capacity_html' => $this->sanitizeWysiwygField($command->capacityHtml()),
+            'special_title' => trim($command->specialTitle()),
+            'special_html' => $this->sanitizeWysiwygField($command->specialHtml()),
         ];
     }
 
@@ -174,19 +255,19 @@ class DanceService implements IDanceService
     {
         $result = [];
         foreach ($artists as $artist) {
-            if (!is_array($artist)) {
+            if (!$artist instanceof DanceHomeArtistRowRequest) {
                 continue;
             }
 
-            $name = trim((string)($artist['name'] ?? ''));
-            $genre = trim((string)($artist['genre'] ?? ''));
-            $image = trim((string)($artist['image'] ?? ''));
+            $name = trim($artist->name());
+            $genre = trim($artist->genre());
+            $image = trim($artist->image());
 
             if ($name === '') {
                 continue;
             }
 
-            $id = (int)($artist['id'] ?? 0);
+            $id = $artist->id();
             $result[] = new SectionItem($id, $name, $genre, $image, null, 'artist', null, null, null, count($result) + 1);
         }
 
@@ -199,7 +280,7 @@ class DanceService implements IDanceService
         $synced = [];
 
         foreach ($performers as $index => $performer) {
-            if (!$performer instanceof \App\Models\PerformerModel) {
+            if (!$performer instanceof PerformerModel) {
                 continue;
             }
 
@@ -231,18 +312,18 @@ class DanceService implements IDanceService
     {
         $result = [];
         foreach ($passes as $pass) {
-            if (!is_array($pass)) {
+            if (!$pass instanceof DanceHomePassRowRequest) {
                 continue;
             }
 
-            $label = trim((string)($pass['label'] ?? ''));
-            $price = trim((string)($pass['price'] ?? ''));
+            $label = trim($pass->label());
+            $price = trim($pass->price());
             if ($label === '' || $price === '') {
                 continue;
             }
 
-            $id = (int)($pass['id'] ?? 0);
-            $result[] = new SectionItem($id, $label, $price, null, !empty($pass['highlight']) ? 'highlight' : null, 'pass', null, null, null, count($result) + 1);
+            $id = $pass->id();
+            $result[] = new SectionItem($id, $label, $price, null, $pass->highlight() ? 'highlight' : null, 'pass', null, null, null, count($result) + 1);
         }
 
         return $result;

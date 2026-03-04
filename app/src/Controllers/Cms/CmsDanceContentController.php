@@ -3,9 +3,11 @@
 namespace App\Controllers\Cms;
 
 use App\Controllers\BaseController;
-use App\Models\Page\Page;
-use App\Models\Page\SectionItem;
-use App\Models\PerformerModel;
+use App\Models\Requests\Cms\Dance\DanceHomeArtistRowRequest;
+use App\Models\Requests\Cms\Dance\DanceHomePassRowRequest;
+use App\Models\ViewModels\Cms\Dance\DanceHomeArtistRowViewModel;
+use App\Models\ViewModels\Cms\Dance\DanceHomeContentViewModel;
+use App\Models\ViewModels\Cms\Dance\DanceHomePassRowViewModel;
 use App\Models\Requests\Cms\DanceHomeContentRequest;
 use App\Service\Interfaces\IDanceService;
 
@@ -21,11 +23,11 @@ class CmsDanceContentController extends BaseController
     public function index(): void
     {
         $this->requireAdmin();
+        $contentViewModel = $this->danceService->getDanceHomeFormData();
 
-        $content = $this->danceService->getDanceHomePage();
         $this->renderCms('cms/events/dance-home', [
             'title' => 'Dance Home Content',
-            'contentData' => $this->mapPageToFormData($content),
+            'contentViewModel' => $contentViewModel,
             'success' => isset($_GET['saved']),
         ]);
     }
@@ -36,109 +38,67 @@ class CmsDanceContentController extends BaseController
         $request = DanceHomeContentRequest::fromArray($_POST);
 
         try {
-            $this->danceService->saveDanceHomePage($request->toArray());
+            $this->danceService->saveDanceHomePage($request->toSaveCommand());
             header('Location: /cms/events/dance-home?saved=1');
             exit;
         } catch (\Throwable $e) {
+            $contentViewModel = $this->mapPostToFormData($request);
             $this->renderCms('cms/events/dance-home', [
                 'title' => 'Dance Home Content',
-                'contentData' => $this->mapPostToFormData($request->toArray()),
+                'contentViewModel' => $contentViewModel,
                 'error' => $e->getMessage(),
                 'success' => false,
             ]);
         }
     }
 
-    private function mapPostToFormData(array $input): array
+    private function mapPostToFormData(DanceHomeContentRequest $request): DanceHomeContentViewModel
     {
-        return [
-            'schedule_title' => (string)($input['schedule_title'] ?? ''),
-            'banner_badge' => (string)($input['banner_badge'] ?? ''),
-            'banner_title' => (string)($input['banner_title'] ?? ''),
-            'banner_description' => (string)($input['banner_description'] ?? ''),
-            'artists_title' => (string)($input['artists_title'] ?? ''),
-            'artists' => is_array($input['artists'] ?? null) ? $input['artists'] : [],
-            'important_information_title' => (string)($input['important_information_title'] ?? ''),
-            'important_information_html' => (string)($input['important_information_html'] ?? ''),
-            'passes_title' => (string)($input['passes_title'] ?? ''),
-            'passes' => is_array($input['passes'] ?? null) ? $input['passes'] : [],
-            'capacity_title' => (string)($input['capacity_title'] ?? ''),
-            'capacity_html' => (string)($input['capacity_html'] ?? ''),
-            'special_title' => (string)($input['special_title'] ?? ''),
-            'special_html' => (string)($input['special_html'] ?? ''),
-        ];
-    }
-
-    private function mapPageToFormData(Page $page): array
-    {
-        $schedule = $page->getSection('dance_schedule');
-        $banner = $page->getSection('dance_banner');
-        $artists = $page->getSection('dance_artists');
-        $info = $page->getSection('dance_info');
-        $passes = $page->getSection('dance_passes');
-        $capacity = $page->getSection('dance_capacity');
-        $special = $page->getSection('dance_special_session');
-
         $artistRows = [];
-        $performers = $this->danceService->getDancePerformers();
-        $artistImageRows = [];
-        if ($artists !== null) {
-            foreach ($artists->getItemsByCategorie('artist') as $item) {
-                if ($item instanceof SectionItem) {
-                    $artistImageRows[] = $item;
-                }
-            }
-        }
-
-        foreach ($performers as $index => $performer) {
-            if (!$performer instanceof PerformerModel) {
+        $artists = $request->artists();
+        foreach ($artists as $artist) {
+            if (!$artist instanceof DanceHomeArtistRowRequest) {
                 continue;
             }
 
-            $imageRow = $artistImageRows[$index] ?? null;
-            if (!$imageRow instanceof SectionItem) {
-                continue;
-            }
-
-            $artistRows[] = [
-                'id' => $imageRow->id,
-                'name' => $performer->performerName,
-                'genre' => (string)($performer->performerType ?? ''),
-                'image' => (string)($imageRow->image ?? ''),
-            ];
+            $artistRows[] = new DanceHomeArtistRowViewModel(
+                $artist->id(),
+                $artist->name(),
+                $artist->genre(),
+                $artist->image()
+            );
         }
 
         $passRows = [];
-        if ($passes !== null) {
-            foreach ($passes->getItemsByCategorie('pass') as $item) {
-                if (!$item instanceof SectionItem) {
-                    continue;
-                }
-
-                $passRows[] = [
-                    'id' => $item->id,
-                    'label' => $item->title,
-                    'price' => (string)($item->content ?? ''),
-                    'highlight' => (string)($item->url ?? '') === 'highlight',
-                ];
+        $passes = $request->passes();
+        foreach ($passes as $pass) {
+            if (!$pass instanceof DanceHomePassRowRequest) {
+                continue;
             }
+
+            $passRows[] = new DanceHomePassRowViewModel(
+                $pass->id(),
+                $pass->label(),
+                $pass->price(),
+                $pass->highlight()
+            );
         }
 
-        return [
-            'schedule_title' => $schedule !== null ? $schedule->title : '',
-            'banner_badge' => $banner !== null ? (string)$banner->subTitle : '',
-            'banner_title' => $banner !== null ? $banner->title : '',
-            'banner_description' => $banner !== null ? (string)$banner->description : '',
-            'artists_title' => $artists !== null ? $artists->title : '',
-            'artists' => $artistRows,
-            'important_information_title' => $info !== null ? $info->title : '',
-            'important_information_html' => $info !== null ? (string)$info->description : '',
-            'passes_title' => $passes !== null ? $passes->title : '',
-            'passes' => $passRows,
-            'capacity_title' => $capacity !== null ? $capacity->title : '',
-            'capacity_html' => $capacity !== null ? (string)$capacity->description : '',
-            'special_title' => $special !== null ? $special->title : '',
-            'special_html' => $special !== null ? (string)$special->description : '',
-        ];
+        return new DanceHomeContentViewModel(
+            $request->scheduleTitle(),
+            $request->bannerBadge(),
+            $request->bannerTitle(),
+            $request->bannerDescription(),
+            $request->artistsTitle(),
+            $artistRows,
+            $request->importantInformationTitle(),
+            $request->importantInformationHtml(),
+            $request->passesTitle(),
+            $passRows,
+            $request->capacityTitle(),
+            $request->capacityHtml(),
+            $request->specialTitle(),
+            $request->specialHtml()
+        );
     }
 }

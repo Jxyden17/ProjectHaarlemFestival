@@ -24,10 +24,10 @@ class CmsEventEditorController extends BaseController
 
         $eventName = $this->resolveEventName($vars);
         $eventSlug = $this->toEventSlug($eventName);
-        $editorData = $this->cmsEventEditorService->getEditorData($eventName);
+        $editorViewModel = $this->cmsEventEditorService->getEditorData($eventName);
         $this->renderCms('cms/events/dance-schedule', [
             'title' => $eventName . ' Schedule',
-            'editorData' => $editorData,
+            'editorViewModel' => $editorViewModel,
             'formAction' => '/cms/events/' . $eventSlug . '/schedule',
             'success' => isset($_GET['saved']),
         ]);
@@ -42,14 +42,14 @@ class CmsEventEditorController extends BaseController
         $request = ScheduleEditorRequest::fromArray($_POST);
 
         try {
-            $this->scheduleService->saveScheduleData($eventName, $request->toArray());
+            $this->scheduleService->saveScheduleData($eventName, $request->toSaveCommand());
             header('Location: /cms/events/' . $eventSlug . '/schedule?saved=1');
             exit;
         } catch (\Throwable $e) {
-            $editorData = $this->cmsEventEditorService->getEditorData($eventName);
-            $editorData = $this->cmsEventEditorService->mergePostedEditorData(
+            $editorViewModel = $this->cmsEventEditorService->getEditorData($eventName);
+            $editorViewModel = $this->cmsEventEditorService->mergePostedEditorData(
                 $eventName,
-                $editorData,
+                $editorViewModel,
                 $request->venues(),
                 $request->performers(),
                 $request->sessions()
@@ -57,7 +57,7 @@ class CmsEventEditorController extends BaseController
 
             $this->renderCms('cms/events/dance-schedule', [
                 'title' => $eventName . ' Schedule',
-                'editorData' => $editorData,
+                'editorViewModel' => $editorViewModel,
                 'formAction' => '/cms/events/' . $eventSlug . '/schedule',
                 'error' => $e->getMessage(),
                 'success' => false,

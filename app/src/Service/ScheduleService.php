@@ -2,11 +2,19 @@
 
 namespace App\Service;
 
-use App\Models\PerformerModel;
-use App\Models\SessionModel;
-use App\Models\SessionPerformerModel;
-use App\Models\VenueModel;
-use App\Models\EventModel;
+use App\Models\Commands\Cms\Schedule\ScheduleSaveCommand;
+use App\Models\Event\PerformerModel;
+use App\Models\Event\SessionModel;
+use App\Models\Event\SessionPerformerModel;
+use App\Models\Event\VenueModel;
+use App\Models\Event\EventModel;
+use App\Models\Requests\Cms\Schedule\SchedulePerformerRowRequest;
+use App\Models\Requests\Cms\Schedule\ScheduleSessionRowRequest;
+use App\Models\Requests\Cms\Schedule\ScheduleVenueRowRequest;
+use App\Models\ViewModels\Cms\Schedule\ScheduleEditorPerformerRowViewModel;
+use App\Models\ViewModels\Cms\Schedule\ScheduleEditorSessionRowViewModel;
+use App\Models\ViewModels\Cms\Schedule\ScheduleEditorVenueRowViewModel;
+use App\Models\ViewModels\Cms\Schedule\ScheduleEditorViewModel;
 use App\Repository\Interfaces\IScheduleRepository;
 use App\Service\Interfaces\IScheduleService;
 use App\Models\ViewModels\Shared\ScheduleDayFilterViewModel;
@@ -36,7 +44,7 @@ class ScheduleService implements IScheduleService
         return $this->buildScheduleViewModel($event->sessions, $title);
     }
 
-    public function getScheduleEditorData(string $eventName): array
+    public function getScheduleEditorData(string $eventName): ScheduleEditorViewModel
     {
         $event = $this->findEventOrFail($eventName);
 
@@ -47,15 +55,15 @@ class ScheduleService implements IScheduleService
 
         $sessionPerformerMap = $this->buildSessionPerformerMap($sessionPerformers);
 
-        return [
-            'event_name' => $event->name,
-            'venues' => $this->mapVenueRows($venues),
-            'performers' => $this->mapPerformerRows($performers),
-            'sessions' => $this->mapSessionRows($sessions, $sessionPerformerMap),
-        ];
+        return new ScheduleEditorViewModel(
+            $event->name,
+            $this->mapVenueRows($venues),
+            $this->mapPerformerRows($performers),
+            $this->mapSessionRows($sessions, $sessionPerformerMap)
+        );
     }
 
-    public function saveScheduleData(string $eventName, array $input): void
+    public function saveScheduleData(string $eventName, ScheduleSaveCommand $command): void
     {
         $event = $this->findEventOrFail($eventName);
 
@@ -66,11 +74,10 @@ class ScheduleService implements IScheduleService
         $allowedVenueIds = $this->extractVenueIds($venues);
         $allowedPerformerIds = $this->extractPerformerIds($performers);
         $allowedSessionIds = $this->extractSessionIds($sessions);
-        [$venueRowsInput, $performerRowsInput, $sessionRowsInput] = $this->extractScheduleEditorInputRows($input);
 
-        $venueRows = $this->normalizeVenueRows($venueRowsInput);
-        $performerRows = $this->normalizePerformerRows($performerRowsInput);
-        [$sessionRows, $sessionPerformerRows] = $this->normalizeSessionRows($sessionRowsInput, $allowedVenueIds, $allowedPerformerIds, $allowedSessionIds);
+        $venueRows = $this->normalizeVenueRows($command->venues());
+        $performerRows = $this->normalizePerformerRows($command->performers());
+        [$sessionRows, $sessionPerformerRows] = $this->normalizeSessionRows($command->sessions(), $allowedVenueIds, $allowedPerformerIds, $allowedSessionIds);
 
         if (count($sessionRows) === 0) {
             throw new \InvalidArgumentException('No schedule rows were provided.');
@@ -98,12 +105,12 @@ class ScheduleService implements IScheduleService
                 continue;
             }
 
-            $rows[] = [
-                'id' => $venue->id,
-                'name' => $venue->venueName,
-                'address' => (string)($venue->address ?? ''),
-                'type' => (string)($venue->venueType ?? ''),
-            ];
+            $rows[] = new ScheduleEditorVenueRowViewModel(
+                $venue->id,
+                $venue->venueName,
+                (string)($venue->address ?? ''),
+                (string)($venue->venueType ?? '')
+            );
         }
 
         return $rows;
@@ -118,12 +125,14 @@ class ScheduleService implements IScheduleService
                 continue;
             }
 
-            $rows[] = [
-                'id' => $performer->id,
-                'name' => $performer->performerName,
-                'type' => (string)($performer->performerType ?? ''),
-                'description' => (string)($performer->description ?? ''),
-            ];
+            $rows[] = new ScheduleEditorPerformerRowViewModel(
+                $performer->id,
+                $performer->performerName,
+                (string)($performer->performerType ?? ''),
+                (string)($performer->description ?? ''),
+                0,
+                ''
+            );
         }
 
         return $rows;
@@ -158,17 +167,17 @@ class ScheduleService implements IScheduleService
                 continue;
             }
 
-            $rows[] = [
-                'id' => $session->id,
-                'date' => $session->date,
-                'start_time' => substr($session->startTime, 0, 5),
-                'venue_id' => $session->venueId,
-                'label' => (string)($session->language ?? ''),
-                'price' => number_format($session->price, 2, '.', ''),
-                'available_spots' => $session->availableSpots,
-                'amount_sold' => $session->amountSold,
-                'performer_ids' => $sessionPerformerMap[$session->id] ?? [],
-            ];
+            $rows[] = new ScheduleEditorSessionRowViewModel(
+                $session->id,
+                $session->date,
+                substr($session->startTime, 0, 5),
+                $session->venueId,
+                (string)($session->language ?? ''),
+                number_format($session->price, 2, '.', ''),
+                $session->availableSpots,
+                $session->amountSold,
+                array_values(array_map('intval', $sessionPerformerMap[$session->id] ?? []))
+            );
         }
 
         return $rows;
@@ -213,28 +222,19 @@ class ScheduleService implements IScheduleService
         return $ids;
     }
 
-    private function extractScheduleEditorInputRows(array $input): array
-    {
-        $venueRowsInput = is_array($input['venues'] ?? null) ? $input['venues'] : [];
-        $performerRowsInput = is_array($input['performers'] ?? null) ? $input['performers'] : [];
-        $sessionRowsInput = is_array($input['sessions'] ?? null) ? $input['sessions'] : [];
-
-        return [$venueRowsInput, $performerRowsInput, $sessionRowsInput];
-    }
-
     private function normalizeVenueRows(array $rows): array
     {
         $normalizedRows = [];
 
         foreach ($rows as $row) {
-            if (!is_array($row)) {
+            if (!$row instanceof ScheduleVenueRowRequest) {
                 continue;
             }
 
-            $id = (int)($row['id'] ?? 0);
-            $name = trim((string)($row['name'] ?? ''));
-            $address = trim((string)($row['address'] ?? ''));
-            $type = trim((string)($row['type'] ?? ''));
+            $id = $row->id();
+            $name = trim($row->name());
+            $address = trim($row->address());
+            $type = trim($row->type());
 
             if ($id <= 0 || $name === '') {
                 throw new \InvalidArgumentException('Each venue row requires id and venue name.');
@@ -256,14 +256,14 @@ class ScheduleService implements IScheduleService
         $normalizedRows = [];
 
         foreach ($rows as $row) {
-            if (!is_array($row)) {
+            if (!$row instanceof SchedulePerformerRowRequest) {
                 continue;
             }
 
-            $id = (int)($row['id'] ?? 0);
-            $name = trim((string)($row['name'] ?? ''));
-            $type = trim((string)($row['type'] ?? ''));
-            $description = trim((string)($row['description'] ?? ''));
+            $id = $row->id();
+            $name = trim($row->name());
+            $type = trim($row->type());
+            $description = trim($row->description());
 
             if ($id <= 0 || $name === '') {
                 throw new \InvalidArgumentException('Each performer row requires id and name.');
@@ -287,7 +287,7 @@ class ScheduleService implements IScheduleService
         $seenSessionPerformer = [];
 
         foreach ($rows as $row) {
-            if (!is_array($row)) {
+            if (!$row instanceof ScheduleSessionRowRequest) {
                 continue;
             }
 
@@ -296,7 +296,7 @@ class ScheduleService implements IScheduleService
 
             $normalizedSessionPerformerRows = $this->normalizeSessionPerformerRows(
                 $normalizedSessionRow['id'],
-                $row,
+                $row->performerIds(),
                 $allowedPerformerIds,
                 $seenSessionPerformer
             );
@@ -309,16 +309,16 @@ class ScheduleService implements IScheduleService
         return [$sessionRows, $sessionPerformerRows];
     }
 
-    private function normalizeSingleSessionRow(array $row, array $allowedVenueIds, array $allowedSessionIds): array
+    private function normalizeSingleSessionRow(ScheduleSessionRowRequest $row, array $allowedVenueIds, array $allowedSessionIds): array
     {
-        $id = (int)($row['id'] ?? 0);
-        $venueId = (int)($row['venue_id'] ?? 0);
-        $date = trim((string)($row['date'] ?? ''));
-        $startTime = trim((string)($row['start_time'] ?? ''));
-        $label = trim((string)($row['label'] ?? ''));
-        $priceRaw = trim((string)($row['price'] ?? ''));
-        $spots = (int)($row['available_spots'] ?? 0);
-        $amountSold = (int)($row['amount_sold'] ?? 0);
+        $id = $row->id();
+        $venueId = $row->venueId();
+        $date = trim($row->date());
+        $startTime = trim($row->startTime());
+        $label = trim($row->label());
+        $priceRaw = trim($row->price());
+        $spots = $row->availableSpots();
+        $amountSold = $row->amountSold();
 
         if ($id <= 0 || $venueId <= 0 || $date === '' || $startTime === '' || $priceRaw === '') {
             throw new \InvalidArgumentException('All schedule rows must include id, venue, date, time, and price.');
@@ -364,10 +364,9 @@ class ScheduleService implements IScheduleService
         ];
     }
 
-    private function normalizeSessionPerformerRows(int $sessionId, array $row, array $allowedPerformerIds, array &$seenSessionPerformer): array
+    private function normalizeSessionPerformerRows(int $sessionId, array $performerIds, array $allowedPerformerIds, array &$seenSessionPerformer): array
     {
         $normalizedRows = [];
-        $performerIds = is_array($row['performer_ids'] ?? null) ? $row['performer_ids'] : [];
 
         foreach ($performerIds as $performerIdRaw) {
             $performerId = (int)$performerIdRaw;

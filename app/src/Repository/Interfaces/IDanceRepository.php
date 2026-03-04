@@ -2,7 +2,7 @@
 
 namespace App\Repository\Interfaces;
 
-use App\Models\EventModel;
+use App\Models\Event\EventModel;
 
 interface IDanceRepository
 {

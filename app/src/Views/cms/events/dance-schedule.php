@@ -1,8 +1,15 @@
 <?php
-$editorData = is_array($editorData ?? null) ? $editorData : [];
-$sessions = is_array($editorData['sessions'] ?? null) ? $editorData['sessions'] : [];
-$venues = is_array($editorData['venues'] ?? null) ? $editorData['venues'] : [];
-$performers = is_array($editorData['performers'] ?? null) ? $editorData['performers'] : [];
+use App\Models\ViewModels\Cms\Schedule\ScheduleEditorPerformerRowViewModel;
+use App\Models\ViewModels\Cms\Schedule\ScheduleEditorSessionRowViewModel;
+use App\Models\ViewModels\Cms\Schedule\ScheduleEditorVenueRowViewModel;
+use App\Models\ViewModels\Cms\Schedule\ScheduleEditorViewModel;
+
+$editorViewModel = (isset($editorViewModel) && $editorViewModel instanceof ScheduleEditorViewModel)
+    ? $editorViewModel
+    : new ScheduleEditorViewModel('', [], [], []);
+$sessions = $editorViewModel->sessions;
+$venues = $editorViewModel->venues;
+$performers = $editorViewModel->performers;
 $formAction = (string)($formAction ?? '/cms/events/dance-schedule');
 ?>
 
@@ -43,19 +50,20 @@ $formAction = (string)($formAction ?? '/cms/events/dance-schedule');
                     </thead>
                     <tbody>
                         <?php foreach ($venues as $index => $venue): ?>
+                            <?php if (!$venue instanceof ScheduleEditorVenueRowViewModel) { continue; } ?>
                             <tr>
                                 <td>
-                                    <?= (int)($venue['id'] ?? 0) ?>
-                                    <input type="hidden" name="venues[<?= (int)$index ?>][id]" value="<?= (int)($venue['id'] ?? 0) ?>">
+                                    <?= $venue->id ?>
+                                    <input type="hidden" name="venues[<?= (int)$index ?>][id]" value="<?= $venue->id ?>">
                                 </td>
                                 <td>
-                                    <input type="text" class="form-control form-control-sm" name="venues[<?= (int)$index ?>][name]" value="<?= htmlspecialchars((string)($venue['name'] ?? '')) ?>" required>
+                                    <input type="text" class="form-control form-control-sm" name="venues[<?= (int)$index ?>][name]" value="<?= htmlspecialchars($venue->name) ?>" required>
                                 </td>
                                 <td>
-                                    <input type="text" class="form-control form-control-sm" name="venues[<?= (int)$index ?>][address]" value="<?= htmlspecialchars((string)($venue['address'] ?? '')) ?>">
+                                    <input type="text" class="form-control form-control-sm" name="venues[<?= (int)$index ?>][address]" value="<?= htmlspecialchars($venue->address) ?>">
                                 </td>
                                 <td>
-                                    <input type="text" class="form-control form-control-sm" name="venues[<?= (int)$index ?>][type]" value="<?= htmlspecialchars((string)($venue['type'] ?? '')) ?>">
+                                    <input type="text" class="form-control form-control-sm" name="venues[<?= (int)$index ?>][type]" value="<?= htmlspecialchars($venue->type) ?>">
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -77,29 +85,30 @@ $formAction = (string)($formAction ?? '/cms/events/dance-schedule');
                     </thead>
                     <tbody>
                         <?php foreach ($performers as $index => $performer): ?>
+                            <?php if (!$performer instanceof ScheduleEditorPerformerRowViewModel) { continue; } ?>
                             <tr>
                                 <td>
-                                    <?= (int)($performer['id'] ?? 0) ?>
-                                    <input type="hidden" name="performers[<?= (int)$index ?>][id]" value="<?= (int)($performer['id'] ?? 0) ?>">
+                                    <?= $performer->id ?>
+                                    <input type="hidden" name="performers[<?= (int)$index ?>][id]" value="<?= $performer->id ?>">
                                 </td>
                                 <td>
-                                    <input type="text" class="form-control form-control-sm" name="performers[<?= (int)$index ?>][name]" value="<?= htmlspecialchars((string)($performer['name'] ?? '')) ?>" required>
+                                    <input type="text" class="form-control form-control-sm" name="performers[<?= (int)$index ?>][name]" value="<?= htmlspecialchars($performer->name) ?>" required>
                                 </td>
                                 <td>
-                                    <input type="text" class="form-control form-control-sm" name="performers[<?= (int)$index ?>][type]" value="<?= htmlspecialchars((string)($performer['type'] ?? '')) ?>">
+                                    <input type="text" class="form-control form-control-sm" name="performers[<?= (int)$index ?>][type]" value="<?= htmlspecialchars($performer->type) ?>">
                                 </td>
                                 <td>
-                                    <input type="text" class="form-control form-control-sm" name="performers[<?= (int)$index ?>][description]" value="<?= htmlspecialchars((string)($performer['description'] ?? '')) ?>">
+                                    <input type="text" class="form-control form-control-sm" name="performers[<?= (int)$index ?>][description]" value="<?= htmlspecialchars($performer->description) ?>">
                                 </td>
                                 <td style="min-width: 300px;">
-                                    <input type="hidden" class="performer-artist-item-id" value="<?= (int)($performer['artist_section_item_id'] ?? 0) ?>">
-                                    <input type="hidden" class="performer-artist-image" value="<?= htmlspecialchars((string)($performer['artist_image_path'] ?? '')) ?>">
+                                    <input type="hidden" class="performer-artist-item-id" value="<?= $performer->artistSectionItemId ?>">
+                                    <input type="hidden" class="performer-artist-image" value="<?= htmlspecialchars($performer->artistImagePath) ?>">
                                     <div class="d-flex flex-wrap gap-2 align-items-center performer-image-row">
                                         <input type="file" class="form-control form-control-sm performer-upload-input" accept="image/jpeg,image/png,image/webp">
                                         <button type="button" class="btn btn-sm btn-outline-primary upload-performer-image">Upload</button>
                                         <a
-                                            href="<?= htmlspecialchars((string)($performer['artist_image_path'] ?? '')) ?>"
-                                            class="btn btn-sm btn-outline-secondary performer-download-link<?= empty($performer['artist_image_path']) ? ' d-none' : '' ?>"
+                                            href="<?= htmlspecialchars($performer->artistImagePath) ?>"
+                                            class="btn btn-sm btn-outline-secondary performer-download-link<?= $performer->artistImagePath === '' ? ' d-none' : '' ?>"
                                             download
                                         >
                                             Download
@@ -131,44 +140,54 @@ $formAction = (string)($formAction ?? '/cms/events/dance-schedule');
                     <tbody>
                         <?php foreach ($sessions as $index => $session): ?>
                             <?php
-                            $id = (int)($session['id'] ?? 0);
-                            $selectedVenueId = (int)($session['venue_id'] ?? 0);
+                            if (!$session instanceof ScheduleEditorSessionRowViewModel) {
+                                continue;
+                            }
+
+                            $id = $session->id;
+                            $selectedVenueId = $session->venueId;
                             ?>
                             <tr>
                                 <td>
                                     <?= $id ?>
                                     <input type="hidden" name="sessions[<?= (int)$index ?>][id]" value="<?= $id ?>">
-                                    <input type="hidden" name="sessions[<?= (int)$index ?>][amount_sold]" value="<?= (int)($session['amount_sold'] ?? 0) ?>">
+                                    <input type="hidden" name="sessions[<?= (int)$index ?>][amount_sold]" value="<?= $session->amountSold ?>">
                                 </td>
                                 <td>
-                                    <input type="date" class="form-control form-control-sm" name="sessions[<?= (int)$index ?>][date]" value="<?= htmlspecialchars((string)($session['date'] ?? '')) ?>" required>
+                                    <input type="date" class="form-control form-control-sm" name="sessions[<?= (int)$index ?>][date]" value="<?= htmlspecialchars($session->date) ?>" required>
                                 </td>
                                 <td>
-                                    <input type="time" class="form-control form-control-sm" name="sessions[<?= (int)$index ?>][start_time]" value="<?= htmlspecialchars((string)($session['start_time'] ?? '')) ?>" required>
+                                    <input type="time" class="form-control form-control-sm" name="sessions[<?= (int)$index ?>][start_time]" value="<?= htmlspecialchars($session->startTime) ?>" required>
                                 </td>
                                 <td>
                                     <select class="form-select form-select-sm" name="sessions[<?= (int)$index ?>][venue_id]" required>
                                         <option value="">Select venue</option>
                                         <?php foreach ($venues as $venue): ?>
-                                            <?php $venueId = (int)($venue['id'] ?? 0); ?>
+                                            <?php
+                                            if (!$venue instanceof ScheduleEditorVenueRowViewModel) {
+                                                continue;
+                                            }
+
+                                            $venueId = $venue->id;
+                                            ?>
                                             <option value="<?= $venueId ?>" <?= $venueId === $selectedVenueId ? 'selected' : '' ?>>
-                                                <?= htmlspecialchars((string)($venue['name'] ?? '')) ?>
+                                                <?= htmlspecialchars($venue->name) ?>
                                             </option>
                                         <?php endforeach; ?>
                                     </select>
                                 </td>
                                 <td>
-                                    <input type="text" class="form-control form-control-sm" name="sessions[<?= (int)$index ?>][label]" value="<?= htmlspecialchars((string)($session['label'] ?? '')) ?>">
+                                    <input type="text" class="form-control form-control-sm" name="sessions[<?= (int)$index ?>][label]" value="<?= htmlspecialchars($session->label) ?>">
                                 </td>
                                 <td>
-                                    <input type="number" min="0" step="0.01" class="form-control form-control-sm" name="sessions[<?= (int)$index ?>][price]" value="<?= htmlspecialchars((string)($session['price'] ?? '0.00')) ?>" required>
+                                    <input type="number" min="0" step="0.01" class="form-control form-control-sm" name="sessions[<?= (int)$index ?>][price]" value="<?= htmlspecialchars($session->price) ?>" required>
                                 </td>
                                 <td>
-                                    <input type="number" min="0" step="1" class="form-control form-control-sm" name="sessions[<?= (int)$index ?>][available_spots]" value="<?= htmlspecialchars((string)($session['available_spots'] ?? '0')) ?>" required>
+                                    <input type="number" min="0" step="1" class="form-control form-control-sm" name="sessions[<?= (int)$index ?>][available_spots]" value="<?= htmlspecialchars((string)$session->availableSpots) ?>" required>
                                 </td>
-                                <td><?= (int)($session['amount_sold'] ?? 0) ?></td>
+                                <td><?= $session->amountSold ?></td>
                                 <td style="min-width: 240px;">
-                                    <?php $selectedPerformerIds = is_array($session['performer_ids'] ?? null) ? $session['performer_ids'] : []; ?>
+                                    <?php $selectedPerformerIds = $session->performerIds; ?>
                                     <select
                                         class="form-select form-select-sm"
                                         name="sessions[<?= (int)$index ?>][performer_ids][]"
@@ -176,9 +195,15 @@ $formAction = (string)($formAction ?? '/cms/events/dance-schedule');
                                         size="4"
                                     >
                                         <?php foreach ($performers as $performer): ?>
-                                            <?php $performerId = (int)($performer['id'] ?? 0); ?>
+                                            <?php
+                                            if (!$performer instanceof ScheduleEditorPerformerRowViewModel) {
+                                                continue;
+                                            }
+
+                                            $performerId = $performer->id;
+                                            ?>
                                             <option value="<?= $performerId ?>" <?= in_array($performerId, array_map('intval', $selectedPerformerIds), true) ? 'selected' : '' ?>>
-                                                <?= htmlspecialchars((string)($performer['name'] ?? '')) ?>
+                                                <?= htmlspecialchars($performer->name) ?>
                                             </option>
                                         <?php endforeach; ?>
                                     </select>

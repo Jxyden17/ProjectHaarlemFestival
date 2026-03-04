@@ -1,7 +1,10 @@
-<?php
-$contentData = $contentData ?? [];
-$artists = is_array($contentData['artists'] ?? null) ? $contentData['artists'] : [];
-$passes = is_array($contentData['passes'] ?? null) ? $contentData['passes'] : [];
+<?php 
+use App\Models\ViewModels\Cms\Dance\DanceHomeContentViewModel;
+$contentViewModel = (isset($contentViewModel) && $contentViewModel instanceof DanceHomeContentViewModel)
+    ? $contentViewModel
+    : new DanceHomeContentViewModel('', '', '', '', '', [], '', '', '', [], '', '', '', '');
+$artists = $contentViewModel->artists;
+$passes = $contentViewModel->passes;
 ?>
 <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
 
@@ -33,7 +36,7 @@ $passes = is_array($contentData['passes'] ?? null) ? $contentData['passes'] : []
                     id="schedule_title"
                     name="schedule_title"
                     class="form-control"
-                    value="<?= htmlspecialchars((string)($contentData['schedule_title'] ?? '')) ?>"
+                    value="<?= htmlspecialchars($contentViewModel->scheduleTitle) ?>"
                     required
                 >
             </div>
@@ -48,7 +51,7 @@ $passes = is_array($contentData['passes'] ?? null) ? $contentData['passes'] : []
                     id="banner_badge"
                     name="banner_badge"
                     class="form-control"
-                    value="<?= htmlspecialchars((string)($contentData['banner_badge'] ?? '')) ?>"
+                    value="<?= htmlspecialchars($contentViewModel->bannerBadge) ?>"
                 >
             </div>
 
@@ -59,7 +62,7 @@ $passes = is_array($contentData['passes'] ?? null) ? $contentData['passes'] : []
                     id="banner_title"
                     name="banner_title"
                     class="form-control"
-                    value="<?= htmlspecialchars((string)($contentData['banner_title'] ?? '')) ?>"
+                    value="<?= htmlspecialchars($contentViewModel->bannerTitle) ?>"
                     required
                 >
             </div>
@@ -73,17 +76,18 @@ $passes = is_array($contentData['passes'] ?? null) ? $contentData['passes'] : []
                     data-quill="1"
                     rows="4"
                     required
-                ><?= htmlspecialchars((string)($contentData['banner_description'] ?? '')) ?></textarea>
+                ><?= htmlspecialchars($contentViewModel->bannerDescription) ?></textarea>
             </div>
 
             <hr>
 
-            <input type="hidden" name="artists_title" value="<?= htmlspecialchars((string)($contentData['artists_title'] ?? 'Featured Artists')) ?>">
+            <input type="hidden" name="artists_title" value="<?= htmlspecialchars($contentViewModel->artistsTitle !== '' ? $contentViewModel->artistsTitle : 'Featured Artists') ?>">
             <?php foreach ($artists as $index => $artist): ?>
-                <input type="hidden" name="artists[<?= (int)$index ?>][id]" value="<?= (int)($artist['id'] ?? 0) ?>">
-                <input type="hidden" name="artists[<?= (int)$index ?>][name]" value="<?= htmlspecialchars((string)($artist['name'] ?? '')) ?>">
-                <input type="hidden" name="artists[<?= (int)$index ?>][genre]" value="<?= htmlspecialchars((string)($artist['genre'] ?? '')) ?>">
-                <input type="hidden" name="artists[<?= (int)$index ?>][image]" value="<?= htmlspecialchars((string)($artist['image'] ?? '')) ?>">
+                <?php if (!$artist instanceof \App\Models\ViewModels\Cms\Dance\DanceHomeArtistRowViewModel) { continue; } ?>
+                <input type="hidden" name="artists[<?= (int)$index ?>][id]" value="<?= (int)$artist->id ?>">
+                <input type="hidden" name="artists[<?= (int)$index ?>][name]" value="<?= htmlspecialchars($artist->name) ?>">
+                <input type="hidden" name="artists[<?= (int)$index ?>][genre]" value="<?= htmlspecialchars($artist->genre) ?>">
+                <input type="hidden" name="artists[<?= (int)$index ?>][image]" value="<?= htmlspecialchars($artist->image) ?>">
             <?php endforeach; ?>
 
             <hr>
@@ -96,7 +100,7 @@ $passes = is_array($contentData['passes'] ?? null) ? $contentData['passes'] : []
                     id="important_information_title"
                     name="important_information_title"
                     class="form-control"
-                    value="<?= htmlspecialchars((string)($contentData['important_information_title'] ?? '')) ?>"
+                    value="<?= htmlspecialchars($contentViewModel->importantInformationTitle) ?>"
                     required
                 >
             </div>
@@ -109,7 +113,7 @@ $passes = is_array($contentData['passes'] ?? null) ? $contentData['passes'] : []
                     data-quill="1"
                     rows="6"
                     required
-                ><?= htmlspecialchars((string)($contentData['important_information_html'] ?? '')) ?></textarea>
+                ><?= htmlspecialchars($contentViewModel->importantInformationHtml) ?></textarea>
             </div>
 
             <hr>
@@ -122,29 +126,30 @@ $passes = is_array($contentData['passes'] ?? null) ? $contentData['passes'] : []
                     id="passes_title"
                     name="passes_title"
                     class="form-control"
-                    value="<?= htmlspecialchars((string)($contentData['passes_title'] ?? '')) ?>"
+                    value="<?= htmlspecialchars($contentViewModel->passesTitle) ?>"
                     required
                 >
             </div>
             <div id="passes-container">
                 <?php foreach ($passes as $index => $pass): ?>
+                    <?php if (!$pass instanceof \App\Models\ViewModels\Cms\Dance\DanceHomePassRowViewModel) { continue; } ?>
                     <div class="border rounded p-3 mb-2 pass-row">
                         <div class="mb-2">
                             <label class="form-label">Label</label>
-                            <input type="text" name="passes[<?= (int)$index ?>][label]" class="form-control pass-label" value="<?= htmlspecialchars((string)($pass['label'] ?? '')) ?>">
+                            <input type="text" name="passes[<?= (int)$index ?>][label]" class="form-control pass-label" value="<?= htmlspecialchars($pass->label) ?>">
                         </div>
                         <div class="mb-2">
                             <label class="form-label">Price</label>
-                            <input type="text" name="passes[<?= (int)$index ?>][price]" class="form-control pass-price" value="<?= htmlspecialchars((string)($pass['price'] ?? '')) ?>">
+                            <input type="text" name="passes[<?= (int)$index ?>][price]" class="form-control pass-price" value="<?= htmlspecialchars($pass->price) ?>">
                         </div>
-                        <input type="hidden" name="passes[<?= (int)$index ?>][id]" value="<?= (int)($pass['id'] ?? 0) ?>">
+                        <input type="hidden" name="passes[<?= (int)$index ?>][id]" value="<?= (int)$pass->id ?>">
                         <div class="form-check mb-2">
                             <input
                                 type="checkbox"
                                 class="form-check-input pass-highlight"
                                 name="passes[<?= (int)$index ?>][highlight]"
                                 value="1"
-                                <?= !empty($pass['highlight']) ? 'checked' : '' ?>
+                                <?= $pass->highlight ? 'checked' : '' ?>
                             >
                             <label class="form-check-label">Highlighted row</label>
                         </div>
@@ -162,7 +167,7 @@ $passes = is_array($contentData['passes'] ?? null) ? $contentData['passes'] : []
                     id="capacity_title"
                     name="capacity_title"
                     class="form-control"
-                    value="<?= htmlspecialchars((string)($contentData['capacity_title'] ?? '')) ?>"
+                    value="<?= htmlspecialchars($contentViewModel->capacityTitle) ?>"
                     required
                 >
             </div>
@@ -175,7 +180,7 @@ $passes = is_array($contentData['passes'] ?? null) ? $contentData['passes'] : []
                     data-quill="1"
                     rows="6"
                     required
-                ><?= htmlspecialchars((string)($contentData['capacity_html'] ?? '')) ?></textarea>
+                ><?= htmlspecialchars($contentViewModel->capacityHtml) ?></textarea>
             </div>
 
             <hr>
@@ -188,7 +193,7 @@ $passes = is_array($contentData['passes'] ?? null) ? $contentData['passes'] : []
                     id="special_title"
                     name="special_title"
                     class="form-control"
-                    value="<?= htmlspecialchars((string)($contentData['special_title'] ?? '')) ?>"
+                    value="<?= htmlspecialchars($contentViewModel->specialTitle) ?>"
                     required
                 >
             </div>
@@ -201,7 +206,7 @@ $passes = is_array($contentData['passes'] ?? null) ? $contentData['passes'] : []
                     data-quill="1"
                     rows="6"
                     required
-                ><?= htmlspecialchars((string)($contentData['special_html'] ?? '')) ?></textarea>
+                ><?= htmlspecialchars($contentViewModel->specialHtml) ?></textarea>
             </div>
         </div>
         <div class="card-footer d-flex justify-content-end">

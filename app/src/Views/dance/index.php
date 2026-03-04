@@ -8,7 +8,6 @@ if (!$danceIndexViewModel instanceof DanceIndexViewModel) {
     return;
 }
 
-// Keep partials unchanged for now by mapping page VM fields to existing names.
 $scheduleData = $danceIndexViewModel->schedule;
 $danceBannerStats = $danceIndexViewModel->bannerStats;
 $venues = $danceIndexViewModel->venues;

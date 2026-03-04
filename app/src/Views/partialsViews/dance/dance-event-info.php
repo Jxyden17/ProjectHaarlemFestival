@@ -1,7 +1,7 @@
 <?php
 use App\Models\Page\Section;
 use App\Models\Page\SectionItem;
-use App\Models\VenueModel;
+use App\Models\Event\VenueModel;
 
 $venues = $venues ?? [];
 $danceInfoSection = $danceInfoSection ?? null;

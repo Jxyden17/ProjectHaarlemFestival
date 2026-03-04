@@ -2,15 +2,17 @@
 
 namespace App\Service\Interfaces;
 
+use App\Models\ViewModels\Cms\Schedule\ScheduleEditorViewModel;
+
 interface ICmsEventEditorService
 {
-    public function getEditorData(string $eventName): array;
+    public function getEditorData(string $eventName): ScheduleEditorViewModel;
 
     public function mergePostedEditorData(
         string $eventName,
-        array $editorData,
+        ScheduleEditorViewModel $editorData,
         array $postedVenues,
         array $postedPerformers,
         array $postedSessions
-    ): array;
+    ): ScheduleEditorViewModel;
 }

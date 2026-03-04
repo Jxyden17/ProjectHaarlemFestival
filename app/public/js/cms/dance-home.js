@@ -7,17 +7,10 @@ function initializeQuillEditors() {
     }
 
     const toolbarOptions = [
-        [{ header: [1, 2, 3, false] }],
-        ['bold', 'italic', 'underline', 'strike'],
+        [{ header: [2, 3, 4, false] }],
+        ['bold', 'italic', 'underline'],
         [{ list: 'ordered' }, { list: 'bullet' }],
-        [{ script: 'sub' }, { script: 'super' }],
-        [{ indent: '-1' }, { indent: '+1' }],
-        [{ direction: 'rtl' }],
-        [{ size: ['small', false, 'large', 'huge'] }],
-        [{ color: [] }, { background: [] }],
-        [{ font: [] }],
-        [{ align: [] }],
-        ['link', 'blockquote', 'code-block'],
+        ['link', 'blockquote'],
         ['clean']
     ];
 

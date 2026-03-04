@@ -2,7 +2,9 @@
 
 namespace App\Service\Interfaces;
 
+use App\Models\Commands\Cms\Dance\DanceHomeSaveCommand;
 use App\Models\Page\Page;
+use App\Models\ViewModels\Cms\Dance\DanceHomeContentViewModel;
 use App\Models\ViewModels\Dance\DanceBannerStatsViewModel;
 
 interface IDanceService
@@ -11,5 +13,6 @@ interface IDanceService
     public function getDanceVenues(): array;
     public function getDancePerformers(): array;
     public function getDanceHomePage(): Page;
-    public function saveDanceHomePage(array $input): void;
+    public function getDanceHomeFormData(): DanceHomeContentViewModel;
+    public function saveDanceHomePage(DanceHomeSaveCommand $command): void;
 }
