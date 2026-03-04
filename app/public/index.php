@@ -49,6 +49,7 @@ try {
     $cmsEventsController = new App\Controllers\Cms\CmsEventsController($cmsService);
     $cmsTicketsController = new App\Controllers\Cms\CmsTicketsController($cmsService);
     $cmsUsersController = new App\Controllers\Cms\CmsUsersController($cmsService);
+    $jazzController = new App\Controllers\JazzController($scheduleService, $jazzService);
 
     // Routes
     $dispatcher = simpleDispatcher(function (RouteCollector $r) {
@@ -84,6 +85,8 @@ try {
         $r->addRoute('POST', '/cms/users/edit', ['CmsUsersController', 'editUser']);
         $r->addRoute('GET', '/cms/users/delete', ['CmsUsersController', 'showDeleteConfirmation']);
         $r->addRoute('POST', '/cms/users/delete', ['CmsUsersController', 'deleteUser']);
+         // Jazz routes
+        $r->addRoute('GET', '/jazz', ['JazzController', 'index']);
     });
 
     // Dispatch request
