@@ -186,14 +186,9 @@ $formAction = (string)($formAction ?? '/cms/events/dance-schedule');
                                     <input type="number" min="0" step="1" class="form-control form-control-sm" name="sessions[<?= (int)$index ?>][available_spots]" value="<?= htmlspecialchars((string)$session->availableSpots) ?>" required>
                                 </td>
                                 <td><?= $session->amountSold ?></td>
-                                <td style="min-width: 240px;">
+                                <td style="min-width: 280px;">
                                     <?php $selectedPerformerIds = $session->performerIds; ?>
-                                    <select
-                                        class="form-select form-select-sm"
-                                        name="sessions[<?= (int)$index ?>][performer_ids][]"
-                                        multiple
-                                        size="4"
-                                    >
+                                    <div class="border rounded p-2" style="max-height: 140px; overflow-y: auto;">
                                         <?php foreach ($performers as $performer): ?>
                                             <?php
                                             if (!$performer instanceof ScheduleEditorPerformerRowViewModel) {
@@ -201,12 +196,23 @@ $formAction = (string)($formAction ?? '/cms/events/dance-schedule');
                                             }
 
                                             $performerId = $performer->id;
+                                            $isSelected = in_array($performerId, array_map('intval', $selectedPerformerIds), true);
                                             ?>
-                                            <option value="<?= $performerId ?>" <?= in_array($performerId, array_map('intval', $selectedPerformerIds), true) ? 'selected' : '' ?>>
-                                                <?= htmlspecialchars($performer->name) ?>
-                                            </option>
+                                            <div class="form-check">
+                                                <input
+                                                    class="form-check-input"
+                                                    type="checkbox"
+                                                    name="sessions[<?= (int)$index ?>][performer_ids][]"
+                                                    id="session-<?= (int)$index ?>-performer-<?= (int)$performerId ?>"
+                                                    value="<?= (int)$performerId ?>"
+                                                    <?= $isSelected ? 'checked' : '' ?>
+                                                >
+                                                <label class="form-check-label" for="session-<?= (int)$index ?>-performer-<?= (int)$performerId ?>">
+                                                    <?= htmlspecialchars($performer->name) ?>
+                                                </label>
+                                            </div>
                                         <?php endforeach; ?>
-                                    </select>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
