@@ -14,17 +14,10 @@ $passes = $contentViewModel->passes;
         <a href="/cms/events" class="btn btn-outline-secondary">Back to Events</a>
     </div>
 
-    <?php if (!empty($success)): ?>
-        <div class="alert alert-success" role="alert">
-            Dance home content updated.
-        </div>
-    <?php endif; ?>
-
-    <?php if (!empty($error)): ?>
-        <div class="alert alert-danger" role="alert">
-            <?= htmlspecialchars((string)$error) ?>
-        </div>
-    <?php endif; ?>
+    <?php
+    $successMessage = 'Dance home content updated.';
+    include __DIR__ . '/../../partialsViews/cms/form-feedback.php';
+    ?>
 
     <form method="POST" action="/cms/events/dance-home" class="card">
         <div class="card-body">
