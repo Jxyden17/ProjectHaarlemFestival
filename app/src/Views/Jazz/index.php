@@ -1,4 +1,4 @@
-
+<link href="/css/partialViews/jazz-featured-artists.css" rel="stylesheet">
 <?php
 $performers=$jazzViewModel->jazzPerformers;
 $scheduleData = $jazzViewModel->schedule;

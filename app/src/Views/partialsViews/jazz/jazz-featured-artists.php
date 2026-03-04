@@ -10,25 +10,26 @@ $specialImages = [
     "rilan & the bombadiers" => "Rilan-&-The-Bombadiers",
     "eric vloeimans and hotspot!" => "hotspot"
 ];?>
-<div class="performers-flex">
-    <?php
-    foreach ($performers as $performer) {
-        // 1️⃣ Naam trimmen en lowercase maken
-        $performerNameClean = strtolower(trim($performer->performerName));
-
-        // 2️⃣ Check of er een speciale afbeelding is
-        if (isset($specialImages[$performerNameClean])) {
-            $imgName = $specialImages[$performerNameClean];
-        } else {
-            // 3️⃣ Anders fallback: spaties en speciale tekens vervangen door streepjes
-            $imgName = preg_replace('/[^a-z0-9]+/', '-', $performerNameClean);
-        }
-
-        // 4️⃣ Foto-extensie bepalen
-        $imgPath = "/img/jazzIMG/{$imgName}.png";
-    ?>
-    <div class="performer-card">
-        <img src="<?= $imgPath ?>" alt="<?= htmlspecialchars($performer->performerName) ?>">
+<section class="jazz-artists">
+    <div class="jazz-artists-inner">
+        <div class="jazz-artists-grid">
+            <?php
+                foreach ($performers as $performer) 
+                {
+                    $performerNameClean = strtolower(trim($performer->performerName));
+                    if (isset($specialImages[$performerNameClean])) {
+                        $imgName = $specialImages[$performerNameClean];
+                    } else 
+                    {
+                        $imgName = preg_replace('/[^a-z0-9]+/', '-', $performerNameClean);
+                    }
+                    $imgPath = "/img/jazzIMG/{$imgName}.png";
+                    ?>
+                    <div class="jazz-artist-card">
+                        <img src="<?= $imgPath ?>" alt="<?= htmlspecialchars($performer->performerName) ?>">
+                    </div>
+                <?php }
+            ?>
+        </div>
     </div>
-    <?php } ?>
-</div>
+</section>
