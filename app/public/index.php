@@ -36,6 +36,7 @@ try {
     $scheduleService = new App\Service\ScheduleService($scheduleRepo);
     $danceService = new App\Service\DanceService($danceRepo);
     $jazzService = new App\Service\JazzService($jazzRepo,$scheduleRepo);
+    $storiesService = new App\Service\StoriesService($pageRepo);
 
     $authService = new App\Service\AuthService($userRepo, $passwordResetRepo, $mailService);
     $cmsService = new App\Service\CmsService($userRepo);
@@ -50,6 +51,7 @@ try {
     $cmsTicketsController = new App\Controllers\Cms\CmsTicketsController($cmsService);
     $cmsUsersController = new App\Controllers\Cms\CmsUsersController($cmsService);
     $jazzController = new App\Controllers\JazzController($scheduleService, $jazzService);
+    $storiesController = new App\Controllers\StoriesController($pageService);
 
     // Routes
     $dispatcher = simpleDispatcher(function (RouteCollector $r) {
@@ -73,6 +75,10 @@ try {
 
         // Dance routes
         $r->addRoute('GET', '/dance', ['DanceController', 'index']);
+
+        //Stories Routes
+        $r->addRoute('GET', '/stories', ['StoriesController', 'index']);
+        $r->addRoute('GET', '/stories/details', ['StoriesController', 'details']);
 
         // CMS routes
         $r->addRoute('GET', '/cms', ['CmsController', 'index']);
@@ -112,6 +118,7 @@ try {
                 'TourController' => $tourController,
                 'CmsController' => $cmsController,
                 'JazzController' => $jazzController,
+                'StoriesController' => $storiesController,
                 'CmsEventsController' => $cmsEventsController,
                 'CmsTicketsController' => $cmsTicketsController,
                 'CmsUsersController' => $cmsUsersController,
