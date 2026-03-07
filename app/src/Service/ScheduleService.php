@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Models\Enums\Language;
 use App\Models\PerformerModel;
 use App\Models\SessionModel;
 use App\Models\SessionPerformerModel;
@@ -13,7 +14,6 @@ use App\Models\ViewModels\Shared\ScheduleDayFilterViewModel;
 use App\Models\ViewModels\Shared\ScheduleGroupViewModel;
 use App\Models\ViewModels\Shared\ScheduleRowViewModel;
 use App\Models\ViewModels\Shared\ScheduleViewModel;
-use App\Models\ViewModels\Shared\ScheduleLanguageFilterViewModel;
 
 class ScheduleService implements IScheduleService
 {
@@ -26,7 +26,36 @@ class ScheduleService implements IScheduleService
 //get schedule voor een event
     public function getScheduleDataForEvent(string $eventName, string $title): ScheduleViewModel
     {
+        $event = $this->findRequiredEventByName($eventName);
 
+        $this->loadScheduleGraphForEvent($event);
+
+        return $this->buildScheduleViewModel($event->sessions, $title, $event->name, includeEventFilters: false);
+    }
+// get all events in de schedule
+    public function getScheduleDataForAllEvents(string $title): ScheduleViewModel
+    {
+        $events = $this->scheduleRepo->getAllEvents();
+        $allSessions = [];
+
+        if (empty($events)) 
+        {
+            throw new \RuntimeException('No events found.');
+        }     
+
+        foreach ($events as $event) 
+            {
+            $this->loadScheduleGraphForEvent($event);
+
+            foreach ($event->sessions as $session) 
+            {
+                $allSessions[] = $session;
+            }
+        }
+        return $this->buildScheduleViewModel($allSessions, $title, 'All Events', true);
+    }
+//schedule voor een event paken
+    private function findRequiredEventByName(string $eventName): EventModel
     {
         $event = $this->scheduleRepo->findEventByName($eventName);
 
