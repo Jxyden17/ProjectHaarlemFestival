@@ -23,25 +23,31 @@ class ScheduleService implements IScheduleService
     {
         $this->scheduleRepo = $scheduleRepo;
     }
+//get schedule voor een event
+    public function getScheduleDataForEvent(string $eventName, string $title): ScheduleViewModel
+    {
 
-    public function getScheduleDataForEvent(string $eventName, string $title, bool $languageFilter = false): ScheduleViewModel
     {
         $event = $this->scheduleRepo->findEventByName($eventName);
 
-        if ($event === null) {
+        if ($event === null) 
+        {
             throw new \RuntimeException($eventName . ' event not found.');
         }
-
+        return $event;
+    }
+//laden van schedule voor een event
+    private function loadScheduleGraphForEvent(EventModel $event): void
+    {
         $venues = $this->scheduleRepo->getVenuesByEventId($event->id);
         $sessions = $this->scheduleRepo->getSessionsByEventId($event->id);
         $performers = $this->scheduleRepo->getPerformersByEventId($event->id);
         $sessionPerformers = $this->scheduleRepo->getSessionPerformersByEventId($event->id);
 
         $this->linkScheduleModels($event, $venues, $sessions, $performers, $sessionPerformers);
-        return $this->buildScheduleViewModel($event->sessions, $title, $languageFilter);
     }
-
-    private function linkScheduleModels(EventModel $event,array $venues,array $sessions,array $performers,array $sessionPerformers): void {
+    private function linkScheduleModels(EventModel $event,array $venues,array $sessions,array $performers,array $sessionPerformers): void 
+    {
         $venueById = $this->indexVenuesById($venues);
         $performerById = $this->indexPerformersById($performers);
         $sessionById = $this->linkSessionsToEventAndVenue($event, $sessions, $venueById);
@@ -125,10 +131,11 @@ class ScheduleService implements IScheduleService
         }
     }
 
-    private function buildScheduleViewModel(array $sessions, string $title): ScheduleViewModel
+    private function buildScheduleViewModel(array $sessions, string $title, string $eventName, bool $includeEventFilters): ScheduleViewModel
     {
         $groups = [];
         $dayCounts = [];
+        $eventCounts = [];
         $languageCounts = [];
 
         foreach ($sessions as $session) {
@@ -136,16 +143,72 @@ class ScheduleService implements IScheduleService
                 continue;
             }
 
-            $this->appendSessionToScheduleGroups($session, $groups, $dayCounts);
+            $this->appendSessionToScheduleGroups(
+                $session,
+                $groups,
+                $dayCounts,
+                $languageCounts,
+                $eventCounts,
+                $includeEventFilters
+            );
         }
 
         $this->finalizeGroupSubtitles($groups);
         $dayFilters = $this->buildDayFilters($dayCounts);
+        $eventFilters = $this->buildEventFilters($eventCounts);
+        $languageFilters = $this->buildLanguageFilters($languageCounts);
 
-        return new ScheduleViewModel($title, $dayFilters, array_values($groups));
+        return new ScheduleViewModel(
+            $title,
+            $eventName,
+            $dayFilters,
+            $eventFilters,
+            array_values($groups),
+            $languageFilters
+        );
     }
 
-    private function appendSessionToScheduleGroups(SessionModel $session, array &$groups, array &$dayCounts): void
+    private function addSessionLanguageCount(SessionModel $session, array &$languageCounts): void
+    {
+        $language = $this->buildLanguageLabel($session->language);
+        if ($language === null) 
+        {
+            return;
+        }
+        $key = $language['key'];
+        if (!isset($languageCounts[$key])) {
+            $languageCounts[$key] = [
+                'label' => $language['label'],
+                'count' => 0,
+            ];
+        }
+
+        $languageCounts[$key]['count']++;
+    }
+
+    private function addSessionEventCount(SessionModel $session, array &$eventCounts): void
+    {
+        $eventName = $this->checkEvent($session->event?->name ?? 'Other');
+        $eventFilter = $this->toFilterKey($eventName);
+
+        if (!isset($eventCounts[$eventFilter])) {
+            $eventCounts[$eventFilter] = [
+                'label' => $eventName,
+                'count' => 0,
+            ];
+        }
+
+        $eventCounts[$eventFilter]['count']++;
+    }
+
+    private function appendSessionToScheduleGroups(
+        SessionModel $session,
+        array &$groups,
+        array &$dayCounts,
+        array &$languageCounts,
+        array &$eventCounts,
+        bool $includeEventFilters
+    ): void
     {
         $dt = new \DateTime($session->date);
         $dayLabel = $dt->format('l');
@@ -158,6 +221,11 @@ class ScheduleService implements IScheduleService
         }
 
         $groups[$groupKey]->rows[] = $this->createScheduleRow($session, $dt);
+        $this->addSessionLanguageCount($session, $languageCounts);
+
+        if ($includeEventFilters) {
+            $this->addSessionEventCount($session, $eventCounts);
+        }
     }
 
     private function createScheduleGroup(\DateTime $dt, string $dayKey): ScheduleGroupViewModel
@@ -171,41 +239,33 @@ class ScheduleService implements IScheduleService
 
     private function createScheduleRow(SessionModel $session, \DateTime $dt): ScheduleRowViewModel
     {
-        $language = $this->extractLanguageFromSession($session);
+        $languageLabel = 'Unknown';
+        $language = $this->buildLanguageLabel($session->language);
+        if ($language !== null) {
+            $languageLabel = $language['label'];
+        }
 
-        // available and sold are stored on SessionModel as availableSpots and amountSold
-        $available = isset($session->availableSpots) ? (int)$session->availableSpots : (int)($session->available_spots ?? 0);
-        $sold = isset($session->amountSold) ? (int)$session->amountSold : (int)($session->amount_sold ?? 0);
-        $total = $available + $sold;
+        $ageLabel = trim((string)$session->label) !== '' ? (string)$session->label : 'N/A';
 
-        return new ScheduleRowViewModel(
+        $eventName = $this->checkEvent($session->event?->name ?? 'Other');
+
+
+
+        $row = new ScheduleRowViewModel(
             $dt->format('M j, Y'),
             substr($session->startTime ?? '', 0, 5),
             $this->buildEventLabel($session),
             $session->venue !== null ? ($session->venue->venueName ?? 'Unknown venue') : 'Unknown venue',
             $this->formatPrice($session->price ?? 0.0),
             '/book?session_id=' . ($session->id ?? ''),
-            $language,
-            $total,
-            $available,
-            $sold
+            $languageLabel,
+            $session->availableSpots ?? 0,
+            $session->amountSold ?? 0,
+            $eventName,
+            $ageLabel
         );
-    }
 
-    private function extractLanguageFromSession(SessionModel $session): string
-    {
-        if (isset($session->language) && $session->language !== null && $session->language !== '') {
-            return (string)$session->language;
-        }
-
-        if (method_exists($session, 'getLanguage')) {
-            $val = $session->getLanguage();
-            if (!empty($val)) {
-                return (string)$val;
-            }
-        }
-
-        return 'Unknown';
+        return $row;
     }
 
     private function buildEventLabel(SessionModel $session): string
@@ -245,8 +305,10 @@ class ScheduleService implements IScheduleService
 
     private function finalizeGroupSubtitles(array $groups): void
     {
-        foreach ($groups as $group) {
-            if (!$group instanceof ScheduleGroupViewModel) {
+        foreach ($groups as $group) 
+        {
+            if (!$group instanceof ScheduleGroupViewModel) 
+            {
                 continue;
             }
 
@@ -270,15 +332,16 @@ class ScheduleService implements IScheduleService
         return $dayFilters;
     }
 
-        private function buildLanguageFilters(array $languageCounts): array
+    private function buildLanguageFilters(array $languageCounts): array
     {
-        $languageFilters = [new ScheduleLanguageFilterViewModel('all', 'All Languages', '', true)];
+        $languageFilters = [new ScheduleDayFilterViewModel('all', 'All Languages', '', true)];
 
-        foreach ($languageCounts as $language => $count) {
-            $languageFilters[] = new ScheduleLanguageFilterViewModel(
-                strtolower($language),
-                $language,
-                $this->buildFilterCountLabel($count),
+        foreach ($languageCounts as $language => $meta) 
+        {
+            $languageFilters[] = new ScheduleDayFilterViewModel(
+                strtolower((string)$language),
+                (string)($meta['label'] ?? $language),
+                $this->buildFilterCountLabel((int)($meta['count'] ?? 0)),
                 false
             );
         }
@@ -286,6 +349,64 @@ class ScheduleService implements IScheduleService
         return $languageFilters;
     }
 
+    private function buildEventFilters(array $eventCounts): array
+    {
+        $eventFilters = [new ScheduleDayFilterViewModel('all', 'All Events', '', true)];
+
+        foreach ($eventCounts as $event => $meta) 
+        {
+            $eventFilters[] = new ScheduleDayFilterViewModel(
+                strtolower((string)$event),
+                (string)($meta['label'] ?? $event),
+                $this->buildFilterCountLabel((int)($meta['count'] ?? 0)),
+                false
+            );
+        }
+
+        return $eventFilters;
+    }
+
+    private function buildLanguageLabel(?Language $language): ?array
+    {
+        if ($language === null)
+        {
+            return null;
+        }
+        $label = $language->label();
+
+        return [
+            'key' => $this->toFilterKey($label),
+            'label' => $label,
+        ];
+    }
+//nakijk event type voor juiste display name en filters
+    private function getEventType(string $eventName): string
+    {
+        $eventType = $this->toFilterKey($eventName);
+
+        if ($eventType === 'astrollthroughhistory') 
+        {
+            return 'tour';
+        }
+        if ($eventType === 'tellingstory') 
+        {
+            return 'stories';
+        }
+        return 'home';
+    }
+
+
+    private function checkEvent(string $eventName): string
+    {
+        $eventType = $this->getEventType($eventName);
+
+        return match ($eventType) {
+            'tour' => 'Tour',
+            'stories' => 'Stories',
+            'dance' => 'Dance',
+            default => $eventName,
+        };
+    }
     private function buildFilterCountLabel(int $count): string
     {
         if ($count <= 0) {
@@ -295,26 +416,8 @@ class ScheduleService implements IScheduleService
         return '(' . $count . ')';
     }
 
-    public function getEventFiltersForEventIds(array $eventIds): array
+    private function toFilterKey(string $key): string
     {
-        $counts = [];
-
-        foreach ($eventIds as $id) {
-            $event = $this->scheduleRepo->findEventById((int)$id);
-            if ($event === null) {
-                continue;
-            }
-            $sessions = $this->scheduleRepo->getSessionsByEventId($event->id);
-            $counts[$event->id . '|' . $event->name] = ($counts[$event->id . '|' . $event->name] ?? 0) + count($sessions);
-        }
-
-        $filters = [new ScheduleDayFilterViewModel('all', 'All Events', '', true)];
-        foreach ($counts as $key => $count) {
-            [$id, $name] = explode('|', $key, 2);
-            $slug = strtolower(str_replace(' ', '-', $name . '-' . $id));
-            $filters[] = new ScheduleDayFilterViewModel($slug, $name, $this->buildFilterCountLabel($count), false);
-        }
-
-        return $filters;
+        return strtolower(str_replace(' ', '', $key));
     }
 }

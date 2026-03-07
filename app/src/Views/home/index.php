@@ -20,11 +20,9 @@
         <?php $section = $discover; include __DIR__ . '/../partialsViews/Home/discover.php'; ?>
     <?php endif; ?>
 
-<!-- 
     <?php if ($scheduleData): ?>
         <?php $section = $scheduleData; include __DIR__ . '/../partialsViews/schedule.php'; ?>
     <?php endif; ?> 
--->
 
     <?php if ($map): ?>
         <?php $section = $map; include __DIR__ . '/../partialsViews/Home/map.php'; ?>

@@ -7,33 +7,29 @@ class ScheduleRowViewModel
     public string $date;
     public string $time;
     public string $event;
+    public string $eventName;
     public string $location;
     public string $price;
     public string $bookUrl;
-
-    // Tour fields
     public string $language;
+    public string $ageLabel;
     public int $totalTickets;
     public int $availableTickets;
     public int $bookedTickets;
 
 
-    public function __construct(string $date, string $time, string $event, string $location, string $price, string $bookUrl, string $language = 'Unknown', int $totalTickets = 0, ?int $availableTickets = null, int $bookedTickets = 0) {
+    public function __construct(string $date, string $time, string $event, string $location, string $price, string $bookUrl, string $language, int $totalTickets, int $bookedTickets, string $eventName, string $ageLabel) {
         $this->date = $date;
         $this->time = $time;
         $this->event = $event;
+        $this->eventName = $eventName;
         $this->location = $location;
         $this->price = $price;
         $this->language = $language;
-        $this->totalTickets = max(0, $totalTickets);
-        $this->bookedTickets = max(0, $bookedTickets);
-
-        if ($availableTickets === null) {
-            $this->availableTickets = max(0, $this->totalTickets - $this->bookedTickets);
-        } else {
-            $this->availableTickets = max(0, $availableTickets);
-        }
-
+        $this->ageLabel = $ageLabel;
+        $this->totalTickets = $totalTickets;
+        $this->bookedTickets = $bookedTickets;
+        $this->availableTickets = $totalTickets - $bookedTickets;
         $this->bookUrl = $bookUrl;
     }
 }

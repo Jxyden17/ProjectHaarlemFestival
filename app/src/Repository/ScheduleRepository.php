@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Models\Database;
+use App\Models\Enums\Language;
 use App\Models\EventModel;
 use App\Models\PerformerModel;
 use App\Models\SessionModel;
@@ -53,10 +54,25 @@ class ScheduleRepository
         );
     }
 
+    public function getAllEvents(): array
+    {
+        $stmt = $this->db->query('SELECT id, name, description FROM events ORDER BY id ASC');
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        return array_map(
+            static fn(array $row): EventModel => new EventModel(
+                (int)$row['id'],
+                (string)$row['name'],
+                isset($row['description']) ? (string)$row['description'] : null
+            ),
+            $rows
+        );
+    }
+
     public function getSessionsByEventId(int $eventId): array
     {
         $stmt = $this->db->prepare('
-            SELECT id, event_id, venue_id, date, start_time, label, price, available_spots, amount_sold
+            SELECT id, event_id, venue_id, date, start_time, language_id, label, price, available_spots, amount_sold
             FROM sessions
             WHERE event_id = :event_id
             ORDER BY date ASC, start_time ASC
@@ -71,6 +87,9 @@ class ScheduleRepository
                 (int)$row['venue_id'],
                 (string)$row['date'],
                 (string)$row['start_time'],
+                isset($row['language_id']) && $row['language_id'] !== null
+                    ? Language::tryFrom((int)$row['language_id'])
+                    : null,
                 isset($row['label']) ? (string)$row['label'] : null,
                 (float)$row['price'],
                 (int)$row['available_spots'],
