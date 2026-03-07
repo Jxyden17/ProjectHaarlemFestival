@@ -1,0 +1,157 @@
+.yummy-page {
+    min-height: 100vh;
+    color: white;
+    background-color: var(--primary-color);
+    font-family: var(--font-main);
+}
+
+.yummy-container {
+    width: 90%;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.yummy-hero {
+    padding: 70px 0 40px 0;
+}
+
+.yummy-title {
+    font-size: 48px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.yummy-subtitle {
+    font-size: 18px;
+    color: #9bb3c9;
+}
+
+.yummy-map-section {
+    margin-bottom: 70px;
+}
+
+.yummy-map-card {
+    background-color: var(--primary-color);
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.45);
+}
+
+.map-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.map-header h2 {
+    font-size: 20px;
+    color: white;
+}
+
+.map-tag {
+    background-color: var(--primary-color);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    color: #9bb3c9;
+}
+
+.map-container {
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.yummy-map-image {
+    width: 100%;
+    display: block;
+    border-radius: 12px;
+    transition: transform 0.4s ease;
+}
+
+.yummy-map-image:hover {
+    transform: scale(1.02);
+}
+
+.map-description {
+    margin-top: 15px;
+    font-size: 14px;
+    color: #9bb3c9;
+}
+.restaurants-section {
+    padding: 60px 0;
+}
+
+.yummy-container {
+    width: 90%;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.section-title {
+    font-size: 22px;
+    margin-bottom: 25px;
+    color: #ffffff;
+}
+
+.restaurant-card {
+    background-color: #16293f;
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    transition: 0.3s ease;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.restaurant-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+}
+
+.restaurant-left h3 {
+    color: #ffffff;
+    margin-bottom: 6px;
+}
+
+.restaurant-type {
+    color: #9bb3c9;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.restaurant-stars {
+    color: #f5c518;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.restaurant-address {
+    color: #7e9bb5; 
+    font-size: 13px;
+    margin-bottom: 12px;
+}
+
+.btn-details {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: #e53935;
+    color: white;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.btn-details:hover {
+    background-color: #c62828;
+}
+
+.restaurant-heart {
+    color: #a8bfd6;
+    font-size: 18px;
+    cursor: pointer;
+}
