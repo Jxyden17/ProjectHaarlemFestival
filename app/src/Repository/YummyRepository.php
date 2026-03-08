@@ -107,7 +107,7 @@ class YummyRepository implements IYummyRepository
         return $page;
     }
 
-    private function getSectionItems(int $sectionId): array
+    public function getSectionItems(int $sectionId): array
     {
         $stmt = $this->db->prepare("
             SELECT * FROM section_items

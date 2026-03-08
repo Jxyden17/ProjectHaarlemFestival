@@ -13,7 +13,7 @@ $restaurants = $yummyIndexViewModel->restaurants;
 ?>
 
 
-<link href="/css/Yummy/index.css" rel="stylesheet">
+<link rel="stylesheet" href="/css/Yummy!/index.css">
 
 <?php if ($hero): ?>
     <?php $section = $hero; include __DIR__ . '/../partialsViews/yummy/yummy-hero.php'; ?>
