@@ -1,21 +1,17 @@
 <section class="restaurants-section">
     <div class="yummy-container">
-        <h2 class="section-title">Featured Restaurants</h2>
+        <h2 class="section-title"><?= htmlspecialchars($section->title ?? '') ?></h2>
 
         <?php foreach ($venues as $venue): ?>
             <div class="restaurant-card">
                 <div class="restaurant-left">
                     <h3><?= htmlspecialchars($venue->venueName ?? '') ?></h3>
 
-                    <?php if (!empty($venue->venue_type)): ?>
+                    <?php if (!empty($venue->venueType)): ?>
                         <p class="restaurant-type">
-                            <?= htmlspecialchars($venue->venue_type) ?>
+                            <?= htmlspecialchars($venue->venueType) ?>
                         </p>
                     <?php endif; ?>
-
-                    <div class="restaurant-stars">
-                        ★★★★☆
-                    </div>
 
                     <?php if (!empty($venue->address)): ?>
                         <p class="restaurant-address">
@@ -26,7 +22,6 @@
                     <a href="#" class="btn-details">View Details →</a>
                 </div>
 
-                <div class="restaurant-heart">♡</div>
             </div>
         <?php endforeach; ?>
     </div>
