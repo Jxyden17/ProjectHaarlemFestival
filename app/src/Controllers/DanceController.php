@@ -8,6 +8,7 @@ use App\Models\Page\Section;
 use App\Models\Page\SectionItem;
 use App\Models\ViewModels\Dance\DanceDetailViewModel;
 use App\Models\ViewModels\Dance\DanceIndexViewModel;
+use App\Models\ViewModels\Shared\ScheduleViewModel;
 use App\Service\Interfaces\IDanceService;
 use App\Service\Interfaces\IScheduleService;
 
@@ -35,7 +36,7 @@ class DanceController extends BaseController
         $publicSlug = trim((string)($vars['detailSlug'] ?? ''));
         $detailMeta = $this->danceService->getDanceDetailPageByPublicSlug($publicSlug);
 
-        if (!$detailMeta instanceof EventDetailPageModel || !$detailMeta->isPublished) {
+        if (!$detailMeta instanceof EventDetailPageModel) {
             http_response_code(404);
             echo 'Dance detail page not found.';
             return;
@@ -52,91 +53,170 @@ class DanceController extends BaseController
     private function buildIndexViewModel(): DanceIndexViewModel
     {
         $homeContent = $this->danceService->getDanceHomePage();
-        $bannerStats = $this->danceService->getDanceBannerStats();
-        $sections = $this->getIndexSections($homeContent);
-        $scheduleTitle = $this->getSectionTitle($sections['schedule']);
+        $scheduleSection = $homeContent->getSection('dance_schedule');
+        $bannerSection = $homeContent->getSection('dance_banner');
+        $artistsSection = $homeContent->getSection('dance_artists');
+        $infoSection = $homeContent->getSection('dance_info');
+        $passesSection = $homeContent->getSection('dance_passes');
+        $capacitySection = $homeContent->getSection('dance_capacity');
+        $specialSection = $homeContent->getSection('dance_special_session');
+
+        $scheduleTitle = $scheduleSection === null ? '' : trim((string)$scheduleSection->title);
+        $schedule = $this->scheduleService->getScheduleDataForEvent('Dance', $scheduleTitle);
+        [$totalEvents, $totalLocations] = $this->extractScheduleStats($schedule);
+
+        $passes = [];
+        if ($passesSection !== null) {
+            foreach ($passesSection->getItemsByCategorie('pass') as $item) {
+                if (!$item instanceof SectionItem) {
+                    continue;
+                }
+
+                $label = trim($item->title);
+                $price = trim((string)($item->content ?? ''));
+                if ($label === '' || $price === '') {
+                    continue;
+                }
+
+                $passes[] = [
+                    'label' => $label,
+                    'price' => $price,
+                    'highlight' => (string)($item->url ?? '') === 'highlight',
+                ];
+            }
+        }
 
         return new DanceIndexViewModel(
-            $this->scheduleService->getScheduleDataForEvent('Dance', $scheduleTitle),
-            $sections['banner']?->subTitle,
-            $sections['banner']?->title,
-            $sections['banner']?->description,
-            $bannerStats->totalEvents,
-            $bannerStats->totalLocations,
-            $sections['artists']?->title,
-            $this->buildArtistCards($sections['artists']),
-            $sections['info']?->title,
-            $sections['info']?->description,
-            $sections['passes']?->title,
-            $this->buildPasses($sections['passes']),
-            $sections['capacity']?->title,
-            $sections['capacity']?->description,
-            $sections['special']?->title,
-            $sections['special']?->description,
+            $schedule,
+            $bannerSection?->subTitle,
+            $bannerSection?->title,
+            $bannerSection?->description,
+            $totalEvents,
+            $totalLocations,
+            $artistsSection?->title,
+            $this->buildArtistCards($artistsSection),
+            $infoSection?->title,
+            $infoSection?->description,
+            $passesSection?->title,
+            $passes,
+            $capacitySection?->title,
+            $capacitySection?->description,
+            $specialSection?->title,
+            $specialSection?->description,
             $this->danceService->getDanceVenues()
         );
+    }
+
+    private function extractScheduleStats(ScheduleViewModel $schedule): array
+    {
+        $totalEvents = 0;
+        $locations = [];
+
+        foreach ($schedule->groups as $group) {
+            if (!isset($group->rows) || !is_array($group->rows)) {
+                continue;
+            }
+
+            foreach ($group->rows as $row) {
+                $totalEvents++;
+                $location = trim((string)($row->location ?? ''));
+                if ($location === '') {
+                    continue;
+                }
+
+                $locations[$location] = true;
+            }
+        }
+
+        return [$totalEvents, count($locations)];
     }
 
     private function buildDetailViewModel(EventDetailPageModel $detailMeta): DanceDetailViewModel
     {
         $detailPage = $this->danceService->getDanceDetailPage($detailMeta->pageSlug);
-        $sections = $this->getDetailSections($detailPage);
-        $performerName = $this->resolvePerformerName($detailMeta, $sections['hero']);
-        $heroImages = $this->getSectionItemsByCategory($sections['hero'], 'hero_image');
+        $heroSection = $detailPage->getSection('dance_detail_hero');
+        $highlightsSection = $detailPage->getSection('dance_detail_highlights');
+        $tracksSection = $detailPage->getSection('dance_detail_tracks');
+        $infoSection = $detailPage->getSection('dance_detail_info');
+
+        $performerName = trim((string)($detailMeta->performerName ?? ''));
+        if ($performerName === '') {
+            $performerName = $heroSection === null ? '' : trim((string)$heroSection->title);
+        }
+
+        $heroImageItems = [];
+        if ($heroSection !== null) {
+            $heroImageItems = array_values(array_filter(
+                $heroSection->getItemsByCategorie('hero_image'),
+                static fn($item) => $item instanceof SectionItem
+            ));
+        }
+
+        $heroImages = [];
+        $heroSlots = [
+            [$heroImageItems[0] ?? null, ''],
+            [$heroImageItems[1] ?? null, $performerName],
+            [$heroImageItems[2] ?? null, ''],
+        ];
+        foreach ($heroSlots as [$item, $fallbackAlt]) {
+            $image = $item instanceof SectionItem ? trim((string)($item->image ?? '')) : '';
+            $alt = $item instanceof SectionItem ? trim((string)($item->subTitle ?? '')) : '';
+            if ($alt === '') {
+                $alt = $fallbackAlt;
+            }
+
+            $heroImages[] = [
+                'image' => $image,
+                'alt' => $alt,
+            ];
+        }
+
+        $highlightItems = [];
+        if ($highlightsSection !== null) {
+            foreach ($highlightsSection->getItemsByCategorie('highlight') as $item) {
+                if (!$item instanceof SectionItem) {
+                    continue;
+                }
+
+                $highlightItems[] = [
+                    'icon' => trim((string)($item->icon ?? '')) ?: 'star',
+                    'title' => $item->title,
+                    'content' => trim((string)($item->content ?? '')),
+                ];
+            }
+        }
+
+        $trackItems = [];
+        if ($tracksSection !== null) {
+            foreach ($tracksSection->getItemsByCategorie('track') as $item) {
+                if (!$item instanceof SectionItem) {
+                    continue;
+                }
+
+                $trackItems[] = [
+                    'title' => $item->title,
+                    'subtitle' => trim((string)($item->subTitle ?? '')),
+                    'year' => trim((string)($item->content ?? '')),
+                    'image' => trim((string)($item->image ?? '')),
+                ];
+            }
+        }
 
         return new DanceDetailViewModel(
             $performerName,
-            $sections['hero']?->subTitle,
-            $sections['hero']?->description,
-            $this->buildHeroImages($heroImages, $performerName),
-            $sections['highlights']?->title,
-            $this->buildHighlightItems($sections['highlights']),
-            $sections['tracks']?->title,
-            $sections['tracks']?->description,
-            $this->buildTrackItems($sections['tracks']),
+            $heroSection?->subTitle,
+            $heroSection?->description,
+            $heroImages,
+            $highlightsSection?->title,
+            $highlightItems,
+            $tracksSection?->title,
+            $tracksSection?->description,
+            $trackItems,
             $this->danceService->getDanceScheduleTitle(),
             $this->getScheduleRowsForDetail($detailMeta),
-            $sections['info']?->title,
-            $sections['info']?->description
+            $infoSection?->title,
+            $infoSection?->description
         );
-    }
-
-    private function getIndexSections($page): array
-    {
-        return [
-            'schedule' => $page->getSection('dance_schedule'),
-            'banner' => $page->getSection('dance_banner'),
-            'artists' => $page->getSection('dance_artists'),
-            'info' => $page->getSection('dance_info'),
-            'passes' => $page->getSection('dance_passes'),
-            'capacity' => $page->getSection('dance_capacity'),
-            'special' => $page->getSection('dance_special_session'),
-        ];
-    }
-
-    private function getDetailSections($page): array
-    {
-        return [
-            'hero' => $page->getSection('dance_detail_hero'),
-            'highlights' => $page->getSection('dance_detail_highlights'),
-            'tracks' => $page->getSection('dance_detail_tracks'),
-            'info' => $page->getSection('dance_detail_info'),
-        ];
-    }
-
-    private function getSectionTitle(?Section $section): string
-    {
-        return $section === null ? '' : trim((string)$section->title);
-    }
-
-    private function resolvePerformerName(EventDetailPageModel $detailMeta, ?Section $heroSection): string
-    {
-        $performerName = trim((string)($detailMeta->performerName ?? ''));
-        if ($performerName !== '') {
-            return $performerName;
-        }
-
-        return $this->getSectionTitle($heroSection);
     }
 
     private function getScheduleRowsForDetail(EventDetailPageModel $detailMeta): array
@@ -148,31 +228,16 @@ class DanceController extends BaseController
         return $this->scheduleService->getScheduleRowsByPerformerId('Dance', $detailMeta->performerId);
     }
 
-    private function buildHeroImages(array $heroImages, string $performerName): array
-    {
-        return [
-            $this->mapHeroImage($heroImages[0] ?? null, ''),
-            $this->mapHeroImage($heroImages[1] ?? null, $performerName),
-            $this->mapHeroImage($heroImages[2] ?? null, ''),
-        ];
-    }
-
-    private function getSectionItemsByCategory(?Section $section, string $category): array
-    {
-        if (!$section instanceof Section) {
-            return [];
-        }
-
-        return array_values(array_filter(
-            $section->getItemsByCategorie($category),
-            static fn($item) => $item instanceof SectionItem
-        ));
-    }
-
     private function buildArtistCards(?Section $artistsSection): array
     {
         $detailUrlByPerformerId = $this->getDetailUrlByPerformerId();
-        $artistImageRows = $this->getSectionItemsByCategory($artistsSection, 'artist');
+        $artistImageRows = [];
+        if ($artistsSection !== null) {
+            $artistImageRows = array_values(array_filter(
+                $artistsSection->getItemsByCategorie('artist'),
+                static fn($item) => $item instanceof SectionItem
+            ));
+        }
         $artistCards = [];
 
         foreach ($this->danceService->getDancePerformers() as $index => $performer) {
@@ -225,89 +290,6 @@ class DanceController extends BaseController
             'genre' => $genre,
             'image' => $image,
             'detailUrl' => $detailUrlByPerformerId[$performer->id] ?? '',
-        ];
-    }
-
-    private function buildPasses(?Section $passesSection): array
-    {
-        $passes = [];
-        foreach ($this->getSectionItemsByCategory($passesSection, 'pass') as $item) {
-            $pass = $this->mapPass($item);
-            if ($pass === null) {
-                continue;
-            }
-
-            $passes[] = $pass;
-        }
-
-        return $passes;
-    }
-
-    private function mapPass(SectionItem $item): ?array
-    {
-        $label = trim($item->title);
-        $price = trim((string)($item->content ?? ''));
-        if ($label === '' || $price === '') {
-            return null;
-        }
-
-        return [
-            'label' => $label,
-            'price' => $price,
-            'highlight' => (string)($item->url ?? '') === 'highlight',
-        ];
-    }
-
-    private function buildHighlightItems(?Section $highlightsSection): array
-    {
-        $highlightItems = [];
-        foreach ($this->getSectionItemsByCategory($highlightsSection, 'highlight') as $item) {
-            $highlightItems[] = $this->mapHighlightItem($item);
-        }
-
-        return $highlightItems;
-    }
-
-    private function mapHighlightItem(SectionItem $item): array
-    {
-        return [
-            'icon' => trim((string)($item->icon ?? '')) ?: 'star',
-            'title' => $item->title,
-            'content' => trim((string)($item->content ?? '')),
-        ];
-    }
-
-    private function buildTrackItems(?Section $tracksSection): array
-    {
-        $trackItems = [];
-        foreach ($this->getSectionItemsByCategory($tracksSection, 'track') as $item) {
-            $trackItems[] = $this->mapTrackItem($item);
-        }
-
-        return $trackItems;
-    }
-
-    private function mapTrackItem(SectionItem $item): array
-    {
-        return [
-            'title' => $item->title,
-            'subtitle' => trim((string)($item->subTitle ?? '')),
-            'year' => trim((string)($item->content ?? '')),
-            'image' => trim((string)($item->image ?? '')),
-        ];
-    }
-
-    private function mapHeroImage(?SectionItem $item, string $fallbackAlt): array
-    {
-        $image = $item instanceof SectionItem ? trim((string)($item->image ?? '')) : '';
-        $alt = $item instanceof SectionItem ? trim((string)($item->subTitle ?? '')) : '';
-        if ($alt === '') {
-            $alt = $fallbackAlt;
-        }
-
-        return [
-            'image' => $image,
-            'alt' => $alt,
         ];
     }
 }

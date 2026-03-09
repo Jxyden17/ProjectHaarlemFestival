@@ -4,7 +4,7 @@ namespace App\Controllers\Cms;
 
 use App\Controllers\BaseController;
 use App\Models\Requests\Cms\ScheduleEditorRequest;
-use App\Service\Interfaces\ICmsEventEditorService;
+use App\Service\Cms\Interfaces\ICmsEventEditorService;
 use App\Service\Interfaces\IScheduleService;
 
 class CmsEventEditorController extends BaseController

@@ -37,6 +37,45 @@ class ScheduleRepository implements IScheduleRepository
         );
     }
 
+    public function getScheduleGraphByEventName(string $name): array
+    {
+        $stmt = $this->db->prepare(
+            'SELECT e.id AS event_id,
+                    e.name AS event_name,
+                    e.description AS event_description,
+                    s.id AS session_id,
+                    s.venue_id,
+                    s.date,
+                    s.start_time,
+                    s.label,
+                    s.price,
+                    s.available_spots,
+                    s.amount_sold,
+                    v.id AS venue_id_ref,
+                    v.venue_name,
+                    v.address,
+                    v.venue_type,
+                    v.created_at AS venue_created_at,
+                    sp.session_id AS sp_session_id,
+                    sp.performer_id AS sp_performer_id,
+                    p.id AS performer_id_ref,
+                    p.performer_name,
+                    p.performer_type,
+                    p.description AS performer_description,
+                    p.created_at AS performer_created_at
+             FROM events e
+             LEFT JOIN sessions s ON s.event_id = e.id
+             LEFT JOIN venues v ON v.id = s.venue_id
+             LEFT JOIN session_performers sp ON sp.session_id = s.id
+             LEFT JOIN performers p ON p.id = sp.performer_id
+             WHERE e.name = :name
+             ORDER BY s.date ASC, s.start_time ASC, s.id ASC, sp.performer_id ASC'
+        );
+        $stmt->execute([':name' => $name]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function getSessionsByEventId(int $eventId): array
     {
         $stmt = $this->db->prepare('

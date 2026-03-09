@@ -19,74 +19,67 @@ class PageService implements IPageService
 
     public function buildPage(int $pageId): ?Page
     {
-        $pageRow = $this->pageRepo->findPageRowById($pageId);
-        if ($pageRow === null) {
+        $pageGraphRows = $this->pageRepo->findPageGraphRowsById($pageId);
+        if (empty($pageGraphRows)) {
             return null;
         }
 
-        return $this->mapPageRow($pageRow);
+        return $this->mapPageGraphRows($pageGraphRows);
     }
 
     public function getPageBySlug(string $slug, string $fallbackTitle = ''): Page
     {
-        $pageRow = $this->pageRepo->findPageRowBySlug($slug);
-        if ($pageRow === null) {
+        $pageGraphRows = $this->pageRepo->findPageGraphRowsBySlug($slug);
+        if (empty($pageGraphRows)) {
             return new Page($fallbackTitle, $slug);
         }
 
-        return $this->mapPageRow($pageRow);
+        return $this->mapPageGraphRows($pageGraphRows);
     }
 
-    private function mapPageRow(array $pageRow): Page
+    private function mapPageGraphRows(array $rows): Page
     {
-        $pageId = (int)($pageRow['id'] ?? 0);
-        $page = new Page((string)($pageRow['page_name'] ?? ''), (string)($pageRow['slug'] ?? ''));
-        $page->sections = $this->buildSectionsForPage($pageId);
+        $firstRow = $rows[0];
+        $page = new Page((string)($firstRow['page_name'] ?? ''), (string)($firstRow['slug'] ?? ''));
+        $sectionsById = [];
+
+        foreach ($rows as $row) {
+            $sectionId = (int)($row['section_id'] ?? 0);
+            if ($sectionId <= 0) {
+                continue;
+            }
+
+            if (!isset($sectionsById[$sectionId])) {
+                $sectionsById[$sectionId] = $this->mapSectionGraphRow($row);
+            }
+
+            $itemId = (int)($row['item_id'] ?? 0);
+            if ($itemId > 0) {
+                $sectionsById[$sectionId]->addItem($this->mapSectionItemGraphRow($row));
+            }
+        }
+
+        $page->sections = array_values($sectionsById);
 
         return $page;
     }
 
-    private function buildSectionsForPage(int $pageId): array
-    {
-        $sectionRows = $this->pageRepo->getPageSectionsByPageId($pageId);
-        if (empty($sectionRows)) {
-            return [];
-        }
-
-        $sectionIds = array_map(static fn(array $row): int => (int)($row['id'] ?? 0), $sectionRows);
-        $itemsBySection = $this->pageRepo->getItemsBySectionIds($sectionIds);
-        $sections = [];
-
-        foreach ($sectionRows as $row) {
-            $sectionId = (int)($row['id'] ?? 0);
-            $section = $this->mapSectionRow($row);
-
-            foreach (($itemsBySection[$sectionId] ?? []) as $itemRow) {
-                $section->addItem($this->mapSectionItemRow($itemRow));
-            }
-
-            $sections[] = $section;
-        }
-
-        return $sections;
-    }
-
-    private function mapSectionRow(array $row): Section
+    private function mapSectionGraphRow(array $row): Section
     {
         return new Section(
-            (int)($row['id'] ?? 0),
+            (int)($row['section_id'] ?? 0),
             (string)($row['section_type'] ?? ''),
-            (string)($row['title'] ?? ''),
-            (string)($row['subtitle'] ?? ''),
-            (string)($row['description'] ?? '')
+            (string)($row['section_title'] ?? ''),
+            (string)($row['section_subtitle'] ?? ''),
+            (string)($row['section_description'] ?? '')
         );
     }
 
-    private function mapSectionItemRow(array $row): SectionItem
+    private function mapSectionItemGraphRow(array $row): SectionItem
     {
         return new SectionItem(
-            (int)($row['id'] ?? 0),
-            (string)($row['title'] ?? ''),
+            (int)($row['item_id'] ?? 0),
+            (string)($row['item_title'] ?? ''),
             isset($row['content']) ? (string)$row['content'] : null,
             isset($row['image_path']) ? (string)$row['image_path'] : null,
             isset($row['link_url']) ? (string)$row['link_url'] : null,
@@ -94,7 +87,7 @@ class PageService implements IPageService
             isset($row['duration']) ? (string)$row['duration'] : null,
             isset($row['icon_class']) ? (string)$row['icon_class'] : null,
             isset($row['item_subtitle']) ? (string)$row['item_subtitle'] : null,
-            (int)($row['order_index'] ?? 0)
+            (int)($row['item_order_index'] ?? 0)
         );
     }
 }

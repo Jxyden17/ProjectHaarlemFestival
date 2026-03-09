@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service;
+namespace App\Service\Cms;
 
 use App\Models\Page\SectionItem;
 use App\Models\Requests\Cms\Schedule\SchedulePerformerRowRequest;
@@ -10,7 +10,7 @@ use App\Models\ViewModels\Cms\Schedule\ScheduleEditorPerformerRowViewModel;
 use App\Models\ViewModels\Cms\Schedule\ScheduleEditorSessionRowViewModel;
 use App\Models\ViewModels\Cms\Schedule\ScheduleEditorVenueRowViewModel;
 use App\Models\ViewModels\Cms\Schedule\ScheduleEditorViewModel;
-use App\Service\Interfaces\ICmsEventEditorService;
+use App\Service\Cms\Interfaces\ICmsEventEditorService;
 use App\Service\Interfaces\IDanceService;
 use App\Service\Interfaces\IScheduleService;
 

@@ -43,8 +43,8 @@ try {
     $jazzService = new App\Service\JazzService($jazzRepo,$scheduleRepo);
 
     $authService = new App\Service\AuthService($userRepo, $passwordResetRepo, $mailService);
-    $cmsService = new App\Service\CmsService($userRepo);
-    $cmsEventEditorService = new App\Service\CmsEventEditorService($scheduleService, $danceService);
+    $cmsService = new App\Service\Cms\CmsService($userRepo);
+    $cmsEventEditorService = new App\Service\Cms\CmsEventEditorService($scheduleService, $danceService);
 
     // Controllers
     $authController = new App\Controllers\AuthController($authService);

@@ -12,7 +12,6 @@ class EventDetailPageModel
     public string $publicSlug;
     public string $cmsSlug;
     public string $entityType;
-    public bool $isPublished;
     public int $displayOrder;
     public ?string $performerName;
 
@@ -25,7 +24,6 @@ class EventDetailPageModel
         string $publicSlug,
         string $cmsSlug,
         string $entityType,
-        bool $isPublished,
         int $displayOrder,
         ?string $performerName = null
     ) {
@@ -37,7 +35,6 @@ class EventDetailPageModel
         $this->publicSlug = $publicSlug;
         $this->cmsSlug = $cmsSlug;
         $this->entityType = $entityType;
-        $this->isPublished = $isPublished;
         $this->displayOrder = $displayOrder;
         $this->performerName = $performerName;
     }

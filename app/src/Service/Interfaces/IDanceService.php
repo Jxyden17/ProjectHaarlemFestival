@@ -4,12 +4,10 @@ namespace App\Service\Interfaces;
 
 use App\Models\Event\EventDetailPageModel;
 use App\Models\Page\Page;
-use App\Models\ViewModels\Dance\DanceBannerStatsViewModel;
 
 interface IDanceService
 {
     public function getDanceScheduleTitle(): string;
-    public function getDanceBannerStats(): DanceBannerStatsViewModel;
     public function getDanceVenues(): array;
     public function getDancePerformers(): array;
     public function getDanceHomePage(): Page;

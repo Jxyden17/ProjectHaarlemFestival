@@ -19,10 +19,10 @@ class DanceRepository implements IDanceRepository
         $this->db = Database::getInstance();
     }
 
-    public function findDanceEvent(): ?EventModel
+    public function findEventByName(string $eventName): ?EventModel
     {
         $stmt = $this->db->prepare('SELECT id, name, description FROM events WHERE name = :name LIMIT 1');
-        $stmt->execute([':name' => 'Dance']);
+        $stmt->execute([':name' => trim($eventName)]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$row) {
@@ -30,24 +30,6 @@ class DanceRepository implements IDanceRepository
         }
 
         return new EventModel((int)$row['id'], (string)$row['name'], isset($row['description']) ? (string)$row['description'] : null);
-    }
-
-    public function countSessionsByEventId(int $eventId): int
-    {
-        $stmt = $this->db->prepare('SELECT COUNT(*) AS total FROM sessions WHERE event_id = :event_id');
-        $stmt->execute([':event_id' => $eventId]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        return isset($row['total']) ? (int)$row['total'] : 0;
-    }
-
-    public function countDistinctVenuesByEventId(int $eventId): int
-    {
-        $stmt = $this->db->prepare('SELECT COUNT(DISTINCT venue_id) AS total FROM sessions WHERE event_id = :event_id');
-        $stmt->execute([':event_id' => $eventId]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        return isset($row['total']) ? (int)$row['total'] : 0;
     }
 
     public function getVenuesByEventId(int $eventId): array {
@@ -87,6 +69,32 @@ class DanceRepository implements IDanceRepository
         );
     }
 
+    public function getDetailPagesByEventId(int $eventId): array
+    {
+        $stmt = $this->db->prepare(
+            'SELECT edp.id,
+                    edp.event_id,
+                    edp.performer_id,
+                    edp.page_id,
+                    edp.public_slug,
+                    edp.cms_slug,
+                    edp.entity_type,
+                    edp.display_order,
+                    p.slug AS page_slug,
+                    p.page_name,
+                    pf.performer_name
+             FROM event_detail_pages edp
+             INNER JOIN pages p ON p.id = edp.page_id
+             LEFT JOIN performers pf ON pf.id = edp.performer_id
+             WHERE edp.event_id = :event_id
+             ORDER BY edp.display_order ASC, edp.id ASC'
+        );
+        $stmt->execute([':event_id' => $eventId]);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        return array_map(fn(array $row): EventDetailPageModel => $this->mapDetailPageRow($row), $rows);
+    }
+
     public function findDetailPageByPublicSlug(string $publicSlug): ?EventDetailPageModel
     {
         if (trim($publicSlug) === '') {
@@ -101,7 +109,6 @@ class DanceRepository implements IDanceRepository
                     edp.public_slug,
                     edp.cms_slug,
                     edp.entity_type,
-                    edp.is_published,
                     edp.display_order,
                     p.slug AS page_slug,
                     p.page_name,
@@ -132,7 +139,6 @@ class DanceRepository implements IDanceRepository
                     edp.public_slug,
                     edp.cms_slug,
                     edp.entity_type,
-                    edp.is_published,
                     edp.display_order,
                     p.slug AS page_slug,
                     p.page_name,
@@ -149,34 +155,6 @@ class DanceRepository implements IDanceRepository
         return $row ? $this->mapDetailPageRow($row) : null;
     }
 
-    public function getPublishedDetailPagesByEventId(int $eventId): array
-    {
-        $stmt = $this->db->prepare(
-            'SELECT edp.id,
-                    edp.event_id,
-                    edp.performer_id,
-                    edp.page_id,
-                    edp.public_slug,
-                    edp.cms_slug,
-                    edp.entity_type,
-                    edp.is_published,
-                    edp.display_order,
-                    p.slug AS page_slug,
-                    p.page_name,
-                    pf.performer_name
-             FROM event_detail_pages edp
-             INNER JOIN pages p ON p.id = edp.page_id
-             LEFT JOIN performers pf ON pf.id = edp.performer_id
-             WHERE edp.event_id = :event_id
-               AND edp.is_published = 1
-             ORDER BY edp.display_order ASC, edp.id ASC'
-        );
-        $stmt->execute([':event_id' => $eventId]);
-        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        return array_map(fn(array $row): EventDetailPageModel => $this->mapDetailPageRow($row), $rows);
-    }
-
     private function mapDetailPageRow(array $row): EventDetailPageModel
     {
         return new EventDetailPageModel(
@@ -188,7 +166,6 @@ class DanceRepository implements IDanceRepository
             (string)($row['public_slug'] ?? ''),
             (string)($row['cms_slug'] ?? ''),
             (string)($row['entity_type'] ?? 'performer'),
-            (bool)($row['is_published'] ?? false),
             (int)($row['display_order'] ?? 0),
             isset($row['performer_name']) ? (string)$row['performer_name'] : null
         );

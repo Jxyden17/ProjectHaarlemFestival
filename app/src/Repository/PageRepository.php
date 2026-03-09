@@ -15,26 +15,74 @@ class PageRepository implements IPageRepository
         $this->db = Database::getInstance();
     }
 
-    public function findPageRowById(int $pageId): ?array
+    public function findPageGraphRowsById(int $pageId): array
     {
         if ($pageId <= 0) {
-            return null;
+            return [];
         }
 
-        $stmt = $this->db->prepare('SELECT id, page_name, slug FROM pages WHERE id = :id LIMIT 1');
+        $stmt = $this->db->prepare(
+            'SELECT p.id AS page_id,
+                    p.page_name,
+                    p.slug,
+                    ps.id AS section_id,
+                    ps.section_type,
+                    ps.title AS section_title,
+                    ps.subtitle AS section_subtitle,
+                    ps.description AS section_description,
+                    ps.order_index AS section_order_index,
+                    si.id AS item_id,
+                    si.item_category,
+                    si.title AS item_title,
+                    si.item_subtitle,
+                    si.content,
+                    si.image_path,
+                    si.link_url,
+                    si.duration,
+                    si.icon_class,
+                    si.order_index AS item_order_index
+             FROM pages p
+             LEFT JOIN page_sections ps ON ps.page_id = p.id
+             LEFT JOIN section_items si ON si.section_id = ps.id
+             WHERE p.id = :id
+             ORDER BY ps.order_index ASC, si.order_index ASC'
+        );
         $stmt->execute([':id' => $pageId]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return $row ?: null;
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function findPageRowBySlug(string $slug): ?array
+    public function findPageGraphRowsBySlug(string $slug): array
     {
-        $stmt = $this->db->prepare('SELECT id, page_name, slug FROM pages WHERE slug = :slug LIMIT 1');
+        $stmt = $this->db->prepare(
+            'SELECT p.id AS page_id,
+                    p.page_name,
+                    p.slug,
+                    ps.id AS section_id,
+                    ps.section_type,
+                    ps.title AS section_title,
+                    ps.subtitle AS section_subtitle,
+                    ps.description AS section_description,
+                    ps.order_index AS section_order_index,
+                    si.id AS item_id,
+                    si.item_category,
+                    si.title AS item_title,
+                    si.item_subtitle,
+                    si.content,
+                    si.image_path,
+                    si.link_url,
+                    si.duration,
+                    si.icon_class,
+                    si.order_index AS item_order_index
+             FROM pages p
+             LEFT JOIN page_sections ps ON ps.page_id = p.id
+             LEFT JOIN section_items si ON si.section_id = ps.id
+             WHERE p.slug = :slug
+             ORDER BY ps.order_index ASC, si.order_index ASC'
+        );
         $stmt->execute([':slug' => $slug]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return $row ?: null;
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function saveOrUpdateSection(int $pageId, string $sectionType, ?string $title, ?string $subtitle, ?string $description, int $orderIndex): int
@@ -129,39 +177,4 @@ class PageRepository implements IPageRepository
         return (int)$row['id'];
     }
 
-    public function getPageSectionsByPageId(int $pageId): array
-    {
-        $stmt = $this->db->prepare('
-            SELECT id, section_type, title, subtitle, description
-            FROM page_sections
-            WHERE page_id = :page_id
-            ORDER BY order_index ASC
-        ');
-        $stmt->execute([':page_id' => $pageId]);
-
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    public function getItemsBySectionIds(array $sectionIds): array
-    {
-        if (empty($sectionIds)) {
-            return [];
-        }
-
-        $placeholders = implode(',', array_fill(0, count($sectionIds), '?'));
-        $stmt = $this->db->prepare('SELECT id, section_id, item_category, title, item_subtitle, content, image_path, link_url, duration, icon_class, order_index FROM section_items WHERE section_id IN (' . $placeholders . ') ORDER BY order_index ASC');
-        $stmt->execute($sectionIds);
-        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        $grouped = [];
-        foreach ($rows as $row) {
-            $sectionId = (int)$row['section_id'];
-            if (!isset($grouped[$sectionId])) {
-                $grouped[$sectionId] = [];
-            }
-            $grouped[$sectionId][] = $row;
-        }
-
-        return $grouped;
-    }
 }

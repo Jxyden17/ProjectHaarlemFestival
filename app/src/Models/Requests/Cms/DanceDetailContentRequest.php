@@ -2,7 +2,6 @@
 
 namespace App\Models\Requests\Cms;
 
-use App\Models\Commands\Cms\Dance\DanceDetailSaveCommand;
 use App\Models\Requests\Cms\Dance\DanceDetailHeroImageRowRequest;
 use App\Models\Requests\Cms\Dance\DanceDetailHighlightRowRequest;
 use App\Models\Requests\Cms\Dance\DanceDetailTrackRowRequest;
@@ -111,21 +110,4 @@ class DanceDetailContentRequest
     public function tracks(): array { return $this->tracks; }
     public function importantInformationTitle(): string { return $this->importantInformationTitle; }
     public function importantInformationHtml(): string { return $this->importantInformationHtml; }
-
-    public function toSaveCommand(): DanceDetailSaveCommand
-    {
-        return new DanceDetailSaveCommand(
-            $this->heroTitle(),
-            $this->heroBadge(),
-            $this->heroSubtitle(),
-            $this->heroImages(),
-            $this->highlightsTitle(),
-            $this->highlights(),
-            $this->tracksTitle(),
-            $this->tracksNote(),
-            $this->tracks(),
-            $this->importantInformationTitle(),
-            $this->importantInformationHtml()
-        );
-    }
 }

@@ -6,7 +6,6 @@ use App\Controllers\BaseController;
 use App\Models\Requests\Cms\Dance\DanceDetailHeroImageRowRequest;
 use App\Models\Requests\Cms\Dance\DanceDetailHighlightRowRequest;
 use App\Models\Requests\Cms\Dance\DanceDetailTrackRowRequest;
-use App\Models\Requests\Cms\Dance\DanceHomeArtistRowRequest;
 use App\Models\Requests\Cms\Dance\DanceHomePassRowRequest;
 use App\Models\Requests\Cms\DanceDetailContentRequest;
 use App\Models\Requests\Cms\DanceHomeContentRequest;
@@ -14,10 +13,9 @@ use App\Models\ViewModels\Cms\Dance\DanceDetailContentViewModel;
 use App\Models\ViewModels\Cms\Dance\DanceDetailHeroImageRowViewModel;
 use App\Models\ViewModels\Cms\Dance\DanceDetailHighlightRowViewModel;
 use App\Models\ViewModels\Cms\Dance\DanceDetailTrackRowViewModel;
-use App\Models\ViewModels\Cms\Dance\DanceHomeArtistRowViewModel;
 use App\Models\ViewModels\Cms\Dance\DanceHomeContentViewModel;
 use App\Models\ViewModels\Cms\Dance\DanceHomePassRowViewModel;
-use App\Service\Interfaces\ICmsDanceService;
+use App\Service\Cms\Interfaces\ICmsDanceService;
 
 class CmsDanceContentController extends BaseController
 {
@@ -46,7 +44,7 @@ class CmsDanceContentController extends BaseController
         $request = DanceHomeContentRequest::fromArray($_POST);
 
         try {
-            $this->danceService->saveDanceHomePage($request->toSaveCommand());
+            $this->danceService->saveDanceHomePage($request);
             header('Location: /cms/events/dance-home?saved=1');
             exit;
         } catch (\Throwable $e) {
@@ -83,7 +81,7 @@ class CmsDanceContentController extends BaseController
         $request = DanceDetailContentRequest::fromArray($_POST);
 
         try {
-            $this->danceService->saveDanceDetailPage($detailSlug, $request->toSaveCommand());
+            $this->danceService->saveDanceDetailPage($detailSlug, $request);
             header('Location: /cms/events/dance-detail/' . rawurlencode($detailSlug) . '?saved=1');
             exit;
         } catch (\Throwable $e) {
@@ -100,21 +98,6 @@ class CmsDanceContentController extends BaseController
 
     private function mapHomePostToFormData(DanceHomeContentRequest $request): DanceHomeContentViewModel
     {
-        $artistRows = [];
-        $artists = $request->artists();
-        foreach ($artists as $artist) {
-            if (!$artist instanceof DanceHomeArtistRowRequest) {
-                continue;
-            }
-
-            $artistRows[] = new DanceHomeArtistRowViewModel(
-                $artist->id(),
-                $artist->name(),
-                $artist->genre(),
-                $artist->image()
-            );
-        }
-
         $passRows = [];
         $passes = $request->passes();
         foreach ($passes as $pass) {
@@ -135,8 +118,8 @@ class CmsDanceContentController extends BaseController
             $request->bannerBadge(),
             $request->bannerTitle(),
             $request->bannerDescription(),
-            $request->artistsTitle(),
-            $artistRows,
+            '',
+            [],
             $request->importantInformationTitle(),
             $request->importantInformationHtml(),
             $request->passesTitle(),

@@ -2,28 +2,25 @@
 
 namespace App\Service\Cms;
 
-use App\Models\Commands\Cms\Dance\DanceDetailSaveCommand;
-use App\Models\Commands\Cms\Dance\DanceHomeSaveCommand;
 use App\Models\Event\EventDetailPageModel;
-use App\Models\Event\PerformerModel;
 use App\Models\Page\Page;
 use App\Models\Page\Section;
 use App\Models\Page\SectionItem;
+use App\Models\Requests\Cms\DanceDetailContentRequest;
+use App\Models\Requests\Cms\DanceHomeContentRequest;
 use App\Models\Requests\Cms\Dance\DanceDetailHeroImageRowRequest;
 use App\Models\Requests\Cms\Dance\DanceDetailHighlightRowRequest;
 use App\Models\Requests\Cms\Dance\DanceDetailTrackRowRequest;
-use App\Models\Requests\Cms\Dance\DanceHomeArtistRowRequest;
 use App\Models\Requests\Cms\Dance\DanceHomePassRowRequest;
 use App\Models\ViewModels\Cms\Dance\DanceDetailContentViewModel;
 use App\Models\ViewModels\Cms\Dance\DanceDetailHeroImageRowViewModel;
 use App\Models\ViewModels\Cms\Dance\DanceDetailHighlightRowViewModel;
 use App\Models\ViewModels\Cms\Dance\DanceDetailTrackRowViewModel;
-use App\Models\ViewModels\Cms\Dance\DanceHomeArtistRowViewModel;
 use App\Models\ViewModels\Cms\Dance\DanceHomeContentViewModel;
 use App\Models\ViewModels\Cms\Dance\DanceHomePassRowViewModel;
 use App\Repository\Interfaces\IDanceRepository;
 use App\Repository\Interfaces\IPageRepository;
-use App\Service\Interfaces\ICmsDanceService;
+use App\Service\Cms\Interfaces\ICmsDanceService;
 use App\Service\Interfaces\IHtmlSanitizerService;
 use App\Service\Interfaces\IPageService;
 
@@ -47,40 +44,10 @@ class CmsDanceService implements ICmsDanceService
         $page = $this->getDanceHomePage();
         $schedule = $page->getSection('dance_schedule');
         $banner = $page->getSection('dance_banner');
-        $artists = $page->getSection('dance_artists');
         $info = $page->getSection('dance_info');
         $passes = $page->getSection('dance_passes');
         $capacity = $page->getSection('dance_capacity');
         $special = $page->getSection('dance_special_session');
-
-        $artistRows = [];
-        $performers = $this->getDancePerformers();
-        $artistImageRows = [];
-        if ($artists !== null) {
-            foreach ($artists->getItemsByCategorie('artist') as $item) {
-                if ($item instanceof SectionItem) {
-                    $artistImageRows[] = $item;
-                }
-            }
-        }
-
-        foreach ($performers as $index => $performer) {
-            if (!$performer instanceof PerformerModel) {
-                continue;
-            }
-
-            $imageRow = $artistImageRows[$index] ?? null;
-            if (!$imageRow instanceof SectionItem) {
-                continue;
-            }
-
-            $artistRows[] = new DanceHomeArtistRowViewModel(
-                $imageRow->id,
-                $performer->performerName,
-                (string)($performer->performerType ?? ''),
-                (string)($imageRow->image ?? '')
-            );
-        }
 
         $passRows = [];
         if ($passes !== null) {
@@ -103,8 +70,8 @@ class CmsDanceService implements ICmsDanceService
             $banner !== null ? (string)$banner->subTitle : '',
             $banner !== null ? $banner->title : '',
             $banner !== null ? (string)$banner->description : '',
-            $artists !== null ? $artists->title : '',
-            $artistRows,
+            '',
+            [],
             $info !== null ? $info->title : '',
             $info !== null ? (string)$info->description : '',
             $passes !== null ? $passes->title : '',
@@ -116,10 +83,9 @@ class CmsDanceService implements ICmsDanceService
         );
     }
 
-    public function saveDanceHomePage(DanceHomeSaveCommand $command): void
+    public function saveDanceHomePage(DanceHomeContentRequest $request): void
     {
-        $normalizedInput = $this->normalizeHomePageInput($command);
-        $normalizedInput['artist_items'] = $this->synchronizeArtistItemsWithPerformers($normalizedInput['artist_items']);
+        $normalizedInput = $this->normalizeHomePageInput($request);
         $this->validateHomePageInput($normalizedInput);
         $page = $this->buildDanceHomePage($normalizedInput);
         $this->persistDanceHomePage($page);
@@ -153,10 +119,10 @@ class CmsDanceService implements ICmsDanceService
         );
     }
 
-    public function saveDanceDetailPage(string $detailSlug, DanceDetailSaveCommand $command): void
+    public function saveDanceDetailPage(string $detailSlug, DanceDetailContentRequest $request): void
     {
         $meta = $this->resolveDetailPageMeta($detailSlug);
-        $normalizedInput = $this->normalizeDetailPageInput($command);
+        $normalizedInput = $this->normalizeDetailPageInput($request);
         $this->validateDetailPageInput($normalizedInput);
         $page = $this->buildDanceDetailPage($meta->pageSlug, $this->buildEditorTitle($meta), $normalizedInput);
         $this->persistDanceDetailPage($meta->pageSlug, $page);
@@ -165,16 +131,6 @@ class CmsDanceService implements ICmsDanceService
     private function getDanceHomePage(): Page
     {
         return $this->pageService->getPageBySlug('dance-home', 'Dance Home');
-    }
-
-    private function getDancePerformers(): array
-    {
-        $event = $this->danceRepository->findDanceEvent();
-        if ($event === null) {
-            return [];
-        }
-
-        return $this->danceRepository->getPerformersByEventId($event->id);
     }
 
     private function resolveDetailPageMeta(string $detailSlug): EventDetailPageModel
@@ -197,43 +153,40 @@ class CmsDanceService implements ICmsDanceService
         return $performerName . ' Detail Content';
     }
 
-    private function normalizeHomePageInput(DanceHomeSaveCommand $command): array
+    private function normalizeHomePageInput(DanceHomeContentRequest $request): array
     {
-        $artists = $command->artists();
-        $passes = $command->passes();
+        $passes = $request->passes();
 
         return [
-            'schedule_title' => $command->scheduleTitle(),
-            'banner_badge' => $command->bannerBadge(),
-            'banner_title' => $command->bannerTitle(),
-            'banner_description' => $this->sanitizeWysiwygField($command->bannerDescription()),
-            'artists_title' => $command->artistsTitle(),
-            'artist_items' => $this->normalizeArtists($artists),
-            'important_information_title' => $command->importantInformationTitle(),
-            'important_information_html' => $this->sanitizeWysiwygField($command->importantInformationHtml()),
-            'passes_title' => $command->passesTitle(),
+            'schedule_title' => $request->scheduleTitle(),
+            'banner_badge' => $request->bannerBadge(),
+            'banner_title' => $request->bannerTitle(),
+            'banner_description' => $this->sanitizeWysiwygField($request->bannerDescription()),
+            'important_information_title' => $request->importantInformationTitle(),
+            'important_information_html' => $this->sanitizeWysiwygField($request->importantInformationHtml()),
+            'passes_title' => $request->passesTitle(),
             'pass_items' => $this->normalizePasses($passes),
-            'capacity_title' => $command->capacityTitle(),
-            'capacity_html' => $this->sanitizeWysiwygField($command->capacityHtml()),
-            'special_title' => $command->specialTitle(),
-            'special_html' => $this->sanitizeWysiwygField($command->specialHtml()),
+            'capacity_title' => $request->capacityTitle(),
+            'capacity_html' => $this->sanitizeWysiwygField($request->capacityHtml()),
+            'special_title' => $request->specialTitle(),
+            'special_html' => $this->sanitizeWysiwygField($request->specialHtml()),
         ];
     }
 
-    private function normalizeDetailPageInput(DanceDetailSaveCommand $command): array
+    private function normalizeDetailPageInput(DanceDetailContentRequest $request): array
     {
         return [
-            'hero_title' => trim($command->heroTitle()),
-            'hero_badge' => trim($command->heroBadge()),
-            'hero_subtitle' => trim($command->heroSubtitle()),
-            'hero_images' => $this->normalizeHeroImages($command->heroImages()),
-            'highlights_title' => trim($command->highlightsTitle()),
-            'highlights' => $this->normalizeHighlights($command->highlights()),
-            'tracks_title' => trim($command->tracksTitle()),
-            'tracks_note' => trim($command->tracksNote()),
-            'tracks' => $this->normalizeTracks($command->tracks()),
-            'important_information_title' => trim($command->importantInformationTitle()),
-            'important_information_html' => $this->sanitizeWysiwygField($command->importantInformationHtml()),
+            'hero_title' => trim($request->heroTitle()),
+            'hero_badge' => trim($request->heroBadge()),
+            'hero_subtitle' => trim($request->heroSubtitle()),
+            'hero_images' => $this->normalizeHeroImages($request->heroImages()),
+            'highlights_title' => trim($request->highlightsTitle()),
+            'highlights' => $this->normalizeHighlights($request->highlights()),
+            'tracks_title' => trim($request->tracksTitle()),
+            'tracks_note' => trim($request->tracksNote()),
+            'tracks' => $this->normalizeTracks($request->tracks()),
+            'important_information_title' => trim($request->importantInformationTitle()),
+            'important_information_html' => $this->sanitizeWysiwygField($request->importantInformationHtml()),
         ];
     }
 
@@ -254,10 +207,6 @@ class CmsDanceService implements ICmsDanceService
 
         if ($input['banner_description'] === '') {
             throw new \InvalidArgumentException('Banner description is required.');
-        }
-
-        if ($input['artists_title'] === '' || count($input['artist_items']) === 0) {
-            throw new \InvalidArgumentException('At least one artist is required.');
         }
 
         if ($input['important_information_title'] === '' || $input['important_information_html'] === '') {
@@ -311,13 +260,11 @@ class CmsDanceService implements ICmsDanceService
             new Section(0, 'dance_schedule', $input['schedule_title'], '', ''),
             new Section(0, 'dance_banner', $input['banner_title'], $input['banner_badge'], $input['banner_description']),
             new Section(0, 'dance_info', $input['important_information_title'], '', $input['important_information_html']),
-            new Section(0, 'dance_artists', $input['artists_title'], '', ''),
             new Section(0, 'dance_passes', $input['passes_title'], '', ''),
             new Section(0, 'dance_capacity', $input['capacity_title'], '', $input['capacity_html']),
             new Section(0, 'dance_special_session', $input['special_title'], '', $input['special_html']),
         ];
 
-        $this->appendSectionItems($page, 'dance_artists', $input['artist_items']);
         $this->appendSectionItems($page, 'dance_passes', $input['pass_items']);
 
         return $page;
@@ -352,61 +299,6 @@ class CmsDanceService implements ICmsDanceService
                 $section->addItem($item);
             }
         }
-    }
-
-    private function normalizeArtists(array $artists): array
-    {
-        $result = [];
-        foreach ($artists as $artist) {
-            if (!$artist instanceof DanceHomeArtistRowRequest) {
-                continue;
-            }
-
-            $name = $artist->name();
-            $genre = $artist->genre();
-            $image = $artist->image();
-            if ($name === '') {
-                continue;
-            }
-
-            $result[] = new SectionItem($artist->id(), $name, $genre, $image, null, 'artist', null, null, null, count($result) + 1);
-        }
-
-        return $result;
-    }
-
-    private function synchronizeArtistItemsWithPerformers(array $artistItems): array
-    {
-        $performers = $this->getDancePerformers();
-        $synced = [];
-
-        foreach ($performers as $index => $performer) {
-            if (!$performer instanceof PerformerModel) {
-                continue;
-            }
-
-            $existing = $artistItems[$index] ?? null;
-            $existingId = $existing instanceof SectionItem ? (int)$existing->id : 0;
-            $existingImage = $existing instanceof SectionItem ? trim((string)($existing->image ?? '')) : '';
-            if ($existingId <= 0) {
-                continue;
-            }
-
-            $synced[] = new SectionItem(
-                $existingId,
-                $performer->performerName,
-                trim((string)($performer->performerType ?? '')),
-                $existingImage,
-                null,
-                'artist',
-                null,
-                null,
-                null,
-                count($synced) + 1
-            );
-        }
-
-        return $synced;
     }
 
     private function normalizePasses(array $passes): array
@@ -522,21 +414,17 @@ class CmsDanceService implements ICmsDanceService
         $scheduleSection = $page->getSection('dance_schedule');
         $bannerSection = $page->getSection('dance_banner');
         $infoSection = $page->getSection('dance_info');
-        $artistsSection = $page->getSection('dance_artists');
         $passesSection = $page->getSection('dance_passes');
         $capacitySection = $page->getSection('dance_capacity');
         $specialSection = $page->getSection('dance_special_session');
 
-        if ($scheduleSection === null || $bannerSection === null || $infoSection === null || $artistsSection === null || $passesSection === null || $capacitySection === null || $specialSection === null) {
+        if ($scheduleSection === null || $bannerSection === null || $infoSection === null || $passesSection === null || $capacitySection === null || $specialSection === null) {
             throw new \RuntimeException('Required dance sections are missing.');
         }
 
         $this->pageRepository->saveOrUpdateSection($pageId, 'dance_schedule', $scheduleSection->title, null, null, 5);
         $this->pageRepository->saveOrUpdateSection($pageId, 'dance_banner', $bannerSection->title, $bannerSection->subTitle, $bannerSection->description, 10);
         $this->pageRepository->saveOrUpdateSection($pageId, 'dance_info', $infoSection->title, null, $infoSection->description, 20);
-
-        $artistsSectionId = $this->pageRepository->saveOrUpdateSection($pageId, 'dance_artists', $artistsSection->title, null, null, 30);
-        $this->pageRepository->upsertSectionItems($artistsSectionId, $this->mapArtistRows($artistsSection->items));
 
         $passesSectionId = $this->pageRepository->saveOrUpdateSection($pageId, 'dance_passes', $passesSection->title, null, null, 40);
         $this->pageRepository->upsertSectionItems($passesSectionId, $this->mapPassRows($passesSection->items));
@@ -571,40 +459,6 @@ class CmsDanceService implements ICmsDanceService
         $this->pageRepository->upsertSectionItems($tracksSectionId, $this->mapTrackRows($tracksSection->items));
 
         $this->pageRepository->saveOrUpdateSection($pageId, 'dance_detail_info', $infoSection->title, null, $infoSection->description, 40);
-    }
-
-    private function mapArtistRows(array $artists): array
-    {
-        $rows = [];
-        $index = 1;
-
-        foreach ($artists as $artist) {
-            if (!$artist instanceof SectionItem) {
-                continue;
-            }
-
-            $name = trim($artist->title);
-            $genre = trim((string)($artist->content ?? ''));
-            $image = trim((string)($artist->image ?? ''));
-            if ($name === '') {
-                continue;
-            }
-
-            $rows[] = [
-                'id' => $artist->id,
-                'title' => $name,
-                'item_subtitle' => null,
-                'content' => $genre,
-                'image_path' => $image,
-                'link_url' => null,
-                'duration' => null,
-                'icon_class' => null,
-                'order_index' => $index++,
-                'item_category' => 'artist',
-            ];
-        }
-
-        return $rows;
     }
 
     private function mapPassRows(array $passes): array

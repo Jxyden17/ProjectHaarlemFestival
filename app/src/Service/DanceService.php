@@ -3,16 +3,25 @@
 namespace App\Service;
 
 use App\Models\Event\EventDetailPageModel;
+use App\Models\Event\EventModel;
 use App\Models\Page\Page;
-use App\Models\ViewModels\Dance\DanceBannerStatsViewModel;
 use App\Repository\Interfaces\IDanceRepository;
 use App\Service\Interfaces\IDanceService;
 use App\Service\Interfaces\IPageService;
 
 class DanceService implements IDanceService
 {
+    private const DANCE_EVENT_NAME = 'Dance';
+
     private IDanceRepository $danceRepository;
     private IPageService $pageService;
+    private ?Page $danceHomePage = null;
+    private bool $danceHomePageLoaded = false;
+    private ?EventModel $danceEvent = null;
+    private bool $danceEventLoaded = false;
+    private ?array $danceVenues = null;
+    private ?array $dancePerformers = null;
+    private ?array $publishedDetailPages = null;
 
     public function __construct(IDanceRepository $danceRepository, IPageService $pageService)
     {
@@ -20,45 +29,46 @@ class DanceService implements IDanceService
         $this->pageService = $pageService;
     }
 
-    public function getDanceBannerStats(): DanceBannerStatsViewModel
-    {
-        $event = $this->danceRepository->findDanceEvent();
-
-        if ($event === null) {
-            throw new \RuntimeException('Dance event not found.');
-        }
-
-        return new DanceBannerStatsViewModel(
-            $this->danceRepository->countSessionsByEventId($event->id),
-            $this->danceRepository->countDistinctVenuesByEventId($event->id)
-        );
-    }
-
     public function getDanceVenues(): array
     {
-        $event = $this->danceRepository->findDanceEvent();
+        if (is_array($this->danceVenues)) {
+            return $this->danceVenues;
+        }
 
-        if ($event === null) {
+        $event = $this->getDanceEvent();
+        if (!$event instanceof EventModel) {
             return [];
         }
 
-        return $this->danceRepository->getVenuesByEventId($event->id);
+        $this->danceVenues = $this->danceRepository->getVenuesByEventId($event->id);
+
+        return $this->danceVenues;
     }
 
     public function getDancePerformers(): array
     {
-        $event = $this->danceRepository->findDanceEvent();
+        if (is_array($this->dancePerformers)) {
+            return $this->dancePerformers;
+        }
 
-        if ($event === null) {
+        $event = $this->getDanceEvent();
+        if (!$event instanceof EventModel) {
             return [];
         }
 
-        return $this->danceRepository->getPerformersByEventId($event->id);
+        $this->dancePerformers = $this->danceRepository->getPerformersByEventId($event->id);
+
+        return $this->dancePerformers;
     }
 
     public function getDanceHomePage(): Page
     {
-        return $this->pageService->getPageBySlug('dance-home', 'Dance Home');
+        if (!$this->danceHomePageLoaded) {
+            $this->danceHomePage = $this->pageService->getPageBySlug('dance-home', 'Dance Home');
+            $this->danceHomePageLoaded = true;
+        }
+
+        return $this->danceHomePage ?? new Page('Dance Home', 'dance-home');
     }
 
     public function getDanceDetailPage(string $slug): Page
@@ -73,12 +83,18 @@ class DanceService implements IDanceService
 
     public function getPublishedDanceDetailPages(): array
     {
-        $event = $this->danceRepository->findDanceEvent();
-        if ($event === null) {
+        if (is_array($this->publishedDetailPages)) {
+            return $this->publishedDetailPages;
+        }
+
+        $event = $this->getDanceEvent();
+        if (!$event instanceof EventModel) {
             return [];
         }
 
-        return $this->danceRepository->getPublishedDetailPagesByEventId($event->id);
+        $this->publishedDetailPages = $this->danceRepository->getDetailPagesByEventId($event->id);
+
+        return $this->publishedDetailPages;
     }
 
     public function getDanceScheduleTitle(): string
@@ -92,5 +108,15 @@ class DanceService implements IDanceService
         }
 
         return $scheduleTitle;
+    }
+
+    private function getDanceEvent(): ?EventModel
+    {
+        if (!$this->danceEventLoaded) {
+            $this->danceEvent = $this->danceRepository->findEventByName(self::DANCE_EVENT_NAME);
+            $this->danceEventLoaded = true;
+        }
+
+        return $this->danceEvent;
     }
 }
