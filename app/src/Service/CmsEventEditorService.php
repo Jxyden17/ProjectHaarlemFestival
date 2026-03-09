@@ -10,6 +10,7 @@ use App\Models\ViewModels\Cms\Schedule\ScheduleEditorPerformerRowViewModel;
 use App\Models\ViewModels\Cms\Schedule\ScheduleEditorSessionRowViewModel;
 use App\Models\ViewModels\Cms\Schedule\ScheduleEditorVenueRowViewModel;
 use App\Models\ViewModels\Cms\Schedule\ScheduleEditorViewModel;
+use App\Repository\Interfaces\IPageRepository;
 use App\Service\Interfaces\ICmsEventEditorService;
 use App\Service\Interfaces\IDanceService;
 use App\Service\Interfaces\IScheduleService;
@@ -18,11 +19,13 @@ class CmsEventEditorService implements ICmsEventEditorService
 {
     private IScheduleService $scheduleService;
     private IDanceService $danceService;
+    private IPageRepository $pageRepository;
 
-    public function __construct(IScheduleService $scheduleService, IDanceService $danceService)
+    public function __construct(IScheduleService $scheduleService, IDanceService $danceService, IPageRepository $pageRepository)
     {
         $this->scheduleService = $scheduleService;
         $this->danceService = $danceService;
+        $this->pageRepository = $pageRepository;
     }
 
     public function getEditorData(string $eventName): ScheduleEditorViewModel
@@ -178,5 +181,29 @@ class CmsEventEditorService implements ICmsEventEditorService
         }
 
         return $sessions;
+    }
+    public function savePageContent(int $pageId, array $sections, array $items): void
+    {
+    foreach ($sections as $sectionType => $sectionData) {
+        if (!is_array($sectionData)) {
+            continue;
+        }
+
+        $orderIndex = (array_key_exists('order_index', $sectionData) && $sectionData['order_index'] !== '')
+            ? (int)$sectionData['order_index']
+            : null;
+
+        $sectionId = $this->pageRepository->saveOrUpdateSection(
+            $pageId,
+            (string)$sectionType,
+            trim((string)($sectionData['title'] ?? '')),
+            trim((string)($sectionData['subtitle'] ?? $sectionData['subTitle'] ?? '')),
+            trim((string)($sectionData['description'] ?? '')),
+            $orderIndex
+        );
+
+        $sectionItems = is_array($items[$sectionType] ?? null) ? $items[$sectionType] : [];
+        $this->pageRepository->upsertSectionItems($sectionId, $sectionItems);
+        }
     }
 }

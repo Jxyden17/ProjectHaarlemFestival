@@ -24,6 +24,6 @@ $firstItem = $items[0] ?? null;
 
     <div class="hero-text">
         <h1><?= htmlspecialchars($section->title) ?></h1>
-        <p><?= htmlspecialchars($firstItem->content ?? '') ?></p>
+        <p><?= htmlspecialchars($section->subTitle) ?></p>
     </div>
 </section>

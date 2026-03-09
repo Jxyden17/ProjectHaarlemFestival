@@ -12,4 +12,5 @@ interface IScheduleRepository
     public function getPerformersByEventId(int $eventId): array;
     public function getSessionPerformersByEventId(int $eventId): array;
     public function saveEventScheduleData(int $eventId, array $venueRows, array $performerRows, array $sessionRows, array $sessionPerformerRows): void;
+    public function getAllEvents(): array;
 }

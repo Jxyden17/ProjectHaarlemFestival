@@ -43,7 +43,7 @@ try {
 
     $authService = new App\Service\AuthService($userRepo, $passwordResetRepo, $mailService);
     $cmsService = new App\Service\CmsService($userRepo);
-    $cmsEventEditorService = new App\Service\CmsEventEditorService($scheduleService, $danceService);
+    $cmsEventEditorService = new App\Service\CmsEventEditorService($scheduleService, $danceService, $pageRepo);
 
     // Controllers
     $authController = new App\Controllers\AuthController($authService);
@@ -60,6 +60,7 @@ try {
     $cmsDanceContentController = new App\Controllers\Cms\CmsDanceContentController($danceService);
     $cmsEventEditorController = new App\Controllers\Cms\CmsEventEditorController($scheduleService, $cmsEventEditorService);
     $cmsMediaController = new App\Controllers\Cms\CmsMediaController($mediaService);
+    $cmsTourContentController = new App\Controllers\Cms\CmsTourContentController($pageService, $cmsEventEditorService);
 
 
     // Routes
@@ -92,6 +93,8 @@ try {
         $r->addRoute('POST', '/cms/events/{eventSlug}/schedule', ['CmsEventEditorController', 'update']);
         $r->addRoute('GET', '/cms/events/dance-home', ['CmsDanceContentController', 'index']);
         $r->addRoute('POST', '/cms/events/dance-home', ['CmsDanceContentController', 'update']);
+        $r->addRoute('GET', '/cms/events/tour-home', ['CmsTourContentController', 'index']);
+        $r->addRoute('POST', '/cms/events/tour-home', ['CmsTourContentController', 'update']);
         $r->addRoute('POST', '/cms/media/upload-replace', ['CmsMediaController', 'uploadReplace']);
         $r->addRoute('GET', '/cms/tickets', ['CmsTicketsController', 'index']);
         $r->addRoute('GET', '/cms/users', ['CmsUsersController', 'index']);
@@ -134,6 +137,7 @@ try {
                 'CmsUsersController' => $cmsUsersController,
                 'CmsEventEditorController' => $cmsEventEditorController,
                 'CmsDanceContentController' => $cmsDanceContentController,
+                'CmsTourContentController' => $cmsTourContentController,
                 'CmsMediaController' => $cmsMediaController,
             ];
 

@@ -93,7 +93,10 @@ class PageRepository implements IPageRepository
                  image_path = :image_path,
                  link_url = :link_url,
                  order_index = :order_index,
-                 item_category = :item_category
+                 item_category = :item_category,
+                 duration = :duration,
+                icon_class = :icon_class,
+                item_subtitle = :item_subtitle
              WHERE id = :id AND section_id = :section_id'
         );
 
@@ -104,12 +107,15 @@ class PageRepository implements IPageRepository
         foreach ($items as $item) {
             $params = [
                 ':section_id' => $sectionId,
-                ':title' => $item['title'],
-                ':content' => $item['content'],
-                ':image_path' => $item['image_path'],
-                ':link_url' => $item['link_url'],
-                ':order_index' => $item['order_index'],
-                ':item_category' => $item['item_category'],
+                ':title' => $item['title'] ?? null,
+                ':content' => $item['content'] ?? null,
+                ':image_path' => $item['image_path'] ?? null,
+                ':link_url' => $item['link_url'] ?? null,
+                ':order_index' => $item['order_index'] ?? null,
+                ':item_category' => $item['item_category'] ?? null,
+                ':duration' => $item['duration'] ?? null,
+                ':icon_class' => $item['icon_class'] ?? null,
+                ':item_subtitle' => $item['item_subtitle'] ?? $item['subTitle'] ?? null,
             ];
 
             $itemId = isset($item['id']) ? (int)$item['id'] : 0;
@@ -245,5 +251,5 @@ class PageRepository implements IPageRepository
             (int)($row['order_index'] ?? 0)
         );
     }
-
+    
 }

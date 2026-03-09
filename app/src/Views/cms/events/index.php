@@ -59,5 +59,21 @@
                 </div>
             </div>
         </div>
+
+        <div class="row g-3">
+        <div class="col-12 col-lg-7">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h2 class="h5 mb-0">Tour</h2>
+                        <span class="badge text-bg-success">Live</span>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="/cms/events/tour-home" class="btn btn-primary">Edit Tour Home</a>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
     </div>
 </div>

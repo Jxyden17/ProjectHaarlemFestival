@@ -15,4 +15,6 @@ interface ICmsEventEditorService
         array $postedPerformers,
         array $postedSessions
     ): ScheduleEditorViewModel;
+
+    public function savePageContent(int $pageId, array $sections, array $items): void;
 }
