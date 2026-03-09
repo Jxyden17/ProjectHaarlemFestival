@@ -44,6 +44,75 @@ class ScheduleService implements IScheduleService
         return $this->buildScheduleViewModel($event->sessions, $title);
     }
 
+    public function getScheduleRowsByPerformerName(string $eventName, string $performerName): array
+    {
+        $performer = trim((string)$performerName);
+        if ($performer === '') {
+            return [];
+        }
+
+        $title = $eventName . ' Festival Schedule';
+        $scheduleData = $this->getScheduleDataForEvent($eventName, $title);
+        $matchingRows = [];
+
+        foreach ($scheduleData->groups as $group) {
+            if (!$group instanceof ScheduleGroupViewModel) {
+                continue;
+            }
+
+            foreach ($group->rows as $row) {
+                if (!$row instanceof ScheduleRowViewModel) {
+                    continue;
+                }
+
+                if (stripos($row->event, $performer) === false) {
+                    continue;
+                }
+
+                $matchingRows[] = $row;
+            }
+        }
+
+        return $matchingRows;
+    }
+
+    public function getScheduleRowsByPerformerId(string $eventName, int $performerId): array
+    {
+        if ($performerId <= 0) {
+            return [];
+        }
+
+        $event = $this->findEventOrFail($eventName);
+        $venues = $this->scheduleRepo->getVenuesByEventId($event->id);
+        $sessions = $this->scheduleRepo->getSessionsByEventId($event->id);
+        $performers = $this->scheduleRepo->getPerformersByEventId($event->id);
+        $sessionPerformers = $this->scheduleRepo->getSessionPerformersByEventId($event->id);
+
+        $this->linkScheduleModels($event, $venues, $sessions, $performers, $sessionPerformers);
+
+        $matchingRows = [];
+        foreach ($event->sessions as $session) {
+            if (!$session instanceof SessionModel) {
+                continue;
+            }
+
+            foreach ($session->sessionPerformers as $sessionPerformer) {
+                if (!$sessionPerformer instanceof SessionPerformerModel) {
+                    continue;
+                }
+
+                if ($sessionPerformer->performerId !== $performerId) {
+                    continue;
+                }
+
+                $matchingRows[] = $this->createScheduleRow($session, new \DateTime($session->date));
+                break;
+            }
+        }
+
+        return $matchingRows;
+    }
+
     public function getScheduleEditorData(string $eventName): ScheduleEditorViewModel
     {
         $event = $this->findEventOrFail($eventName);

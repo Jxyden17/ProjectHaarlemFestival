@@ -1,8 +1,8 @@
-const danceHomeForm = document.querySelector('form[action="/cms/events/dance-home"]');
+const danceDetailForm = document.querySelector('form[action*="/cms/events/dance-detail/"]');
 const quillEditors = [];
 
 function initializeQuillEditors() {
-    if (!danceHomeForm || typeof Quill === 'undefined') {
+    if (!danceDetailForm || typeof Quill === 'undefined') {
         return;
     }
 
@@ -14,7 +14,7 @@ function initializeQuillEditors() {
         ['clean']
     ];
 
-    const richTextAreas = danceHomeForm.querySelectorAll('textarea[data-quill="1"]');
+    const richTextAreas = danceDetailForm.querySelectorAll('textarea[data-quill="1"]');
     richTextAreas.forEach((textarea) => {
         const editorContainer = document.createElement('div');
         editorContainer.className = 'mb-2';
@@ -39,7 +39,7 @@ function initializeQuillEditors() {
         quillEditors.push({ textarea, quill });
     });
 
-    danceHomeForm.addEventListener('submit', () => {
+    danceDetailForm.addEventListener('submit', () => {
         quillEditors.forEach(({ textarea, quill }) => {
             const isEmpty = quill.getText().trim() === '';
             textarea.value = isEmpty ? '' : quill.root.innerHTML;
@@ -47,7 +47,7 @@ function initializeQuillEditors() {
     });
 }
 
-function applyUploadedPerformerImage(row, path) {
+function applyUploadedImage(row, path) {
     const imagePathInput = row.querySelector('.performer-artist-image');
     const downloadLink = row.querySelector('.performer-download-link');
 
@@ -61,10 +61,16 @@ function applyUploadedPerformerImage(row, path) {
     }
 }
 
-async function uploadPerformerImage(row, button) {
+async function uploadImage(row, button) {
+    const moduleName = row.dataset.imageUploadModule || (danceDetailForm ? danceDetailForm.dataset.imageUploadModule || '' : '');
     const fileInput = row.querySelector('.performer-upload-input');
     const sectionItemIdInput = row.querySelector('.performer-artist-item-id');
     const currentPathInput = row.querySelector('.performer-artist-image');
+
+    if (moduleName === '') {
+        alert('Missing media upload module for this page.');
+        return;
+    }
 
     if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
         alert('Please choose an image first.');
@@ -73,13 +79,13 @@ async function uploadPerformerImage(row, button) {
 
     const sectionItemId = sectionItemIdInput ? Number(sectionItemIdInput.value || 0) : 0;
     if (sectionItemId <= 0) {
-        alert('Missing artist image row. Please configure artist images in dance content first.');
+        alert('Missing hero image row. Please refresh the page and try again.');
         return;
     }
 
     const formData = new FormData();
     formData.append('image', fileInput.files[0]);
-    formData.append('module', 'dance_artist');
+    formData.append('module', moduleName);
     formData.append('section_item_id', String(sectionItemId));
     formData.append('current_path', currentPathInput ? currentPathInput.value : '');
 
@@ -95,7 +101,7 @@ async function uploadPerformerImage(row, button) {
             throw new Error(payload && payload.message ? payload.message : 'Upload failed');
         }
 
-        applyUploadedPerformerImage(row, payload.path);
+        applyUploadedImage(row, payload.path);
     } catch (error) {
         alert(error && error.message ? error.message : 'Image upload failed.');
     } finally {
@@ -104,19 +110,19 @@ async function uploadPerformerImage(row, button) {
     }
 }
 
-if (danceHomeForm) {
-    danceHomeForm.addEventListener('click', (event) => {
+if (danceDetailForm) {
+    danceDetailForm.addEventListener('click', (event) => {
         const target = event.target;
         if (!(target instanceof HTMLElement) || !target.classList.contains('upload-performer-image')) {
             return;
         }
 
-        const row = target.closest('tr');
+        const row = target.closest('[data-image-upload-module]');
         if (!row) {
             return;
         }
 
-        uploadPerformerImage(row, target);
+        uploadImage(row, target);
     });
 }
 

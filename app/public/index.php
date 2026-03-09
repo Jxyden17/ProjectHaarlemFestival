@@ -37,8 +37,9 @@ try {
     $htmlSanitizerService = new App\Service\HtmlSanitizerService();
     $scheduleService = new App\Service\ScheduleService($scheduleRepo);
 
-    $danceService = new App\Service\DanceService($danceRepo, $pageRepo, $htmlSanitizerService);
-    $mediaService = new App\Service\MediaService($mediaRepo);
+    $danceService = new App\Service\DanceService($danceRepo, $pageService);
+    $cmsDanceService = new App\Service\Cms\CmsDanceService($danceRepo, $pageRepo, $pageService, $htmlSanitizerService);
+    $mediaService = new App\Service\MediaService($mediaRepo, $danceRepo);
     $jazzService = new App\Service\JazzService($jazzRepo,$scheduleRepo);
 
     $authService = new App\Service\AuthService($userRepo, $passwordResetRepo, $mailService);
@@ -48,7 +49,7 @@ try {
     // Controllers
     $authController = new App\Controllers\AuthController($authService);
     $homeController = new App\Controllers\HomeController();
-    $danceController = new App\Controllers\DanceController($scheduleService, $danceService);
+    $danceController = new App\Controllers\DanceController($danceService, $scheduleService);
     $tourController = new App\Controllers\TourController($pageService);
     $jazzController = new App\Controllers\JazzController($scheduleService, $jazzService);
     
@@ -56,7 +57,7 @@ try {
     $cmsEventsController = new App\Controllers\Cms\CmsEventsController($cmsService);
     $cmsTicketsController = new App\Controllers\Cms\CmsTicketsController($cmsService);
     $cmsUsersController = new App\Controllers\Cms\CmsUsersController($cmsService);
-    $cmsDanceContentController = new App\Controllers\Cms\CmsDanceContentController($danceService);
+    $cmsDanceContentController = new App\Controllers\Cms\CmsDanceContentController($cmsDanceService);
     $cmsEventEditorController = new App\Controllers\Cms\CmsEventEditorController($scheduleService, $cmsEventEditorService);
     $cmsMediaController = new App\Controllers\Cms\CmsMediaController($mediaService);
 
@@ -83,6 +84,7 @@ try {
 
         // Dance routes
         $r->addRoute('GET', '/dance', ['DanceController', 'index']);
+        $r->addRoute('GET', '/dance/{detailSlug}', ['DanceController', 'detail']);
 
         // CMS routes
         $r->addRoute('GET', '/cms', ['CmsController', 'index']);
@@ -91,6 +93,8 @@ try {
         $r->addRoute('POST', '/cms/events/{eventSlug}/schedule', ['CmsEventEditorController', 'update']);
         $r->addRoute('GET', '/cms/events/dance-home', ['CmsDanceContentController', 'index']);
         $r->addRoute('POST', '/cms/events/dance-home', ['CmsDanceContentController', 'update']);
+        $r->addRoute('GET', '/cms/events/dance-detail/{detailSlug}', ['CmsDanceContentController', 'detail']);
+        $r->addRoute('POST', '/cms/events/dance-detail/{detailSlug}', ['CmsDanceContentController', 'updateDetail']);
         $r->addRoute('POST', '/cms/media/upload-replace', ['CmsMediaController', 'uploadReplace']);
         $r->addRoute('GET', '/cms/tickets', ['CmsTicketsController', 'index']);
         $r->addRoute('GET', '/cms/users', ['CmsUsersController', 'index']);

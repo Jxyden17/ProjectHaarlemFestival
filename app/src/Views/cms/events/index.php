@@ -4,6 +4,8 @@
         <div class="d-flex gap-2">
             <a href="/cms/events/dance/schedule" class="btn btn-outline-primary">Edit Schedule</a>
             <a href="/cms/events/dance-home" class="btn btn-primary">Edit Dance Home</a>
+            <a href="/cms/events/dance-detail/martingarrix" class="btn btn-outline-primary">Edit Martin Garrix</a>
+            <a href="/cms/events/dance-detail/tiesto" class="btn btn-outline-primary">Edit Tiesto</a>
         </div>
     </div>
 
@@ -35,10 +37,14 @@
                         <li>Important information block</li>
                         <li>All-Access pass rows (including highlight row)</li>
                         <li>Capacity & Entry and Special Session cards</li>
+                        <li>Martin Garrix detail page content</li>
+                        <li>Tiesto detail page content</li>
                     </ul>
                     <div class="d-flex gap-2">
                         <a href="/cms/events/dance/schedule" class="btn btn-outline-primary">Edit Schedule</a>
                         <a href="/cms/events/dance-home" class="btn btn-primary">Edit Dance Home Content</a>
+                        <a href="/cms/events/dance-detail/martingarrix" class="btn btn-outline-primary">Edit Martin Garrix</a>
+                        <a href="/cms/events/dance-detail/tiesto" class="btn btn-outline-primary">Edit Tiesto</a>
                     </div>
                 </div>
             </div>

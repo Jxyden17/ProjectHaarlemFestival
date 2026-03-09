@@ -42,7 +42,32 @@ class MediaRepository implements IMediaRepository
             ':page_slug' => $pageSlug,
         ]);
 
-        return $stmt->rowCount() > 0;
+        if ($stmt->rowCount() > 0) {
+            return true;
+        }
+
+        $existsStmt = $this->db->prepare(
+            'SELECT si.id
+             FROM section_items si
+             INNER JOIN page_sections ps ON ps.id = si.section_id
+             INNER JOIN pages p ON p.id = ps.page_id
+             WHERE si.id = :section_item_id
+               AND si.item_category = :item_category
+               AND ps.section_type = :section_type
+               AND p.slug = :page_slug
+               AND si.image_path = :image_path
+             LIMIT 1'
+        );
+
+        $existsStmt->execute([
+            ':section_item_id' => $sectionItemId,
+            ':item_category' => $itemCategory,
+            ':section_type' => $sectionType,
+            ':page_slug' => $pageSlug,
+            ':image_path' => $imagePath,
+        ]);
+
+        return $existsStmt->fetch(PDO::FETCH_ASSOC) !== false;
     }
 
     public function findSectionItemIdByImagePath(

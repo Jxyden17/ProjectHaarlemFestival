@@ -4,16 +4,19 @@ namespace App\Service;
 
 use App\Models\Media\MediaModuleConfig;
 use App\Models\Media\MediaUploadRequest;
+use App\Repository\Interfaces\IDanceRepository;
 use App\Repository\Interfaces\IMediaRepository;
 use App\Service\Interfaces\IMediaService;
 
 class MediaService implements IMediaService
 {
     private IMediaRepository $mediaRepository;
+    private IDanceRepository $danceRepository;
 
-    public function __construct(IMediaRepository $mediaRepository)
+    public function __construct(IMediaRepository $mediaRepository, IDanceRepository $danceRepository)
     {
         $this->mediaRepository = $mediaRepository;
+        $this->danceRepository = $danceRepository;
     }
 
     public function uploadReplace(array $server, array $post, array $files): array
@@ -180,6 +183,14 @@ class MediaService implements IMediaService
 
     private function resolveModuleDefinition(string $module): ?MediaModuleConfig
     {
+        if (preg_match('/^dance_detail_hero:([a-z0-9-]+)$/', $module, $matches) === 1) {
+            return $this->buildDanceDetailModuleConfig($matches[1], 'dance_detail_hero', 'hero_image');
+        }
+
+        if (preg_match('/^dance_detail_track:([a-z0-9-]+)$/', $module, $matches) === 1) {
+            return $this->buildDanceDetailModuleConfig($matches[1], 'dance_detail_tracks', 'track');
+        }
+
         $map = [
             'dance_artist' => new MediaModuleConfig(
                 ['/img/danceIMG/'],
@@ -190,6 +201,21 @@ class MediaService implements IMediaService
         ];
 
         return $map[$module] ?? null;
+    }
+
+    private function buildDanceDetailModuleConfig(string $cmsSlug, string $sectionType, string $itemCategory): ?MediaModuleConfig
+    {
+        $detailPage = $this->danceRepository->findDetailPageByCmsSlug($cmsSlug);
+        if ($detailPage === null) {
+            return null;
+        }
+
+        return new MediaModuleConfig(
+            ['/img/danceIMG/'],
+            $detailPage->pageSlug,
+            $sectionType,
+            $itemCategory
+        );
     }
 
     private function syncImagePathToDatabase(MediaUploadRequest $request, string $publicPath): string
