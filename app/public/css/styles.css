@@ -5,6 +5,7 @@
     --natural-light: #F5F5F5;
     --natural-dark: #222222;
     --accent-history: #FFD0B4;
+    --accent-stories: #52448A;
     --edit-button: #f39c12;
     --delete-button: #e74c3c;
     --add-button: #27ae60;
@@ -16,6 +17,36 @@
     --dance-genre-border: rgba(40, 207, 255, 0.82);
     --dance-genre-bg: rgba(4, 42, 72, 0.72);
     --dance-name-shadow: rgba(0, 0, 0, 0.65);
+
+    /* Schedule */
+    --schedule-filter-bg: rgba(255, 255, 255, 0.08);
+    --schedule-list-border: rgba(255, 255, 255, 0.1);
+    --schedule-row-border: rgba(255, 255, 255, 0.08);
+    --schedule-head-bg: rgba(255, 255, 255, 0.04);
+    --schedule-head-text: rgba(245, 245, 245, 0.76);
+    --schedule-group-bg: rgba(255, 255, 255, 0.02);
+    --schedule-day-border: rgba(255, 255, 255, 0.09);
+    --schedule-subtitle-text: rgba(245, 245, 245, 0.7);
+
+    --schedule-language-default-bg: rgba(160, 166, 176, 0.35);
+    --schedule-language-default-text: var(--natural-light);
+    --schedule-language-default-border: rgba(196, 204, 216, 0.55);
+
+    --schedule-language-english-bg: #dce6ff;
+    --schedule-language-english-text: #3f59aa;
+    --schedule-language-english-border: #bdd0ff;
+
+    --schedule-language-dutch-bg: #f4ebd0;
+    --schedule-language-dutch-text: #946a1f;
+    --schedule-language-dutch-border: #e9d9ab;
+
+    --schedule-language-chinese-bg: #f7cfd0;
+    --schedule-language-chinese-text: #9a3c42;
+    --schedule-language-chinese-border: #f0b8bc;
+
+    --schedule-age-bg: #7a66d5;
+    --schedule-age-text: #f3edff;
+    --schedule-age-border: #9884e4;
 
     /* Tekst stijl */
     --font-main: 'Playfair Display', serif;

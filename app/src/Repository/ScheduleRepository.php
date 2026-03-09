@@ -9,6 +9,8 @@ use App\Models\Event\SessionModel;
 use App\Models\Event\SessionPerformerModel;
 use App\Models\Event\VenueModel;
 use App\Repository\Interfaces\IScheduleRepository;
+use App\Models\Enums\Language;
+
 use PDO;
 
 class ScheduleRepository implements IScheduleRepository
@@ -37,10 +39,42 @@ class ScheduleRepository implements IScheduleRepository
         );
     }
 
+    public function findEventById(int $id): ?EventModel
+    {
+        $stmt = $this->db->prepare('SELECT id, name, description FROM events WHERE id = :id LIMIT 1');
+        $stmt->execute([':id' => $id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$row) {
+            return null;
+        }
+
+        return new EventModel(
+            (int)$row['id'],
+            (string)$row['name'],
+            isset($row['description']) ? (string)$row['description'] : null
+        );
+    }
+
+    public function getAllEvents(): array
+    {
+        $stmt = $this->db->query('SELECT id, name, description FROM events ORDER BY id ASC');
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        return array_map(
+            static fn(array $row): EventModel => new EventModel(
+                (int)$row['id'],
+                (string)$row['name'],
+                isset($row['description']) ? (string)$row['description'] : null
+            ),
+            $rows
+        );
+    }
+
     public function getSessionsByEventId(int $eventId): array
     {
         $stmt = $this->db->prepare('
-            SELECT id, event_id, venue_id, date, start_time, label, price, available_spots, amount_sold
+            SELECT id, event_id, venue_id, date, start_time, language_id, label, price, available_spots, amount_sold
             FROM sessions
             WHERE event_id = :event_id
             ORDER BY date ASC, start_time ASC
@@ -55,6 +89,9 @@ class ScheduleRepository implements IScheduleRepository
                 (int)$row['venue_id'],
                 (string)$row['date'],
                 (string)$row['start_time'],
+                isset($row['language_id']) && $row['language_id'] !== null
+                    ? Language::tryFrom((int)$row['language_id'])
+                    : null,
                 isset($row['label']) ? (string)$row['label'] : null,
                 (float)$row['price'],
                 (int)$row['available_spots'],

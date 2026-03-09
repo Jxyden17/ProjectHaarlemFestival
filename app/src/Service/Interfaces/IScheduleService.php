@@ -11,4 +11,6 @@ interface IScheduleService
     public function getScheduleDataForEvent(string $eventName, string $title): ScheduleViewModel;
     public function getScheduleEditorData(string $eventName): ScheduleEditorViewModel;
     public function saveScheduleData(string $eventName, ScheduleSaveCommand $command): void;
+    public function getScheduleDataForAllEvents(string $title): ScheduleViewModel;
+
 }

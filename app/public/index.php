@@ -47,9 +47,10 @@ try {
 
     // Controllers
     $authController = new App\Controllers\AuthController($authService);
-    $homeController = new App\Controllers\HomeController();
+    $homeController = new App\Controllers\HomeController($pageService, $scheduleService);
     $danceController = new App\Controllers\DanceController($scheduleService, $danceService);
-    $tourController = new App\Controllers\TourController($pageService);
+
+    $tourController = new App\Controllers\TourController($pageService, $scheduleService);
     $jazzController = new App\Controllers\JazzController($scheduleService, $jazzService);
     
     $cmsController = new App\Controllers\Cms\CmsController($cmsService);
@@ -100,6 +101,7 @@ try {
         $r->addRoute('POST', '/cms/users/edit', ['CmsUsersController', 'editUser']);
         $r->addRoute('GET', '/cms/users/delete', ['CmsUsersController', 'showDeleteConfirmation']);
         $r->addRoute('POST', '/cms/users/delete', ['CmsUsersController', 'deleteUser']);
+        
          // Jazz routes
         $r->addRoute('GET', '/jazz', ['JazzController', 'index']);
     });
