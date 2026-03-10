@@ -45,4 +45,14 @@ class YummyService
         return $this->yummyRepository->getVenuesByEventId($event->id);
     }
 
+    public function getRestaurantPage(string $slug)
+    {
+        $page = $this->repository->getPageBySlug($slug);
+
+        if (!$page) {
+            return null;
+        }
+
+        return $page;
+    }
 }

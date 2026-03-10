@@ -24,4 +24,19 @@ class YummyController extends BaseController
             'yummyIndexViewModel' => $yummyIndexViewModel
         ]);
     }
+
+    public function restaurant(string $slug): void
+    {
+        $viewModel = $this->yummyService->getRestaurantPage($slug);
+
+        if (!$viewModel) {
+            http_response_code(404);
+            echo "Restaurant not found";
+            return;
+        }
+
+        $this->render('yummy/restaurant', [
+            'viewModel' => $viewModel
+        ]);
+    }
 }

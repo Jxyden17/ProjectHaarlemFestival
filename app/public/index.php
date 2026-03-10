@@ -90,6 +90,7 @@ try {
 
         // Yummy route
         $r->addRoute('GET', '/yummy', ['YummyController', 'index']);
+        $r->addRoute('GET', '/yummy/{slug}', ['YummyController', 'restaurant']);
 
         // CMS routes
         $r->addRoute('GET', '/cms', ['CmsController', 'index']);
@@ -150,7 +151,7 @@ try {
             $controller = $controllerMap[$controllerName];
 
             // Call the method and pass dynamic route variables
-            $controller->$method($vars);
+            $controller->$method(...array_values($vars));
             break;
     }
 } catch (\Throwable $e) {
