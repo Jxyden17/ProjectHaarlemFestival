@@ -27,7 +27,9 @@ try {
     $danceRepo = new App\Repository\DanceRepository();
     $mediaRepo = new App\Repository\MediaRepository();
     $pageRepo = new App\Repository\PageRepository();
+    $yummyRepo = new App\Repository\YummyRepository();
     $jazzRepo = new App\Repository\JazzDummyRepository();
+
 
 
     // Services
@@ -39,6 +41,7 @@ try {
 
     $danceService = new App\Service\DanceService($danceRepo, $pageRepo, $htmlSanitizerService);
     $mediaService = new App\Service\MediaService($mediaRepo);
+    $yummyService = new App\Service\YummyService($yummyRepo);
     $jazzService = new App\Service\JazzService($jazzRepo,$scheduleRepo);
 
     $authService = new App\Service\AuthService($userRepo, $passwordResetRepo, $mailService);
@@ -51,6 +54,7 @@ try {
     $danceController = new App\Controllers\DanceController($scheduleService, $danceService);
     $tourController = new App\Controllers\TourController($pageService);
     $jazzController = new App\Controllers\JazzController($scheduleService, $jazzService);
+    $yummyController = new App\Controllers\YummyController($yummyService);
     
     $cmsController = new App\Controllers\Cms\CmsController($cmsService);
     $cmsEventsController = new App\Controllers\Cms\CmsEventsController($cmsService);
@@ -83,6 +87,9 @@ try {
 
         // Dance routes
         $r->addRoute('GET', '/dance', ['DanceController', 'index']);
+
+        // Yummy route
+        $r->addRoute('GET', '/yummy', ['YummyController', 'index']);
 
         // CMS routes
         $r->addRoute('GET', '/cms', ['CmsController', 'index']);
@@ -125,6 +132,7 @@ try {
                 'HomeController' => $homeController,
                 'DanceController' => $danceController,
                 'TourController' => $tourController,
+                'YummyController' => $yummyController,
                 'CmsController' => $cmsController,
                 'JazzController' => $jazzController,
                 'CmsEventsController' => $cmsEventsController,
