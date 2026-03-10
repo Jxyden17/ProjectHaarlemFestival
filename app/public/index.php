@@ -34,6 +34,8 @@ try {
     $mediaRepo = new App\Repository\MediaRepository();
     $pageRepo = new App\Repository\PageRepository();
     $jazzRepo = new App\Repository\JazzRepository();
+    $yummyRepo = new App\Repository\YummyRepository();
+
     
     // Services
     $mailConfig = App\Models\MailConfig::fromEnvironment();
@@ -43,15 +45,16 @@ try {
     $scheduleService = new App\Service\ScheduleService($scheduleRepo, $scheduleMapper);
 
     $danceService = new App\Service\DanceService($danceRepo, $pageService);
+    $danceViewModelMapper = new App\Mapper\DanceViewModelMapper($danceService, $scheduleService);
+    $mediaService = new App\Service\MediaService($mediaRepo, $danceRepo);
+    $yummyService = new App\Service\YummyService($yummyRepo);
+    $jazzService = new App\Service\JazzService($jazzRepo,$scheduleRepo);
+    $authService = new App\Service\AuthService($userRepo, $passwordResetRepo, $mailService);
+    
     $cmsScheduleMapper = new App\Mapper\CmsScheduleMapper($danceService);
     $cmsDanceMapper = new App\Mapper\CmsDanceMapper();
-    $danceViewModelMapper = new App\Mapper\DanceViewModelMapper($danceService, $scheduleService);
     $cmsScheduleService = new App\Service\Cms\CmsScheduleService($scheduleRepo);
     $cmsDanceService = new App\Service\Cms\CmsDanceService($danceRepo, $pageRepo, $pageService, $htmlSanitizerService, $cmsDanceMapper);
-    $mediaService = new App\Service\MediaService($mediaRepo, $danceRepo);
-    $jazzService = new App\Service\JazzService($jazzRepo,$scheduleRepo);
-
-    $authService = new App\Service\AuthService($userRepo, $passwordResetRepo, $mailService);
     $cmsService = new App\Service\Cms\CmsService($userRepo);
     $cmsEventEditorService = new App\Service\Cms\CmsEventEditorService($scheduleService, $cmsScheduleMapper);
 
@@ -61,6 +64,7 @@ try {
     $danceController = new App\Controllers\DanceController($danceService, $danceViewModelMapper);
     $tourController = new App\Controllers\TourController($pageService);
     $jazzController = new App\Controllers\JazzController($scheduleService, $jazzService);
+    $yummyController = new App\Controllers\YummyController($yummyService);
     
     $cmsController = new App\Controllers\Cms\CmsController($cmsService);
     $cmsEventsController = new App\Controllers\Cms\CmsEventsController($cmsService);
@@ -94,6 +98,10 @@ try {
         // Dance routes
         $r->addRoute('GET', '/dance', ['DanceController', 'index']);
         $r->addRoute('GET', '/dance/{detailSlug}', ['DanceController', 'detail']);
+
+        // Yummy route
+        $r->addRoute('GET', '/yummy', ['YummyController', 'index']);
+        $r->addRoute('GET', '/yummy/{slug}', ['YummyController', 'restaurant']);
 
         // CMS routes
         $r->addRoute('GET', '/cms', ['CmsController', 'index']);
@@ -139,6 +147,7 @@ try {
                 'HomeController' => $homeController,
                 'DanceController' => $danceController,
                 'TourController' => $tourController,
+                'YummyController' => $yummyController,
                 'CmsController' => $cmsController,
                 'JazzController' => $jazzController,
                 'CmsEventsController' => $cmsEventsController,
@@ -155,13 +164,11 @@ try {
 
             $controller = $controllerMap[$controllerName];
 
-            // Call the method and pass dynamic route variables
             $controller->$method($vars);
             break;
     }
 } catch (\Throwable $e) {
-  # $debugError = $e->getMessage();
-   # $renderErrorPage(503, 'Service temporarily unavailable', 'We cannot connect to the database right now. Please try again in a moment.', $showDebug, $debugError
-    #);
+    $debugError = $e->getMessage();
+    $renderErrorPage(503, 'Service temporarily unavailable', 'We cannot connect to the database right now. Please try again in a moment.', $showDebug, $debugError, );
     var_dump($e);
 }
