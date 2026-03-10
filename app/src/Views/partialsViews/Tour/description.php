@@ -1,20 +1,20 @@
 <section class="discover-section">
     <div class="discover-container">
         <h1 class="discover-title">
-            <?= htmlspecialchars($section->title ?? '') ?>
+            <?= $section->title ?>
         </h1>
         
         <div class="discover-description">
-            <?= htmlspecialchars($section->subTitle ?? '') ?>
-            <?= htmlspecialchars($section->description ?? '') ?>
+            <?= $section->subTitle ?>
+            <?= $section->description ?>
         </div>
 
         <div class="info-grid">
             <?php foreach ($section->getItemsByCategorie('grid') as $item): ?>
                 <div class="info-item">
-                    <div class="info-icon"><?= htmlspecialchars((string)($item->image ?? '')) ?></div>
-                    <div class="info-label"><?= htmlspecialchars((string)$item->title) ?></div>
-                    <div class="info-value"><?= htmlspecialchars((string)($item->content ?? '')) ?></div>
+                    <div class="info-icon"><?= $item->image ?></div>
+                    <div class="info-label"><?= $item->title ?></div>
+                    <div class="info-value"><?= $item->content ?></div>
                 </div>
             <?php endforeach; ?>
         </div>
@@ -25,10 +25,10 @@
                     <?php foreach ($section->getItemsByCategorie('price') as $item): ?>
                     <div class="price-item">
                         <div class="price-label">
-                            <span class="price-name"><?= htmlspecialchars((string)$item->title) ?></span>
-                            <span class="price-subtitle"><?= htmlspecialchars((string)($item->url ?? '')) ?></span>
+                            <span class="price-name"><?= $item->title ?></span>
+                            <span class="price-subtitle"><?= $item->url ?></span>
                         </div>
-                        <div class="price-value"><?= htmlspecialchars((string)($item->content ?? '')) ?></div>
+                        <div class="price-value"><?= $item->content ?></div>
                     </div>
                     <?php endforeach; ?>
             </div>
@@ -36,7 +36,7 @@
                 <h2 class="section-title">Important Information</h2>
                 <ul class="info-list">
                 <?php foreach($section->getItemsByCategorie('info') as $item): ?>
-                    <li><?= htmlspecialchars((string)$item->title) ?></li>
+                    <li><?= $item->title ?></li>
                 <?php endforeach; ?>
                 </ul>
             </div>

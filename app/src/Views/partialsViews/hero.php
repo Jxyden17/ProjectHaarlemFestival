@@ -15,7 +15,7 @@ $firstItem = $items[0] ?? null;
     <div class="hero-images">
         <?php foreach ($items as $item): ?>
             <div class="hero-img-item">
-                <img src="<?= htmlspecialchars($item->image) ?>" alt="<?= htmlspecialchars($item->title); ?>">
+                <img src="<?= $item->image ?>" alt="<?= $item->title ?>">
             </div>
             <?php endforeach; ?>
     </div>
@@ -23,7 +23,7 @@ $firstItem = $items[0] ?? null;
     <div class="hero-overlay"></div>
 
     <div class="hero-text">
-        <h1><?= htmlspecialchars($section->title) ?></h1>
-        <p><?= htmlspecialchars($section->subTitle) ?></p>
+        <h1><?= $section->title ?></h1>
+        <p><?= $section->subTitle ?></p>
     </div>
 </section>

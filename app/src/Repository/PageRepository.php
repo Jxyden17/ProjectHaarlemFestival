@@ -63,7 +63,7 @@ class PageRepository implements IPageRepository
         return (int)$this->db->lastInsertId();
     }
 
-    public function saveOrUpdateSection(int $pageId, string $sectionType, ?string $title, ?string $subtitle, ?string $description, int $orderIndex): int
+    public function saveOrUpdateSection(int $pageId, string $sectionType, ?string $title, ?string $subtitle, ?string $description, ?int $orderIndex): int
     {
         $stmt = $this->db->prepare('SELECT id FROM page_sections WHERE page_id = :page_id AND section_type = :section_type LIMIT 1');
         $stmt->execute([':page_id' => $pageId, ':section_type' => $sectionType]);
@@ -89,13 +89,10 @@ class PageRepository implements IPageRepository
         $updateStmt = $this->db->prepare(
             'UPDATE section_items
              SET title = :title,
-                 content = :content,
-                 image_path = :image_path,
-                 link_url = :link_url,
-                 order_index = :order_index,
-                 item_category = :item_category,
-                 duration = :duration,
-                 icon_class = :icon_class,
+                content = :content,
+                link_url = :link_url,
+                duration = :duration,
+                icon_class = :icon_class,
                 item_subtitle = :item_subtitle
              WHERE id = :id AND section_id = :section_id'
         );
@@ -107,15 +104,12 @@ class PageRepository implements IPageRepository
         foreach ($items as $item) {
             $params = [
                 ':section_id' => $sectionId,
-                ':title' => $item['title'] ?? null,
-                ':content' => $item['content'] ?? null,
-                ':image_path' => $item['image_path'] ?? null,
-                ':link_url' => $item['link_url'] ?? null,
-                ':order_index' => $item['order_index'] ?? null,
-                ':item_category' => $item['item_category'] ?? null,
-                ':duration' => $item['duration'] ?? null,
-                ':icon_class' => $item['icon_class'] ?? $item['icon'] ?? null,
-                ':item_subtitle' => $item['item_subtitle'] ?? $item['subTitle'] ?? null,
+                ':title' => $item['title'],
+                ':content' => $item['content'],
+                ':link_url' => $item['link_url'],
+                ':duration' => $item['duration'],
+                ':icon_class' => $item['icon_class'] ?? $item['icon'],
+                ':item_subtitle' => $item['item_subtitle'] ?? $item['subTitle'],
             ];
 
             $itemId = isset($item['id']) ? (int)$item['id'] : 0;

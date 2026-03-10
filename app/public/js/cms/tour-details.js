@@ -1,8 +1,8 @@
-const tourHomeForm = document.querySelector('form[action="/cms/events/tour-home"]');
+const tourDetailsForm = document.querySelector('form[action="/cms/events/tour-details"]');
 const quillEditors = [];
 
 function initializeQuillEditors() {
-    if (!tourHomeForm || typeof Quill === 'undefined') {
+    if (!tourDetailsForm || typeof Quill === 'undefined') {
         return;
     }
 
@@ -14,7 +14,7 @@ function initializeQuillEditors() {
         ['clean']
     ];
 
-    const richTextAreas = tourHomeForm.querySelectorAll('textarea[data-quill="1"]');
+    const richTextAreas = tourDetailsForm.querySelectorAll('textarea[data-quill="1"]');
     richTextAreas.forEach((textarea) => {
         const editorContainer = document.createElement('div');
         editorContainer.className = 'mb-2';
@@ -32,7 +32,7 @@ function initializeQuillEditors() {
         quillEditors.push({ textarea, quill });
     });
 
-    tourHomeForm.addEventListener('submit', () => {
+    tourDetailsForm.addEventListener('submit', () => {
         quillEditors.forEach(({ textarea, quill }) => {
             const isEmpty = quill.getText().trim() === '';
             textarea.value = isEmpty ? '' : quill.root.innerHTML;
