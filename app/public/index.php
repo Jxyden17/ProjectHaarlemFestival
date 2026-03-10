@@ -104,7 +104,9 @@ try {
         $r->addRoute('POST', '/cms/users/edit', ['CmsUsersController', 'editUser']);
         $r->addRoute('GET', '/cms/users/delete', ['CmsUsersController', 'showDeleteConfirmation']);
         $r->addRoute('POST', '/cms/users/delete', ['CmsUsersController', 'deleteUser']);
-        
+        $r->addRoute('GET', '/cms/events/tour-details', ['CmsTourContentController', 'details']);
+        $r->addRoute('POST', '/cms/events/tour-details', ['CmsTourContentController', 'detailsUpdate']);
+
          // Jazz routes
         $r->addRoute('GET', '/jazz', ['JazzController', 'index']);
     });

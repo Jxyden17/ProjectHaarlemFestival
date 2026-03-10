@@ -68,8 +68,26 @@
                         <h2 class="h5 mb-0">Tour</h2>
                         <span class="badge text-bg-success">Live</span>
                     </div>
-                    <div class="d-flex gap-2">
+                    <div class="mb-3">
+                        <div class="mb-3">
                         <a href="/cms/events/tour-home" class="btn btn-primary">Edit Tour Home</a>
+                        </div>
+                        <p class="mb-1">Sub Pages:</p>
+                        <div class="mb-1">
+                        <a href="/cms/events/tour-details?id=2" class="btn btn-primary">Edit St.-Bavokerk</a>
+                        <a href="/cms/events/tour-details?id=7" class="btn btn-primary">Edit Grote Markt</a>
+                        <a href="/cms/events/tour-details?id=8" class="btn btn-primary">Edit De Hallen</a>
+                        </div>
+                        <div class="mb-1">
+                        <a href="/cms/events/tour-details?id=9" class="btn btn-primary">Edit Proveniershof</a>
+                        <a href="/cms/events/tour-details?id=10" class="btn btn-primary">Edit Jopenkerk</a>
+                        <a href="/cms/events/tour-details?id=11" class="btn btn-primary">Edit Waalse Kerk</a>
+                        </div>
+                        <div class="mb-1">
+                        <a href="/cms/events/tour-details?id=12" class="btn btn-primary">Edit Molen de Adriaan</a>
+                        <a href="/cms/events/tour-details?id=13" class="btn btn-primary">Edit Amsterdamse Poort</a>
+                        <a href="/cms/events/tour-details?id=14" class="btn btn-primary">Edit Hof van Bakenes</a>
+                        </div>
                     </div>
                     
                 </div>

@@ -61,4 +61,49 @@ class CmsTourContentController extends BaseController
         }
         header('Location: /cms/events/tour-home');
     }
+
+    public function details(): void
+    {
+        $this->requireAdmin();
+        $pageId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+        
+        $page = $this->pageService->buildPage($pageId);
+        if (!$page) {
+            http_response_code(404);
+            $this->render('shared/error', [
+                'errorTitle' => 'Page not found',
+                'errorMessage' => 'The page you requested does not exist.',
+            ]);
+            return;
+        }
+
+        $viewData = [
+        'pageTitle' => $page->title,
+        'pageId' => $pageId,
+        'header'      => $page->getSection('header'),
+        'history'     => $page->getSection('history'),
+        'didYouKnow'  => $page->getSection('did_you_know'),
+        'openingTime' => $page->getSection('openings_time')
+    ];
+        $this->render('cms/events/tour-details', $viewData);
+    }
+
+     public function detailsUpdate(): void
+    {
+        $this->requireAdmin();
+        $pageId = (int)($_POST['page_id'] ?? $_GET['id'] ?? 0);
+        $sections = is_array($_POST['sections']) ? $_POST['sections'] : [];
+        $items = is_array($_POST['items']) ? $_POST['items'] : [];
+
+        try {
+            $this->cmsEventEditorService->savePageContent($pageId, $sections, $items);
+            $_SESSION['cms_tour_success'] = 'Tour content opgeslagen.';
+            header('Location: /cms/events');
+            exit;
+        } catch (\Throwable $e) {
+             $_SESSION['cms_tour_error'] = 'Opslaan mislukt.' . $e->getMessage();
+        }
+        header('Location: /cms/events');
+
+    }
 }

@@ -20,7 +20,6 @@ $guideItems = $guide?->getItemsByCategorie('guide') ?? [];
     include __DIR__ . '/../../partialsViews/cms/form-feedback.php';
     ?>
 
-
 <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
 
     <form method="POST" action="/cms/events/tour-home" class="card">
