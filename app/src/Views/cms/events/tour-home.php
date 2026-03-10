@@ -60,6 +60,9 @@ $guideItems = $guide?->getItemsByCategorie('guide') ?? [];
 
             <?php foreach ($stopsItems as $index => $item): ?>
                 <div class="mb-3">
+                    <input type="hidden" name="items[tour_overview][<?= (int)$index ?>][id]" value="<?= (int)($item->id ?? 0) ?>">
+                    <label class="form-label">Letter</label>
+                    <textarea name="items[tour_overview][<?= (int)$index ?>][icon_class]" data-quill="1" class="form-control mb-2" rows="2" required><?= htmlspecialchars($item->icon ?? '') ?></textarea>
 
                     <label class="form-label">Title</label>
                     <textarea name="items[tour_overview][<?= (int)$index ?>][title]" data-quill="1" class="form-control mb-2" rows="2" required><?= htmlspecialchars($item->title ?? '') ?></textarea>
@@ -108,8 +111,6 @@ $guideItems = $guide?->getItemsByCategorie('guide') ?? [];
             <?php foreach ($discoverPriceItems as $index => $item): ?>
                 <?php $rowIndex = $index + 100; ?>
                 <input type="hidden" name="items[discover][<?= (int)$rowIndex ?>][id]" value="<?= (int)$item->id ?>">
-                <input type="hidden" name="items[discover][<?= (int)$rowIndex ?>][order_index]" value="<?= (int)($item->position ?? ($index + 1)) ?>">
-                <input type="hidden" name="items[discover][<?= (int)$rowIndex ?>][item_category]" value="price">
 
                 <div class="mb-3">
                     <label class="form-label">Price Item <?= (int)$index + 1 ?> Title</label>

@@ -95,7 +95,7 @@ class PageRepository implements IPageRepository
                  order_index = :order_index,
                  item_category = :item_category,
                  duration = :duration,
-                icon_class = :icon_class,
+                 icon_class = :icon_class,
                 item_subtitle = :item_subtitle
              WHERE id = :id AND section_id = :section_id'
         );
@@ -114,7 +114,7 @@ class PageRepository implements IPageRepository
                 ':order_index' => $item['order_index'] ?? null,
                 ':item_category' => $item['item_category'] ?? null,
                 ':duration' => $item['duration'] ?? null,
-                ':icon_class' => $item['icon_class'] ?? null,
+                ':icon_class' => $item['icon_class'] ?? $item['icon'] ?? null,
                 ':item_subtitle' => $item['item_subtitle'] ?? $item['subTitle'] ?? null,
             ];
 
