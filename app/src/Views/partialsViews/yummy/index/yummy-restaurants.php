@@ -39,7 +39,10 @@
                             </p>
                         <?php endif; ?>
 
-                        <a href="#" class="btn-details">View Details →</a>
+                        <a href="/yummy/<?= strtolower(str_replace(' ', '-', $item->title)) ?>" 
+                            class="btn-details">
+                            View Details →
+                        </a>
                     </div>
                 </div>
             <?php endforeach; ?>

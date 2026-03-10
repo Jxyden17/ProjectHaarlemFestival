@@ -16,13 +16,13 @@ $restaurants = $yummyIndexViewModel->restaurants;
 <link rel="stylesheet" href="/css/Yummy!/index.css">
 
 <?php if ($hero): ?>
-    <?php $section = $hero; include __DIR__ . '/../partialsViews/yummy/yummy-hero.php'; ?>
+    <?php $section = $hero; include __DIR__ . '/../partialsViews/yummy/index/yummy-hero.php'; ?>
 <?php endif; ?>
 
 <?php if ($map): ?>
-    <?php $section = $map; include __DIR__ . '/../partialsViews/yummy/yummy-map.php'; ?>
+    <?php $section = $map; include __DIR__ . '/../partialsViews/yummy/index/yummy-map.php'; ?>
 <?php endif; ?>
 
 <?php if ($restaurants): ?>
-    <?php $section = $restaurants; include __DIR__ . '/../partialsViews/yummy/yummy-restaurants.php'; ?>
+    <?php $section = $restaurants; include __DIR__ . '/../partialsViews/yummy/index/yummy-restaurants.php'; ?>
 <?php endif; ?>

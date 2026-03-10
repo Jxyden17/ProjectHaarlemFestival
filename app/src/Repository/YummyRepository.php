@@ -135,4 +135,33 @@ class YummyRepository implements IYummyRepository
 
         return $items;
     }
+
+    public function getVenueBySlug(string $slug): ?VenueModel
+    {
+        $stmt = $this->db->prepare("
+            SELECT *
+            FROM venues
+            WHERE LOWER(REPLACE(venue_name, ' ', '-')) = :slug
+            LIMIT 1
+        ");
+
+        $stmt->execute([
+            'slug' => strtolower($slug)
+        ]);
+
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$row) {
+            return null;
+        }
+
+        return new VenueModel(
+            (int)$row['id'],
+            (int)$row['event_id'],
+            (string)$row['venue_name'],
+            $row['address'] ?? null,
+            $row['venue_type'] ?? null,
+            $row['created_at'] ?? null
+        );
+    }
 }

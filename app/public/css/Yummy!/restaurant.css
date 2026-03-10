@@ -1,0 +1,130 @@
+body {
+    background: var(--primary-color);
+    color: var(--natural-light);
+    font-family: var(--font-main);
+    margin: 0;
+}
+
+.back-link {
+    display: block;
+    max-width: 1000px;
+    margin: 20px auto;
+    color: var(--natural-light);
+    font-size: 14px;
+}
+
+.restaurant-hero {
+    max-width: 1000px;
+    margin: 0 auto 30px auto;
+}
+
+.hero-image img {
+    width: 100%;
+    height: 260px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+.hero-info {
+    margin-top: 15px;
+}
+
+.hero-info h1 {
+    font-size: 36px;
+    margin-bottom: 10px;
+}
+
+.hero-description {
+    font-size: 15px;
+    line-height: 1.6;
+    opacity: 0.85;
+}
+
+.restaurant-card {
+    max-width: 1000px;
+    margin: 35px auto;
+    background: #16293f;
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 6px;
+    padding: 20px 22px;
+}
+
+.restaurant-card h2 {
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+
+.restaurant-card p {
+    line-height: 1.6;
+    margin-bottom: 12px;
+}
+
+.restaurant-card p + p {
+    margin-top: 8px;
+}
+
+.specials-list {
+    list-style: none;
+    padding: 14px;
+    border: 1px solid var(--delete-button);
+    border-radius: 5px;
+}
+
+.specials-list li {
+    padding: 6px 0;
+    position: relative;
+    padding-left: 16px;
+}
+
+.specials-list li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: var(--delete-button);
+}
+
+.contact-item {
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.contact-item:last-child {
+    border-bottom: none;
+}
+
+.restaurant-icon {
+    margin-right: 6px;
+    color: var(--delete-button);
+}
+
+.contact-title {
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.contact-text {
+    opacity: 0.9;
+}
+
+.map-wrapper {
+    margin-top: 12px;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+iframe {
+    border: none;
+}
+
+@media (max-width: 900px) {
+
+    .restaurant-hero,
+    .restaurant-card,
+    .back-link {
+        max-width: 92%;
+    }
+
+    .hero-image img {
+        height: 220px;
+    }
+}

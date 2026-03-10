@@ -16,6 +16,9 @@
     --dance-genre-border: rgba(40, 207, 255, 0.82);
     --dance-genre-bg: rgba(4, 42, 72, 0.72);
     --dance-name-shadow: rgba(0, 0, 0, 0.65);
+    --yummy-accent: #c03526;
+    --yummy-border: rgba(24, 147, 181, 0.82);
+    --yummy-background: rgba(5, 34, 56, 0.72);
 
     /* Tekst stijl */
     --font-main: 'Playfair Display', serif;
