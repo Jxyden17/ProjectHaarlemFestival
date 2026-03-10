@@ -152,11 +152,6 @@ Examples:
 - Semantic form structure and labels are used throughout CMS and auth forms
 - Native inputs and server-side validation are used for core form flows
 
-## Known Limitations / Next Steps
-
-- Media filesystem writes and DB updates are not fully transactional yet
-- The composition root in `app/public/index.php` is still manual and growing
-- Wider automated test coverage is still limited for CMS save/media edge cases
 
 ## Useful Dev Commands
 
