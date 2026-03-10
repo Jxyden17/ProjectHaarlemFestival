@@ -2,22 +2,21 @@
 
 namespace App\Repository;
 
+use App\Mapper\ScheduleMapper;
 use App\Models\Database;
 use App\Models\Event\EventModel;
-use App\Models\Event\PerformerModel;
-use App\Models\Event\SessionModel;
-use App\Models\Event\SessionPerformerModel;
-use App\Models\Event\VenueModel;
 use App\Repository\Interfaces\IScheduleRepository;
 use PDO;
 
 class ScheduleRepository implements IScheduleRepository
 {
     private PDO $db;
+    private ScheduleMapper $scheduleMapper;
 
-    public function __construct()
+    public function __construct(?ScheduleMapper $scheduleMapper = null)
     {
         $this->db = Database::getInstance();
+        $this->scheduleMapper = $scheduleMapper ?? new ScheduleMapper();
     }
 
     public function findEventByName(string $name): ?EventModel
@@ -30,11 +29,7 @@ class ScheduleRepository implements IScheduleRepository
             return null;
         }
 
-        return new EventModel(
-            (int)$row['id'],
-            (string)$row['name'],
-            isset($row['description']) ? (string)$row['description'] : null
-        );
+        return $this->scheduleMapper->mapEventRow($row);
     }
 
     public function getScheduleGraphByEventName(string $name): array
@@ -87,20 +82,7 @@ class ScheduleRepository implements IScheduleRepository
         $stmt->execute([':event_id' => $eventId]);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        return array_map(
-            static fn(array $row): SessionModel => new SessionModel(
-                (int)$row['id'],
-                isset($row['event_id']) ? (int)$row['event_id'] : null,
-                (int)$row['venue_id'],
-                (string)$row['date'],
-                (string)$row['start_time'],
-                isset($row['label']) ? (string)$row['label'] : null,
-                (float)$row['price'],
-                (int)$row['available_spots'],
-                (int)$row['amount_sold']
-            ),
-            $rows
-        );
+        return array_map(fn(array $row) => $this->scheduleMapper->mapSessionRow($row), $rows);
     }
 
     public function getVenuesByEventId(int $eventId): array
@@ -114,17 +96,7 @@ class ScheduleRepository implements IScheduleRepository
         $stmt->execute([':event_id' => $eventId]);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        return array_map(
-            static fn(array $row): VenueModel => new VenueModel(
-                (int)$row['id'],
-                (int)$row['event_id'],
-                (string)$row['venue_name'],
-                isset($row['address']) ? (string)$row['address'] : null,
-                isset($row['venue_type']) ? (string)$row['venue_type'] : null,
-                isset($row['created_at']) ? (string)$row['created_at'] : null
-            ),
-            $rows
-        );
+        return array_map(fn(array $row) => $this->scheduleMapper->mapVenueModelRow($row), $rows);
     }
 
     public function getPerformersByEventId(int $eventId): array
@@ -138,17 +110,7 @@ class ScheduleRepository implements IScheduleRepository
         $stmt->execute([':event_id' => $eventId]);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        return array_map(
-            static fn(array $row): PerformerModel => new PerformerModel(
-                (int)$row['id'],
-                (int)$row['event_id'],
-                (string)$row['performer_name'],
-                isset($row['performer_type']) ? (string)$row['performer_type'] : null,
-                isset($row['description']) ? (string)$row['description'] : null,
-                isset($row['created_at']) ? (string)$row['created_at'] : null
-            ),
-            $rows
-        );
+        return array_map(fn(array $row) => $this->scheduleMapper->mapPerformerModelRow($row), $rows);
     }
 
     public function getSessionPerformersByEventId(int $eventId): array
@@ -163,13 +125,7 @@ class ScheduleRepository implements IScheduleRepository
         $stmt->execute([':event_id' => $eventId]);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        return array_map(
-            static fn(array $row): SessionPerformerModel => new SessionPerformerModel(
-                (int)$row['session_id'],
-                (int)$row['performer_id']
-            ),
-            $rows
-        );
+        return array_map(fn(array $row) => $this->scheduleMapper->mapSessionPerformerRow($row), $rows);
     }
 
     public function saveEventScheduleData(int $eventId, array $venueRows, array $performerRows, array $sessionRows, array $sessionPerformerRows): void

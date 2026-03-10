@@ -158,6 +158,7 @@ class DanceController extends BaseController
             [$heroImageItems[1] ?? null, $performerName],
             [$heroImageItems[2] ?? null, ''],
         ];
+
         foreach ($heroSlots as [$item, $fallbackAlt]) {
             $image = $item instanceof SectionItem ? trim((string)($item->image ?? '')) : '';
             $alt = $item instanceof SectionItem ? trim((string)($item->subTitle ?? '')) : '';
@@ -280,7 +281,7 @@ class DanceController extends BaseController
             return null;
         }
 
-        $genre = trim((string)($performer->description ?? ''));
+        $genre = trim((string)($performer->description ?? '')); 
         if ($genre === '') {
             $genre = 'DJ';
         }

@@ -15,13 +15,6 @@ class DanceService implements IDanceService
 
     private IDanceRepository $danceRepository;
     private IPageService $pageService;
-    private ?Page $danceHomePage = null;
-    private bool $danceHomePageLoaded = false;
-    private ?EventModel $danceEvent = null;
-    private bool $danceEventLoaded = false;
-    private ?array $danceVenues = null;
-    private ?array $dancePerformers = null;
-    private ?array $publishedDetailPages = null;
 
     public function __construct(IDanceRepository $danceRepository, IPageService $pageService)
     {
@@ -31,44 +24,27 @@ class DanceService implements IDanceService
 
     public function getDanceVenues(): array
     {
-        if (is_array($this->danceVenues)) {
-            return $this->danceVenues;
-        }
-
         $event = $this->getDanceEvent();
         if (!$event instanceof EventModel) {
             return [];
         }
 
-        $this->danceVenues = $this->danceRepository->getVenuesByEventId($event->id);
-
-        return $this->danceVenues;
+        return $this->danceRepository->getVenuesByEventId($event->id);
     }
 
     public function getDancePerformers(): array
     {
-        if (is_array($this->dancePerformers)) {
-            return $this->dancePerformers;
-        }
-
         $event = $this->getDanceEvent();
         if (!$event instanceof EventModel) {
             return [];
         }
 
-        $this->dancePerformers = $this->danceRepository->getPerformersByEventId($event->id);
-
-        return $this->dancePerformers;
+        return $this->danceRepository->getPerformersByEventId($event->id);
     }
 
     public function getDanceHomePage(): Page
     {
-        if (!$this->danceHomePageLoaded) {
-            $this->danceHomePage = $this->pageService->getPageBySlug('dance-home', 'Dance Home');
-            $this->danceHomePageLoaded = true;
-        }
-
-        return $this->danceHomePage ?? new Page('Dance Home', 'dance-home');
+        return $this->pageService->getPageBySlug('dance-home', 'Dance Home');
     }
 
     public function getDanceDetailPage(string $slug): Page
@@ -83,18 +59,12 @@ class DanceService implements IDanceService
 
     public function getPublishedDanceDetailPages(): array
     {
-        if (is_array($this->publishedDetailPages)) {
-            return $this->publishedDetailPages;
-        }
-
         $event = $this->getDanceEvent();
         if (!$event instanceof EventModel) {
             return [];
         }
 
-        $this->publishedDetailPages = $this->danceRepository->getDetailPagesByEventId($event->id);
-
-        return $this->publishedDetailPages;
+        return $this->danceRepository->getDetailPagesByEventId($event->id);
     }
 
     public function getDanceScheduleTitle(): string
@@ -112,11 +82,6 @@ class DanceService implements IDanceService
 
     private function getDanceEvent(): ?EventModel
     {
-        if (!$this->danceEventLoaded) {
-            $this->danceEvent = $this->danceRepository->findEventByName(self::DANCE_EVENT_NAME);
-            $this->danceEventLoaded = true;
-        }
-
-        return $this->danceEvent;
+        return $this->danceRepository->findEventByName(self::DANCE_EVENT_NAME);
     }
 }

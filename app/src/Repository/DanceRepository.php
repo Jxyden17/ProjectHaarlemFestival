@@ -2,21 +2,22 @@
 
 namespace App\Repository;
 
+use App\Mapper\DanceMapper;
 use App\Models\Database;
 use App\Models\Event\EventDetailPageModel;
 use App\Models\Event\EventModel;
-use App\Models\Event\PerformerModel;
-use App\Models\Event\VenueModel;
 use App\Repository\Interfaces\IDanceRepository;
 use PDO;
 
 class DanceRepository implements IDanceRepository
 {
     private PDO $db;
+    private DanceMapper $danceMapper;
 
-    public function __construct()
+    public function __construct(?DanceMapper $danceMapper = null)
     {
         $this->db = Database::getInstance();
+        $this->danceMapper = $danceMapper ?? new DanceMapper();
     }
 
     public function findEventByName(string $eventName): ?EventModel
@@ -29,7 +30,7 @@ class DanceRepository implements IDanceRepository
             return null;
         }
 
-        return new EventModel((int)$row['id'], (string)$row['name'], isset($row['description']) ? (string)$row['description'] : null);
+        return $this->danceMapper->mapEventRow($row);
     }
 
     public function getVenuesByEventId(int $eventId): array {
@@ -42,7 +43,7 @@ class DanceRepository implements IDanceRepository
         $stmt->execute([':event_id' => $eventId]);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        return array_map(static fn(array $row): VenueModel => new VenueModel((int)$row['id'], (int)$row['event_id'], (string)$row['venue_name'], isset($row['address']) ? (string)$row['address'] : null, isset($row['venue_type']) ? (string)$row['venue_type'] : null, isset($row['created_at']) ? (string)$row['created_at'] : null), $rows);
+        return array_map(fn(array $row) => $this->danceMapper->mapVenueRow($row), $rows);
     }
 
     public function getPerformersByEventId(int $eventId): array
@@ -56,17 +57,7 @@ class DanceRepository implements IDanceRepository
         $stmt->execute([':event_id' => $eventId]);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        return array_map(
-            static fn(array $row): PerformerModel => new PerformerModel(
-                (int)$row['id'],
-                (int)$row['event_id'],
-                (string)$row['performer_name'],
-                isset($row['performer_type']) ? (string)$row['performer_type'] : null,
-                isset($row['description']) ? (string)$row['description'] : null,
-                isset($row['created_at']) ? (string)$row['created_at'] : null
-            ),
-            $rows
-        );
+        return array_map(fn(array $row) => $this->danceMapper->mapPerformerRow($row), $rows);
     }
 
     public function getDetailPagesByEventId(int $eventId): array
@@ -92,7 +83,7 @@ class DanceRepository implements IDanceRepository
         $stmt->execute([':event_id' => $eventId]);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        return array_map(fn(array $row): EventDetailPageModel => $this->mapDetailPageRow($row), $rows);
+        return array_map(fn(array $row): EventDetailPageModel => $this->danceMapper->mapDetailPageRow($row), $rows);
     }
 
     public function findDetailPageByPublicSlug(string $publicSlug): ?EventDetailPageModel
@@ -122,7 +113,7 @@ class DanceRepository implements IDanceRepository
         $stmt->execute([':public_slug' => trim($publicSlug)]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return $row ? $this->mapDetailPageRow($row) : null;
+        return $row ? $this->danceMapper->mapDetailPageRow($row) : null;
     }
 
     public function findDetailPageByCmsSlug(string $cmsSlug): ?EventDetailPageModel
@@ -152,23 +143,7 @@ class DanceRepository implements IDanceRepository
         $stmt->execute([':cms_slug' => trim($cmsSlug)]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return $row ? $this->mapDetailPageRow($row) : null;
-    }
-
-    private function mapDetailPageRow(array $row): EventDetailPageModel
-    {
-        return new EventDetailPageModel(
-            (int)$row['id'],
-            (int)$row['event_id'],
-            isset($row['performer_id']) ? (int)$row['performer_id'] : null,
-            (int)$row['page_id'],
-            (string)($row['page_slug'] ?? ''),
-            (string)($row['public_slug'] ?? ''),
-            (string)($row['cms_slug'] ?? ''),
-            (string)($row['entity_type'] ?? 'performer'),
-            (int)($row['display_order'] ?? 0),
-            isset($row['performer_name']) ? (string)$row['performer_name'] : null
-        );
+        return $row ? $this->danceMapper->mapDetailPageRow($row) : null;
     }
 
 }

@@ -20,22 +20,26 @@ $renderErrorPage = static function (int $statusCode, string $title, string $mess
 };
 
 try {
+    // Mappers
+    $danceMapper = new App\Mapper\DanceMapper();
+    $pageMapper = new App\Mapper\PageMapper();
+    $scheduleMapper = new App\Mapper\ScheduleMapper();
+
     // Repositories
     $userRepo = new App\Repository\UserRepository();
     $passwordResetRepo = new App\Repository\PasswordResetRepository();
-    $scheduleRepo = new App\Repository\ScheduleRepository();
-    $danceRepo = new App\Repository\DanceRepository();
+    $scheduleRepo = new App\Repository\ScheduleRepository($scheduleMapper);
+    $danceRepo = new App\Repository\DanceRepository($danceMapper);
     $mediaRepo = new App\Repository\MediaRepository();
     $pageRepo = new App\Repository\PageRepository();
-    $jazzRepo = new App\Repository\JazzDummyRepository();
-
-
+    $jazzRepo = new App\Repository\JazzRepository();
+    
     // Services
     $mailConfig = App\Models\MailConfig::fromEnvironment();
-    $pageService = new App\Service\PageService($pageRepo);
+    $pageService = new App\Service\PageService($pageRepo, $pageMapper);
     $mailService = new App\Service\MailService($mailConfig);
     $htmlSanitizerService = new App\Service\HtmlSanitizerService();
-    $scheduleService = new App\Service\ScheduleService($scheduleRepo);
+    $scheduleService = new App\Service\ScheduleService($scheduleRepo, $scheduleMapper);
 
     $danceService = new App\Service\DanceService($danceRepo, $pageService);
     $cmsDanceService = new App\Service\Cms\CmsDanceService($danceRepo, $pageRepo, $pageService, $htmlSanitizerService);
