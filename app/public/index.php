@@ -50,6 +50,7 @@ try {
     $cmsTicketsController = new App\Controllers\Cms\CmsTicketsController($cmsService);
     $cmsUsersController = new App\Controllers\Cms\CmsUsersController($cmsService);
     $jazzController = new App\Controllers\JazzController($scheduleService, $jazzService);
+    $UserController = new App\Controllers\UserController($cmsService);
 
     // Routes
     $dispatcher = simpleDispatcher(function (RouteCollector $r) {
@@ -81,12 +82,17 @@ try {
         $r->addRoute('GET', '/cms/users', ['CmsUsersController', 'index']);
         $r->addRoute('GET', '/cms/users/create', ['CmsUsersController', 'showCreateForm']);
         $r->addRoute('POST', '/cms/users/create', ['CmsUsersController', 'addUser']);
-        $r->addRoute('GET', '/cms/users/edit', ['CmsUsersController', 'showEditForm']);
-        $r->addRoute('POST', '/cms/users/edit', ['CmsUsersController', 'editUser']);
+        $r->addRoute('GET', '/cms/users/edit', ['CmsUsersController', 'showAdminEditForm']);
+        $r->addRoute('GET', '/cms/users/editSelf', ['CmsUsersController', 'showSelfEditForm']);
+        $r->addRoute('POST', '/cms/users/edit', ['CmsUsersController', 'editUserAsAdmin']);
+        $r->addRoute('POST', '/cms/users/editSelf', ['CmsUsersController', 'editUserAsUser']);
         $r->addRoute('GET', '/cms/users/delete', ['CmsUsersController', 'showDeleteConfirmation']);
         $r->addRoute('POST', '/cms/users/delete', ['CmsUsersController', 'deleteUser']);
-         // Jazz routes
+        // Jazz routes
         $r->addRoute('GET', '/jazz', ['JazzController', 'index']);
+        // User routes
+        $r->addRoute('GET', '/user', ['UserController', 'index']);
+
     });
 
     // Dispatch request
@@ -115,6 +121,7 @@ try {
                 'CmsEventsController' => $cmsEventsController,
                 'CmsTicketsController' => $cmsTicketsController,
                 'CmsUsersController' => $cmsUsersController,
+                'UserController' => $UserController,
             ];
 
             if (!isset($controllerMap[$controllerName])) {
