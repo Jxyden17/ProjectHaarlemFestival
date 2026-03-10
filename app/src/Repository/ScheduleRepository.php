@@ -13,10 +13,10 @@ class ScheduleRepository implements IScheduleRepository
     private PDO $db;
     private ScheduleMapper $scheduleMapper;
 
-    public function __construct(?ScheduleMapper $scheduleMapper = null)
+    public function __construct(ScheduleMapper $scheduleMapper)
     {
         $this->db = Database::getInstance();
-        $this->scheduleMapper = $scheduleMapper ?? new ScheduleMapper();
+        $this->scheduleMapper = $scheduleMapper;
     }
 
     public function findEventByName(string $name): ?EventModel
@@ -32,7 +32,7 @@ class ScheduleRepository implements IScheduleRepository
         return $this->scheduleMapper->mapEventRow($row);
     }
 
-    public function getScheduleGraphByEventName(string $name): array
+    public function getScheduleRowsByEventName(string $name): array
     {
         $stmt = $this->db->prepare(
             'SELECT e.id AS event_id,

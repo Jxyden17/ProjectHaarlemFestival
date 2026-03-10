@@ -61,6 +61,20 @@ function applyUploadedImage(row, path) {
     }
 }
 
+function applyUploadedAudio(row, path) {
+    const audioPathInput = row.querySelector('.performer-track-audio');
+    const downloadLink = row.querySelector('.performer-audio-download-link');
+
+    if (audioPathInput) {
+        audioPathInput.value = path;
+    }
+
+    if (downloadLink) {
+        downloadLink.href = path;
+        downloadLink.classList.remove('d-none');
+    }
+}
+
 async function uploadImage(row, button) {
     const moduleName = row.dataset.imageUploadModule || (danceDetailForm ? danceDetailForm.dataset.imageUploadModule || '' : '');
     const fileInput = row.querySelector('.performer-upload-input');
@@ -110,19 +124,80 @@ async function uploadImage(row, button) {
     }
 }
 
+async function uploadAudio(row, button) {
+    const moduleName = row.dataset.audioUploadModule || '';
+    const fileInput = row.querySelector('.performer-upload-audio-input');
+    const sectionItemIdInput = row.querySelector('.performer-artist-item-id');
+    const currentPathInput = row.querySelector('.performer-track-audio');
+
+    if (moduleName === '') {
+        alert('Missing media upload module for this track.');
+        return;
+    }
+
+    if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+        alert('Please choose an audio file first.');
+        return;
+    }
+
+    const sectionItemId = sectionItemIdInput ? Number(sectionItemIdInput.value || 0) : 0;
+    if (sectionItemId <= 0) {
+        alert('Missing track row. Please refresh the page and try again.');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('audio', fileInput.files[0]);
+    formData.append('module', moduleName);
+    formData.append('section_item_id', String(sectionItemId));
+    formData.append('current_path', currentPathInput ? currentPathInput.value : '');
+
+    button.disabled = true;
+    try {
+        const response = await fetch('/cms/media/upload-audio', {
+            method: 'POST',
+            body: formData
+        });
+
+        const payload = await response.json();
+        if (!response.ok || !payload.success || !payload.path) {
+            throw new Error(payload && payload.message ? payload.message : 'Upload failed');
+        }
+
+        applyUploadedAudio(row, payload.path);
+    } catch (error) {
+        alert(error && error.message ? error.message : 'Audio upload failed.');
+    } finally {
+        button.disabled = false;
+        fileInput.value = '';
+    }
+}
+
 if (danceDetailForm) {
     danceDetailForm.addEventListener('click', (event) => {
         const target = event.target;
-        if (!(target instanceof HTMLElement) || !target.classList.contains('upload-performer-image')) {
+        if (!(target instanceof HTMLElement)) {
             return;
         }
 
-        const row = target.closest('[data-image-upload-module]');
-        if (!row) {
+        if (target.classList.contains('upload-performer-image')) {
+            const row = target.closest('[data-image-upload-module]');
+            if (!row) {
+                return;
+            }
+
+            uploadImage(row, target);
             return;
         }
 
-        uploadImage(row, target);
+        if (target.classList.contains('upload-performer-audio')) {
+            const row = target.closest('[data-audio-upload-module]');
+            if (!row) {
+                return;
+            }
+
+            uploadAudio(row, target);
+        }
     });
 }
 

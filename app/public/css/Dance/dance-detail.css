@@ -270,6 +270,9 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    border: 0;
+    cursor: pointer;
+    padding: 0;
 }
 
 .dance-detail-track-play svg {
@@ -281,6 +284,11 @@
 .dance-detail-track-play svg * {
     fill: currentColor;
     stroke: none;
+}
+
+.dance-detail-track-play:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
 }
 
 .dance-detail-track-content {

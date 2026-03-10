@@ -13,6 +13,7 @@ $tracks = $contentViewModel->tracks;
 $formAction = (string)($formAction ?? '/cms/events/dance-detail');
 $detailMediaModule = $contentViewModel->detailSlug === '' ? '' : 'dance_detail_hero:' . $contentViewModel->detailSlug;
 $detailTrackMediaModule = $contentViewModel->detailSlug === '' ? '' : 'dance_detail_track:' . $contentViewModel->detailSlug;
+$detailTrackAudioModule = $contentViewModel->detailSlug === '' ? '' : 'dance_detail_track_audio:' . $contentViewModel->detailSlug;
 ?>
 <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
 
@@ -115,7 +116,11 @@ $detailTrackMediaModule = $contentViewModel->detailSlug === '' ? '' : 'dance_det
             </div>
             <?php foreach ($tracks as $index => $track): ?>
                 <?php if (!$track instanceof DanceDetailTrackRowViewModel) { continue; } ?>
-                <div class="border rounded p-3 mb-2" data-image-upload-module="<?= htmlspecialchars($detailTrackMediaModule) ?>">
+                <div
+                    class="border rounded p-3 mb-2"
+                    data-image-upload-module="<?= htmlspecialchars($detailTrackMediaModule) ?>"
+                    data-audio-upload-module="<?= htmlspecialchars($detailTrackAudioModule) ?>"
+                >
                     <input type="hidden" name="tracks[<?= (int)$index ?>][id]" value="<?= (int)$track->id ?>">
                     <div class="mb-2">
                         <label class="form-label">Title</label>
@@ -139,6 +144,21 @@ $detailTrackMediaModule = $contentViewModel->detailSlug === '' ? '' : 'dance_det
                             <a
                                 href="<?= htmlspecialchars($track->image) ?>"
                                 class="btn btn-sm btn-outline-secondary performer-download-link<?= $track->image === '' ? ' d-none' : '' ?>"
+                                download
+                            >
+                                Download
+                            </a>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <label class="form-label">Track Audio</label>
+                        <input type="hidden" class="performer-track-audio" name="tracks[<?= (int)$index ?>][audio_url]" value="<?= htmlspecialchars($track->audioUrl) ?>">
+                        <div class="d-flex flex-wrap gap-2 align-items-center performer-audio-row">
+                            <input type="file" class="form-control form-control-sm performer-upload-audio-input" accept="audio/mpeg,audio/wav,audio/ogg,audio/mp4,audio/x-m4a">
+                            <button type="button" class="btn btn-sm btn-outline-primary upload-performer-audio">Upload</button>
+                            <a
+                                href="<?= htmlspecialchars($track->audioUrl) ?>"
+                                class="btn btn-sm btn-outline-secondary performer-audio-download-link<?= $track->audioUrl === '' ? ' d-none' : '' ?>"
                                 download
                             >
                                 Download

@@ -8,7 +8,7 @@ use App\Models\Page\SectionItem;
 
 class PageMapper
 {
-    public function mapPageGraphRows(array $rows): Page
+    public function mapPageRows(array $rows): Page
     {
         $firstRow = $rows[0];
         $page = new Page((string)($firstRow['page_name'] ?? ''), (string)($firstRow['slug'] ?? ''));
@@ -21,12 +21,12 @@ class PageMapper
             }
 
             if (!isset($sectionsById[$sectionId])) {
-                $sectionsById[$sectionId] = $this->mapSectionGraphRow($row);
+                $sectionsById[$sectionId] = $this->mapSectionRow($row);
             }
 
             $itemId = (int)($row['item_id'] ?? 0);
             if ($itemId > 0) {
-                $sectionsById[$sectionId]->addItem($this->mapSectionItemGraphRow($row));
+                $sectionsById[$sectionId]->addItem($this->mapSectionItemRow($row));
             }
         }
 
@@ -35,7 +35,7 @@ class PageMapper
         return $page;
     }
 
-    public function mapSectionGraphRow(array $row): Section
+    public function mapSectionRow(array $row): Section
     {
         return new Section(
             (int)($row['section_id'] ?? 0),
@@ -46,7 +46,7 @@ class PageMapper
         );
     }
 
-    public function mapSectionItemGraphRow(array $row): SectionItem
+    public function mapSectionItemRow(array $row): SectionItem
     {
         return new SectionItem(
             (int)($row['item_id'] ?? 0),

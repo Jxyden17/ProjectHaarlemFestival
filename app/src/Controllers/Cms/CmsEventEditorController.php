@@ -5,16 +5,16 @@ namespace App\Controllers\Cms;
 use App\Controllers\BaseController;
 use App\Models\Requests\Cms\ScheduleEditorRequest;
 use App\Service\Cms\Interfaces\ICmsEventEditorService;
-use App\Service\Interfaces\IScheduleService;
+use App\Service\Cms\Interfaces\ICmsScheduleService;
 
 class CmsEventEditorController extends BaseController
 {
-    private IScheduleService $scheduleService;
+    private ICmsScheduleService $cmsScheduleService;
     private ICmsEventEditorService $cmsEventEditorService;
 
-    public function __construct(IScheduleService $scheduleService, ICmsEventEditorService $cmsEventEditorService)
+    public function __construct(ICmsScheduleService $cmsScheduleService, ICmsEventEditorService $cmsEventEditorService)
     {
-        $this->scheduleService = $scheduleService;
+        $this->cmsScheduleService = $cmsScheduleService;
         $this->cmsEventEditorService = $cmsEventEditorService;
     }
 
@@ -42,7 +42,7 @@ class CmsEventEditorController extends BaseController
         $request = ScheduleEditorRequest::fromArray($_POST);
 
         try {
-            $this->scheduleService->saveScheduleData($eventName, $request->toSaveCommand());
+            $this->cmsScheduleService->saveScheduleData($eventName, $request->toSaveCommand());
             header('Location: /cms/events/' . $eventSlug . '/schedule?saved=1');
             exit;
         } catch (\Throwable $e) {

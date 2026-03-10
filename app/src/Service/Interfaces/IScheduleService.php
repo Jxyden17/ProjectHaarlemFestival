@@ -2,7 +2,6 @@
 
 namespace App\Service\Interfaces;
 
-use App\Models\Commands\Cms\Schedule\ScheduleSaveCommand;
 use App\Models\ViewModels\Cms\Schedule\ScheduleEditorViewModel;
 use App\Models\ViewModels\Shared\ScheduleViewModel;
 
@@ -12,5 +11,4 @@ interface IScheduleService
     public function getScheduleRowsByPerformerName(string $eventName, string $performerName): array;
     public function getScheduleRowsByPerformerId(string $eventName, int $performerId): array;
     public function getScheduleEditorData(string $eventName): ScheduleEditorViewModel;
-    public function saveScheduleData(string $eventName, ScheduleSaveCommand $command): void;
 }

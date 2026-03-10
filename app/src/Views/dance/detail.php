@@ -76,12 +76,22 @@ $rightHeroImage = $danceDetailViewModel->heroImages[2] ?? ['image' => '', 'alt' 
 
         <div class="dance-detail-tracks-grid">
             <?php foreach ($danceDetailViewModel->tracks as $item): ?>
+                <?php $audioPath = trim((string)($item['audioUrl'] ?? '')); ?>
                 <article class="dance-detail-track-card">
                     <div class="dance-detail-track-cover">
                         <?php if ((string)($item['image'] ?? '') !== ''): ?>
                             <img src="<?= htmlspecialchars((string)$item['image']) ?>" alt="<?= htmlspecialchars((string)($item['title'] ?? '')) ?> cover" loading="lazy">
                         <?php endif; ?>
-                        <span class="dance-detail-track-play"><i data-lucide="play" aria-hidden="true"></i></span>
+                        <button
+                            type="button"
+                            class="dance-detail-track-play"
+                            data-audio-src="<?= htmlspecialchars($audioPath) ?>"
+                            data-state="paused"
+                            aria-label="Play preview for <?= htmlspecialchars((string)($item['title'] ?? 'track')) ?>"
+                            <?= $audioPath === '' ? 'disabled' : '' ?>
+                        >
+                            <i data-lucide="play" aria-hidden="true"></i>
+                        </button>
                     </div>
                     <div class="dance-detail-track-content">
                         <h3><?= htmlspecialchars((string)($item['title'] ?? '')) ?></h3>
@@ -98,6 +108,8 @@ $rightHeroImage = $danceDetailViewModel->heroImages[2] ?? ['image' => '', 'alt' 
         </p>
     </div>
 </section>
+
+<script src="/js/dance-detail-audio.js"></script>
 
 <section class="dance-detail-schedule">
     <div class="dance-detail-schedule-inner">

@@ -17,13 +17,16 @@ use App\Models\ViewModels\Shared\ScheduleViewModel;
 
 class ScheduleMapper
 {
+    private EventMapper $eventMapper;
+
+    public function __construct(EventMapper $eventMapper)
+    {
+        $this->eventMapper = $eventMapper;
+    }
+
     public function mapEventRow(array $row): EventModel
     {
-        return new EventModel(
-            (int)$row['id'],
-            (string)$row['name'],
-            isset($row['description']) ? (string)$row['description'] : null
-        );
+        return $this->eventMapper->mapEventRow($row);
     }
 
     public function mapSessionRow(array $row): SessionModel
@@ -43,48 +46,27 @@ class ScheduleMapper
 
     public function mapVenueModelRow(array $row): VenueModel
     {
-        return new VenueModel(
-            (int)$row['id'],
-            (int)$row['event_id'],
-            (string)$row['venue_name'],
-            isset($row['address']) ? (string)$row['address'] : null,
-            isset($row['venue_type']) ? (string)$row['venue_type'] : null,
-            isset($row['created_at']) ? (string)$row['created_at'] : null
-        );
+        return $this->eventMapper->mapVenueRow($row);
     }
 
     public function mapPerformerModelRow(array $row): PerformerModel
     {
-        return new PerformerModel(
-            (int)$row['id'],
-            (int)$row['event_id'],
-            (string)$row['performer_name'],
-            isset($row['performer_type']) ? (string)$row['performer_type'] : null,
-            isset($row['description']) ? (string)$row['description'] : null,
-            isset($row['created_at']) ? (string)$row['created_at'] : null
-        );
+        return $this->eventMapper->mapPerformerRow($row);
     }
 
     public function mapSessionPerformerRow(array $row): SessionPerformerModel
     {
-        return new SessionPerformerModel(
-            (int)$row['session_id'],
-            (int)$row['performer_id']
-        );
+        return $this->eventMapper->mapSessionPerformerRow($row);
     }
 
-    public function mapEventGraphRowsToEvent(array $rows, string $eventName): EventModel
+    public function mapEventRowsToEvent(array $rows, string $eventName): EventModel
     {
         if (empty($rows)) {
             throw new \RuntimeException($eventName . ' event not found.');
         }
 
         $firstRow = $rows[0];
-        $event = new EventModel(
-            (int)$firstRow['event_id'],
-            (string)$firstRow['event_name'],
-            isset($firstRow['event_description']) ? (string)$firstRow['event_description'] : null
-        );
+        $event = $this->eventMapper->mapEventRowFromRows($firstRow);
 
         $sessionById = [];
         $venueById = [];
@@ -99,14 +81,14 @@ class ScheduleMapper
 
                 if ($venueId > 0) {
                     if (!isset($venueById[$venueId])) {
-                        $venueById[$venueId] = new VenueModel(
-                            $venueId,
-                            $event->id,
-                            (string)($row['venue_name'] ?? ''),
-                            isset($row['address']) ? (string)$row['address'] : null,
-                            isset($row['venue_type']) ? (string)$row['venue_type'] : null,
-                            isset($row['venue_created_at']) ? (string)$row['venue_created_at'] : null
-                        );
+                        $venueById[$venueId] = $this->eventMapper->mapVenueRow([
+                            'id' => $venueId,
+                            'event_id' => $event->id,
+                            'venue_name' => (string)($row['venue_name'] ?? ''),
+                            'address' => isset($row['address']) ? (string)$row['address'] : null,
+                            'venue_type' => isset($row['venue_type']) ? (string)$row['venue_type'] : null,
+                            'created_at' => isset($row['venue_created_at']) ? (string)$row['venue_created_at'] : null,
+                        ]);
                     }
 
                     $venue = $venueById[$venueId];
@@ -141,14 +123,14 @@ class ScheduleMapper
             }
 
             if (!isset($performerById[$spPerformerId])) {
-                $performerById[$spPerformerId] = new PerformerModel(
-                    $spPerformerId,
-                    $event->id,
-                    (string)($row['performer_name'] ?? ''),
-                    isset($row['performer_type']) ? (string)$row['performer_type'] : null,
-                    isset($row['performer_description']) ? (string)$row['performer_description'] : null,
-                    isset($row['performer_created_at']) ? (string)$row['performer_created_at'] : null
-                );
+                $performerById[$spPerformerId] = $this->eventMapper->mapPerformerRow([
+                    'id' => $spPerformerId,
+                    'event_id' => $event->id,
+                    'performer_name' => (string)($row['performer_name'] ?? ''),
+                    'performer_type' => isset($row['performer_type']) ? (string)$row['performer_type'] : null,
+                    'description' => isset($row['performer_description']) ? (string)$row['performer_description'] : null,
+                    'created_at' => isset($row['performer_created_at']) ? (string)$row['performer_created_at'] : null,
+                ]);
             }
 
             $sessionPerformerKey = $spSessionId . '-' . $spPerformerId;

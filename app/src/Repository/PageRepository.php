@@ -15,7 +15,7 @@ class PageRepository implements IPageRepository
         $this->db = Database::getInstance();
     }
 
-    public function findPageGraphRowsById(int $pageId): array
+    public function findPageRowsById(int $pageId): array
     {
         if ($pageId <= 0) {
             return [];
@@ -52,7 +52,7 @@ class PageRepository implements IPageRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function findPageGraphRowsBySlug(string $slug): array
+    public function findPageRowsBySlug(string $slug): array
     {
         $stmt = $this->db->prepare(
             'SELECT p.id AS page_id,
@@ -102,7 +102,7 @@ class PageRepository implements IPageRepository
         return $sectionId;
     }
 
-    public function upsertSectionItems(int $sectionId, array $items): void
+    public function saveOrUpdateSectionItems(int $sectionId, array $items): void
     {
         if (empty($items)) {
             return;

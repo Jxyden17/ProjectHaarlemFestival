@@ -12,29 +12,29 @@ class PageService implements IPageService
     private IPageRepository $pageRepo;
     private PageMapper $pageMapper;
 
-    public function __construct(IPageRepository $pageRepo, ?PageMapper $pageMapper = null)
+    public function __construct(IPageRepository $pageRepo, PageMapper $pageMapper)
     {
         $this->pageRepo = $pageRepo;
-        $this->pageMapper = $pageMapper ?? new PageMapper();
+        $this->pageMapper = $pageMapper;
     }
 
     public function buildPage(int $pageId): ?Page
     {
-        $pageGraphRows = $this->pageRepo->findPageGraphRowsById($pageId);
-        if (empty($pageGraphRows)) {
+        $pageRows = $this->pageRepo->findPageRowsById($pageId);
+        if (empty($pageRows)) {
             return null;
         }
 
-        return $this->pageMapper->mapPageGraphRows($pageGraphRows);
+        return $this->pageMapper->mapPageRows($pageRows);
     }
 
     public function getPageBySlug(string $slug, string $fallbackTitle = ''): Page
     {
-        $pageGraphRows = $this->pageRepo->findPageGraphRowsBySlug($slug);
-        if (empty($pageGraphRows)) {
+        $pageRows = $this->pageRepo->findPageRowsBySlug($slug);
+        if (empty($pageRows)) {
             return new Page($fallbackTitle, $slug);
         }
 
-        return $this->pageMapper->mapPageGraphRows($pageGraphRows);
+        return $this->pageMapper->mapPageRows($pageRows);
     }
 }

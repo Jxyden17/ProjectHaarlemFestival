@@ -9,37 +9,26 @@ use App\Models\Event\VenueModel;
 
 class DanceMapper
 {
+    private EventMapper $eventMapper;
+
+    public function __construct(?EventMapper $eventMapper = null)
+    {
+        $this->eventMapper = $eventMapper ?? new EventMapper();
+    }
+
     public function mapEventRow(array $row): EventModel
     {
-        return new EventModel(
-            (int)$row['id'],
-            (string)$row['name'],
-            isset($row['description']) ? (string)$row['description'] : null
-        );
+        return $this->eventMapper->mapEventRow($row);
     }
 
     public function mapVenueRow(array $row): VenueModel
     {
-        return new VenueModel(
-            (int)$row['id'],
-            (int)$row['event_id'],
-            (string)$row['venue_name'],
-            isset($row['address']) ? (string)$row['address'] : null,
-            isset($row['venue_type']) ? (string)$row['venue_type'] : null,
-            isset($row['created_at']) ? (string)$row['created_at'] : null
-        );
+        return $this->eventMapper->mapVenueRow($row);
     }
 
     public function mapPerformerRow(array $row): PerformerModel
     {
-        return new PerformerModel(
-            (int)$row['id'],
-            (int)$row['event_id'],
-            (string)$row['performer_name'],
-            isset($row['performer_type']) ? (string)$row['performer_type'] : null,
-            isset($row['description']) ? (string)$row['description'] : null,
-            isset($row['created_at']) ? (string)$row['created_at'] : null
-        );
+        return $this->eventMapper->mapPerformerRow($row);
     }
 
     public function mapDetailPageRow(array $row): EventDetailPageModel
