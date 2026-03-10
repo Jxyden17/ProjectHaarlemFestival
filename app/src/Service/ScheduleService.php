@@ -69,7 +69,12 @@ class ScheduleService implements IScheduleService
             return [];
         }
 
-        $event = $this->getEventRowsOrFail($eventName);
+        $rows = $this->scheduleRepo->getScheduleRowsByEventNameAndPerformerId($eventName, $performerId);
+        if (empty($rows)) {
+            return [];
+        }
+
+        $event = $this->scheduleMapper->mapEventRowsToEvent($rows, $eventName);
         $matchingRows = [];
 
         foreach ($event->sessions as $session) {
