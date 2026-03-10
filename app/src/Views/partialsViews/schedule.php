@@ -2,6 +2,9 @@
 use App\Models\ViewModels\Shared\ScheduleViewModel;
 
 $scheduleData = $scheduleData ?? null;
+$scheduleSectionClass = is_string($scheduleSectionClass ?? null) ? trim((string)$scheduleSectionClass) : '';
+$scheduleTitleIcon = trim((string)($scheduleTitleIcon ?? ''));
+$scheduleHasIcons = filter_var($scheduleHasIcons ?? false, FILTER_VALIDATE_BOOLEAN);
 
 if (!$scheduleData instanceof ScheduleViewModel) {
     return;
@@ -11,10 +14,15 @@ $title = $scheduleData->title;
 $dayFilters = $scheduleData->dayFilters;
 $groups = $scheduleData->groups;
 ?>
-<section class="schedule-section">
+<section class="schedule-section<?= $scheduleSectionClass === '' ? '' : ' ' . htmlspecialchars($scheduleSectionClass) ?>">
     <div class="schedule-container">
         <div class="schedule-header">
-            <h2 class="schedule-title"><?= htmlspecialchars($title) ?></h2>
+            <h2 class="schedule-title<?= $scheduleTitleIcon === '' ? '' : ' schedule-title--with-icon' ?>">
+                <?php if ($scheduleTitleIcon !== ''): ?>
+                    <i data-lucide="<?= htmlspecialchars($scheduleTitleIcon) ?>" aria-hidden="true"></i>
+                <?php endif; ?>
+                <?= htmlspecialchars($title) ?>
+            </h2>
         </div>
 
         <?php if ($scheduleData->hasFilters): ?>
@@ -51,10 +59,25 @@ $groups = $scheduleData->groups;
 
                     <?php foreach ($group->rows as $row): ?>
                         <div class="schedule-row">
-                            <div><?= htmlspecialchars($row->date) ?></div>
-                            <div><?= htmlspecialchars($row->time) ?></div>
+                            <div class="<?= $scheduleHasIcons ? 'schedule-cell schedule-cell--date' : '' ?>">
+                                <?php if ($scheduleHasIcons): ?>
+                                    <span class="schedule-cell-icon"><i data-lucide="calendar" aria-hidden="true"></i></span>
+                                <?php endif; ?>
+                                <span><?= htmlspecialchars($row->date) ?></span>
+                            </div>
+                            <div class="<?= $scheduleHasIcons ? 'schedule-cell schedule-cell--time' : '' ?>">
+                                <?php if ($scheduleHasIcons): ?>
+                                    <span class="schedule-cell-icon"><i data-lucide="clock-3" aria-hidden="true"></i></span>
+                                <?php endif; ?>
+                                <span><?= htmlspecialchars($row->time) ?></span>
+                            </div>
                             <div><?= htmlspecialchars($row->event) ?></div>
-                            <div><?= htmlspecialchars($row->location) ?></div>
+                            <div class="<?= $scheduleHasIcons ? 'schedule-cell schedule-cell--location' : '' ?>">
+                                <?php if ($scheduleHasIcons): ?>
+                                    <span class="schedule-cell-icon"><i data-lucide="map-pin" aria-hidden="true"></i></span>
+                                <?php endif; ?>
+                                <span><?= htmlspecialchars($row->location) ?></span>
+                            </div>
                             <div class="schedule-price"><?= htmlspecialchars($row->price) ?></div>
                             <div>
                                 <a class="schedule-book-btn" href="<?= htmlspecialchars($row->bookUrl) ?>">

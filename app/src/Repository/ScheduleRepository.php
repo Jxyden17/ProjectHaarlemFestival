@@ -2,22 +2,21 @@
 
 namespace App\Repository;
 
+use App\Mapper\ScheduleMapper;
 use App\Models\Database;
 use App\Models\Event\EventModel;
-use App\Models\Event\PerformerModel;
-use App\Models\Event\SessionModel;
-use App\Models\Event\SessionPerformerModel;
-use App\Models\Event\VenueModel;
 use App\Repository\Interfaces\IScheduleRepository;
 use PDO;
 
 class ScheduleRepository implements IScheduleRepository
 {
     private PDO $db;
+    private ScheduleMapper $scheduleMapper;
 
-    public function __construct()
+    public function __construct(ScheduleMapper $scheduleMapper)
     {
         $this->db = Database::getInstance();
+        $this->scheduleMapper = $scheduleMapper;
     }
 
     public function findEventByName(string $name): ?EventModel
@@ -30,11 +29,93 @@ class ScheduleRepository implements IScheduleRepository
             return null;
         }
 
-        return new EventModel(
-            (int)$row['id'],
-            (string)$row['name'],
-            isset($row['description']) ? (string)$row['description'] : null
+        return $this->scheduleMapper->mapEventRow($row);
+    }
+
+    public function getScheduleRowsByEventName(string $name): array
+    {
+        $stmt = $this->db->prepare(
+            'SELECT e.id AS event_id,
+                    e.name AS event_name,
+                    e.description AS event_description,
+                    s.id AS session_id,
+                    s.venue_id,
+                    s.date,
+                    s.start_time,
+                    s.label,
+                    s.price,
+                    s.available_spots,
+                    s.amount_sold,
+                    v.id AS venue_id_ref,
+                    v.venue_name,
+                    v.address,
+                    v.venue_type,
+                    v.created_at AS venue_created_at,
+                    sp.session_id AS sp_session_id,
+                    sp.performer_id AS sp_performer_id,
+                    p.id AS performer_id_ref,
+                    p.performer_name,
+                    p.performer_type,
+                    p.description AS performer_description,
+                    p.created_at AS performer_created_at
+             FROM events e
+             LEFT JOIN sessions s ON s.event_id = e.id
+             LEFT JOIN venues v ON v.id = s.venue_id
+             LEFT JOIN session_performers sp ON sp.session_id = s.id
+             LEFT JOIN performers p ON p.id = sp.performer_id
+             WHERE e.name = :name
+             ORDER BY s.date ASC, s.start_time ASC, s.id ASC, sp.performer_id ASC'
         );
+        $stmt->execute([':name' => $name]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getScheduleRowsByEventNameAndPerformerId(string $name, int $performerId): array
+    {
+        if ($performerId <= 0) {
+            return [];
+        }
+
+        $stmt = $this->db->prepare(
+            'SELECT e.id AS event_id,
+                    e.name AS event_name,
+                    e.description AS event_description,
+                    s.id AS session_id,
+                    s.venue_id,
+                    s.date,
+                    s.start_time,
+                    s.label,
+                    s.price,
+                    s.available_spots,
+                    s.amount_sold,
+                    v.id AS venue_id_ref,
+                    v.venue_name,
+                    v.address,
+                    v.venue_type,
+                    v.created_at AS venue_created_at,
+                    sp.session_id AS sp_session_id,
+                    sp.performer_id AS sp_performer_id,
+                    p.id AS performer_id_ref,
+                    p.performer_name,
+                    p.performer_type,
+                    p.description AS performer_description,
+                    p.created_at AS performer_created_at
+             FROM events e
+             INNER JOIN sessions s ON s.event_id = e.id
+             LEFT JOIN venues v ON v.id = s.venue_id
+             INNER JOIN session_performers sp ON sp.session_id = s.id
+             LEFT JOIN performers p ON p.id = sp.performer_id
+             WHERE e.name = :name
+               AND sp.performer_id = :performer_id
+             ORDER BY s.date ASC, s.start_time ASC, s.id ASC, sp.performer_id ASC'
+        );
+        $stmt->execute([
+            ':name' => $name,
+            ':performer_id' => $performerId,
+        ]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function getSessionsByEventId(int $eventId): array
@@ -48,20 +129,7 @@ class ScheduleRepository implements IScheduleRepository
         $stmt->execute([':event_id' => $eventId]);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        return array_map(
-            static fn(array $row): SessionModel => new SessionModel(
-                (int)$row['id'],
-                isset($row['event_id']) ? (int)$row['event_id'] : null,
-                (int)$row['venue_id'],
-                (string)$row['date'],
-                (string)$row['start_time'],
-                isset($row['label']) ? (string)$row['label'] : null,
-                (float)$row['price'],
-                (int)$row['available_spots'],
-                (int)$row['amount_sold']
-            ),
-            $rows
-        );
+        return array_map(fn(array $row) => $this->scheduleMapper->mapSessionRow($row), $rows);
     }
 
     public function getVenuesByEventId(int $eventId): array
@@ -75,17 +143,7 @@ class ScheduleRepository implements IScheduleRepository
         $stmt->execute([':event_id' => $eventId]);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        return array_map(
-            static fn(array $row): VenueModel => new VenueModel(
-                (int)$row['id'],
-                (int)$row['event_id'],
-                (string)$row['venue_name'],
-                isset($row['address']) ? (string)$row['address'] : null,
-                isset($row['venue_type']) ? (string)$row['venue_type'] : null,
-                isset($row['created_at']) ? (string)$row['created_at'] : null
-            ),
-            $rows
-        );
+        return array_map(fn(array $row) => $this->scheduleMapper->mapVenueModelRow($row), $rows);
     }
 
     public function getPerformersByEventId(int $eventId): array
@@ -99,17 +157,7 @@ class ScheduleRepository implements IScheduleRepository
         $stmt->execute([':event_id' => $eventId]);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        return array_map(
-            static fn(array $row): PerformerModel => new PerformerModel(
-                (int)$row['id'],
-                (int)$row['event_id'],
-                (string)$row['performer_name'],
-                isset($row['performer_type']) ? (string)$row['performer_type'] : null,
-                isset($row['description']) ? (string)$row['description'] : null,
-                isset($row['created_at']) ? (string)$row['created_at'] : null
-            ),
-            $rows
-        );
+        return array_map(fn(array $row) => $this->scheduleMapper->mapPerformerModelRow($row), $rows);
     }
 
     public function getSessionPerformersByEventId(int $eventId): array
@@ -124,13 +172,7 @@ class ScheduleRepository implements IScheduleRepository
         $stmt->execute([':event_id' => $eventId]);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        return array_map(
-            static fn(array $row): SessionPerformerModel => new SessionPerformerModel(
-                (int)$row['session_id'],
-                (int)$row['performer_id']
-            ),
-            $rows
-        );
+        return array_map(fn(array $row) => $this->scheduleMapper->mapSessionPerformerRow($row), $rows);
     }
 
     public function saveEventScheduleData(int $eventId, array $venueRows, array $performerRows, array $sessionRows, array $sessionPerformerRows): void

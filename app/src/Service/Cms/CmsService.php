@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Service;
+namespace App\Service\Cms;
 
 use App\Repository\Interfaces\IUserRepository;
 use App\Models\UserModel;
-use App\Service\Interfaces\ICmsService;
+use App\Service\Cms\Interfaces\ICmsService;
 
 class CmsService implements ICmsService
 {

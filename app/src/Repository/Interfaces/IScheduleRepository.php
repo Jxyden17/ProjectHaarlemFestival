@@ -6,6 +6,8 @@ use App\Models\Event\EventModel;
 
 interface IScheduleRepository
 {
+    public function getScheduleRowsByEventName(string $name): array;
+    public function getScheduleRowsByEventNameAndPerformerId(string $name, int $performerId): array;
     public function findEventByName(string $name): ?EventModel;
     public function getSessionsByEventId(int $eventId): array;
     public function getVenuesByEventId(int $eventId): array;

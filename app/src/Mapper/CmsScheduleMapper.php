@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service;
+namespace App\Mapper;
 
 use App\Models\Page\SectionItem;
 use App\Models\Requests\Cms\Schedule\SchedulePerformerRowRequest;
@@ -9,84 +9,23 @@ use App\Models\Requests\Cms\Schedule\ScheduleVenueRowRequest;
 use App\Models\ViewModels\Cms\Schedule\ScheduleEditorPerformerRowViewModel;
 use App\Models\ViewModels\Cms\Schedule\ScheduleEditorSessionRowViewModel;
 use App\Models\ViewModels\Cms\Schedule\ScheduleEditorVenueRowViewModel;
-use App\Models\ViewModels\Cms\Schedule\ScheduleEditorViewModel;
-use App\Service\Interfaces\ICmsEventEditorService;
 use App\Service\Interfaces\IDanceService;
-use App\Service\Interfaces\IScheduleService;
 
-class CmsEventEditorService implements ICmsEventEditorService
+class CmsScheduleMapper
 {
-    private IScheduleService $scheduleService;
     private IDanceService $danceService;
 
-    public function __construct(IScheduleService $scheduleService, IDanceService $danceService)
+    public function __construct(IDanceService $danceService)
     {
-        $this->scheduleService = $scheduleService;
         $this->danceService = $danceService;
     }
 
-    public function getEditorData(string $eventName): ScheduleEditorViewModel
+    public function applyDanceArtistImageMetadata(string $eventName, array $performers): array
     {
-        $editorViewModel = $this->scheduleService->getScheduleEditorData($eventName);
         if (strtolower($eventName) !== 'dance') {
-            return $editorViewModel;
+            return $performers;
         }
 
-        return new ScheduleEditorViewModel(
-            $editorViewModel->eventName,
-            $editorViewModel->venues,
-            $this->applyDanceArtistImageMetadata($editorViewModel->performers),
-            $editorViewModel->sessions
-        );
-    }
-
-    public function mergePostedEditorData(
-        string $eventName,
-        ScheduleEditorViewModel $editorData,
-        array $postedVenues,
-        array $postedPerformers,
-        array $postedSessions
-    ): ScheduleEditorViewModel {
-        $venues = $editorData->venues;
-        if (!empty($postedVenues)) {
-            $venues = $this->mapVenueViewModels($postedVenues);
-        }
-
-        $performers = $editorData->performers;
-        if (!empty($postedPerformers)) {
-            $existingPerformers = strtolower($eventName) === 'dance' ? $editorData->performers : [];
-            $performers = $this->mapPerformerViewModels($postedPerformers, $existingPerformers);
-        }
-
-        $sessions = $editorData->sessions;
-        if (!empty($postedSessions)) {
-            $sessions = $this->mapSessionViewModels($postedSessions);
-        }
-
-        return new ScheduleEditorViewModel($editorData->eventName, $venues, $performers, $sessions);
-    }
-
-    private function getDanceArtistImageRows(): array
-    {
-        $danceHome = $this->danceService->getDanceHomePage();
-        $artistsSection = $danceHome->getSection('dance_artists');
-        $artistImageRows = [];
-
-        if ($artistsSection === null) {
-            return $artistImageRows;
-        }
-
-        foreach ($artistsSection->getItemsByCategorie('artist') as $item) {
-            if ($item instanceof SectionItem) {
-                $artistImageRows[] = $item;
-            }
-        }
-
-        return $artistImageRows;
-    }
-
-    private function applyDanceArtistImageMetadata(array $performers): array
-    {
         $artistImageRows = $this->getDanceArtistImageRows();
         $result = [];
 
@@ -112,7 +51,7 @@ class CmsEventEditorService implements ICmsEventEditorService
         return $result;
     }
 
-    private function mapVenueViewModels(array $rows): array
+    public function mapVenueViewModels(array $rows): array
     {
         $venues = [];
         foreach ($rows as $row) {
@@ -131,7 +70,7 @@ class CmsEventEditorService implements ICmsEventEditorService
         return $venues;
     }
 
-    private function mapPerformerViewModels(array $rows, array $artistImageRows): array
+    public function mapPerformerViewModels(array $rows, array $existingPerformers): array
     {
         $performers = [];
         foreach ($rows as $index => $row) {
@@ -139,9 +78,9 @@ class CmsEventEditorService implements ICmsEventEditorService
                 continue;
             }
 
-            $imageRow = $artistImageRows[$index] ?? null;
-            $artistSectionItemId = $imageRow instanceof ScheduleEditorPerformerRowViewModel ? $imageRow->artistSectionItemId : 0;
-            $artistImagePath = $imageRow instanceof ScheduleEditorPerformerRowViewModel ? $imageRow->artistImagePath : '';
+            $existingPerformer = $existingPerformers[$index] ?? null;
+            $artistSectionItemId = $existingPerformer instanceof ScheduleEditorPerformerRowViewModel ? $existingPerformer->artistSectionItemId : 0;
+            $artistImagePath = $existingPerformer instanceof ScheduleEditorPerformerRowViewModel ? $existingPerformer->artistImagePath : '';
 
             $performers[] = new ScheduleEditorPerformerRowViewModel(
                 $row->id(),
@@ -156,7 +95,7 @@ class CmsEventEditorService implements ICmsEventEditorService
         return $performers;
     }
 
-    private function mapSessionViewModels(array $rows): array
+    public function mapSessionViewModels(array $rows): array
     {
         $sessions = [];
         foreach ($rows as $row) {
@@ -178,5 +117,24 @@ class CmsEventEditorService implements ICmsEventEditorService
         }
 
         return $sessions;
+    }
+
+    private function getDanceArtistImageRows(): array
+    {
+        $danceHome = $this->danceService->getDanceHomePage();
+        $artistsSection = $danceHome->getSection('dance_artists');
+        $artistImageRows = [];
+
+        if ($artistsSection === null) {
+            return $artistImageRows;
+        }
+
+        foreach ($artistsSection->getItemsByCategorie('artist') as $item) {
+            if ($item instanceof SectionItem) {
+                $artistImageRows[] = $item;
+            }
+        }
+
+        return $artistImageRows;
     }
 }

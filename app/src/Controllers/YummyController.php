@@ -2,18 +2,15 @@
 
 namespace App\Controllers;
 
-use App\Models\ViewModels\Yummy\YummyIndexViewModel;
-use App\Repository\YummyRepository;
 use App\Service\YummyService;
 
 class YummyController extends BaseController
 {
-  private YummyService $yummyService;
+    private YummyService $yummyService;
 
-    public function __construct()
+    public function __construct(YummyService $yummyService)
     {
-        $repository = new YummyRepository();
-        $this->yummyService = new YummyService($repository);
+        $this->yummyService = $yummyService;
     }
 
     public function index(): void
@@ -25,8 +22,9 @@ class YummyController extends BaseController
         ]);
     }
 
-    public function restaurant(string $slug): void
+    public function restaurant(array $vars = []): void
     {
+        $slug = trim((string)($vars['slug'] ?? ''));
         $viewModel = $this->yummyService->getRestaurantPage($slug);
 
         if (!$viewModel) {

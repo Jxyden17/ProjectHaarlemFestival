@@ -20,38 +20,48 @@ $renderErrorPage = static function (int $statusCode, string $title, string $mess
 };
 
 try {
+    // Mappers
+    $eventMapper = new App\Mapper\EventMapper();
+    $danceMapper = new App\Mapper\DanceMapper($eventMapper);
+    $pageMapper = new App\Mapper\PageMapper();
+    $scheduleMapper = new App\Mapper\ScheduleMapper($eventMapper);
+
     // Repositories
     $userRepo = new App\Repository\UserRepository();
     $passwordResetRepo = new App\Repository\PasswordResetRepository();
-    $scheduleRepo = new App\Repository\ScheduleRepository();
-    $danceRepo = new App\Repository\DanceRepository();
+    $scheduleRepo = new App\Repository\ScheduleRepository($scheduleMapper);
+    $danceRepo = new App\Repository\DanceRepository($danceMapper);
     $mediaRepo = new App\Repository\MediaRepository();
     $pageRepo = new App\Repository\PageRepository();
+    $jazzRepo = new App\Repository\JazzRepository();
     $yummyRepo = new App\Repository\YummyRepository();
-    $jazzRepo = new App\Repository\JazzDummyRepository();
 
-
-
+    
     // Services
     $mailConfig = App\Models\MailConfig::fromEnvironment();
-    $pageService = new App\Service\PageService($pageRepo);
+    $pageService = new App\Service\PageService($pageRepo, $pageMapper);
     $mailService = new App\Service\MailService($mailConfig);
     $htmlSanitizerService = new App\Service\HtmlSanitizerService();
-    $scheduleService = new App\Service\ScheduleService($scheduleRepo);
+    $scheduleService = new App\Service\ScheduleService($scheduleRepo, $scheduleMapper);
 
-    $danceService = new App\Service\DanceService($danceRepo, $pageRepo, $htmlSanitizerService);
-    $mediaService = new App\Service\MediaService($mediaRepo);
+    $danceService = new App\Service\DanceService($danceRepo, $pageService);
+    $danceViewModelMapper = new App\Mapper\DanceViewModelMapper($danceService, $scheduleService);
+    $mediaService = new App\Service\MediaService($mediaRepo, $danceRepo);
     $yummyService = new App\Service\YummyService($yummyRepo);
     $jazzService = new App\Service\JazzService($jazzRepo,$scheduleRepo);
-
     $authService = new App\Service\AuthService($userRepo, $passwordResetRepo, $mailService);
-    $cmsService = new App\Service\CmsService($userRepo);
-    $cmsEventEditorService = new App\Service\CmsEventEditorService($scheduleService, $danceService);
+    
+    $cmsScheduleMapper = new App\Mapper\CmsScheduleMapper($danceService);
+    $cmsDanceMapper = new App\Mapper\CmsDanceMapper();
+    $cmsScheduleService = new App\Service\Cms\CmsScheduleService($scheduleRepo);
+    $cmsDanceService = new App\Service\Cms\CmsDanceService($danceRepo, $pageRepo, $pageService, $htmlSanitizerService, $cmsDanceMapper);
+    $cmsService = new App\Service\Cms\CmsService($userRepo);
+    $cmsEventEditorService = new App\Service\Cms\CmsEventEditorService($scheduleService, $cmsScheduleMapper);
 
     // Controllers
     $authController = new App\Controllers\AuthController($authService);
     $homeController = new App\Controllers\HomeController();
-    $danceController = new App\Controllers\DanceController($scheduleService, $danceService);
+    $danceController = new App\Controllers\DanceController($danceService, $danceViewModelMapper);
     $tourController = new App\Controllers\TourController($pageService);
     $jazzController = new App\Controllers\JazzController($scheduleService, $jazzService);
     $yummyController = new App\Controllers\YummyController($yummyService);
@@ -60,8 +70,8 @@ try {
     $cmsEventsController = new App\Controllers\Cms\CmsEventsController($cmsService);
     $cmsTicketsController = new App\Controllers\Cms\CmsTicketsController($cmsService);
     $cmsUsersController = new App\Controllers\Cms\CmsUsersController($cmsService);
-    $cmsDanceContentController = new App\Controllers\Cms\CmsDanceContentController($danceService);
-    $cmsEventEditorController = new App\Controllers\Cms\CmsEventEditorController($scheduleService, $cmsEventEditorService);
+    $cmsDanceContentController = new App\Controllers\Cms\CmsDanceContentController($cmsDanceService);
+    $cmsEventEditorController = new App\Controllers\Cms\CmsEventEditorController($cmsScheduleService, $cmsEventEditorService);
     $cmsMediaController = new App\Controllers\Cms\CmsMediaController($mediaService);
 
 
@@ -87,6 +97,7 @@ try {
 
         // Dance routes
         $r->addRoute('GET', '/dance', ['DanceController', 'index']);
+        $r->addRoute('GET', '/dance/{detailSlug}', ['DanceController', 'detail']);
 
         // Yummy route
         $r->addRoute('GET', '/yummy', ['YummyController', 'index']);
@@ -99,7 +110,10 @@ try {
         $r->addRoute('POST', '/cms/events/{eventSlug}/schedule', ['CmsEventEditorController', 'update']);
         $r->addRoute('GET', '/cms/events/dance-home', ['CmsDanceContentController', 'index']);
         $r->addRoute('POST', '/cms/events/dance-home', ['CmsDanceContentController', 'update']);
+        $r->addRoute('GET', '/cms/events/dance-detail/{detailSlug}', ['CmsDanceContentController', 'detail']);
+        $r->addRoute('POST', '/cms/events/dance-detail/{detailSlug}', ['CmsDanceContentController', 'updateDetail']);
         $r->addRoute('POST', '/cms/media/upload-replace', ['CmsMediaController', 'uploadReplace']);
+        $r->addRoute('POST', '/cms/media/upload-audio', ['CmsMediaController', 'uploadAudio']);
         $r->addRoute('GET', '/cms/tickets', ['CmsTicketsController', 'index']);
         $r->addRoute('GET', '/cms/users', ['CmsUsersController', 'index']);
         $r->addRoute('GET', '/cms/users/create', ['CmsUsersController', 'showCreateForm']);
@@ -150,13 +164,11 @@ try {
 
             $controller = $controllerMap[$controllerName];
 
-            // Call the method and pass dynamic route variables
-            $controller->$method(...array_values($vars));
+            $controller->$method($vars);
             break;
     }
 } catch (\Throwable $e) {
-  # $debugError = $e->getMessage();
-   # $renderErrorPage(503, 'Service temporarily unavailable', 'We cannot connect to the database right now. Please try again in a moment.', $showDebug, $debugError
-    #);
+    $debugError = $e->getMessage();
+    $renderErrorPage(503, 'Service temporarily unavailable', 'We cannot connect to the database right now. Please try again in a moment.', $showDebug, $debugError, );
     var_dump($e);
 }

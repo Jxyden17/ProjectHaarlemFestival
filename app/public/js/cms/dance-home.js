@@ -28,7 +28,12 @@ function initializeQuillEditors() {
         });
 
         const initialHtml = textarea.value.trim();
-        quill.root.innerHTML = initialHtml === '' ? '<p><br></p>' : initialHtml;
+        if (initialHtml === '') {
+            quill.setText('');
+        } else {
+            quill.clipboard.dangerouslyPasteHTML(initialHtml);
+        }
+
         textarea.required = false;
         textarea.classList.add('d-none');
         quillEditors.push({ textarea, quill });
