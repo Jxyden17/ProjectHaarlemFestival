@@ -36,7 +36,6 @@ try {
     $scheduleService = new App\Service\ScheduleService($scheduleRepo);
     $danceService = new App\Service\DanceService($danceRepo);
     $jazzService = new App\Service\JazzService($jazzRepo,$scheduleRepo);
-    $storiesService = new App\Service\StoriesService($pageRepo);
 
     $authService = new App\Service\AuthService($userRepo, $passwordResetRepo, $mailService);
     $cmsService = new App\Service\CmsService($userRepo);
@@ -79,6 +78,7 @@ try {
         //Stories Routes
         $r->addRoute('GET', '/stories', ['StoriesController', 'index']);
         $r->addRoute('GET', '/stories/details', ['StoriesController', 'details']);
+        $r->addRoute('GET', '/stories/{slug}', ['StoriesController', 'details']);
 
         // CMS routes
         $r->addRoute('GET', '/cms', ['CmsController', 'index']);

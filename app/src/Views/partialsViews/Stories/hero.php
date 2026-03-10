@@ -9,6 +9,7 @@ if (!$section instanceof Section) {
 
 $items = is_array($section->items) ? $section->items : [];
 $firstItem = $items[0] ?? null;
+$secondItem = $items[1] ?? null;
 ?>
 
 <section class="stories-hero-section">
@@ -23,7 +24,37 @@ $firstItem = $items[0] ?? null;
     <div class="stories-hero-overlay"></div>
 
     <div class="stories-hero-text">
+        <div class="hero-badge">
+            <span class="hero-badge-icon">📅</span>
+            <span class="hero-badge-text">This Weekend • July 24-27, 2025</span>
+        </div>
+
         <h1><?= htmlspecialchars($section->title) ?></h1>
         <p><?= htmlspecialchars($firstItem->content ?? '') ?></p>
+        <p><?= htmlspecialchars($secondItem->content ?? '') ?></p>
+
+        <div class="hero-info-cards">
+            <div class="hero-info-card">
+                <span class="info-card-icon">📅</span>
+                <div class="info-card-content">
+                    <h3>Total Events</h3>
+                    <p>15 Shows</p>
+                </div>
+            </div>
+            <div class="hero-info-card">
+                <span class="info-card-icon">📍</span>
+                <div class="info-card-content">
+                    <h3>Venues</h3>
+                    <p>6 Locations</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-actions">
+            <a href="#schedule" class="view-program-btn">
+                <span class="view-program-btn-icon">🎭</span>
+                View program
+            </a>
+        </div>
     </div>
 </section>

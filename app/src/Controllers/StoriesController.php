@@ -39,22 +39,14 @@ class StoriesController extends BaseController
         $this->render('Stories/index', $viewData);
     }
 
-    public function details(): void
+    public function details($slug = null): void
     {
-        $pageId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-
-        if (!$pageId) {
-            http_response_code(404);
-            $this->render('shared/error', [
-                'errorTitle' => 'Page not found',
-                'errorMessage' => 'The page you requested does not exist.',
-            ]);
-            return;
+        // If no slug provided, try to get it from GET parameter
+        if (!$slug) {
+            $slug = isset($_GET['slug']) ? $_GET['slug'] : null;
         }
 
-        $page = $this->pageService->buildPage($pageId);
-
-        if (!$page) {
+        if (!$slug) {
             http_response_code(404);
             $this->render('shared/error', [
                 'errorTitle' => 'Page not found',
@@ -64,15 +56,11 @@ class StoriesController extends BaseController
         }
 
         $viewData = [
-            'pageTitle' => $page->title,
-            'hero'      => $page->getSection('hero'),
-            'grid'      => $page->getSection('grid'),
-            'venues'    => $page->getSection('venues'),
-            'schedule'  => $page->getSection('schedule'),
-            'explore'   => $page->getSection('explore'),
-            'faq'       => $page->getSection('faq')
+            'pageTitle' => ucfirst(str_replace('-', ' ', $slug)),
+            'slug' => $slug
         ];
 
-        $this->render('Stories/details', $viewData);
+        http_response_code(200);
+        echo "Profile of: " . htmlspecialchars($slug);
     }
 }

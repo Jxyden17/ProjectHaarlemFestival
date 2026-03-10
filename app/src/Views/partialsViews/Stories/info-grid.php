@@ -11,8 +11,11 @@
                 <div class="text-box">
                     <h3 class="item-title"><?= htmlspecialchars($item->title) ?></h3>
                     <div class="item-content">
-                        <?= $item->content ?>
+                        <?= htmlspecialchars($item->content) ?>
                     </div>
+                    <?php if ($item->url): ?>
+                        <a href="<?= htmlspecialchars($item->url) ?>" class="view-profile-btn">View Profile</a>
+                    <?php endif; ?>
                 </div>
             </div>
         <?php endforeach; ?>
