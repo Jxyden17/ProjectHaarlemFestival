@@ -8,6 +8,7 @@ use App\Models\Page\Page;
 interface IDanceService
 {
     public function getDanceScheduleTitle(): string;
+    public function getDanceIndexData(): array;
     public function getDanceVenues(): array;
     public function getDancePerformers(): array;
     public function getDanceHomePage(): Page;

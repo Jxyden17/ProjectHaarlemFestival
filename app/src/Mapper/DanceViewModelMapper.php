@@ -26,6 +26,7 @@ class DanceViewModelMapper
     public function buildIndexViewModel(): DanceIndexViewModel
     {
         $homeContent = $this->danceService->getDanceHomePage();
+        $indexData = $this->danceService->getDanceIndexData();
         $scheduleSection = $homeContent->getSection('dance_schedule');
         $bannerSection = $homeContent->getSection('dance_banner');
         $artistsSection = $homeContent->getSection('dance_artists');
@@ -33,6 +34,10 @@ class DanceViewModelMapper
         $passesSection = $homeContent->getSection('dance_passes');
         $capacitySection = $homeContent->getSection('dance_capacity');
         $specialSection = $homeContent->getSection('dance_special_session');
+        $performers = is_array($indexData['performers'] ?? null) ? $indexData['performers'] : [];
+        $detailPages = is_array($indexData['detailPages'] ?? null) ? $indexData['detailPages'] : [];
+        $venues = is_array($indexData['venues'] ?? null) ? $indexData['venues'] : [];
+        $detailUrlByPerformerId = $this->getDetailUrlByPerformerId($detailPages);
 
         $scheduleTitle = $scheduleSection === null ? '' : trim((string)$scheduleSection->title);
         $schedule = $this->scheduleService->getScheduleDataForEvent('Dance', $scheduleTitle);
@@ -67,7 +72,7 @@ class DanceViewModelMapper
             $totalEvents,
             $totalLocations,
             $artistsSection?->title,
-            $this->buildArtistCards($artistsSection),
+            $this->buildArtistCards($artistsSection, $performers, $detailUrlByPerformerId),
             $infoSection?->title,
             $infoSection?->description,
             $passesSection?->title,
@@ -76,7 +81,7 @@ class DanceViewModelMapper
             $capacitySection?->description,
             $specialSection?->title,
             $specialSection?->description,
-            $this->danceService->getDanceVenues()
+            $venues
         );
     }
 
@@ -203,9 +208,8 @@ class DanceViewModelMapper
         return $this->scheduleService->getScheduleRowsByPerformerId('Dance', $detailMeta->performerId);
     }
 
-    private function buildArtistCards(?Section $artistsSection): array
+    private function buildArtistCards(?Section $artistsSection, array $performers, array $detailUrlByPerformerId): array
     {
-        $detailUrlByPerformerId = $this->getDetailUrlByPerformerId();
         $artistImageRows = [];
         if ($artistsSection !== null) {
             $artistImageRows = array_values(array_filter(
@@ -216,7 +220,7 @@ class DanceViewModelMapper
 
         $artistCards = [];
 
-        foreach ($this->danceService->getDancePerformers() as $index => $performer) {
+        foreach ($performers as $index => $performer) {
             if (!$performer instanceof PerformerModel) {
                 continue;
             }
@@ -232,10 +236,10 @@ class DanceViewModelMapper
         return $artistCards;
     }
 
-    private function getDetailUrlByPerformerId(): array
+    private function getDetailUrlByPerformerId(array $detailPages): array
     {
         $detailUrlByPerformerId = [];
-        foreach ($this->danceService->getPublishedDanceDetailPages() as $detailPage) {
+        foreach ($detailPages as $detailPage) {
             if ($detailPage instanceof EventDetailPageModel && $detailPage->performerId !== null) {
                 $detailUrlByPerformerId[$detailPage->performerId] = $detailPage->getPublicPath();
             }

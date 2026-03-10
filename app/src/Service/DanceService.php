@@ -42,6 +42,17 @@ class DanceService implements IDanceService
         return $this->danceRepository->getPerformersByEventId($event->id);
     }
 
+    public function getDanceIndexData(): array
+    {
+        $event = $this->getDanceEvent();
+        
+        return [
+            'venues' => $this->danceRepository->getVenuesByEventId($event->id),
+            'performers' => $this->danceRepository->getPerformersByEventId($event->id),
+            'detailPages' => $this->danceRepository->getDetailPagesByEventId($event->id),
+        ];
+    }
+
     public function getDanceHomePage(): Page
     {
         return $this->pageService->getPageBySlug('dance-home', 'Dance Home');
