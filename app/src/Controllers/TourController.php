@@ -3,14 +3,17 @@
 namespace App\Controllers;
 
 use App\Service\Interfaces\IPageService;
+use App\Service\Interfaces\IScheduleService;
 
 class TourController extends BaseController
 {
     private IPageService $pageService;
+    private IScheduleService $scheduleService;
 
-    public function __construct(IPageService $pageService) 
+    public function __construct(IPageService $pageService, IScheduleService $scheduleService) 
     {
         $this->pageService = $pageService;
+        $this->scheduleService = $scheduleService;
     }
     public function index(): void
     {
@@ -25,13 +28,13 @@ class TourController extends BaseController
             ]);
             return;
         }
-
+    $scheduleViewmodel = $this->scheduleService->getScheduleDataForEvent('A Stroll Through History', 'Tour Schedule');
         $viewData = [
         'pageTitle' => $page->title,
         'hero'      => $page->getSection('hero'),
         'stops'     => $page->getSection('tour_overview'),
         'discover'  => $page->getSection('discover'),
-        'schedule' => $page->getSection('schedule'),
+        'scheduleData' => $scheduleViewmodel,
         'guide'   => $page->getSection('guide')
     ];
         $this->render('Tour/index', $viewData);

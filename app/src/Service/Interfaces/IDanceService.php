@@ -2,10 +2,17 @@
 
 namespace App\Service\Interfaces;
 
-use App\Models\ViewModels\Dance\DanceBannerStatsViewModel;
+use App\Models\Event\EventDetailPageModel;
+use App\Models\Page\Page;
 
 interface IDanceService
 {
-    public function getDanceBannerStats(): DanceBannerStatsViewModel;
+    public function getDanceScheduleTitle(): string;
+    public function getDanceIndexData(): array;
     public function getDanceVenues(): array;
+    public function getDancePerformers(): array;
+    public function getDanceHomePage(): Page;
+    public function getDanceDetailPage(string $slug): Page;
+    public function getDanceDetailPageByPublicSlug(string $publicSlug): ?EventDetailPageModel;
+    public function getPublishedDanceDetailPages(): array;
 }

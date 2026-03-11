@@ -3,7 +3,7 @@
 namespace App\Controllers\Cms;
 
 use App\Controllers\BaseController;
-use App\Service\Interfaces\ICmsService;
+use App\Service\Cms\Interfaces\ICmsService;
 
 class CmsController extends BaseController
 {
