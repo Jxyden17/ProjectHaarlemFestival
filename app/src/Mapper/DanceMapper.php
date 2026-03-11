@@ -3,34 +3,9 @@
 namespace App\Mapper;
 
 use App\Models\Event\EventDetailPageModel;
-use App\Models\Event\EventModel;
-use App\Models\Event\PerformerModel;
-use App\Models\Event\VenueModel;
 
 class DanceMapper
 {
-    private EventMapper $eventMapper;
-
-    public function __construct(?EventMapper $eventMapper = null)
-    {
-        $this->eventMapper = $eventMapper ?? new EventMapper();
-    }
-
-    public function mapEventRow(array $row): EventModel
-    {
-        return $this->eventMapper->mapEventRow($row);
-    }
-
-    public function mapVenueRow(array $row): VenueModel
-    {
-        return $this->eventMapper->mapVenueRow($row);
-    }
-
-    public function mapPerformerRow(array $row): PerformerModel
-    {
-        return $this->eventMapper->mapPerformerRow($row);
-    }
-
     public function mapDetailPageRow(array $row): EventDetailPageModel
     {
         return new EventDetailPageModel(

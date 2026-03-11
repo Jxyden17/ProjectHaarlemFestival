@@ -62,7 +62,7 @@ class CmsDanceService implements ICmsDanceService
     {
         $meta = $this->resolveDetailPageMeta($detailSlug);
         $page = $this->pageService->getPageBySlug($meta->pageSlug, $this->buildEditorTitle($meta));
-        $performerName = $this->resolveDetailPerformerName($meta, $page->getSection('dance_detail_hero'));
+        $performerName = trim((string)($meta->performerName ?? ''));
 
         return $this->cmsDanceMapper->mapDetailContentViewModel(
             $meta,
@@ -108,17 +108,6 @@ class CmsDanceService implements ICmsDanceService
 
         return $performerName . ' Detail Content';
     }
-
-     private function resolveDetailPerformerName(EventDetailPageModel $meta, ?Section $hero): string
-    {
-        $performerName = trim((string)($meta->performerName ?? ''));
-        if ($performerName !== '') {
-            return $performerName;
-        }
-
-        return $hero === null ? '' : trim((string)$hero->title);
-    }
-
     private function normalizeHomePageInput(DanceHomeContentRequest $request): array
     {
         $passes = $request->passes();

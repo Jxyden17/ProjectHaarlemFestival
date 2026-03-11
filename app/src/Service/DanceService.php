@@ -85,19 +85,6 @@ class DanceService implements IDanceService
         return $this->danceRepository->getDetailPagesByEventId($event->id);
     }
 
-    public function getDanceScheduleTitle(): string
-    {
-        $homeContent = $this->getDanceHomePage();
-        $scheduleSection = $homeContent->getSection('dance_schedule');
-        $scheduleTitle = $scheduleSection !== null ? trim((string)$scheduleSection->title) : '';
-
-        if ($scheduleTitle === '') {
-            return 'DANCE! Festival Schedule';
-        }
-
-        return $scheduleTitle;
-    }
-
     private function getDanceEvent(): ?EventModel
     {
         return $this->scheduleRepository->findEventByName(self::DANCE_EVENT_NAME);
