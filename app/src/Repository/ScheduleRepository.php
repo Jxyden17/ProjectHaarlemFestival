@@ -42,6 +42,7 @@ class ScheduleRepository implements IScheduleRepository
                     s.venue_id,
                     s.date,
                     s.start_time,
+                    s.language_id,
                     s.label,
                     s.price,
                     s.available_spots,
@@ -85,6 +86,7 @@ class ScheduleRepository implements IScheduleRepository
                     s.venue_id,
                     s.date,
                     s.start_time,
+                    s.language_id,
                     s.label,
                     s.price,
                     s.available_spots,
@@ -118,14 +120,25 @@ class ScheduleRepository implements IScheduleRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getAllEvents(): array
+    {
+        $stmt = $this->db->query('SELECT id, name, description FROM events ORDER BY id ASC');
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        return array_map(
+            fn(array $row): EventModel => $this->scheduleMapper->mapEventRow($row),
+            $rows
+        );
+    }
+
     public function getSessionsByEventId(int $eventId): array
     {
-        $stmt = $this->db->prepare('
-            SELECT id, event_id, venue_id, date, start_time, label, price, available_spots, amount_sold
-            FROM sessions
-            WHERE event_id = :event_id
-            ORDER BY date ASC, start_time ASC
-        ');
+        $stmt = $this->db->prepare(
+            'SELECT id, event_id, venue_id, date, start_time, language_id, label, price, available_spots, amount_sold
+             FROM sessions
+             WHERE event_id = :event_id
+             ORDER BY date ASC, start_time ASC'
+        );
         $stmt->execute([':event_id' => $eventId]);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -134,12 +147,12 @@ class ScheduleRepository implements IScheduleRepository
 
     public function getVenuesByEventId(int $eventId): array
     {
-        $stmt = $this->db->prepare('
-            SELECT id, event_id, venue_name, address, venue_type, created_at
-            FROM venues
-            WHERE event_id = :event_id
-            ORDER BY venue_name ASC
-        ');
+        $stmt = $this->db->prepare(
+            'SELECT id, event_id, venue_name, address, venue_type, created_at
+             FROM venues
+             WHERE event_id = :event_id
+             ORDER BY venue_name ASC'
+        );
         $stmt->execute([':event_id' => $eventId]);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -148,12 +161,12 @@ class ScheduleRepository implements IScheduleRepository
 
     public function getPerformersByEventId(int $eventId): array
     {
-        $stmt = $this->db->prepare('
-            SELECT id, event_id, performer_name, performer_type, description, created_at
-            FROM performers
-            WHERE event_id = :event_id
-            ORDER BY performer_name ASC
-        ');
+        $stmt = $this->db->prepare(
+            'SELECT id, event_id, performer_name, performer_type, description, created_at
+             FROM performers
+             WHERE event_id = :event_id
+             ORDER BY performer_name ASC'
+        );
         $stmt->execute([':event_id' => $eventId]);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -162,21 +175,26 @@ class ScheduleRepository implements IScheduleRepository
 
     public function getSessionPerformersByEventId(int $eventId): array
     {
-        $stmt = $this->db->prepare('
-            SELECT sp.session_id, sp.performer_id
-            FROM session_performers sp
-            INNER JOIN sessions s ON s.id = sp.session_id
-            WHERE s.event_id = :event_id
-            ORDER BY sp.session_id ASC, sp.performer_id ASC
-        ');
+        $stmt = $this->db->prepare(
+            'SELECT sp.session_id, sp.performer_id
+             FROM session_performers sp
+             INNER JOIN sessions s ON s.id = sp.session_id
+             WHERE s.event_id = :event_id
+             ORDER BY sp.session_id ASC, sp.performer_id ASC'
+        );
         $stmt->execute([':event_id' => $eventId]);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         return array_map(fn(array $row) => $this->scheduleMapper->mapSessionPerformerRow($row), $rows);
     }
 
-    public function saveEventScheduleData(int $eventId, array $venueRows, array $performerRows, array $sessionRows, array $sessionPerformerRows): void
-    {
+    public function saveEventScheduleData(
+        int $eventId,
+        array $venueRows,
+        array $performerRows,
+        array $sessionRows,
+        array $sessionPerformerRows
+    ): void {
         $this->db->beginTransaction();
 
         try {
@@ -193,7 +211,7 @@ class ScheduleRepository implements IScheduleRepository
 
     private function updateEventVenues(int $eventId, array $rows): void
     {
-        if (empty($rows)) {
+        if ($rows === []) {
             return;
         }
 
@@ -216,7 +234,7 @@ class ScheduleRepository implements IScheduleRepository
 
     private function updateEventPerformers(int $eventId, array $rows): void
     {
-        if (empty($rows)) {
+        if ($rows === []) {
             return;
         }
 
@@ -239,7 +257,7 @@ class ScheduleRepository implements IScheduleRepository
 
     private function updateEventSessions(int $eventId, array $rows): void
     {
-        if (empty($rows)) {
+        if ($rows === []) {
             return;
         }
 
@@ -265,15 +283,15 @@ class ScheduleRepository implements IScheduleRepository
 
     private function replaceEventSessionPerformers(int $eventId, array $rows): void
     {
-        $delete = $this->db->prepare('
-            DELETE sp
-            FROM session_performers sp
-            INNER JOIN sessions s ON s.id = sp.session_id
-            WHERE s.event_id = :event_id
-        ');
+        $delete = $this->db->prepare(
+            'DELETE sp
+             FROM session_performers sp
+             INNER JOIN sessions s ON s.id = sp.session_id
+             WHERE s.event_id = :event_id'
+        );
         $delete->execute([':event_id' => $eventId]);
 
-        if (empty($rows)) {
+        if ($rows === []) {
             return;
         }
 

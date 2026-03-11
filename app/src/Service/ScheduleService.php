@@ -28,12 +28,37 @@ class ScheduleService implements IScheduleService
     {
         $event = $this->getEventRowsOrFail($eventName);
 
-        return $this->scheduleMapper->mapScheduleViewModel($event->sessions, $title);
+        return $this->scheduleMapper->mapScheduleViewModel($event->sessions, $title, $event->name, false);
+    }
+
+    public function getScheduleDataForAllEvents(string $title): ScheduleViewModel
+    {
+        $events = $this->scheduleRepo->getAllEvents();
+        $allSessions = [];
+
+        if ($events === []) {
+            throw new \RuntimeException('No events found.');
+        }
+
+        foreach ($events as $event) {
+            if (!$event instanceof EventModel) {
+                continue;
+            }
+
+            $eventFromRows = $this->mapEventRows($event);
+            foreach ($eventFromRows->sessions as $session) {
+                if ($session instanceof SessionModel) {
+                    $allSessions[] = $session;
+                }
+            }
+        }
+
+        return $this->scheduleMapper->mapScheduleViewModel($allSessions, $title, 'All Events', true);
     }
 
     public function getScheduleRowsByPerformerName(string $eventName, string $performerName): array
     {
-        $performer = trim((string)$performerName);
+        $performer = trim((string) $performerName);
         if ($performer === '') {
             return [];
         }
@@ -70,7 +95,7 @@ class ScheduleService implements IScheduleService
         }
 
         $rows = $this->scheduleRepo->getScheduleRowsByEventNameAndPerformerId($eventName, $performerId);
-        if (empty($rows)) {
+        if ($rows === []) {
             return [];
         }
 
@@ -102,10 +127,10 @@ class ScheduleService implements IScheduleService
     public function getScheduleEditorData(string $eventName): ScheduleEditorViewModel
     {
         $event = $this->findEventOrFail($eventName);
-        $venues = $this->scheduleRepo->getVenuesByEventId((int)$event->id);
-        $performers = $this->scheduleRepo->getPerformersByEventId((int)$event->id);
-        $sessions = $this->scheduleRepo->getSessionsByEventId((int)$event->id);
-        $sessionPerformers = $this->scheduleRepo->getSessionPerformersByEventId((int)$event->id);
+        $venues = $this->scheduleRepo->getVenuesByEventId((int) $event->id);
+        $performers = $this->scheduleRepo->getPerformersByEventId((int) $event->id);
+        $sessions = $this->scheduleRepo->getSessionsByEventId((int) $event->id);
+        $sessionPerformers = $this->scheduleRepo->getSessionPerformersByEventId((int) $event->id);
 
         $sessionPerformerMap = $this->scheduleMapper->buildSessionPerformerMap($sessionPerformers);
 
@@ -132,5 +157,21 @@ class ScheduleService implements IScheduleService
         $rows = $this->scheduleRepo->getScheduleRowsByEventName($eventName);
 
         return $this->scheduleMapper->mapEventRowsToEvent($rows, $eventName);
+    }
+
+    private function mapEventRows(EventModel $event): EventModel
+    {
+        $venues = $this->scheduleRepo->getVenuesByEventId((int) $event->id);
+        $performers = $this->scheduleRepo->getPerformersByEventId((int) $event->id);
+        $sessions = $this->scheduleRepo->getSessionsByEventId((int) $event->id);
+        $sessionPerformers = $this->scheduleRepo->getSessionPerformersByEventId((int) $event->id);
+
+        return $this->scheduleMapper->mapEventRowsFromCollections(
+            $event,
+            $venues,
+            $sessions,
+            $performers,
+            $sessionPerformers
+        );
     }
 }

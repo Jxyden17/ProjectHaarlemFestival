@@ -85,9 +85,17 @@ class PageRepository implements IPageRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function saveOrUpdateSection(int $pageId, string $sectionType, ?string $title, ?string $subtitle, ?string $description, int $orderIndex): int
-    {
-        $stmt = $this->db->prepare('SELECT id FROM page_sections WHERE page_id = :page_id AND section_type = :section_type LIMIT 1');
+    public function saveOrUpdateSection(
+        int $pageId,
+        string $sectionType,
+        ?string $title,
+        ?string $subtitle,
+        ?string $description,
+        int $orderIndex
+    ): int {
+        $stmt = $this->db->prepare(
+            'SELECT id FROM page_sections WHERE page_id = :page_id AND section_type = :section_type LIMIT 1'
+        );
         $stmt->execute([':page_id' => $pageId, ':section_type' => $sectionType]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -95,9 +103,19 @@ class PageRepository implements IPageRepository
             throw new \RuntimeException('Missing section for update: ' . $sectionType);
         }
 
-        $sectionId = (int)$row['id'];
-        $update = $this->db->prepare('UPDATE page_sections SET title = :title, subtitle = :subtitle, description = :description, order_index = :order_index WHERE id = :id');
-        $update->execute([':title' => $title, ':subtitle' => $subtitle, ':description' => $description, ':order_index' => $orderIndex, ':id' => $sectionId]);
+        $sectionId = (int) $row['id'];
+        $update = $this->db->prepare(
+            'UPDATE page_sections
+             SET title = :title, subtitle = :subtitle, description = :description, order_index = :order_index
+             WHERE id = :id'
+        );
+        $update->execute([
+            ':title' => $title,
+            ':subtitle' => $subtitle,
+            ':description' => $description,
+            ':order_index' => $orderIndex,
+            ':id' => $sectionId,
+        ]);
 
         return $sectionId;
     }
@@ -132,15 +150,15 @@ class PageRepository implements IPageRepository
                 ':title' => $item['title'],
                 ':item_subtitle' => $item['item_subtitle'] ?? null,
                 ':content' => $item['content'],
-                ':image_path' => $item['image_path'],
-                ':link_url' => $item['link_url'],
+                ':image_path' => $item['image_path'] ?? null,
+                ':link_url' => $item['link_url'] ?? null,
                 ':duration' => $item['duration'] ?? null,
                 ':icon_class' => $item['icon_class'] ?? null,
                 ':order_index' => $item['order_index'],
                 ':item_category' => $item['item_category'],
             ];
 
-            $itemId = isset($item['id']) ? (int)$item['id'] : 0;
+            $itemId = isset($item['id']) ? (int) $item['id'] : 0;
             if ($itemId <= 0) {
                 throw new \RuntimeException('Missing section item id for update.');
             }
@@ -174,7 +192,6 @@ class PageRepository implements IPageRepository
             return null;
         }
 
-        return (int)$row['id'];
+        return (int) $row['id'];
     }
-
 }

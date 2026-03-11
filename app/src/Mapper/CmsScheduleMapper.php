@@ -36,7 +36,7 @@ class CmsScheduleMapper
 
             $imageRow = $artistImageRows[$index] ?? null;
             $artistSectionItemId = $imageRow instanceof SectionItem ? $imageRow->id : 0;
-            $artistImagePath = $imageRow instanceof SectionItem ? (string)($imageRow->image ?? '') : '';
+            $artistImagePath = $imageRow instanceof SectionItem ? (string) ($imageRow->image ?? '') : '';
 
             $result[] = new ScheduleEditorPerformerRowViewModel(
                 $performer->id,
@@ -54,6 +54,7 @@ class CmsScheduleMapper
     public function mapVenueViewModels(array $rows): array
     {
         $venues = [];
+
         foreach ($rows as $row) {
             if (!$row instanceof ScheduleVenueRowRequest) {
                 continue;
@@ -73,14 +74,19 @@ class CmsScheduleMapper
     public function mapPerformerViewModels(array $rows, array $existingPerformers): array
     {
         $performers = [];
+
         foreach ($rows as $index => $row) {
             if (!$row instanceof SchedulePerformerRowRequest) {
                 continue;
             }
 
             $existingPerformer = $existingPerformers[$index] ?? null;
-            $artistSectionItemId = $existingPerformer instanceof ScheduleEditorPerformerRowViewModel ? $existingPerformer->artistSectionItemId : 0;
-            $artistImagePath = $existingPerformer instanceof ScheduleEditorPerformerRowViewModel ? $existingPerformer->artistImagePath : '';
+            $artistSectionItemId = $existingPerformer instanceof ScheduleEditorPerformerRowViewModel
+                ? $existingPerformer->artistSectionItemId
+                : 0;
+            $artistImagePath = $existingPerformer instanceof ScheduleEditorPerformerRowViewModel
+                ? $existingPerformer->artistImagePath
+                : '';
 
             $performers[] = new ScheduleEditorPerformerRowViewModel(
                 $row->id(),
@@ -98,6 +104,7 @@ class CmsScheduleMapper
     public function mapSessionViewModels(array $rows): array
     {
         $sessions = [];
+
         foreach ($rows as $row) {
             if (!$row instanceof ScheduleSessionRowRequest) {
                 continue;

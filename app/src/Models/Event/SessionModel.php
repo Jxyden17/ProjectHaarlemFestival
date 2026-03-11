@@ -2,6 +2,8 @@
 
 namespace App\Models\Event;
 
+use App\Models\Enums\Language;
+
 class SessionModel
 {
     public int $id;
@@ -9,7 +11,8 @@ class SessionModel
     public int $venueId;
     public string $date;
     public string $startTime;
-    public ?string $language;
+    public ?Language $language;
+    public ?string $label;
     public float $price;
     public int $availableSpots;
     public int $amountSold;
@@ -23,7 +26,8 @@ class SessionModel
         int $venueId,
         string $date,
         string $startTime,
-        ?string $language,
+        ?Language $language,
+        ?string $label,
         float $price,
         int $availableSpots,
         int $amountSold,
@@ -37,6 +41,7 @@ class SessionModel
         $this->date = $date;
         $this->startTime = $startTime;
         $this->language = $language;
+        $this->label = $label;
         $this->price = $price;
         $this->availableSpots = $availableSpots;
         $this->amountSold = $amountSold;

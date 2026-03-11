@@ -273,7 +273,13 @@ class MediaService implements IMediaService
                 ['/img/danceIMG/'],
                 'dance-home',
                 'dance_artists',
-                'artist'
+                'artist',
+            ),
+            'tour' => new MediaModuleConfig(
+                ['/img/historyIMG/'],
+                'tour-home',
+                'tour_items',
+                'tour',
             ),
         ];
 
