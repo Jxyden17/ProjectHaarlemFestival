@@ -24,9 +24,9 @@
         <?php $section = $venues; include __DIR__ . '/../partialsViews/Stories/venues.php'; ?>
     <?php endif; ?>
 
-    <?php if ($schedule): ?>
-        <?php $section = $schedule; include __DIR__ . '/../partialsViews/schedule.php'; ?>
-    <?php endif; ?>
+    <section class="stories-schedule-wrapper">
+     <?php $section = $schedule; include __DIR__ . '/../partialsViews/schedule.php'; ?>
+    </section>
 
     <?php if ($explore): ?>
         <?php $section = $explore; include __DIR__ . '/../partialsViews/Stories/explore.php'; ?>
