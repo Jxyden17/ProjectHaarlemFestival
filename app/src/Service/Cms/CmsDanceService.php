@@ -12,32 +12,36 @@ use App\Models\Requests\Cms\DanceHomeContentRequest;
 use App\Models\ViewModels\Cms\Dance\DanceDetailContentViewModel;
 use App\Models\ViewModels\Cms\Dance\DanceHomeContentViewModel;
 use App\Repository\Interfaces\IDanceRepository;
-use App\Repository\Interfaces\IPageRepository;
 use App\Service\Cms\Interfaces\ICmsDanceService;
+use App\Service\Cms\Interfaces\ICmsPageSaveService;
 use App\Service\Interfaces\IHtmlSanitizerService;
 use App\Service\Interfaces\IPageService;
+use App\Validator\Cms\CmsDanceValidator;
 
 class CmsDanceService implements ICmsDanceService
 {
     private IDanceRepository $danceRepository;
-    private IPageRepository $pageRepository;
+    private ICmsPageSaveService $pageSaveService;
     private IPageService $pageService;
     private IHtmlSanitizerService $htmlSanitizer;
     private CmsDanceMapper $cmsDanceMapper;
+    private CmsDanceValidator $danceValidator;
 
     public function __construct(
         IDanceRepository $danceRepository,
-        IPageRepository $pageRepository,
+        ICmsPageSaveService $pageSaveService,
         IPageService $pageService,
         IHtmlSanitizerService $htmlSanitizer,
-        CmsDanceMapper $cmsDanceMapper
+        CmsDanceMapper $cmsDanceMapper,
+        CmsDanceValidator $danceValidator
     )
     {
         $this->danceRepository = $danceRepository;
-        $this->pageRepository = $pageRepository;
+        $this->pageSaveService = $pageSaveService;
         $this->pageService = $pageService;
         $this->htmlSanitizer = $htmlSanitizer;
         $this->cmsDanceMapper = $cmsDanceMapper;
+        $this->danceValidator = $danceValidator;
     }
 
     public function getDanceHomeFormData(): DanceHomeContentViewModel
@@ -49,7 +53,7 @@ class CmsDanceService implements ICmsDanceService
     public function saveDanceHomePage(DanceHomeContentRequest $request): void
     {
         $normalizedInput = $this->normalizeHomePageInput($request);
-        $this->validateHomePageInput($normalizedInput);
+        $this->danceValidator->validateHomePageInput($normalizedInput);
         $page = $this->buildDanceHomePage($normalizedInput);
         $this->persistDanceHomePage($page);
     }
@@ -71,11 +75,13 @@ class CmsDanceService implements ICmsDanceService
     public function saveDanceDetailPage(string $detailSlug, DanceDetailContentRequest $request): void
     {
         $meta = $this->resolveDetailPageMeta($detailSlug);
-        $existingTrackAudioUrls = $this->getExistingTrackAudioUrlsByItemId($meta->pageSlug);
+        $existingPage = $this->pageService->getPageBySlug($meta->pageSlug, $this->buildEditorTitle($meta));
+        $existingTrackAudioUrls = $this->getExistingTrackAudioUrlsByItemId($existingPage);
         $normalizedInput = $this->normalizeDetailPageInput($request, $existingTrackAudioUrls);
-        $this->validateDetailPageInput($normalizedInput);
+        $this->danceValidator->validateDetailPageInput($normalizedInput);
         $page = $this->buildDanceDetailPage($meta->pageSlug, $normalizedInput);
-        $this->persistDanceDetailPage($meta->pageSlug, $page);
+        $page->id = $existingPage->id;
+        $this->persistDanceDetailPage($page);
     }
 
     private function getDanceHomePage(): Page
@@ -137,17 +143,17 @@ class CmsDanceService implements ICmsDanceService
     private function normalizeDetailPageInput(DanceDetailContentRequest $request, array $existingTrackAudioUrls = []): array
     {
         return [
-            'page_title' => trim($request->pageTitle()),
-            'hero_title' => trim($request->heroTitle()),
-            'hero_badge' => trim($request->heroBadge()),
-            'hero_subtitle' => trim($request->heroSubtitle()),
+            'page_title' => $request->pageTitle(),
+            'hero_title' => $request->heroTitle(),
+            'hero_badge' => $request->heroBadge(),
+            'hero_subtitle' => $request->heroSubtitle(),
             'hero_images' => $this->cmsDanceMapper->normalizeHeroImages($request->heroImages()),
-            'highlights_title' => trim($request->highlightsTitle()),
+            'highlights_title' => $request->highlightsTitle(),
             'highlights' => $this->cmsDanceMapper->normalizeHighlights($request->highlights()),
-            'tracks_title' => trim($request->tracksTitle()),
-            'tracks_note' => trim($request->tracksNote()),
+            'tracks_title' => $request->tracksTitle(),
+            'tracks_note' => $request->tracksNote(),
             'tracks' => $this->cmsDanceMapper->normalizeTracks($request->tracks(), $existingTrackAudioUrls),
-            'important_information_title' => trim($request->importantInformationTitle()),
+            'important_information_title' => $request->importantInformationTitle(),
             'important_information_html' => $this->sanitizeWysiwygField($request->importantInformationHtml()),
         ];
     }
@@ -155,72 +161,6 @@ class CmsDanceService implements ICmsDanceService
     private function sanitizeWysiwygField(string $value): string
     {
         return $this->htmlSanitizer->sanitizeWysiwygHtml($value);
-    }
-
-    private function validateHomePageInput(array $input): void
-    {
-        if ($input['page_title'] === '') {
-            throw new \InvalidArgumentException('Browser tab title is required.');
-        }
-
-        if ($input['schedule_title'] === '') {
-            throw new \InvalidArgumentException('Schedule title is required.');
-        }
-
-        if ($input['banner_title'] === '') {
-            throw new \InvalidArgumentException('Banner title is required.');
-        }
-
-        if ($input['banner_description'] === '') {
-            throw new \InvalidArgumentException('Banner description is required.');
-        }
-
-        if ($input['important_information_title'] === '' || $input['important_information_html'] === '') {
-            throw new \InvalidArgumentException('Important information is required.');
-        }
-
-        if ($input['passes_title'] === '' || count($input['pass_items']) === 0) {
-            throw new \InvalidArgumentException('At least one pass row is required.');
-        }
-
-        if ($input['capacity_title'] === '' || $input['capacity_html'] === '') {
-            throw new \InvalidArgumentException('Capacity content is required.');
-        }
-
-        if ($input['special_title'] === '' || $input['special_html'] === '') {
-            throw new \InvalidArgumentException('Special session content is required.');
-        }
-    }
-
-    private function validateDetailPageInput(array $input): void
-    {
-        if ($input['page_title'] === '') {
-            throw new \InvalidArgumentException('Browser tab title is required.');
-        }
-
-        if ($input['hero_title'] === '') {
-            throw new \InvalidArgumentException('Hero title is required.');
-        }
-
-        if ($input['hero_subtitle'] === '') {
-            throw new \InvalidArgumentException('Hero subtitle is required.');
-        }
-
-        if (count($input['hero_images']) === 0) {
-            throw new \InvalidArgumentException('At least one hero image row is required.');
-        }
-
-        if ($input['highlights_title'] === '' || count($input['highlights']) === 0) {
-            throw new \InvalidArgumentException('At least one highlight is required.');
-        }
-
-        if ($input['tracks_title'] === '' || count($input['tracks']) === 0) {
-            throw new \InvalidArgumentException('At least one track is required.');
-        }
-
-        if ($input['important_information_title'] === '' || $input['important_information_html'] === '') {
-            throw new \InvalidArgumentException('Important information is required.');
-        }
     }
 
     private function buildDanceHomePage(array $input): Page
@@ -271,9 +211,8 @@ class CmsDanceService implements ICmsDanceService
         }
     }
 
-    private function getExistingTrackAudioUrlsByItemId(string $pageSlug): array
+    private function getExistingTrackAudioUrlsByItemId(Page $page): array
     {
-        $page = $this->pageService->getPageBySlug($pageSlug, 'Dance Detail Content');
         $tracksSection = $page->getSection('dance_detail_tracks');
         if ($tracksSection === null) {
             return [];
@@ -293,60 +232,24 @@ class CmsDanceService implements ICmsDanceService
 
     private function persistDanceHomePage(Page $page): void
     {
-        $pageId = $this->pageRepository->findPageIdBySlug('dance-home');
-        if ($pageId === null) {
-            throw new \RuntimeException('Dance home page not found.');
-        }
-
-        $scheduleSection = $page->getSection('dance_schedule');
-        $bannerSection = $page->getSection('dance_banner');
-        $infoSection = $page->getSection('dance_info');
-        $passesSection = $page->getSection('dance_passes');
-        $capacitySection = $page->getSection('dance_capacity');
-        $specialSection = $page->getSection('dance_special_session');
-
-        if ($scheduleSection === null || $bannerSection === null || $infoSection === null || $passesSection === null || $capacitySection === null || $specialSection === null) {
-            throw new \RuntimeException('Required dance sections are missing.');
-        }
-
-        $this->pageRepository->updatePageName($pageId, $page->title);
-        $this->pageRepository->saveOrUpdateSection($pageId, 'dance_schedule', $scheduleSection->title, null, null, 5);
-        $this->pageRepository->saveOrUpdateSection($pageId, 'dance_banner', $bannerSection->title, $bannerSection->subTitle, $bannerSection->description, 10);
-        $this->pageRepository->saveOrUpdateSection($pageId, 'dance_info', $infoSection->title, null, $infoSection->description, 20);
-
-        $passesSectionId = $this->pageRepository->saveOrUpdateSection($pageId, 'dance_passes', $passesSection->title, null, null, 40);
-        $this->pageRepository->saveOrUpdateSectionItems($passesSectionId, $this->cmsDanceMapper->mapPassRows($passesSection->items));
-
-        $this->pageRepository->saveOrUpdateSection($pageId, 'dance_capacity', $capacitySection->title, null, $capacitySection->description, 50);
-        $this->pageRepository->saveOrUpdateSection($pageId, 'dance_special_session', $specialSection->title, null, $specialSection->description, 60);
+        $this->pageSaveService->savePageContentBySlug(
+            'dance-home',
+            $page->title,
+            $this->cmsDanceMapper->mapHomeSectionsForSave($page),
+            'Dance home page not found.'
+        );
     }
 
-    private function persistDanceDetailPage(string $pageSlug, Page $page): void
+    private function persistDanceDetailPage(Page $page): void
     {
-        $pageId = $this->pageRepository->findPageIdBySlug($pageSlug);
-        if ($pageId === null) {
+        if ($page->id <= 0) {
             throw new \RuntimeException('Dance detail page not found.');
         }
 
-        $heroSection = $page->getSection('dance_detail_hero');
-        $highlightsSection = $page->getSection('dance_detail_highlights');
-        $tracksSection = $page->getSection('dance_detail_tracks');
-        $infoSection = $page->getSection('dance_detail_info');
-
-        if ($heroSection === null || $highlightsSection === null || $tracksSection === null || $infoSection === null) {
-            throw new \RuntimeException('Required dance detail sections are missing.');
-        }
-
-        $this->pageRepository->updatePageName($pageId, $page->title);
-        $heroSectionId = $this->pageRepository->saveOrUpdateSection($pageId, 'dance_detail_hero', $heroSection->title, $heroSection->subTitle, $heroSection->description, 10);
-        $this->pageRepository->saveOrUpdateSectionItems($heroSectionId, $this->cmsDanceMapper->mapHeroImageRows($heroSection->items));
-
-        $highlightsSectionId = $this->pageRepository->saveOrUpdateSection($pageId, 'dance_detail_highlights', $highlightsSection->title, null, null, 20);
-        $this->pageRepository->saveOrUpdateSectionItems($highlightsSectionId, $this->cmsDanceMapper->mapHighlightRows($highlightsSection->items));
-
-        $tracksSectionId = $this->pageRepository->saveOrUpdateSection($pageId, 'dance_detail_tracks', $tracksSection->title, null, $tracksSection->description, 30);
-        $this->pageRepository->saveOrUpdateSectionItems($tracksSectionId, $this->cmsDanceMapper->mapTrackRows($tracksSection->items));
-
-        $this->pageRepository->saveOrUpdateSection($pageId, 'dance_detail_info', $infoSection->title, null, $infoSection->description, 40);
+        $this->pageSaveService->savePageContent(
+            $page->id,
+            $page->title,
+            $this->cmsDanceMapper->mapDetailSectionsForSave($page)
+        );
     }
 }

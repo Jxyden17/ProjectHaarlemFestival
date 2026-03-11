@@ -6,6 +6,7 @@ use App\Mapper\CmsScheduleMapper;
 use App\Models\ViewModels\Cms\Schedule\ScheduleEditorViewModel;
 use App\Repository\Interfaces\IPageRepository;
 use App\Service\Cms\Interfaces\ICmsEventEditorService;
+use App\Service\Cms\Interfaces\ICmsPageSaveService;
 use App\Service\Interfaces\IScheduleService;
 
 class CmsEventEditorService implements ICmsEventEditorService
@@ -13,15 +14,18 @@ class CmsEventEditorService implements ICmsEventEditorService
     private IScheduleService $scheduleService;
     private CmsScheduleMapper $cmsScheduleMapper;
     private IPageRepository $pageRepository;
+    private ICmsPageSaveService $pageSaveService;
 
     public function __construct(
         IScheduleService $scheduleService,
         CmsScheduleMapper $cmsScheduleMapper,
-        IPageRepository $pageRepository
+        IPageRepository $pageRepository,
+        ICmsPageSaveService $pageSaveService
     ) {
         $this->scheduleService = $scheduleService;
         $this->cmsScheduleMapper = $cmsScheduleMapper;
         $this->pageRepository = $pageRepository;
+        $this->pageSaveService = $pageSaveService;
     }
 
     public function getEditorData(string $eventName): ScheduleEditorViewModel
@@ -68,6 +72,7 @@ class CmsEventEditorService implements ICmsEventEditorService
     public function savePageContent(int $pageId, array $sections, array $items): void
     {
         $existingItems = $this->loadExistingItemMetadata($pageId);
+        $normalizedSections = [];
         $sectionOrder = 0;
 
         foreach ($sections as $sectionType => $sectionData) {
@@ -75,22 +80,20 @@ class CmsEventEditorService implements ICmsEventEditorService
                 continue;
             }
 
-            $sectionId = $this->pageRepository->saveOrUpdateSection(
-                $pageId,
-                (string) $sectionType,
-                $this->normalizeOptionalString($sectionData['title'] ?? null),
-                $this->normalizeOptionalString($sectionData['subtitle'] ?? $sectionData['subTitle'] ?? null),
-                $this->normalizeOptionalString($sectionData['description'] ?? null),
-                $sectionOrder++
-            );
-
             $sectionItems = is_array($items[$sectionType] ?? null) ? $items[$sectionType] : [];
             $normalizedItems = $this->normalizeSectionItems($sectionItems, $existingItems);
 
-            if ($normalizedItems !== []) {
-                $this->pageRepository->saveOrUpdateSectionItems($sectionId, $normalizedItems);
-            }
+            $normalizedSections[] = [
+                'type' => (string) $sectionType,
+                'title' => $this->normalizeOptionalString($sectionData['title'] ?? null),
+                'subtitle' => $this->normalizeOptionalString($sectionData['subtitle'] ?? $sectionData['subTitle'] ?? null),
+                'description' => $this->normalizeOptionalString($sectionData['description'] ?? null),
+                'order_index' => $sectionOrder++,
+                'items' => $normalizedItems,
+            ];
         }
+
+        $this->pageSaveService->savePageContent($pageId, null, $normalizedSections);
     }
 
     private function loadExistingItemMetadata(int $pageId): array
