@@ -39,8 +39,7 @@ class DanceMapper
             isset($row['performer_id']) ? (int)$row['performer_id'] : null,
             (int)$row['page_id'],
             (string)($row['page_slug'] ?? ''),
-            (string)($row['public_slug'] ?? ''),
-            (string)($row['cms_slug'] ?? ''),
+            (string)($row['detail_slug'] ?? ''),
             (string)($row['entity_type'] ?? 'performer'),
             (int)($row['display_order'] ?? 0),
             isset($row['performer_name']) ? (string)$row['performer_name'] : null

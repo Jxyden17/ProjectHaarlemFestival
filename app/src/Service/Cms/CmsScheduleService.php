@@ -12,14 +12,17 @@ use App\Models\Requests\Cms\Schedule\ScheduleSessionRowRequest;
 use App\Models\Requests\Cms\Schedule\ScheduleVenueRowRequest;
 use App\Repository\Interfaces\IScheduleRepository;
 use App\Service\Cms\Interfaces\ICmsScheduleService;
+use App\Validator\Cms\CmsScheduleValidator;
 
 class CmsScheduleService implements ICmsScheduleService
 {
     private IScheduleRepository $scheduleRepo;
+    private CmsScheduleValidator $scheduleValidator;
 
-    public function __construct(IScheduleRepository $scheduleRepo)
+    public function __construct(IScheduleRepository $scheduleRepo, CmsScheduleValidator $scheduleValidator)
     {
         $this->scheduleRepo = $scheduleRepo;
+        $this->scheduleValidator = $scheduleValidator;
     }
 
     public function saveScheduleData(string $eventName, ScheduleSaveCommand $command): void
@@ -42,9 +45,7 @@ class CmsScheduleService implements ICmsScheduleService
             $allowedSessionIds
         );
 
-        if (count($sessionRows) === 0) {
-            throw new \InvalidArgumentException('No schedule rows were provided.');
-        }
+        $this->scheduleValidator->validateSessionRowsNotEmpty($sessionRows);
 
         $this->scheduleRepo->saveEventScheduleData(
             (int)$event->id,
@@ -118,9 +119,7 @@ class CmsScheduleService implements ICmsScheduleService
             $address = $row->address();
             $type = $row->type();
 
-            if ($id <= 0 || $name === '') {
-                throw new \InvalidArgumentException('Each venue row requires id and venue name.');
-            }
+            $this->scheduleValidator->validateVenueRow($id, $name);
 
             $normalizedRows[] = [
                 'id' => $id,
@@ -136,6 +135,7 @@ class CmsScheduleService implements ICmsScheduleService
     private function normalizePerformerRows(array $rows): array
     {
         $normalizedRows = [];
+        $seenSlugs = [];
 
         foreach ($rows as $row) {
             if (!$row instanceof SchedulePerformerRowRequest) {
@@ -147,19 +147,35 @@ class CmsScheduleService implements ICmsScheduleService
             $type = $row->type();
             $description = $row->description();
 
-            if ($id <= 0 || $name === '') {
-                throw new \InvalidArgumentException('Each performer row requires id and name.');
-            }
+            $slug = $this->normalizeSlug($name);
+            $this->scheduleValidator->validatePerformerRow($id, $name, $slug, $seenSlugs);
+
+            $seenSlugs[$slug] = true;
 
             $normalizedRows[] = [
                 'id' => $id,
                 'performer_name' => $name,
+                'detail_slug' => $slug,
                 'performer_type' => $type !== '' ? $type : null,
                 'description' => $description !== '' ? $description : null,
             ];
         }
 
         return $normalizedRows;
+    }
+
+    private function normalizeSlug(string $value): string
+    {
+        $slug = trim($value);
+        $transliterated = @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $slug);
+        if ($transliterated !== false) {
+            $slug = $transliterated;
+        }
+
+        $slug = strtolower($slug);
+        $slug = preg_replace('/[^a-z0-9]+/', '-', $slug) ?? '';
+
+        return trim($slug, '-');
     }
 
     private function normalizeSessionRows(
@@ -209,38 +225,19 @@ class CmsScheduleService implements ICmsScheduleService
         $spots = $row->availableSpots();
         $amountSold = $row->amountSold();
 
-        if ($id <= 0 || $venueId <= 0 || $date === '' || $startTime === '' || $priceRaw === '') {
-            throw new \InvalidArgumentException('All schedule rows must include id, venue, date, time, and price.');
-        }
-
-        if (!in_array($id, $allowedSessionIds, true)) {
-            throw new \InvalidArgumentException('One or more session ids are invalid for this event.');
-        }
-
-        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
-            throw new \InvalidArgumentException('Date must be in YYYY-MM-DD format.');
-        }
-
-        if (!preg_match('/^\d{2}:\d{2}$/', $startTime)) {
-            throw new \InvalidArgumentException('Start time must be in HH:MM format.');
-        }
-
-        if (!in_array($venueId, $allowedVenueIds, true)) {
-            throw new \InvalidArgumentException('Selected venue is not valid for this event.');
-        }
-
-        if (!is_numeric($priceRaw)) {
-            throw new \InvalidArgumentException('Price must be numeric.');
-        }
+        $this->scheduleValidator->validateSessionRow(
+            $id,
+            $venueId,
+            $date,
+            $startTime,
+            $priceRaw,
+            $spots,
+            $amountSold,
+            $allowedVenueIds,
+            $allowedSessionIds
+        );
 
         $price = (float)$priceRaw;
-        if ($price < 0) {
-            throw new \InvalidArgumentException('Price cannot be negative.');
-        }
-
-        if ($spots < $amountSold) {
-            throw new \InvalidArgumentException('Available spots cannot be lower than amount sold.');
-        }
 
         return [
             'id' => $id,
@@ -267,9 +264,7 @@ class CmsScheduleService implements ICmsScheduleService
                 continue;
             }
 
-            if (!in_array($performerId, $allowedPerformerIds, true)) {
-                throw new \InvalidArgumentException('One or more selected performers are invalid for this event.');
-            }
+            $this->scheduleValidator->validatePerformerIdAllowed($performerId, $allowedPerformerIds);
 
             $key = $sessionId . '-' . $performerId;
             if (isset($seenSessionPerformer[$key])) {

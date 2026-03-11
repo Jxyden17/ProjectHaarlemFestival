@@ -6,6 +6,7 @@ use App\Models\Event\EventDetailPageModel;
 use App\Models\Event\EventModel;
 use App\Models\Page\Page;
 use App\Repository\Interfaces\IDanceRepository;
+use App\Repository\Interfaces\IScheduleRepository;
 use App\Service\Interfaces\IDanceService;
 use App\Service\Interfaces\IPageService;
 
@@ -14,11 +15,17 @@ class DanceService implements IDanceService
     private const DANCE_EVENT_NAME = 'Dance';
 
     private IDanceRepository $danceRepository;
+    private IScheduleRepository $scheduleRepository;
     private IPageService $pageService;
 
-    public function __construct(IDanceRepository $danceRepository, IPageService $pageService)
+    public function __construct(
+        IDanceRepository $danceRepository,
+        IScheduleRepository $scheduleRepository,
+        IPageService $pageService
+    )
     {
         $this->danceRepository = $danceRepository;
+        $this->scheduleRepository = $scheduleRepository;
         $this->pageService = $pageService;
     }
 
@@ -29,7 +36,7 @@ class DanceService implements IDanceService
             return [];
         }
 
-        return $this->danceRepository->getVenuesByEventId($event->id);
+        return $this->scheduleRepository->getVenuesByEventId($event->id);
     }
 
     public function getDancePerformers(): array
@@ -39,7 +46,7 @@ class DanceService implements IDanceService
             return [];
         }
 
-        return $this->danceRepository->getPerformersByEventId($event->id);
+        return $this->scheduleRepository->getPerformersByEventId($event->id);
     }
 
     public function getDanceIndexData(): array
@@ -47,8 +54,8 @@ class DanceService implements IDanceService
         $event = $this->getDanceEvent();
         
         return [
-            'venues' => $this->danceRepository->getVenuesByEventId($event->id),
-            'performers' => $this->danceRepository->getPerformersByEventId($event->id),
+            'venues' => $this->scheduleRepository->getVenuesByEventId($event->id),
+            'performers' => $this->scheduleRepository->getPerformersByEventId($event->id),
             'detailPages' => $this->danceRepository->getDetailPagesByEventId($event->id),
         ];
     }
@@ -63,9 +70,9 @@ class DanceService implements IDanceService
         return $this->pageService->getPageBySlug($slug, 'Dance Detail');
     }
 
-    public function getDanceDetailPageByPublicSlug(string $publicSlug): ?EventDetailPageModel
+    public function getDanceDetailPageBySlug(string $detailSlug): ?EventDetailPageModel
     {
-        return $this->danceRepository->findDetailPageByPublicSlug($publicSlug);
+        return $this->danceRepository->findDetailPageBySlug($detailSlug);
     }
 
     public function getPublishedDanceDetailPages(): array
@@ -93,6 +100,6 @@ class DanceService implements IDanceService
 
     private function getDanceEvent(): ?EventModel
     {
-        return $this->danceRepository->findEventByName(self::DANCE_EVENT_NAME);
+        return $this->scheduleRepository->findEventByName(self::DANCE_EVENT_NAME);
     }
 }

@@ -19,16 +19,18 @@ class DanceController extends BaseController
 
     public function index(): void
     {
+        $danceIndexViewModel = $this->danceViewModelMapper->buildIndexViewModel();
+
         $this->render('dance/index', [
-            'title' => 'Dance',
-            'danceIndexViewModel' => $this->danceViewModelMapper->buildIndexViewModel(),
+            'title' => $danceIndexViewModel->pageTitle,
+            'danceIndexViewModel' => $danceIndexViewModel,
         ]);
     }
 
     public function detail(array $vars = []): void
     {
-        $publicSlug = trim((string)($vars['detailSlug'] ?? ''));
-        $detailMeta = $this->danceService->getDanceDetailPageByPublicSlug($publicSlug);
+        $detailSlug = trim((string)($vars['detailSlug'] ?? ''));
+        $detailMeta = $this->danceService->getDanceDetailPageBySlug($detailSlug);
 
         if (!$detailMeta instanceof EventDetailPageModel) {
             http_response_code(404);
@@ -39,7 +41,7 @@ class DanceController extends BaseController
         $detailViewModel = $this->danceViewModelMapper->buildDetailViewModel($detailMeta);
 
         $this->render('dance/detail', [
-            'title' => $detailViewModel->performerName === '' ? 'Dance Detail' : $detailViewModel->performerName,
+            'title' => $detailViewModel->pageTitle,
             'danceDetailViewModel' => $detailViewModel,
         ]);
     }
