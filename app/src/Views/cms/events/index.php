@@ -1,3 +1,9 @@
+<?php
+use App\Models\Event\EventDetailPageModel;
+
+$danceDetailPages = is_array($danceDetailPages ?? null) ? $danceDetailPages : [];
+?>
+
 <div class="container py-4">
     <div class="mb-3">
         <h1 class="h3 mb-1">Event Management</h1>
@@ -21,8 +27,12 @@
                     <div class="d-grid gap-2 d-md-flex flex-wrap">
                         <a href="/cms/events/dance/schedule" class="btn btn-outline-primary">Edit Schedule</a>
                         <a href="/cms/events/dance-home" class="btn btn-primary">Edit Home Content</a>
-                        <a href="/cms/events/dance-detail/martingarrix" class="btn btn-outline-primary">Edit Martin Garrix</a>
-                        <a href="/cms/events/dance-detail/tiesto" class="btn btn-outline-primary">Edit Tiesto</a>
+                        <?php foreach ($danceDetailPages as $detailPage): ?>
+                            <?php if (!$detailPage instanceof EventDetailPageModel || trim((string)$detailPage->cmsSlug) === '') { continue; } ?>
+                            <a href="/cms/events/dance-detail/<?= rawurlencode($detailPage->cmsSlug) ?>" class="btn btn-outline-primary">
+                                Edit <?= htmlspecialchars(trim((string)($detailPage->performerName ?? '')) !== '' ? (string)$detailPage->performerName : $detailPage->cmsSlug) ?>
+                            </a>
+                        <?php endforeach; ?>
                     </div>
                 </div>
             </div>

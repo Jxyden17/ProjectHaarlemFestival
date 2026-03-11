@@ -71,7 +71,7 @@ try {
     $yummyController = new App\Controllers\YummyController($yummyService);
 
     $cmsController = new App\Controllers\Cms\CmsController($cmsService);
-    $cmsEventsController = new App\Controllers\Cms\CmsEventsController($cmsService);
+    $cmsEventsController = new App\Controllers\Cms\CmsEventsController($cmsService, $danceService);
     $cmsTicketsController = new App\Controllers\Cms\CmsTicketsController($cmsService);
     $cmsUsersController = new App\Controllers\Cms\CmsUsersController($cmsService);
     $jazzController = new App\Controllers\JazzController($scheduleService, $jazzService);

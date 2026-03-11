@@ -86,13 +86,14 @@ class CmsDanceService implements ICmsDanceService
         $highlights = $page->getSection('dance_detail_highlights');
         $tracks = $page->getSection('dance_detail_tracks');
         $info = $page->getSection('dance_detail_info');
+        $performerName = $this->resolveDetailPerformerName($meta, $hero);
 
         return new DanceDetailContentViewModel(
             $meta->cmsSlug,
             $this->buildEditorTitle($meta),
             $meta->getPublicPath(),
-            (string)($meta->performerName ?? ''),
-            $hero !== null ? $hero->title : (string)($meta->performerName ?? ''),
+            $performerName,
+            $performerName,
             $hero !== null ? (string)$hero->subTitle : '',
             $hero !== null ? (string)$hero->description : '',
             $this->cmsDanceMapper->mapHeroImageViewModels($hero),
@@ -139,6 +140,16 @@ class CmsDanceService implements ICmsDanceService
         }
 
         return $performerName . ' Detail Content';
+    }
+
+     private function resolveDetailPerformerName(EventDetailPageModel $meta, ?Section $hero): string
+    {
+        $performerName = trim((string)($meta->performerName ?? ''));
+        if ($performerName !== '') {
+            return $performerName;
+        }
+
+        return $hero === null ? '' : trim((string)$hero->title);
     }
 
     private function normalizeHomePageInput(DanceHomeContentRequest $request): array

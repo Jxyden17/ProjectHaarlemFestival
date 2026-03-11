@@ -200,6 +200,7 @@ class ScheduleRepository implements IScheduleRepository
         try {
             $this->updateEventVenues($eventId, $venueRows);
             $this->updateEventPerformers($eventId, $performerRows);
+            $this->syncDetailPageSlugsToPerformers($eventId, $performerRows);
             $this->updateEventSessions($eventId, $sessionRows);
             $this->replaceEventSessionPerformers($eventId, $sessionPerformerRows);
             $this->db->commit();
@@ -306,5 +307,41 @@ class ScheduleRepository implements IScheduleRepository
                 ':performer_id' => $row['performer_id'],
             ]);
         }
+    }
+     private function syncDetailPageSlugsToPerformers(int $eventId, array $performerRows): void
+    {
+        if ($performerRows === []) {
+            return;
+        }
+
+        $update = $this->db->prepare(
+            'UPDATE event_detail_pages
+             SET public_slug = :public_slug,
+                 cms_slug = :cms_slug
+             WHERE event_id = :event_id
+               AND performer_id = :performer_id'
+        );
+
+        foreach ($performerRows as $row) {
+            $slug = $this->normalizeSlug((string)($row['performer_name'] ?? ''));
+            if ($slug === '') {
+                continue;
+            }
+
+            $update->execute([
+                ':public_slug' => $slug,
+                ':cms_slug' => $slug,
+                ':event_id' => $eventId,
+                ':performer_id' => (int)$row['id'],
+            ]);
+        }
+    }
+
+    private function normalizeSlug(string $value): string
+    {
+        $slug = strtolower(trim($value));
+        $slug = preg_replace('/[^a-z0-9]+/', '-', $slug) ?? '';
+
+        return trim($slug, '-');
     }
 }

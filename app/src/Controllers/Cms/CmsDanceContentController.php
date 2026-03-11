@@ -167,7 +167,7 @@ class CmsDanceContentController extends BaseController
             $baseViewModel->editorTitle,
             $baseViewModel->publicPath,
             $baseViewModel->performerName,
-            $request->heroTitle(),
+            $baseViewModel->performerName,
             $request->heroBadge(),
             $request->heroSubtitle(),
             $heroImages,

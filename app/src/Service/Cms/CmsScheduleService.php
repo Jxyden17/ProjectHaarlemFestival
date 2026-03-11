@@ -136,6 +136,7 @@ class CmsScheduleService implements ICmsScheduleService
     private function normalizePerformerRows(array $rows): array
     {
         $normalizedRows = [];
+        $seenSlugs = [];
 
         foreach ($rows as $row) {
             if (!$row instanceof SchedulePerformerRowRequest) {
@@ -151,6 +152,17 @@ class CmsScheduleService implements ICmsScheduleService
                 throw new \InvalidArgumentException('Each performer row requires id and name.');
             }
 
+            $slug = $this->normalizeSlug($name);
+            if ($slug === '') {
+                throw new \InvalidArgumentException('Each performer name must contain letters or numbers.');
+            }
+
+            if (isset($seenSlugs[$slug])) {
+                throw new \InvalidArgumentException('Performer names must produce unique slugs for detail pages.');
+            }
+
+            $seenSlugs[$slug] = true;
+
             $normalizedRows[] = [
                 'id' => $id,
                 'performer_name' => $name,
@@ -160,6 +172,14 @@ class CmsScheduleService implements ICmsScheduleService
         }
 
         return $normalizedRows;
+    }
+
+    private function normalizeSlug(string $value): string
+    {
+        $slug = strtolower(trim($value));
+        $slug = preg_replace('/[^a-z0-9]+/', '-', $slug) ?? '';
+
+        return trim($slug, '-');
     }
 
     private function normalizeSessionRows(
