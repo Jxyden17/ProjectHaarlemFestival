@@ -10,7 +10,7 @@ if (!$scheduleData instanceof ScheduleViewModel) {
     return;
 }
 
-$title = $scheduleData->title;
+$scheduleHeading = $scheduleData->title;
 $eventName = $scheduleData->eventName ?? '';
 $normalizedEventName = strtolower(trim($eventName));
 
@@ -51,7 +51,7 @@ if ($scheduleSectionClass !== '') {
                 <?php if ($scheduleTitleIcon !== ''): ?>
                     <i data-lucide="<?= htmlspecialchars($scheduleTitleIcon) ?>" aria-hidden="true"></i>
                 <?php endif; ?>
-                <?= htmlspecialchars($title) ?>
+                <?= htmlspecialchars($scheduleHeading) ?>
             </h2>
         </div>
 

@@ -6,7 +6,7 @@ use App\Models\ViewModels\Cms\Dance\DanceDetailTrackRowViewModel;
 
 $contentViewModel = (isset($contentViewModel) && $contentViewModel instanceof DanceDetailContentViewModel)
     ? $contentViewModel
-    : new DanceDetailContentViewModel('', 'Dance Detail Content', '', '', '', '', '', [], '', [], '', '', [], '', '');
+    : new DanceDetailContentViewModel('', 'Dance Detail Content', '', '', '', '', '', '', [], '', [], '', '', [], '', '');
 $heroImages = $contentViewModel->heroImages;
 $highlights = $contentViewModel->highlights;
 $tracks = $contentViewModel->tracks;
@@ -33,6 +33,14 @@ $detailTrackAudioModule = $contentViewModel->detailSlug === '' ? '' : 'dance_det
 
     <form method="POST" action="<?= htmlspecialchars($formAction) ?>" class="card border-0 shadow-sm" data-quill-form="1" data-image-upload-module="<?= htmlspecialchars($detailMediaModule) ?>">
         <div class="card-body p-4">
+            <h2 class="h5">Page</h2>
+            <div class="mb-3">
+                <label for="page_title" class="form-label">Browser Tab Title</label>
+                <input type="text" id="page_title" name="page_title" class="form-control" value="<?= htmlspecialchars($contentViewModel->pageTitle) ?>" required>
+            </div>
+
+            <hr>
+
             <h2 class="h5">Hero</h2>
             <div class="mb-3">
                 <label for="hero_title" class="form-label">Performer Name</label>

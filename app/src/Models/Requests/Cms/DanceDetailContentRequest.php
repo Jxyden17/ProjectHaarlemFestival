@@ -8,6 +8,7 @@ use App\Models\Requests\Cms\Dance\DanceDetailTrackRowRequest;
 
 class DanceDetailContentRequest
 {
+    private string $pageTitle;
     private string $heroTitle;
     private string $heroBadge;
     private string $heroSubtitle;
@@ -21,6 +22,7 @@ class DanceDetailContentRequest
     private string $importantInformationHtml;
 
     private function __construct(
+        string $pageTitle,
         string $heroTitle,
         string $heroBadge,
         string $heroSubtitle,
@@ -33,6 +35,7 @@ class DanceDetailContentRequest
         string $importantInformationTitle,
         string $importantInformationHtml
     ) {
+        $this->pageTitle = $pageTitle;
         $this->heroTitle = $heroTitle;
         $this->heroBadge = $heroBadge;
         $this->heroSubtitle = $heroSubtitle;
@@ -49,6 +52,7 @@ class DanceDetailContentRequest
     public static function fromArray(array $input): self
     {
         return new self(
+            trim((string)($input['page_title'] ?? '')),
             trim((string)($input['hero_title'] ?? '')),
             trim((string)($input['hero_badge'] ?? '')),
             trim((string)($input['hero_subtitle'] ?? '')),
@@ -62,6 +66,8 @@ class DanceDetailContentRequest
             trim((string)($input['important_information_html'] ?? ''))
         );
     }
+
+    public function pageTitle(): string { return $this->pageTitle; }
 
     private static function mapHeroImages(array $input): array
     {
