@@ -2,7 +2,6 @@
 
 namespace App\Models\Requests\Cms;
 
-use App\Models\Commands\Cms\Dance\DanceHomeSaveCommand;
 use App\Models\Requests\Cms\Dance\DanceHomeArtistRowRequest;
 use App\Models\Requests\Cms\Dance\DanceHomePassRowRequest;
 
@@ -171,25 +170,5 @@ class DanceHomeContentRequest
     public function specialHtml(): string
     {
         return trim($this->specialHtml);
-    }
-
-    public function toSaveCommand(): DanceHomeSaveCommand
-    {
-        return new DanceHomeSaveCommand(
-            $this->scheduleTitle(),
-            $this->bannerBadge(),
-            $this->bannerTitle(),
-            $this->bannerDescription(),
-            $this->artistsTitle(),
-            $this->artists(),
-            $this->importantInformationTitle(),
-            $this->importantInformationHtml(),
-            $this->passesTitle(),
-            $this->passes(),
-            $this->capacityTitle(),
-            $this->capacityHtml(),
-            $this->specialTitle(),
-            $this->specialHtml()
-        );
     }
 }

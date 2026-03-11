@@ -1,6 +1,5 @@
 <?php
 use App\Models\ViewModels\Dance\DanceIndexViewModel;
-use App\Models\Page\Page;
 
 $danceIndexViewModel = $danceIndexViewModel ?? null;
 
@@ -9,26 +8,25 @@ if (!$danceIndexViewModel instanceof DanceIndexViewModel) {
 }
 
 $scheduleData = $danceIndexViewModel->schedule;
-$danceBannerStats = $danceIndexViewModel->bannerStats;
 $venues = $danceIndexViewModel->venues;
-$dancePerformers = $danceIndexViewModel->performers;
-$danceHomePage = $danceIndexViewModel->homeContent;
 
-if (!$danceHomePage instanceof Page) {
-    return;
-}
-
-$danceBannerSection = $danceHomePage->getSection('dance_banner');
-$danceArtistsSection = $danceHomePage->getSection('dance_artists');
-$danceInfoSection = $danceHomePage->getSection('dance_info');
-$dancePassesSection = $danceHomePage->getSection('dance_passes');
-$danceCapacitySection = $danceHomePage->getSection('dance_capacity');
-$danceSpecialSection = $danceHomePage->getSection('dance_special_session');
+$danceIndexScheduleClass = 'schedule--dance-index';
+$danceIndexScheduleTitleIcon = 'calendar-days';
+$danceIndexScheduleHasIcons = true;
+$danceEventInfoSectionClass = 'dance-event-info--dance-index';
 ?>
 
 <link href="/css/Dance/dance-index.css" rel="stylesheet">
 
 <?php require __DIR__ . '/../partialsViews/dance/dance-banner.php'; ?>
 <?php require __DIR__ . '/../partialsViews/dance/dance-featured-artists.php'; ?>
-<?php require __DIR__ . '/../partialsViews/schedule.php'; ?>
-<?php require __DIR__ . '/../partialsViews/dance/dance-event-info.php'; ?>
+<?php
+$scheduleSectionClass = $danceIndexScheduleClass;
+$scheduleTitleIcon = $danceIndexScheduleTitleIcon;
+$scheduleHasIcons = $danceIndexScheduleHasIcons;
+require __DIR__ . '/../partialsViews/schedule.php';
+?>
+<?php
+$danceEventInfoClass = $danceEventInfoSectionClass;
+require __DIR__ . '/../partialsViews/dance/dance-event-info.php';
+?>

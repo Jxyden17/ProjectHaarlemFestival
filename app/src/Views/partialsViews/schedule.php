@@ -2,6 +2,9 @@
 use App\Models\ViewModels\Shared\ScheduleViewModel;
 
 $scheduleData = $scheduleData ?? null;
+$scheduleSectionClass = is_string($scheduleSectionClass ?? null) ? trim((string) $scheduleSectionClass) : '';
+$scheduleTitleIcon = trim((string) ($scheduleTitleIcon ?? ''));
+$scheduleHasIcons = filter_var($scheduleHasIcons ?? false, FILTER_VALIDATE_BOOLEAN);
 
 if (!$scheduleData instanceof ScheduleViewModel) {
     return;
@@ -32,18 +35,24 @@ $eventFilters = $scheduleData->eventFilters ?? [];
 $hasEventFilters = !empty($eventFilters);
 $groups = $scheduleData->groups;
 
-$layoutClass = ($isTour || $isStories)
-    ? 'tour'
-    : ($isHome ? 'home' : 'default');
+$layoutClass = ($isTour || $isStories) ? 'tour' : ($isHome ? 'home' : 'default');
+$sectionClasses = ['schedule-section', 'schedule-variant-' . $layoutClass];
+if ($scheduleSectionClass !== '') {
+    $sectionClasses[] = $scheduleSectionClass;
+}
 ?>
 
 <link rel="stylesheet" href="/css/partialViews/schedule.css">
 
-<section class="schedule-section schedule-variant-<?= htmlspecialchars($layoutClass) ?>">
-
+<section class="<?= htmlspecialchars(implode(' ', $sectionClasses)) ?>">
     <div class="schedule-container">
         <div class="schedule-header">
-            <h2 class="schedule-title"><?= htmlspecialchars($title) ?></h2>
+            <h2 class="schedule-title<?= $scheduleTitleIcon === '' ? '' : ' schedule-title--with-icon' ?>">
+                <?php if ($scheduleTitleIcon !== ''): ?>
+                    <i data-lucide="<?= htmlspecialchars($scheduleTitleIcon) ?>" aria-hidden="true"></i>
+                <?php endif; ?>
+                <?= htmlspecialchars($title) ?>
+            </h2>
         </div>
 
         <?php if ($scheduleData->hasFilters): ?>
@@ -80,7 +89,7 @@ $layoutClass = ($isTour || $isStories)
             </div>
         <?php endif; ?>
 
-        <?php if ($isTour): ?>
+        <?php if ($showLanguageFilter): ?>
             <div class="schedule-language-filters">
                 <div class="schedule-filter-group">
                     <?php foreach ($scheduleData->languageFilters as $lfilter): ?>
@@ -110,10 +119,8 @@ $layoutClass = ($isTour || $isStories)
                     <div>DATE</div>
                     <div>TIME</div>
                     <div>LOCATION</div>
-                    <?php if ($isTour): ?>
-                        <div>LANGUAGE</div>
-                        <div>FREE SPOTS</div>
-                    <?php endif; ?>
+                    <div>LANGUAGE</div>
+                    <div>FREE SPOTS</div>
                     <div>PRICE</div>
                 <?php elseif ($isDance): ?>
                     <div>DATE</div>
@@ -132,28 +139,27 @@ $layoutClass = ($isTour || $isStories)
 
                     <?php foreach ($group->rows as $row): ?>
                         <?php
-                            $rowEventName = (string)($row->eventName ?? 'Other');
-                            $languageLabel = (string)($row->language ?? 'Unknown');
+                        $rowEventName = (string) ($row->eventName ?? 'Other');
+                        $languageLabel = (string) ($row->language ?? 'Unknown');
+                        $rowEventKey = strtolower(str_replace(' ', '', $rowEventName));
+                        if ($rowEventKey === '') {
+                            $rowEventKey = 'other';
+                        }
 
-                            $rowEventKey = strtolower($rowEventName);
-                            if ($rowEventKey === '') {
-                                $rowEventKey = 'other';
-                            }
+                        $languageSlug = strtolower(str_replace(' ', '', $languageLabel));
+                        if ($languageSlug === '') {
+                            $languageSlug = 'unknown';
+                        }
 
-                            $languageSlug = strtolower($languageLabel);
-                            if ($languageSlug === '') {
-                                $languageSlug = 'unknown';
-                            }
-
-                            $rowAttributes = [];
-                            if ($showLanguageFilter) {
-                                $rowAttributes[] = 'data-language="' . htmlspecialchars($languageSlug) . '"';
-                            }
-                            if ($isHome && $hasEventFilters) {
-                                $rowAttributes[] = 'data-event="' . htmlspecialchars($rowEventKey) . '"';
-                            }
+                        $rowAttributes = [];
+                        if ($showLanguageFilter) {
+                            $rowAttributes[] = 'data-language="' . htmlspecialchars($languageSlug) . '"';
+                        }
+                        if ($isHome && $hasEventFilters) {
+                            $rowAttributes[] = 'data-event="' . htmlspecialchars($rowEventKey) . '"';
+                        }
                         ?>
-                        <div class="schedule-row" <?= implode(' ', $rowAttributes) ?> >
+                        <div class="schedule-row" <?= implode(' ', $rowAttributes) ?>>
                             <?php if ($isHome): ?>
                                 <div>
                                     <span class="schedule-event-badge schedule-event-<?= htmlspecialchars($rowEventKey) ?>">
@@ -171,21 +177,33 @@ $layoutClass = ($isTour || $isStories)
                                 <div><?= htmlspecialchars($row->date) ?></div>
                                 <div><?= htmlspecialchars($row->time) ?></div>
                                 <div><?= htmlspecialchars($row->location) ?></div>
-                                <?php if ($showLanguageFilter): ?>
-
-                                    <div>
-                                        <span class="schedule-language-badge schedule-language-<?= htmlspecialchars($languageSlug) ?>">
-                                            <?= htmlspecialchars($languageLabel) ?>
-                                        </span>
-                                    </div>
-                                    <div><?= htmlspecialchars(($row->availableTickets) . '/' . ($row->totalTickets)) ?></div>
-                                <?php endif; ?>
+                                <div>
+                                    <span class="schedule-language-badge schedule-language-<?= htmlspecialchars($languageSlug) ?>">
+                                        <?= htmlspecialchars($languageLabel) ?>
+                                    </span>
+                                </div>
+                                <div><?= htmlspecialchars($row->availableTickets . '/' . $row->totalTickets) ?></div>
                                 <div class="schedule-price"><?= htmlspecialchars($row->price) ?></div>
                             <?php elseif ($isDance): ?>
-                                <div><?= htmlspecialchars($row->date) ?></div>
-                                <div><?= htmlspecialchars($row->time) ?></div>
+                                <div class="<?= $scheduleHasIcons ? 'schedule-cell schedule-cell--date' : '' ?>">
+                                    <?php if ($scheduleHasIcons): ?>
+                                        <span class="schedule-cell-icon"><i data-lucide="calendar" aria-hidden="true"></i></span>
+                                    <?php endif; ?>
+                                    <span><?= htmlspecialchars($row->date) ?></span>
+                                </div>
+                                <div class="<?= $scheduleHasIcons ? 'schedule-cell schedule-cell--time' : '' ?>">
+                                    <?php if ($scheduleHasIcons): ?>
+                                        <span class="schedule-cell-icon"><i data-lucide="clock-3" aria-hidden="true"></i></span>
+                                    <?php endif; ?>
+                                    <span><?= htmlspecialchars($row->time) ?></span>
+                                </div>
                                 <div><?= htmlspecialchars($row->event) ?></div>
-                                <div><?= htmlspecialchars($row->location) ?></div>
+                                <div class="<?= $scheduleHasIcons ? 'schedule-cell schedule-cell--location' : '' ?>">
+                                    <?php if ($scheduleHasIcons): ?>
+                                        <span class="schedule-cell-icon"><i data-lucide="map-pin" aria-hidden="true"></i></span>
+                                    <?php endif; ?>
+                                    <span><?= htmlspecialchars($row->location) ?></span>
+                                </div>
                                 <div class="schedule-price"><?= htmlspecialchars($row->price) ?></div>
                             <?php endif; ?>
                             <div>

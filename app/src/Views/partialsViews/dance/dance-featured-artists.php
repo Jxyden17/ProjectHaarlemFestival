@@ -1,23 +1,9 @@
 <?php
-use App\Models\Page\Section;
-use App\Models\Page\SectionItem;
-use App\Models\Event\PerformerModel;
-
-$danceArtistsSection = $danceArtistsSection ?? null;
-$dancePerformers = is_array($dancePerformers ?? null) ? $dancePerformers : [];
-
-if (!$danceArtistsSection instanceof Section) {
-    return;
-}
-
-$artistsTitle = $danceArtistsSection->title;
-$artistImageRows = array_values(array_filter(
-    $danceArtistsSection->getItemsByCategorie('artist'),
-    static fn($item) => $item instanceof SectionItem
-));
+$artistsTitle = trim((string)($danceIndexViewModel->artistsTitle ?? ''));
+$artistCards = is_array($danceIndexViewModel->artistCards ?? null) ? $danceIndexViewModel->artistCards : [];
 ?>
 
-<section class="dance-artists">
+<section class="dance-artists" id="dance-featured-artists">
     <div class="dance-artists-inner">
         <h2 class="dance-artists-title">
             <span class="dance-artists-title-icon">
@@ -27,33 +13,35 @@ $artistImageRows = array_values(array_filter(
         </h2>
 
         <div class="dance-artists-grid">
-            <?php foreach ($dancePerformers as $index => $performer): ?>
+            <?php foreach ($artistCards as $artistCard): ?>
                 <?php
-                if (!$performer instanceof PerformerModel) {
-                    continue;
-                }
-
-                $name = trim($performer->performerName);
-                if ($name === '') {
-                    continue;
-                }
-                $genre = trim((string)($performer->description ?? ''));
-                if ($genre === '') {
-                    $genre = 'DJ';
-                }
-                $imageRow = $artistImageRows[$index] ?? null;
-                $image = $imageRow instanceof SectionItem ? trim((string)($imageRow->image ?? '')) : '';
-                if ($image === '') {
+                $name = trim((string)($artistCard['name'] ?? ''));
+                $genre = trim((string)($artistCard['genre'] ?? ''));
+                $image = trim((string)($artistCard['image'] ?? ''));
+                $detailUrl = trim((string)($artistCard['detailUrl'] ?? ''));
+                if ($name === '' || $image === '') {
                     continue;
                 }
                 ?>
-                <article class="dance-artist-card">
-                    <img src="<?= htmlspecialchars($image) ?>" alt="<?= htmlspecialchars($name) ?>">
-                    <div class="dance-artist-card-content">
-                        <span class="dance-artist-card-genre"><?= htmlspecialchars($genre) ?></span>
-                        <h3 class="dance-artist-card-name"><?= htmlspecialchars($name) ?></h3>
-                    </div>
-                </article>
+                <?php if ($detailUrl !== ''): ?>
+                    <a class="dance-artist-card-link" href="<?= htmlspecialchars($detailUrl) ?>" aria-label="View details for <?= htmlspecialchars($name) ?>">
+                        <article class="dance-artist-card">
+                            <img src="<?= htmlspecialchars($image) ?>" alt="<?= htmlspecialchars($name) ?>">
+                            <div class="dance-artist-card-content">
+                                <span class="dance-artist-card-genre"><?= htmlspecialchars($genre) ?></span>
+                                <h3 class="dance-artist-card-name"><?= htmlspecialchars($name) ?></h3>
+                            </div>
+                        </article>
+                    </a>
+                <?php else: ?>
+                    <article class="dance-artist-card">
+                        <img src="<?= htmlspecialchars($image) ?>" alt="<?= htmlspecialchars($name) ?>">
+                        <div class="dance-artist-card-content">
+                            <span class="dance-artist-card-genre"><?= htmlspecialchars($genre) ?></span>
+                            <h3 class="dance-artist-card-name"><?= htmlspecialchars($name) ?></h3>
+                        </div>
+                    </article>
+                <?php endif; ?>
             <?php endforeach; ?>
         </div>
     </div>

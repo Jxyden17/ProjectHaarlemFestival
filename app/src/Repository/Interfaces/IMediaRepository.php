@@ -18,4 +18,19 @@ interface IMediaRepository
         string $sectionType,
         string $itemCategory
     ): ?int;
+
+    public function updateSectionItemLinkUrl(
+        int $sectionItemId,
+        string $linkUrl,
+        string $pageSlug,
+        string $sectionType,
+        string $itemCategory
+    ): bool;
+
+    public function findSectionItemIdByLinkUrl(
+        string $linkUrl,
+        string $pageSlug,
+        string $sectionType,
+        string $itemCategory
+    ): ?int;
 }

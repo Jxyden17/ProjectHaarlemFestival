@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\Interfaces;
+namespace App\Service\Cms\Interfaces;
 
 use App\Models\ViewModels\Cms\Schedule\ScheduleEditorViewModel;
 

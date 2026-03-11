@@ -3,7 +3,7 @@
 namespace App\Controllers\Cms;
 
 use App\Controllers\BaseController;
-use App\Service\Interfaces\ICmsEventEditorService;
+use App\Service\Cms\Interfaces\ICmsEventEditorService;
 use App\Service\Interfaces\IPageService;
 
 class CmsTourContentController extends BaseController

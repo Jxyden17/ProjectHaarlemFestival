@@ -4,30 +4,52 @@ namespace App\Service;
 
 use App\Models\Media\MediaModuleConfig;
 use App\Models\Media\MediaUploadRequest;
+use App\Repository\Interfaces\IDanceRepository;
 use App\Repository\Interfaces\IMediaRepository;
 use App\Service\Interfaces\IMediaService;
 
 class MediaService implements IMediaService
 {
-    private IMediaRepository $mediaRepository;
+    private const TYPE_IMAGE = 'image';
+    private const TYPE_AUDIO = 'audio';
 
-    public function __construct(IMediaRepository $mediaRepository)
+    private IMediaRepository $mediaRepository;
+    private IDanceRepository $danceRepository;
+
+    public function __construct(IMediaRepository $mediaRepository, IDanceRepository $danceRepository)
     {
         $this->mediaRepository = $mediaRepository;
+        $this->danceRepository = $danceRepository;
     }
 
     public function uploadReplace(array $server, array $post, array $files): array
     {
+        return $this->handleUpload(self::TYPE_IMAGE, $server, $post, $files);
+    }
+
+    public function uploadAudio(array $server, array $post, array $files): array
+    {
+        return $this->handleUpload(self::TYPE_AUDIO, $server, $post, $files);
+    }
+
+    private function handleUpload(string $mediaType, array $server, array $post, array $files): array
+    {
         try {
-            $request = $this->buildUploadRequest($server, $post, $files);
-            $resolved = $this->resolveUploadTargetPaths($request->moduleConfig, $request->currentPath, $request->extension);
+            $request = $this->buildUploadRequest($mediaType, $server, $post, $files);
+            $resolved = $this->resolveTargetPaths(
+                $mediaType,
+                $request->moduleConfig,
+                $request->currentPath,
+                $request->extension,
+                $request->sectionItemId
+            );
             if ($resolved === null) {
                 throw new \RuntimeException('Target path is not allowed for this module', 400);
             }
 
             $this->moveUploadedFileToTarget($request->tmpPath, $resolved['absolute_target']);
             $this->removeOldFileWhenExtensionChanged($resolved);
-            $dbSyncStatus = $this->syncImagePathToDatabase($request, $resolved['public_path']);
+            $dbSyncStatus = $this->syncPathToDatabase($mediaType, $request, $resolved['public_path']);
             return $this->buildUploadSuccessResponse($request, $resolved['public_path'], $dbSyncStatus, $post);
         } catch (\RuntimeException $e) {
             $statusCode = (int)$e->getCode();
@@ -43,7 +65,7 @@ class MediaService implements IMediaService
                 ],
             ];
         } catch (\Throwable $e) {
-            $message = 'Image upload failed';
+            $message = ucfirst($mediaType) . ' upload failed';
             if ($this->isDebugMode()) {
                 $message .= ': ' . $e->getMessage();
             }
@@ -58,17 +80,22 @@ class MediaService implements IMediaService
         }
     }
 
-    private function buildUploadRequest(array $server, array $post, array $files): MediaUploadRequest
+    private function buildUploadRequest(string $mediaType, array $server, array $post, array $files): MediaUploadRequest
     {
         if (($server['REQUEST_METHOD'] ?? '') !== 'POST') {
             throw new \RuntimeException('Method not allowed', 405);
         }
 
-        $file = $this->extractUploadedImageFile($files);
         $moduleConfig = $this->resolveRequestModuleConfig($post);
-        $currentPath = $this->resolveCurrentPath($post);
-        $uploadFileInfo = $this->validateAndExtractUploadFileInfo($file);
-        $sectionItemId = $this->resolveSectionItemId($moduleConfig, $post, $currentPath);
+        $file = $this->extractUploadedFile($mediaType, $files);
+        $currentPath = $this->resolveCurrentPath($post, $mediaType === self::TYPE_IMAGE);
+        $uploadFileInfo = $this->validateAndExtractUploadFileInfo($mediaType, $file);
+        $sectionItemId = $this->resolveSectionItemId(
+            $moduleConfig,
+            $post,
+            $currentPath,
+            $mediaType === self::TYPE_AUDIO
+        );
 
         return new MediaUploadRequest(
             $moduleConfig,
@@ -79,13 +106,14 @@ class MediaService implements IMediaService
         );
     }
 
-    private function extractUploadedImageFile(array $files): array
+    private function extractUploadedFile(string $mediaType, array $files): array
     {
-        if (!isset($files['image']) || !is_array($files['image'])) {
-            throw new \RuntimeException('No image uploaded', 400);
+        $fieldName = $mediaType === self::TYPE_AUDIO ? 'audio' : 'image';
+        if (!isset($files[$fieldName]) || !is_array($files[$fieldName])) {
+            throw new \RuntimeException('No ' . $fieldName . ' uploaded', 400);
         }
 
-        return $files['image'];
+        return $files[$fieldName];
     }
 
     private function resolveRequestModuleConfig(array $post): MediaModuleConfig
@@ -99,7 +127,12 @@ class MediaService implements IMediaService
         return $moduleConfig;
     }
 
-    private function resolveSectionItemId(MediaModuleConfig $moduleConfig, array $post, string $currentPath): ?int
+    private function resolveSectionItemId(
+        MediaModuleConfig $moduleConfig,
+        array $post,
+        string $currentPath,
+        bool $resolveFromLinkUrl
+    ): ?int
     {
         if (!$moduleConfig->supportsDatabaseSync()) {
             return null;
@@ -114,6 +147,15 @@ class MediaService implements IMediaService
             return null;
         }
 
+        if ($resolveFromLinkUrl) {
+            return $this->mediaRepository->findSectionItemIdByLinkUrl(
+                $currentPath,
+                (string)$moduleConfig->pageSlug,
+                (string)$moduleConfig->sectionType,
+                (string)$moduleConfig->itemCategory
+            );
+        }
+
         return $this->mediaRepository->findSectionItemIdByImagePath(
             $currentPath,
             (string)$moduleConfig->pageSlug,
@@ -122,17 +164,17 @@ class MediaService implements IMediaService
         );
     }
 
-    private function resolveCurrentPath(array $post): string
+    private function resolveCurrentPath(array $post, bool $required): string
     {
         $currentPath = trim((string)($post['current_path'] ?? ''));
-        if ($currentPath === '') {
+        if ($required && $currentPath === '') {
             throw new \RuntimeException('No target image path provided', 400);
         }
 
         return $currentPath;
     }
 
-    private function validateAndExtractUploadFileInfo(array $file): array
+    private function validateAndExtractUploadFileInfo(string $mediaType, array $file): array
     {
         $errorCode = (int)($file['error'] ?? UPLOAD_ERR_NO_FILE);
         if ($errorCode !== UPLOAD_ERR_OK) {
@@ -150,13 +192,14 @@ class MediaService implements IMediaService
         }
 
         $size = (int)($file['size'] ?? 0);
-        if ($size <= 0 || $size > 10 * 1024 * 1024) {
-            throw new \RuntimeException('Image must be between 1 byte and 10MB', 400);
+        $maxSizeBytes = $this->maxUploadSizeByType($mediaType);
+        if ($size <= 0 || $size > $maxSizeBytes) {
+            throw new \RuntimeException(ucfirst($mediaType) . ' must be between 1 byte and ' . (int)($maxSizeBytes / 1024 / 1024) . 'MB', 400);
         }
 
-        $extension = $this->detectUploadExtension($tmpPath);
+        $extension = $this->detectUploadExtension($mediaType, $tmpPath);
         if ($extension === null) {
-            throw new \RuntimeException('Only JPG, PNG, and WEBP are allowed', 400);
+            throw new \RuntimeException($this->allowedExtensionMessage($mediaType), 400);
         }
 
         return [
@@ -165,21 +208,66 @@ class MediaService implements IMediaService
         ];
     }
 
-    private function detectUploadExtension(string $tmpPath): ?string
+    private function maxUploadSizeByType(string $mediaType): int
+    {
+        return 10 * 1024 * 1024;
+    }
+
+    private function allowedExtensionMessage(string $mediaType): string
+    {
+        if ($mediaType === self::TYPE_AUDIO) {
+            return 'Only MP3, WAV, OGG, AAC, and M4A are allowed';
+        }
+
+        return 'Only JPG, PNG, and WEBP are allowed';
+    }
+
+    private function detectUploadExtension(string $mediaType, string $tmpPath): ?string
     {
         $finfo = new \finfo(FILEINFO_MIME_TYPE);
         $mimeType = (string)$finfo->file($tmpPath);
-        $allowed = [
-            'image/jpeg' => 'jpg',
-            'image/png' => 'png',
-            'image/webp' => 'webp',
-        ];
+        $allowed = $this->allowedMimeMapByType($mediaType);
 
         return $allowed[$mimeType] ?? null;
     }
 
+    private function allowedMimeMapByType(string $mediaType): array
+    {
+        if ($mediaType === self::TYPE_AUDIO) {
+            return [
+                'audio/mpeg' => 'mp3',
+                'audio/wav' => 'wav',
+                'audio/x-wav' => 'wav',
+                'audio/wave' => 'wav',
+                'audio/ogg' => 'ogg',
+                'audio/mp4' => 'm4a',
+                'video/mp4' => 'm4a',
+                'audio/x-m4a' => 'm4a',
+                'audio/aac' => 'aac',
+            ];
+        }
+
+        return [
+            'image/jpeg' => 'jpg',
+            'image/png' => 'png',
+            'image/webp' => 'webp',
+        ];
+    }
+
     private function resolveModuleDefinition(string $module): ?MediaModuleConfig
     {
+        if (preg_match('/^dance_detail_hero:([a-z0-9-]+)$/', $module, $matches) === 1) {
+            return $this->buildDanceDetailModuleConfig($matches[1], 'dance_detail_hero', 'hero_image');
+        }
+
+        if (preg_match('/^dance_detail_track:([a-z0-9-]+)$/', $module, $matches) === 1) {
+            return $this->buildDanceDetailModuleConfig($matches[1], 'dance_detail_tracks', 'track');
+        }
+
+        if (preg_match('/^dance_detail_track_audio:([a-z0-9-]+)$/', $module, $matches) === 1) {
+            return $this->buildDanceDetailModuleConfig($matches[1], 'dance_detail_tracks', 'track', ['/audio/dance/']);
+        }
+
         $map = [
             'dance_artist' => new MediaModuleConfig(
                 ['/img/danceIMG/'],
@@ -198,7 +286,27 @@ class MediaService implements IMediaService
         return $map[$module] ?? null;
     }
 
-    private function syncImagePathToDatabase(MediaUploadRequest $request, string $publicPath): string
+    private function buildDanceDetailModuleConfig(
+        string $cmsSlug,
+        string $sectionType,
+        string $itemCategory,
+        array $allowedPrefixes = ['/img/danceIMG/']
+    ): ?MediaModuleConfig
+    {
+        $detailPage = $this->danceRepository->findDetailPageByCmsSlug($cmsSlug);
+        if ($detailPage === null) {
+            return null;
+        }
+
+        return new MediaModuleConfig(
+            $allowedPrefixes,
+            $detailPage->pageSlug,
+            $sectionType,
+            $itemCategory
+        );
+    }
+
+    private function syncPathToDatabase(string $mediaType, MediaUploadRequest $request, string $publicPath): string
     {
         if (!$request->moduleConfig->supportsDatabaseSync()) {
             return 'disabled_for_module';
@@ -208,16 +316,28 @@ class MediaService implements IMediaService
             return 'skipped_missing_section_item_id';
         }
 
-        $updated = $this->mediaRepository->updateSectionItemImagePath(
-            $request->sectionItemId,
-            $publicPath,
-            (string)$request->moduleConfig->pageSlug,
-            (string)$request->moduleConfig->sectionType,
-            (string)$request->moduleConfig->itemCategory
-        );
+        if ($mediaType === self::TYPE_AUDIO) {
+            $updated = $this->mediaRepository->updateSectionItemLinkUrl(
+                $request->sectionItemId,
+                $publicPath,
+                (string)$request->moduleConfig->pageSlug,
+                (string)$request->moduleConfig->sectionType,
+                (string)$request->moduleConfig->itemCategory
+            );
+            $errorMessage = 'Could not update audio link in database for this item';
+        } else {
+            $updated = $this->mediaRepository->updateSectionItemImagePath(
+                $request->sectionItemId,
+                $publicPath,
+                (string)$request->moduleConfig->pageSlug,
+                (string)$request->moduleConfig->sectionType,
+                (string)$request->moduleConfig->itemCategory
+            );
+            $errorMessage = 'Could not update image path in database for this item';
+        }
 
         if (!$updated) {
-            $message = 'Could not update image path in database for this item';
+            $message = $errorMessage;
             if ($this->isDebugMode()) {
                 $message .= ' [section_item_id=' . $request->sectionItemId
                     . ', page_slug=' . (string)$request->moduleConfig->pageSlug
@@ -257,7 +377,27 @@ class MediaService implements IMediaService
         ];
     }
 
-    private function resolveUploadTargetPaths(MediaModuleConfig $moduleConfig, string $publicPath, string $uploadExt): ?array
+    private function resolveTargetPaths(
+        string $mediaType,
+        MediaModuleConfig $moduleConfig,
+        string $currentPublicPath,
+        string $uploadExt,
+        ?int $sectionItemId
+    ): ?array
+    {
+        if ($mediaType === self::TYPE_AUDIO) {
+            return $this->resolveAudioUploadTargetPaths($moduleConfig, $currentPublicPath, $uploadExt, $sectionItemId);
+        }
+
+        return $this->resolveUploadTargetPaths($moduleConfig, $currentPublicPath, $uploadExt, false);
+    }
+
+    private function resolveUploadTargetPaths(
+        MediaModuleConfig $moduleConfig,
+        string $publicPath,
+        string $uploadExt,
+        bool $autoCreateDir
+    ): ?array
     {
         if (!$this->isPathAllowedForModule($moduleConfig, $publicPath) || str_contains($publicPath, '..')) {
             return null;
@@ -273,7 +413,7 @@ class MediaService implements IMediaService
         $absoluteCurrent = dirname(__DIR__, 2) . '/public' . $publicPath;
         $absoluteTarget = dirname(__DIR__, 2) . '/public' . $newPublicPath;
         $absoluteDir = dirname($absoluteTarget);
-        if (!is_dir($absoluteDir)) {
+        if (!is_dir($absoluteDir) && !($autoCreateDir && @mkdir($absoluteDir, 0775, true)) && !is_dir($absoluteDir)) {
             return null;
         }
 
@@ -283,6 +423,25 @@ class MediaService implements IMediaService
             'absolute_current' => $absoluteCurrent,
             'current_public_path' => $publicPath,
         ];
+    }
+
+    private function resolveAudioUploadTargetPaths(
+        MediaModuleConfig $moduleConfig,
+        string $currentPublicPath,
+        string $uploadExt,
+        ?int $sectionItemId
+    ): ?array {
+        $publicPath = $currentPublicPath;
+        if ($publicPath === '') {
+            $primaryPrefix = $moduleConfig->allowedPrefixes[0] ?? '';
+            if ($primaryPrefix === '' || $sectionItemId === null || $sectionItemId <= 0) {
+                return null;
+            }
+
+            $publicPath = rtrim((string)$primaryPrefix, '/') . '/track-' . $sectionItemId . '.' . $uploadExt;
+        }
+
+        return $this->resolveUploadTargetPaths($moduleConfig, $publicPath, $uploadExt, true);
     }
 
     private function isPathAllowedForModule(MediaModuleConfig $moduleConfig, string $publicPath): bool
@@ -330,7 +489,7 @@ class MediaService implements IMediaService
             $debugContext = $this->isDebugMode()
                 ? ' tmp=' . $tmpPath . ' target=' . $absoluteTarget
                 : '';
-            throw new \RuntimeException('Failed to save uploaded image.' . $debugContext, 500);
+            throw new \RuntimeException('Failed to save uploaded file.' . $debugContext, 500);
         }
     }
 

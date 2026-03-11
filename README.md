@@ -1,148 +1,168 @@
-# Docker template for PHP projects
-This repository provides a starting template for PHP application development.
+# Haarlem Festival App
 
-It contains:
-* NGINX webserver
-* PHP FastCGI Process Manager with PDO MySQL support
-* MariaDB (GPL MySQL fork)
-* PHPMyAdmin
-* SMTP4Dev (local SMTP testing inbox)
-* Composer
-* Composer package [nikic/fast-route](https://github.com/nikic/FastRoute) for routing
-* Composer package [phpmailer/phpmailer](https://github.com/PHPMailer/PHPMailer) for SMTP email sending
+Server-rendered PHP web application for the Haarlem Festival website and CMS.
 
-## App info
+## What This Project Contains
 
-- Start instructions: run `docker compose up` and open `http://localhost:80` in your browser.
-- phpMyAdmin login details: developer/secret123
+- Public festival pages (including Dance and Jazz)
+- CMS for editing event content and schedules
+- Authentication and role-gated CMS access
+- Media upload flows for CMS-managed images and dance track audio snippets
 
-## WCAG and GDPR notes
+## Tech Stack
 
-### WCAG (accessibility)
-- Semantic elements and labels are used in forms to aid screen readers (`app/src/Views/auth/login.php`, `app/src/Views/auth/register.php`).
-- Form controls use native HTML input types and `required` attributes for basic validation and accessibility hints (`app/src/Views/auth/login.php`, `app/src/Views/auth/register.php`).
-- Output is escaped with `htmlspecialchars` to prevent XSS and avoid injecting unexpected content into the DOM (`app/src/Views/layout.php`, `app/src/Views/home/index.php`).
+- PHP (FPM)
+- NGINX
+- MariaDB
+- FastRoute (`nikic/fast-route`)
+- PHPMailer (`phpmailer/phpmailer`)
+- Docker Compose
+- phpMyAdmin
+- smtp4dev
 
-### GDPR (privacy)
-- User passwords are stored as hashes, not plain text, using `password_hash` (`app/src/Repository/UserRepository.php`).
-- Authentication is session-based and does not expose passwords after login (`app/public/index.php`, `app/src/Controllers/AuthController.php`).
+## Run Locally
 
-## Project features
-- Authentication and sessions: register, login, logout (`app/src/Controllers/AuthController.php`, `app/public/index.php`).
-- Home page starter view (`app/src/Controllers/HomeController.php`, `app/src/Views/home/index.php`).
+1. Start containers:
 
-## Rubric mapping
-
-### CSS
-- Bootstrap framework and responsive layout (`app/src/Views/layout.php`, `app/public/css/styles.css`).
-
-### Sessions
-- Session handling and auth gating (`app/public/index.php`, `app/src/Controllers/BaseController.php`).
-
-### Security
-- Parameterized queries (`app/src/Repository/UserRepository.php`).
-- Password hashing (`app/src/Repository/UserRepository.php`).
-- Output sanitization with `htmlspecialchars` (`app/src/Views/layout.php`, `app/src/Views/home/index.php`).
-- Server-side input validation (`app/src/Controllers/AuthController.php`).
-
-### MVC
-- Controllers / services / repositories separation (`app/src/Controllers/*`, `app/src/Service/*`, `app/src/Repository/*`).
-- Interfaces for integrations (`app/src/Service/Interfaces/*`, `app/src/Repository/Interfaces/*`).
-- Routing and view rendering (`app/public/index.php`, `app/src/Controllers/BaseController.php`).
-
-### Legal / Accessibility
-- WCAG and GDPR notes above with file references.
-
-## MVC architecture notes
-
-### Layering and responsibilities
-- Controllers route requests and render views (`app/src/Controllers/*`, `app/public/index.php`).
-- Services encapsulate business logic (`app/src/Service/*`, `app/src/Service/Interfaces/*`).
-- Repositories handle database access (`app/src/Repository/*`, `app/src/Repository/Interfaces/*`).
-- Views are server-rendered PHP templates (`app/src/Views/*`).
-
-### Routing and templating
-- Routing is configured in `app/public/index.php` using FastRoute.
-- Views are rendered through `BaseController::render` (`app/src/Controllers/BaseController.php`).
-
-
-
-
-
-
-## Setup
-
-1. Install Docker Desktop on Windows or Mac, or Docker Engine on Linux.
-1. Clone the project
-
-## Usage
-
-In a terminal, from the cloned project folder, run:
 ```bash
 docker compose up
 ```
 
-### Composer Autoload
+2. Open:
+- App: `http://localhost`
+- phpMyAdmin: `http://localhost:8080`
+- smtp4dev: `http://localhost:8025`
 
-This template is configured to use Composer for PSR-4 autoloading:
-
-- Namespace `App\\` is mapped to `app/src/`.
-
-To install dependencies and generate the autoloader, run:
+3. Install dependencies (first run):
 
 ```bash
 docker compose run --rm php composer install
 ```
 
-If you add new classes or change namespaces, regenerate the autoloader:
+4. If namespaces/classes change:
 
 ```bash
 docker compose run --rm php composer dump-autoload
 ```
 
-Example usage is wired in `app/public/index.php` via `HomeController`.
+## Architecture
 
-### NGINX
+### Layers
 
-NGINX will now serve files in the app/public folder.
+- Controllers: HTTP handling + view rendering
+- Services: application/business orchestration
+- Repositories: SQL/data access
+- Mappers: request/domain/view transformations
+- Views: PHP templates
 
-Go to [http://localhost/](http://localhost/). You should see the home page.
+Key folders:
 
-### PHPMyAdmin
+- `app/src/Controllers`
+- `app/src/Service`
+- `app/src/Repository`
+- `app/src/Mapper`
+- `app/src/Models`
+- `app/src/Views`
 
-PHPMyAdmin provides basic database administration. It is accessible at [localhost:8080](localhost:8080).
+Routing + manual composition root are in:
 
-Credentials are defined in `docker-compose.yml`. They are: developer/secret123
+- `app/public/index.php`
 
-### SMTP4Dev
+## Content Model (CMS)
 
-SMTP4Dev provides a local test SMTP server and inbox UI.
+The CMS content system is page/section/item based:
 
-- Web UI: [http://localhost:8025](http://localhost:8025)
-- SMTP host/port inside Docker network: `smtp4dev:25`
+- `pages`
+- `page_sections`
+- `section_items`
 
-### Mail configuration (PHPMailer)
+`section_items` holds reusable fields per content row, including:
 
-Mail is sent through `app/src/Service/MailService.php` using PHPMailer with values from `.env`.
+- `image_path`
+- `link_url`
+- `item_category`
 
-- `MAIL_HOST=smtp4dev`
-- `MAIL_PORT=25`
-- `MAIL_FROM_ADDRESS=no-reply@...`
-- `MAIL_FROM_NAME=Haarlem Festival`
-- `MAIL_USERNAME=` (optional)
-- `MAIL_PASSWORD=` (optional)
-- `MAIL_ENCRYPTION=` (optional: `tls` or `ssl`; leave empty for smtp4dev)
+For dance detail tracks:
 
-If you get an error with sending Email and it says cannot find PHPMailer:
-```bash
-docker compose exec php composer install
-```
+- Track artwork is stored in `image_path`
+- Track audio URL is stored in `link_url`
 
-### Stopping the docker container
+## CMS Feature Areas
 
-If you want to stop the containers, press Ctrl+C. 
+- Dance Home editor
+- Dance Detail editor (per performer/detail slug)
+- Event Schedule editor
+- User management
+- Ticket management (basic CMS area)
 
-Or run:
+Main CMS controllers:
+
+- `App\Controllers\Cms\CmsDanceContentController`
+- `App\Controllers\Cms\CmsEventEditorController`
+- `App\Controllers\Cms\CmsMediaController`
+
+## Media Upload Flows
+
+Media handling is centralized in:
+
+- `app/src/Service/MediaService.php`
+
+Routes:
+
+- `POST /cms/media/upload-replace` (image uploads)
+- `POST /cms/media/upload-audio` (audio uploads)
+
+Behavior:
+
+- Validates request method, file payload, size, and MIME type
+- Resolves upload target from CMS module name
+- Writes file under `app/public/...`
+- Updates DB reference for matched `section_item`
+  - image -> `image_path`
+  - audio -> `link_url`
+
+Dance detail track audio modules use:
+
+- `dance_detail_track_audio:{detailSlug}`
+- allowed path prefix: `/audio/dance/`
+
+## Mappers
+
+Mapping logic is intentionally separated from controllers and mostly from services.
+
+Examples:
+
+- `DanceViewModelMapper`
+- `CmsScheduleMapper`
+- `CmsDanceMapper`
+- `EventMapper`
+- `PageMapper`
+- `DanceMapper`
+- `ScheduleMapper`
+
+## Security Notes
+
+- Passwords are hashed with `password_hash`
+- SQL uses prepared statements in repositories
+- Output escaping uses `htmlspecialchars` in views
+- CMS actions require authenticated/admin checks via base controller helpers
+
+## Accessibility Notes
+
+- Semantic form structure and labels are used throughout CMS and auth forms
+- Native inputs and server-side validation are used for core form flows
+
+
+## Useful Dev Commands
+
+Stop containers:
+
 ```bash
 docker compose down
+```
+
+Run composer in the PHP container:
+
+```bash
+docker compose exec php composer install
 ```

@@ -3,14 +3,16 @@ use App\Models\ViewModels\Cms\Dance\DanceHomeContentViewModel;
 $contentViewModel = (isset($contentViewModel) && $contentViewModel instanceof DanceHomeContentViewModel)
     ? $contentViewModel
     : new DanceHomeContentViewModel('', '', '', '', '', [], '', '', '', [], '', '', '', '');
-$artists = $contentViewModel->artists;
 $passes = $contentViewModel->passes;
 ?>
 <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
 
-<div class="container py-4">
+<div class="container-lg py-4 py-md-5">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1 class="h3 mb-0">Dance Home Content</h1>
+        <div>
+            <h1 class="h3 mb-1">Dance Home Content</h1>
+            <p class="text-muted mb-0">Update the public dance landing page content and rich-text sections.</p>
+        </div>
         <a href="/cms/events" class="btn btn-outline-secondary">Back to Events</a>
     </div>
 
@@ -19,8 +21,8 @@ $passes = $contentViewModel->passes;
     include __DIR__ . '/../../partialsViews/cms/form-feedback.php';
     ?>
 
-    <form method="POST" action="/cms/events/dance-home" class="card">
-        <div class="card-body">
+    <form method="POST" action="/cms/events/dance-home" class="card border-0 shadow-sm" data-quill-form="1">
+        <div class="card-body p-4">
             <h2 class="h5">Schedule</h2>
             <div class="mb-3">
                 <label for="schedule_title" class="form-label">Schedule Title</label>
@@ -71,18 +73,6 @@ $passes = $contentViewModel->passes;
                     required
                 ><?= htmlspecialchars($contentViewModel->bannerDescription) ?></textarea>
             </div>
-
-            <hr>
-
-            <input type="hidden" name="artists_title" value="<?= htmlspecialchars($contentViewModel->artistsTitle !== '' ? $contentViewModel->artistsTitle : 'Featured Artists') ?>">
-            <?php foreach ($artists as $index => $artist): ?>
-                <?php if (!$artist instanceof \App\Models\ViewModels\Cms\Dance\DanceHomeArtistRowViewModel) { continue; } ?>
-                <input type="hidden" name="artists[<?= (int)$index ?>][id]" value="<?= (int)$artist->id ?>">
-                <input type="hidden" name="artists[<?= (int)$index ?>][name]" value="<?= htmlspecialchars($artist->name) ?>">
-                <input type="hidden" name="artists[<?= (int)$index ?>][genre]" value="<?= htmlspecialchars($artist->genre) ?>">
-                <input type="hidden" name="artists[<?= (int)$index ?>][image]" value="<?= htmlspecialchars($artist->image) ?>">
-            <?php endforeach; ?>
-
             <hr>
 
             <h2 class="h5">Important Information</h2>

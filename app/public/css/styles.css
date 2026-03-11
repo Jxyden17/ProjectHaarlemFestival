@@ -17,6 +17,9 @@
     --dance-genre-border: rgba(40, 207, 255, 0.82);
     --dance-genre-bg: rgba(4, 42, 72, 0.72);
     --dance-name-shadow: rgba(0, 0, 0, 0.65);
+    --yummy-accent: #c03526;
+    --yummy-border: rgba(24, 147, 181, 0.82);
+    --yummy-background: rgba(5, 34, 56, 0.72);
 
     /* Schedule */
     --schedule-filter-bg: rgba(255, 255, 255, 0.08);
@@ -504,6 +507,113 @@ body {
     text-decoration: none;
     font-size: 0.74rem;
     font-weight: 700;
+}
+
+.schedule--dance-index {
+    padding: 0 0 1rem;
+}
+
+.schedule--dance-index .schedule-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-size: 2.3rem;
+}
+
+.schedule--dance-index .schedule-title--with-icon {
+    color: #f5f5f5;
+}
+
+.schedule--dance-index .schedule-title--with-icon i {
+    width: 1.35rem;
+    height: 1.35rem;
+    color: var(--accent-color);
+}
+
+.schedule--dance-index .schedule-list {
+    border-color: rgba(44, 88, 137, 0.35);
+    border-radius: 0.65rem;
+    background: rgba(8, 24, 45, 0.55);
+}
+
+.schedule--dance-index .schedule-row,
+.schedule--dance-index .schedule-row-head {
+    grid-template-columns: 1.2fr 1fr 2.2fr 1.55fr 0.75fr 0.75fr;
+    gap: 0.75rem;
+    align-items: center;
+    padding: 0.92rem 1rem;
+    font-size: 1rem;
+}
+
+.schedule--dance-index .schedule-row-head {
+    border-bottom: 0.0625rem solid rgba(44, 88, 137, 0.32);
+    color: rgba(245, 245, 245, 0.66);
+    font-size: 0.92rem;
+}
+
+.schedule--dance-index .schedule-row {
+    border-top: 0.0625rem solid rgba(44, 88, 137, 0.22);
+}
+
+.schedule--dance-index .schedule-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.schedule--dance-index .schedule-cell-icon {
+    width: 1.55rem;
+    height: 1.55rem;
+    border-radius: 0.4rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(199, 150, 54, 0.2);
+    color: var(--accent-color);
+}
+
+.schedule--dance-index .schedule-cell--time .schedule-cell-icon,
+.schedule--dance-index .schedule-cell--location .schedule-cell-icon {
+    background: transparent;
+    color: #ffffff;
+}
+
+.schedule--dance-index .schedule-cell-icon svg {
+    width: 0.82rem;
+    height: 0.82rem;
+}
+
+.schedule--dance-index .schedule-price {
+    color: var(--accent-color);
+}
+
+.schedule--dance-index .schedule-book-btn {
+    width: auto;
+    max-width: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.45rem 0.78rem;
+    border-radius: 0.45rem;
+    font-size: 0.86rem;
+}
+
+/* Keep schedule icons aligned with the detail-style row look on narrow screens */
+@media (max-width: 62rem) {
+    .schedule--dance-index .schedule-row,
+    .schedule--dance-index .schedule-row-head {
+        grid-template-columns: 1fr;
+        gap: 0.45rem;
+        padding: 0.65rem 0.8rem;
+    }
+
+    .schedule--dance-index .schedule-row-head {
+        display: none;
+    }
+
+    .schedule--dance-index .schedule-book-btn {
+        max-width: 9rem;
+    }
 }
 
 @media (max-width: 62rem) {

@@ -3,18 +3,21 @@
 namespace App\Repository;
 
 use App\Models\Database;
-use App\Models\EventModel;
-use App\Models\VenueModel;
-use PDO;
-use App\Models\JazzEvent;
 use App\Repository\Interfaces\IJazzRepository;
+use PDO;
 
 
-class JazzDummyRepository implements IJazzRepository
+class JazzRepository implements IJazzRepository
 {
+    private PDO $db;
+
     public function __construct()
     {
         $this->db = Database::getInstance();
     }
 
+    public function getAllJazzEvents(): array
+    {
+        return [];
+    }
 }

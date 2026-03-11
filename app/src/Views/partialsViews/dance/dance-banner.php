@@ -1,19 +1,9 @@
 <?php
-use App\Models\Page\Section;
-use App\Models\ViewModels\Dance\DanceBannerStatsViewModel;
-
-$danceBannerStats = $danceBannerStats ?? null;
-$totalEvents = $danceBannerStats instanceof DanceBannerStatsViewModel ? $danceBannerStats->totalEvents : 0;
-$totalLocations = $danceBannerStats instanceof DanceBannerStatsViewModel ? $danceBannerStats->totalLocations : 0;
-$danceBannerSection = $danceBannerSection ?? null;
-
-if (!$danceBannerSection instanceof Section) {
-    return;
-}
-
-$badge = (string)$danceBannerSection->subTitle;
-$title = $danceBannerSection->title;
-$description = (string)$danceBannerSection->description;
+$badge = trim((string)($danceIndexViewModel->bannerBadge ?? ''));
+$title = trim((string)($danceIndexViewModel->bannerTitle ?? ''));
+$description = (string)($danceIndexViewModel->bannerDescription ?? '');
+$totalEvents = (int)($danceIndexViewModel->totalEvents ?? 0);
+$totalLocations = (int)($danceIndexViewModel->totalLocations ?? 0);
 ?>
 
 <section class="dance-banner">
