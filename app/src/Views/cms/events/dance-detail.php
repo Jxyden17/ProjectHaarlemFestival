@@ -197,6 +197,7 @@ $detailTrackAudioModule = $contentViewModel->pageSlug === '' ? '' : 'dance_detai
 <?php include __DIR__ . '/../../partialsViews/cms/upload-feedback-modal.php'; ?>
 
 <script src="/js/cms/upload-feedback.js"></script>
+<script src="/js/cms/media-upload.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
 <script src="/js/cms/page-editor.js"></script>
 <script src="/js/cms/dance-detail.js"></script>

@@ -222,4 +222,5 @@ $formAction = (string)($formAction ?? '/cms/events/dance-schedule');
 <?php include __DIR__ . '/../../partialsViews/cms/upload-feedback-modal.php'; ?>
 
 <script src="/js/cms/upload-feedback.js"></script>
+<script src="/js/cms/media-upload.js"></script>
 <script src="/js/cms/dance-schedule.js"></script>

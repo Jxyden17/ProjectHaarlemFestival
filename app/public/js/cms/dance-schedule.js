@@ -1,78 +1,35 @@
 const scheduleForm = document.querySelector('form[action*="/cms/events/"][action$="/schedule"]');
-const uploadFeedback = window.CmsUploadFeedback || {
-    showUploadFeedback() {},
-    setUploadingState() {},
-    resolveUploadErrorMessage(error, fallbackMessage) {
-        return fallbackMessage;
-    }
-};
-
-function applyUploadedPerformerImage(row, path) {
-    const imagePathInput = row.querySelector('.performer-artist-image');
-    const downloadLink = row.querySelector('.performer-download-link');
-
-    if (imagePathInput) {
-        imagePathInput.value = path;
-    }
-
-    if (downloadLink) {
-        downloadLink.href = path;
-        downloadLink.classList.remove('d-none');
-    }
-}
 
 async function uploadPerformerImage(row, button) {
+    if (!window.CmsMediaUpload) {
+        return;
+    }
+
     const fileInput = row.querySelector('.performer-upload-input');
     const sectionItemIdInput = row.querySelector('.performer-artist-item-id');
     const currentPathInput = row.querySelector('.performer-artist-image');
 
-    if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
-        uploadFeedback.showUploadFeedback('Upload failed', 'Please choose an image first.', 'danger');
-        return;
-    }
-
     const sectionItemId = sectionItemIdInput ? Number(sectionItemIdInput.value || 0) : 0;
-    if (sectionItemId <= 0) {
-        uploadFeedback.showUploadFeedback(
-            'Upload failed',
-            uploadFeedback.resolveUploadErrorMessage(
-                new Error('Missing artist image row. Please configure artist images in dance content first.'),
-                'Image upload failed.'
-            ),
-            'danger'
-        );
-        return;
-    }
+    const path = await window.CmsMediaUpload.uploadFile({
+        button,
+        fileInput,
+        endpoint: '/cms/media/upload-replace',
+        fileFieldName: 'image',
+        moduleName: 'dance_artist',
+        sectionItemId,
+        currentPath: currentPathInput ? currentPathInput.value : '',
+        missingMetadataMessage: 'Missing artist image row. Please configure artist images in dance content first.',
+        missingFileMessage: 'Please choose an image first.',
+        failureMessage: 'Image upload failed.',
+        successTitle: 'Upload complete',
+        successMessage: 'Image uploaded successfully.',
+    });
 
-    const formData = new FormData();
-    formData.append('image', fileInput.files[0]);
-    formData.append('module', 'dance_artist');
-    formData.append('section_item_id', String(sectionItemId));
-    formData.append('current_path', currentPathInput ? currentPathInput.value : '');
-
-    uploadFeedback.setUploadingState(button, true);
-    try {
-        const response = await fetch('/cms/media/upload-replace', {
-            method: 'POST',
-            body: formData
-        });
-
-        const payload = await response.json();
-        if (!response.ok || !payload.success || !payload.path) {
-            throw new Error(payload && payload.message ? payload.message : 'Upload failed');
-        }
-
-        applyUploadedPerformerImage(row, payload.path);
-        uploadFeedback.showUploadFeedback('Upload complete', 'Image uploaded successfully.', 'success');
-    } catch (error) {
-        uploadFeedback.showUploadFeedback(
-            'Upload failed',
-            uploadFeedback.resolveUploadErrorMessage(error, 'Image upload failed.'),
-            'danger'
-        );
-    } finally {
-        uploadFeedback.setUploadingState(button, false);
-        fileInput.value = '';
+    if (path) {
+        window.CmsMediaUpload.applyUploadedPath(row, {
+            pathInputSelector: '.performer-artist-image',
+            downloadLinkSelector: '.performer-download-link',
+        }, path);
     }
 }
 
