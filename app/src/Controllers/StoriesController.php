@@ -30,6 +30,7 @@ class StoriesController extends BaseController
         $viewData = [
             'pageTitle' => $page->title,
             'hero'      => $page->getSection('hero'),
+            'callout'   => $page->getSection('callout'),
             'grid'      => $page->getSection('grid'),
             'venues'    => $page->getSection('venues'),
             'schedule'  => $page->getSection('schedule'),

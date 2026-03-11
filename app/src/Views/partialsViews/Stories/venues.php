@@ -18,7 +18,6 @@ if (!$section instanceof Section) {
                 <div class="venue-card">
                     <div class="venue-header">
                         <h3><?= htmlspecialchars($item->title) ?></h3>
-                        <p class="venue-address"><?= htmlspecialchars($item->subTitle) ?></p>
                     </div>
 
                     <div class="venue-description">

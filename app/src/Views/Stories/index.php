@@ -12,6 +12,10 @@
         <?php $section = $hero; include __DIR__ . '/../partialsViews/Stories/hero.php'; ?>
     <?php endif; ?>
 
+    <?php if ($callout): ?>
+        <?php $section = $callout; include __DIR__ . '/../partialsViews/Stories/callout.php'; ?>
+    <?php endif; ?>
+
     <?php if ($grid): ?>
         <?php $section = $grid; include __DIR__ . '/../partialsViews/Stories/info-grid.php'; ?>
     <?php endif; ?>
@@ -21,7 +25,7 @@
     <?php endif; ?>
 
     <?php if ($schedule): ?>
-        <?php $section = $schedule; include __DIR__ . '../partialsViews/schedule.php'; ?>
+        <?php $section = $schedule; include __DIR__ . '/../partialsViews/schedule.php'; ?>
     <?php endif; ?>
 
     <?php if ($explore): ?>

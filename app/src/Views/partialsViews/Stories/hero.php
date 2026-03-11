@@ -22,11 +22,12 @@ $secondItem = $items[1] ?? null;
 
     <div class="stories-hero-overlay"></div>
 
-    <div class="stories-hero-text">
-        <div class="hero-badge">
-            <span class="hero-badge-icon">📅</span>
-            <span class="hero-badge-text">This Weekend • July 24-27, 2025</span>
-        </div>
+    <div class="stories-hero-inner">
+        <div class="stories-hero-text">
+            <div class="hero-badge">
+                <span class="hero-badge-icon">📅</span>
+                <span class="hero-badge-text">This Weekend • July 24-27, 2025</span>
+            </div>
 
         <h2><?= htmlspecialchars($section->title) ?></h2>
         <p><?= htmlspecialchars($firstItem->content ?? '') ?></p>
@@ -56,4 +57,5 @@ $secondItem = $items[1] ?? null;
             </a>
         </div>
     </div>
+</div>
 </section>
