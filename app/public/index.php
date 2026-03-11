@@ -36,10 +36,13 @@ try {
 
     $mailConfig = App\Models\MailConfig::fromEnvironment();
     $pageService = new App\Service\PageService($pageRepo, $pageMapper);
+    $cmsPageSaveService = new App\Service\Cms\CmsPageSaveService($pageRepo);
     $mailService = new App\Service\MailService($mailConfig);
     $htmlSanitizerService = new App\Service\HtmlSanitizerService();
+    $cmsDanceValidator = new App\Validator\Cms\CmsDanceValidator();
+    $cmsScheduleValidator = new App\Validator\Cms\CmsScheduleValidator();
     $scheduleService = new App\Service\ScheduleService($scheduleRepo, $scheduleMapper);
-    $danceService = new App\Service\DanceService($danceRepo, $pageService);
+    $danceService = new App\Service\DanceService($danceRepo, $scheduleRepo, $pageService);
     $danceViewModelMapper = new App\Mapper\DanceViewModelMapper($danceService, $scheduleService);
     $mediaService = new App\Service\MediaService($mediaRepo, $danceRepo);
     $yummyService = new App\Service\YummyService($yummyRepo);
@@ -48,19 +51,21 @@ try {
 
     $cmsScheduleMapper = new App\Mapper\CmsScheduleMapper($danceService);
     $cmsDanceMapper = new App\Mapper\CmsDanceMapper();
-    $cmsScheduleService = new App\Service\Cms\CmsScheduleService($scheduleRepo);
+    $cmsScheduleService = new App\Service\Cms\CmsScheduleService($scheduleRepo, $cmsScheduleValidator);
     $cmsDanceService = new App\Service\Cms\CmsDanceService(
         $danceRepo,
-        $pageRepo,
+        $cmsPageSaveService,
         $pageService,
         $htmlSanitizerService,
-        $cmsDanceMapper
+        $cmsDanceMapper,
+        $cmsDanceValidator
     );
     $cmsService = new App\Service\Cms\CmsService($userRepo);
     $cmsEventEditorService = new App\Service\Cms\CmsEventEditorService(
         $scheduleService,
         $cmsScheduleMapper,
-        $pageRepo
+        $pageRepo,
+        $cmsPageSaveService
     );
 
     $authController = new App\Controllers\AuthController($authService);

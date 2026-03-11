@@ -21,6 +21,48 @@ use App\Models\ViewModels\Cms\Dance\DanceHomePassRowViewModel;
 
 class CmsDanceMapper
 {
+    public function mapHomeSectionsForSave(Page $page): array
+    {
+        $schedule = $page->getSection('dance_schedule');
+        $banner = $page->getSection('dance_banner');
+        $info = $page->getSection('dance_info');
+        $passes = $page->getSection('dance_passes');
+        $capacity = $page->getSection('dance_capacity');
+        $special = $page->getSection('dance_special_session');
+
+        if ($schedule === null || $banner === null || $info === null || $passes === null || $capacity === null || $special === null) {
+            throw new \RuntimeException('Required dance sections are missing.');
+        }
+
+        return [
+            $this->mapSectionForSave('dance_schedule', $schedule, 5),
+            $this->mapSectionForSave('dance_banner', $banner, 10),
+            $this->mapSectionForSave('dance_info', $info, 20),
+            $this->mapSectionForSave('dance_passes', $passes, 40, $this->mapPassRows($passes->items)),
+            $this->mapSectionForSave('dance_capacity', $capacity, 50),
+            $this->mapSectionForSave('dance_special_session', $special, 60),
+        ];
+    }
+
+    public function mapDetailSectionsForSave(Page $page): array
+    {
+        $hero = $page->getSection('dance_detail_hero');
+        $highlights = $page->getSection('dance_detail_highlights');
+        $tracks = $page->getSection('dance_detail_tracks');
+        $info = $page->getSection('dance_detail_info');
+
+        if ($hero === null || $highlights === null || $tracks === null || $info === null) {
+            throw new \RuntimeException('Required dance detail sections are missing.');
+        }
+
+        return [
+            $this->mapSectionForSave('dance_detail_hero', $hero, 10, $this->mapHeroImageRows($hero->items)),
+            $this->mapSectionForSave('dance_detail_highlights', $highlights, 20, $this->mapHighlightRows($highlights->items)),
+            $this->mapSectionForSave('dance_detail_tracks', $tracks, 30, $this->mapTrackRows($tracks->items)),
+            $this->mapSectionForSave('dance_detail_info', $info, 40),
+        ];
+    }
+
     public function mapHomeContentViewModelFromPage(Page $page): DanceHomeContentViewModel
     {
         $schedule = $page->getSection('dance_schedule');
@@ -524,5 +566,28 @@ class CmsDanceMapper
         }
 
         return $rows;
+    }
+
+    private function mapSectionForSave(string $type, Section $section, int $orderIndex, array $items = []): array
+    {
+        $subtitle = $section->subTitle;
+        $description = $section->description;
+
+        if (in_array($type, ['dance_schedule', 'dance_info', 'dance_passes', 'dance_capacity', 'dance_special_session', 'dance_detail_highlights', 'dance_detail_info'], true)) {
+            $subtitle = null;
+        }
+
+        if (in_array($type, ['dance_schedule', 'dance_passes', 'dance_detail_highlights'], true)) {
+            $description = null;
+        }
+
+        return [
+            'type' => $type,
+            'title' => $section->title,
+            'subtitle' => $subtitle,
+            'description' => $description,
+            'order_index' => $orderIndex,
+            'items' => $items,
+        ];
     }
 }

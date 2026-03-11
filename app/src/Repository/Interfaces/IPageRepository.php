@@ -10,7 +10,17 @@ interface IPageRepository
 
     public function findPageIdBySlug(string $slug): ?int;
 
+    public function findSectionIdsByPageId(int $pageId): array;
+
     public function updatePageName(int $pageId, string $pageName): void;
+
+    public function updateSectionById(
+        int $sectionId,
+        ?string $title,
+        ?string $subtitle,
+        ?string $description,
+        int $orderIndex
+    ): void;
 
     public function saveOrUpdateSection(
         int $pageId,
