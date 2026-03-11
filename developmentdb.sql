@@ -202,6 +202,47 @@ INSERT INTO `performers` VALUES (1,2,'Afrojack','DJ',NULL,'2026-02-10 16:40:38')
 UNLOCK TABLES;
 
 --
+-- Table structure for table `event_detail_pages`
+--
+
+DROP TABLE IF EXISTS `event_detail_pages`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `event_detail_pages` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `event_id` int NOT NULL,
+  `performer_id` int DEFAULT NULL,
+  `page_id` int NOT NULL,
+  `public_slug` varchar(120) NOT NULL,
+  `cms_slug` varchar(120) NOT NULL,
+  `entity_type` varchar(50) NOT NULL DEFAULT 'performer',
+  `is_published` tinyint(1) NOT NULL DEFAULT '1',
+  `display_order` int NOT NULL DEFAULT '0',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_event_detail_pages_public_slug` (`public_slug`),
+  UNIQUE KEY `uq_event_detail_pages_cms_slug` (`cms_slug`),
+  UNIQUE KEY `uq_event_detail_pages_page_id` (`page_id`),
+  UNIQUE KEY `uq_event_detail_pages_event_performer` (`event_id`,`performer_id`),
+  KEY `idx_event_detail_pages_event_id` (`event_id`),
+  KEY `idx_event_detail_pages_performer_id` (`performer_id`),
+  CONSTRAINT `fk_event_detail_pages_event` FOREIGN KEY (`event_id`) REFERENCES `events` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_event_detail_pages_page` FOREIGN KEY (`page_id`) REFERENCES `pages` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_event_detail_pages_performer` FOREIGN KEY (`performer_id`) REFERENCES `performers` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `event_detail_pages`
+--
+
+LOCK TABLES `event_detail_pages` WRITE;
+/*!40000 ALTER TABLE `event_detail_pages` DISABLE KEYS */;
+/*!40000 ALTER TABLE `event_detail_pages` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `roles`
 --
 
