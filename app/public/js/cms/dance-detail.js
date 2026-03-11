@@ -1,51 +1,11 @@
 const danceDetailForm = document.querySelector('form[action*="/cms/events/dance-detail/"]');
-const quillEditors = [];
-
-function initializeQuillEditors() {
-    if (!danceDetailForm || typeof Quill === 'undefined') {
-        return;
+const uploadFeedback = window.CmsUploadFeedback || {
+    showUploadFeedback() {},
+    setUploadingState() {},
+    resolveUploadErrorMessage(error, fallbackMessage) {
+        return fallbackMessage;
     }
-
-    const toolbarOptions = [
-        [{ header: [2, 3, 4, false] }],
-        ['bold', 'italic', 'underline'],
-        [{ list: 'ordered' }, { list: 'bullet' }],
-        ['link', 'blockquote'],
-        ['clean']
-    ];
-
-    const richTextAreas = danceDetailForm.querySelectorAll('textarea[data-quill="1"]');
-    richTextAreas.forEach((textarea) => {
-        const editorContainer = document.createElement('div');
-        editorContainer.className = 'mb-2';
-        textarea.insertAdjacentElement('afterend', editorContainer);
-
-        const quill = new Quill(editorContainer, {
-            theme: 'snow',
-            modules: {
-                toolbar: toolbarOptions
-            }
-        });
-
-        const initialHtml = textarea.value.trim();
-        if (initialHtml === '') {
-            quill.setText('');
-        } else {
-            quill.clipboard.dangerouslyPasteHTML(initialHtml);
-        }
-
-        textarea.required = false;
-        textarea.classList.add('d-none');
-        quillEditors.push({ textarea, quill });
-    });
-
-    danceDetailForm.addEventListener('submit', () => {
-        quillEditors.forEach(({ textarea, quill }) => {
-            const isEmpty = quill.getText().trim() === '';
-            textarea.value = isEmpty ? '' : quill.root.innerHTML;
-        });
-    });
-}
+};
 
 function applyUploadedImage(row, path) {
     const imagePathInput = row.querySelector('.performer-artist-image');
@@ -82,18 +42,26 @@ async function uploadImage(row, button) {
     const currentPathInput = row.querySelector('.performer-artist-image');
 
     if (moduleName === '') {
-        alert('Missing media upload module for this page.');
+        uploadFeedback.showUploadFeedback(
+            'Upload failed',
+            uploadFeedback.resolveUploadErrorMessage(new Error('Missing media upload module for this page.'), 'Image upload failed.'),
+            'danger'
+        );
         return;
     }
 
     if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
-        alert('Please choose an image first.');
+        uploadFeedback.showUploadFeedback('Upload failed', 'Please choose an image first.', 'danger');
         return;
     }
 
     const sectionItemId = sectionItemIdInput ? Number(sectionItemIdInput.value || 0) : 0;
     if (sectionItemId <= 0) {
-        alert('Missing hero image row. Please refresh the page and try again.');
+        uploadFeedback.showUploadFeedback(
+            'Upload failed',
+            uploadFeedback.resolveUploadErrorMessage(new Error('Missing hero image row. Please refresh the page and try again.'), 'Image upload failed.'),
+            'danger'
+        );
         return;
     }
 
@@ -103,7 +71,7 @@ async function uploadImage(row, button) {
     formData.append('section_item_id', String(sectionItemId));
     formData.append('current_path', currentPathInput ? currentPathInput.value : '');
 
-    button.disabled = true;
+    uploadFeedback.setUploadingState(button, true);
     try {
         const response = await fetch('/cms/media/upload-replace', {
             method: 'POST',
@@ -116,10 +84,15 @@ async function uploadImage(row, button) {
         }
 
         applyUploadedImage(row, payload.path);
+        uploadFeedback.showUploadFeedback('Upload complete', 'Image uploaded successfully.', 'success');
     } catch (error) {
-        alert(error && error.message ? error.message : 'Image upload failed.');
+        uploadFeedback.showUploadFeedback(
+            'Upload failed',
+            uploadFeedback.resolveUploadErrorMessage(error, 'Image upload failed.'),
+            'danger'
+        );
     } finally {
-        button.disabled = false;
+        uploadFeedback.setUploadingState(button, false);
         fileInput.value = '';
     }
 }
@@ -131,18 +104,26 @@ async function uploadAudio(row, button) {
     const currentPathInput = row.querySelector('.performer-track-audio');
 
     if (moduleName === '') {
-        alert('Missing media upload module for this track.');
+        uploadFeedback.showUploadFeedback(
+            'Upload failed',
+            uploadFeedback.resolveUploadErrorMessage(new Error('Missing media upload module for this track.'), 'Audio upload failed.'),
+            'danger'
+        );
         return;
     }
 
     if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
-        alert('Please choose an audio file first.');
+        uploadFeedback.showUploadFeedback('Upload failed', 'Please choose an audio file first.', 'danger');
         return;
     }
 
     const sectionItemId = sectionItemIdInput ? Number(sectionItemIdInput.value || 0) : 0;
     if (sectionItemId <= 0) {
-        alert('Missing track row. Please refresh the page and try again.');
+        uploadFeedback.showUploadFeedback(
+            'Upload failed',
+            uploadFeedback.resolveUploadErrorMessage(new Error('Missing track row. Please refresh the page and try again.'), 'Audio upload failed.'),
+            'danger'
+        );
         return;
     }
 
@@ -152,7 +133,7 @@ async function uploadAudio(row, button) {
     formData.append('section_item_id', String(sectionItemId));
     formData.append('current_path', currentPathInput ? currentPathInput.value : '');
 
-    button.disabled = true;
+    uploadFeedback.setUploadingState(button, true);
     try {
         const response = await fetch('/cms/media/upload-audio', {
             method: 'POST',
@@ -165,10 +146,15 @@ async function uploadAudio(row, button) {
         }
 
         applyUploadedAudio(row, payload.path);
+        uploadFeedback.showUploadFeedback('Upload complete', 'Audio uploaded successfully.', 'success');
     } catch (error) {
-        alert(error && error.message ? error.message : 'Audio upload failed.');
+        uploadFeedback.showUploadFeedback(
+            'Upload failed',
+            uploadFeedback.resolveUploadErrorMessage(error, 'Audio upload failed.'),
+            'danger'
+        );
     } finally {
-        button.disabled = false;
+        uploadFeedback.setUploadingState(button, false);
         fileInput.value = '';
     }
 }
@@ -201,4 +187,6 @@ if (danceDetailForm) {
     });
 }
 
-initializeQuillEditors();
+if (danceDetailForm && window.CmsPageEditor) {
+    window.CmsPageEditor.initializeQuillEditors(danceDetailForm);
+}

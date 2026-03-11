@@ -13,6 +13,6 @@ interface IDanceService
     public function getDancePerformers(): array;
     public function getDanceHomePage(): Page;
     public function getDanceDetailPage(string $slug): Page;
-    public function getDanceDetailPageBySlug(string $detailSlug): ?EventDetailPageModel;
+    public function getDanceDetailPageBySlug(string $pageSlug): ?EventDetailPageModel;
     public function getPublishedDanceDetailPages(): array;
 }

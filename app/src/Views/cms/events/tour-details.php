@@ -4,6 +4,7 @@ $historyItems = $history?->items ?? [];
 $didYouKnowItems = $didYouKnow?->items ?? [];
 $openingTimeInfo = $openingTime->getItemsByCategorie('info') ?? [];
 $openingTimeHours = $openingTime->getItemsByCategorie('opening_hours') ?? [];
+$pageSlug = (string)($pageSlug ?? '');
 ?>
 
 <link rel="stylesheet" href="/css/Cms/cms-layout.css">
@@ -20,7 +21,7 @@ $openingTimeHours = $openingTime->getItemsByCategorie('opening_hours') ?? [];
     include __DIR__ . '/../../partialsViews/cms/form-feedback.php';
     ?>
 
-    <form method="POST" action="/cms/events/tour-details" class="card">
+    <form method="POST" action="/cms/events/tour-details" class="card" data-tour-page-slug="<?= htmlspecialchars($pageSlug) ?>">
         <div class="card-body">
         <input type="hidden" name="page_id" value="<?= (int)($pageId ?? 0) ?>">
 
@@ -36,8 +37,9 @@ $openingTimeHours = $openingTime->getItemsByCategorie('opening_hours') ?? [];
             <div class="mb-3">
                 <label class="form-label">Fotos</label>
                 <?php foreach ($heroItems as $index => $item): ?>
-                    <div class="d-flex flex-wrap gap-2 align-items-center performer-image-row mb-2">
+                    <div class="d-flex flex-wrap gap-2 align-items-center performer-image-row mb-2" data-tour-upload-row="1" data-tour-section-type="header" data-tour-item-category="<?= htmlspecialchars((string)($item->category ?? '')) ?>">
                         <input type="hidden" name="items[header][<?= (int)$index ?>][id]" class="tour-item-id" value="<?= $item->id ?>">
+                        <input type="hidden" name="items[header][<?= (int)$index ?>][image_path]" class="performer-artist-image" value="<?= htmlspecialchars($item->image ?? '') ?>">
                         <input type="file" class="form-control form-control-sm performer-upload-input" accept="image/jpeg,image/png,image/webp">
                         <button type="button" class="btn btn-sm btn-outline-primary upload-performer-image">Upload</button>
                         <a href="<?= $item->image ?>" class="btn btn-sm btn-outline-secondary performer-download-link<?= ($item->image ?? '') === '' ? ' d-none' : '' ?>" download>Download</a>
@@ -56,8 +58,9 @@ $openingTimeHours = $openingTime->getItemsByCategorie('opening_hours') ?? [];
             <input type="hidden" name="sections[history][subtitle]" value="<?= htmlspecialchars($history?->subTitle ?? '') ?>">
             <input type="hidden" name="sections[history][description]" value="<?= htmlspecialchars($history?->description ?? '') ?>">
             <?php foreach ($historyItems as $index => $item): ?>
-                <div class="mb-3">
+                <div class="mb-3" data-tour-upload-row="1" data-tour-section-type="history" data-tour-item-category="<?= htmlspecialchars((string)($item->category ?? '')) ?>">
                     <input type="hidden" name="items[history][<?= $index ?>][id]" class="tour-item-id" value="<?= (int)$item->id ?>">
+                    <input type="hidden" name="items[history][<?= (int)$index ?>][image_path]" class="performer-artist-image" value="<?= htmlspecialchars($item->image ?? '') ?>">
                     <textarea name="items[history][<?= $index ?>][title]" data-quill="1" class="form-control mb-2" rows="2"><?= htmlspecialchars($item->title) ?></textarea>
                     <input type="file" class="form-control form-control-sm performer-upload-input" accept="image/jpeg,image/png,image/webp">
                         <button type="button" class="btn btn-sm btn-outline-primary upload-performer-image">Upload</button>
@@ -75,8 +78,9 @@ $openingTimeHours = $openingTime->getItemsByCategorie('opening_hours') ?? [];
             <input type="hidden" name="sections[did_you_know][subtitle]" value="<?= htmlspecialchars($didYouKnow?->subTitle ?? '') ?>">
             <input type="hidden" name="sections[did_you_know][description]" value="<?= htmlspecialchars($didYouKnow?->description ?? '') ?>">
             <?php foreach ($didYouKnowItems as $index => $item): ?>
-                <div class="mb-3">
+                <div class="mb-3" data-tour-upload-row="1" data-tour-section-type="did_you_know" data-tour-item-category="<?= htmlspecialchars((string)($item->category ?? '')) ?>">
                     <input type="hidden" name="items[did_you_know][<?= (int)$index ?>][id]" class="tour-item-id" value="<?= (int)$item->id ?>">
+                    <input type="hidden" name="items[did_you_know][<?= (int)$index ?>][image_path]" class="performer-artist-image" value="<?= htmlspecialchars($item->image ?? '') ?>">
                     <textarea name="items[did_you_know][<?= (int)$index ?>][title]" data-quill="1" class="form-control mb-2" rows="2"><?= htmlspecialchars($item->title) ?></textarea>
                     <input type="file" class="form-control form-control-sm performer-upload-input" accept="image/jpeg,image/png,image/webp">
                         <button type="button" class="btn btn-sm btn-outline-primary upload-performer-image">Upload</button>
@@ -129,6 +133,9 @@ $openingTimeHours = $openingTime->getItemsByCategorie('opening_hours') ?? [];
     </form>
 </div>
 
+<?php include __DIR__ . '/../../partialsViews/cms/upload-feedback-modal.php'; ?>
+
+<script src="/js/cms/upload-feedback.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
-<?php $tourDetailsJsVersion = @filemtime(__DIR__ . '/../../../../public/js/cms/tour-details.js') ?: time(); ?>
-<script src="/js/cms/tour-details.js?v=<?= (int)$tourDetailsJsVersion ?>"></script>
+<script src="/js/cms/page-editor.js"></script>
+<script src="/js/cms/tour-details.js"></script>

@@ -200,7 +200,7 @@ class ScheduleRepository implements IScheduleRepository
         try {
             $this->updateEventVenues($eventId, $venueRows);
             $this->updateEventPerformers($eventId, $performerRows);
-            $this->syncDetailPageSlugsToPerformers($eventId, $performerRows);
+            $this->syncDetailPagePageSlugsToPerformers($eventId, $performerRows);
             $this->updateEventSessions($eventId, $sessionRows);
             $this->replaceEventSessionPerformers($eventId, $sessionPerformerRows);
             $this->db->commit();
@@ -282,6 +282,34 @@ class ScheduleRepository implements IScheduleRepository
         }
     }
 
+    private function syncDetailPagePageSlugsToPerformers(int $eventId, array $performerRows): void
+    {
+        if ($performerRows === []) {
+            return;
+        }
+
+        $update = $this->db->prepare(
+            'UPDATE pages p
+             INNER JOIN event_detail_pages edp ON edp.page_id = p.id
+             SET p.slug = :page_slug
+             WHERE edp.event_id = :event_id
+               AND edp.performer_id = :performer_id'
+        );
+
+        foreach ($performerRows as $row) {
+            $pageSlug = trim((string)($row['page_slug'] ?? ''));
+            if ($pageSlug === '') {
+                continue;
+            }
+
+            $update->execute([
+                ':page_slug' => $pageSlug,
+                ':event_id' => $eventId,
+                ':performer_id' => (int)$row['id'],
+            ]);
+        }
+    }
+
     private function replaceEventSessionPerformers(int $eventId, array $rows): void
     {
         $delete = $this->db->prepare(
@@ -305,32 +333,6 @@ class ScheduleRepository implements IScheduleRepository
             $insert->execute([
                 ':session_id' => $row['session_id'],
                 ':performer_id' => $row['performer_id'],
-            ]);
-        }
-    }
-    private function syncDetailPageSlugsToPerformers(int $eventId, array $performerRows): void
-    {
-        if ($performerRows === []) {
-            return;
-        }
-
-        $update = $this->db->prepare(
-            'UPDATE event_detail_pages
-             SET detail_slug = :detail_slug
-             WHERE event_id = :event_id
-               AND performer_id = :performer_id'
-        );
-
-        foreach ($performerRows as $row) {
-            $slug = trim((string)($row['detail_slug'] ?? ''));
-            if ($slug === '') {
-                continue;
-            }
-
-            $update->execute([
-                ':detail_slug' => $slug,
-                ':event_id' => $eventId,
-                ':performer_id' => (int)$row['id'],
             ]);
         }
     }

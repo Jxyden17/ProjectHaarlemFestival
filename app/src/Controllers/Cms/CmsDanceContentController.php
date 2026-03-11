@@ -55,13 +55,13 @@ class CmsDanceContentController extends BaseController
     {
         $this->requireAdmin();
 
-        $detailSlug = trim((string)($vars['detailSlug'] ?? ''));
-        $contentViewModel = $this->danceService->getDanceDetailFormData($detailSlug);
+        $pageSlug = trim((string)($vars['pageSlug'] ?? ''));
+        $contentViewModel = $this->danceService->getDanceDetailFormData($pageSlug);
 
         $this->renderCms('cms/events/dance-detail', [
             'title' => $contentViewModel->editorTitle,
             'contentViewModel' => $contentViewModel,
-            'formAction' => '/cms/events/dance-detail/' . $contentViewModel->detailSlug,
+            'formAction' => '/cms/events/dance-detail/' . $contentViewModel->pageSlug,
             'success' => isset($_GET['saved']),
         ]);
     }
@@ -70,20 +70,20 @@ class CmsDanceContentController extends BaseController
     {
         $this->requireAdmin();
 
-        $detailSlug = trim((string)($vars['detailSlug'] ?? ''));
+        $pageSlug = trim((string)($vars['pageSlug'] ?? ''));
         $request = DanceDetailContentRequest::fromArray($_POST);
 
         try {
-            $this->danceService->saveDanceDetailPage($detailSlug, $request);
-            header('Location: /cms/events/dance-detail/' . rawurlencode($detailSlug) . '?saved=1');
+            $this->danceService->saveDanceDetailPage($pageSlug, $request);
+            header('Location: /cms/events/dance-detail/' . rawurlencode($pageSlug) . '?saved=1');
             exit;
         } catch (\Throwable $e) {
-            $baseViewModel = $this->danceService->getDanceDetailFormData($detailSlug);
+            $baseViewModel = $this->danceService->getDanceDetailFormData($pageSlug);
             $contentViewModel = $this->cmsDanceMapper->mapDetailRequestToContentViewModel($request, $baseViewModel);
             $this->renderCms('cms/events/dance-detail', [
                 'title' => $contentViewModel->editorTitle,
                 'contentViewModel' => $contentViewModel,
-                'formAction' => '/cms/events/dance-detail/' . $contentViewModel->detailSlug,
+                'formAction' => '/cms/events/dance-detail/' . $contentViewModel->pageSlug,
                 'error' => $e->getMessage(),
                 'success' => false,
             ]);

@@ -5,6 +5,7 @@ $discoverGridItems = $discover?->getItemsByCategorie('grid') ?? [];
 $discoverPriceItems = $discover?->getItemsByCategorie('price') ?? [];
 $discoverInfoItems = $discover?->getItemsByCategorie('info') ?? [];
 $guideItems = $guide?->getItemsByCategorie('guide') ?? [];
+$pageSlug = (string)($pageSlug ?? 'tour-home');
 ?>
 
 <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
@@ -20,7 +21,7 @@ $guideItems = $guide?->getItemsByCategorie('guide') ?? [];
     include __DIR__ . '/../../partialsViews/cms/form-feedback.php';
     ?>
 
-    <form method="POST" action="/cms/events/tour-home" class="card">
+    <form method="POST" action="/cms/events/tour-home" class="card" data-tour-page-slug="<?= htmlspecialchars($pageSlug) ?>">
         <div class="card-body">
             <h2 class="h2">Header</h2>
             <div class="mb-3">
@@ -37,8 +38,9 @@ $guideItems = $guide?->getItemsByCategorie('guide') ?? [];
             <div class="mb-3">
                 <label class="form-label">Fotos of Header</label>
                 <?php foreach ($heroItems as $index => $item): ?>
-                    <div class="d-flex flex-wrap gap-2 align-items-center performer-image-row mb-2">
+                    <div class="d-flex flex-wrap gap-2 align-items-center performer-image-row mb-2" data-tour-upload-row="1" data-tour-section-type="hero" data-tour-item-category="<?= htmlspecialchars((string)($item->category ?? '')) ?>">
                         <input type="hidden" name="items[hero][<?= (int)$index ?>][id]" class="tour-item-id" value="<?= (int)($item->id) ?>">
+                        <input type="hidden" name="items[hero][<?= (int)$index ?>][image_path]" class="performer-artist-image" value="<?= htmlspecialchars($item->image ?? '') ?>">
                         <input type="hidden" name="items[hero][<?= (int)$index ?>][title]" value="<?= htmlspecialchars($item->title ?? '') ?>">
                         <input type="hidden" name="items[hero][<?= (int)$index ?>][content]" value="<?= htmlspecialchars($item->content ?? '') ?>">
                         <input type="hidden" name="items[hero][<?= (int)$index ?>][link_url]" value="<?= htmlspecialchars($item->url ?? '') ?>">
@@ -61,8 +63,9 @@ $guideItems = $guide?->getItemsByCategorie('guide') ?? [];
             </div>
 
             <?php foreach ($stopsItems as $index => $item): ?>
-                <div class="mb-3">
+                <div class="mb-3" data-tour-upload-row="1" data-tour-section-type="tour_overview" data-tour-item-category="<?= htmlspecialchars((string)($item->category ?? '')) ?>">
                     <input type="hidden" name="items[tour_overview][<?= (int)$index ?>][id]" class="tour-item-id" value="<?= (int)($item->id) ?>">
+                    <input type="hidden" name="items[tour_overview][<?= (int)$index ?>][image_path]" class="performer-artist-image" value="<?= htmlspecialchars($item->image ?? '') ?>">
                     <label class="form-label">Letter</label>
                     <textarea name="items[tour_overview][<?= (int)$index ?>][icon_class]" data-quill="1" class="form-control mb-2" rows="2" required><?= htmlspecialchars($item->icon ?? '') ?></textarea>
 
@@ -167,8 +170,9 @@ $guideItems = $guide?->getItemsByCategorie('guide') ?? [];
             </div>
 
             <?php foreach ($guideItems as $index => $item): ?>
-                <div class="mb-3">
+                <div class="mb-3" data-tour-upload-row="1" data-tour-section-type="guide" data-tour-item-category="<?= htmlspecialchars((string)($item->category ?? '')) ?>">
                     <input type="hidden" name="items[guide][<?= (int)$index ?>][id]" class="tour-item-id" value="<?= (int)$item->id ?>">
+                    <input type="hidden" name="items[guide][<?= (int)$index ?>][image_path]" class="performer-artist-image" value="<?= htmlspecialchars($item->image ?? '') ?>">
 
                     <input type="file" class="form-control form-control-sm performer-upload-input mb-2" accept="image/jpeg,image/png,image/webp">
                     <button type="button" class="btn btn-sm btn-outline-primary upload-performer-image mb-2">Upload</button>
@@ -193,6 +197,9 @@ $guideItems = $guide?->getItemsByCategorie('guide') ?? [];
     </form>
 </div>
 
+<?php include __DIR__ . '/../../partialsViews/cms/upload-feedback-modal.php'; ?>
+
+<script src="/js/cms/upload-feedback.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
-<?php $tourHomeJsVersion = @filemtime(__DIR__ . '/../../../../public/js/cms/tour-home.js') ?: time(); ?>
-<script src="/js/cms/tour-home.js?v=<?= (int)$tourHomeJsVersion ?>"></script>
+<script src="/js/cms/page-editor.js"></script>
+<script src="/js/cms/tour-home.js"></script>

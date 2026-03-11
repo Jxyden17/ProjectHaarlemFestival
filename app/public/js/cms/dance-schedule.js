@@ -1,4 +1,11 @@
 const scheduleForm = document.querySelector('form[action*="/cms/events/"][action$="/schedule"]');
+const uploadFeedback = window.CmsUploadFeedback || {
+    showUploadFeedback() {},
+    setUploadingState() {},
+    resolveUploadErrorMessage(error, fallbackMessage) {
+        return fallbackMessage;
+    }
+};
 
 function applyUploadedPerformerImage(row, path) {
     const imagePathInput = row.querySelector('.performer-artist-image');
@@ -20,13 +27,20 @@ async function uploadPerformerImage(row, button) {
     const currentPathInput = row.querySelector('.performer-artist-image');
 
     if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
-        alert('Please choose an image first.');
+        uploadFeedback.showUploadFeedback('Upload failed', 'Please choose an image first.', 'danger');
         return;
     }
 
     const sectionItemId = sectionItemIdInput ? Number(sectionItemIdInput.value || 0) : 0;
     if (sectionItemId <= 0) {
-        alert('Missing artist image row. Please configure artist images in dance content first.');
+        uploadFeedback.showUploadFeedback(
+            'Upload failed',
+            uploadFeedback.resolveUploadErrorMessage(
+                new Error('Missing artist image row. Please configure artist images in dance content first.'),
+                'Image upload failed.'
+            ),
+            'danger'
+        );
         return;
     }
 
@@ -36,7 +50,7 @@ async function uploadPerformerImage(row, button) {
     formData.append('section_item_id', String(sectionItemId));
     formData.append('current_path', currentPathInput ? currentPathInput.value : '');
 
-    button.disabled = true;
+    uploadFeedback.setUploadingState(button, true);
     try {
         const response = await fetch('/cms/media/upload-replace', {
             method: 'POST',
@@ -49,10 +63,15 @@ async function uploadPerformerImage(row, button) {
         }
 
         applyUploadedPerformerImage(row, payload.path);
+        uploadFeedback.showUploadFeedback('Upload complete', 'Image uploaded successfully.', 'success');
     } catch (error) {
-        alert(error && error.message ? error.message : 'Image upload failed.');
+        uploadFeedback.showUploadFeedback(
+            'Upload failed',
+            uploadFeedback.resolveUploadErrorMessage(error, 'Image upload failed.'),
+            'danger'
+        );
     } finally {
-        button.disabled = false;
+        uploadFeedback.setUploadingState(button, false);
         fileInput.value = '';
     }
 }

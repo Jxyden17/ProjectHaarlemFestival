@@ -102,7 +102,7 @@ try {
         $r->addRoute('GET', '/tour/details', ['TourController', 'details']);
 
         $r->addRoute('GET', '/dance', ['DanceController', 'index']);
-        $r->addRoute('GET', '/dance/{detailSlug}', ['DanceController', 'detail']);
+        $r->addRoute('GET', '/dance/{pageSlug}', ['DanceController', 'detail']);
 
         $r->addRoute('GET', '/yummy', ['YummyController', 'index']);
         $r->addRoute('GET', '/yummy/{slug}', ['YummyController', 'restaurant']);
@@ -119,8 +119,8 @@ try {
         $r->addRoute('POST', '/cms/events/{eventSlug}/schedule', ['CmsEventEditorController', 'update']);
         $r->addRoute('GET', '/cms/events/dance-home', ['CmsDanceContentController', 'index']);
         $r->addRoute('POST', '/cms/events/dance-home', ['CmsDanceContentController', 'update']);
-        $r->addRoute('GET', '/cms/events/dance-detail/{detailSlug}', ['CmsDanceContentController', 'detail']);
-        $r->addRoute('POST', '/cms/events/dance-detail/{detailSlug}', ['CmsDanceContentController', 'updateDetail']);
+        $r->addRoute('GET', '/cms/events/dance-detail/{pageSlug}', ['CmsDanceContentController', 'detail']);
+        $r->addRoute('POST', '/cms/events/dance-detail/{pageSlug}', ['CmsDanceContentController', 'updateDetail']);
         $r->addRoute('GET', '/cms/events/tour-home', ['CmsTourContentController', 'index']);
         $r->addRoute('POST', '/cms/events/tour-home', ['CmsTourContentController', 'update']);
         $r->addRoute('GET', '/cms/events/tour-details', ['CmsTourContentController', 'details']);

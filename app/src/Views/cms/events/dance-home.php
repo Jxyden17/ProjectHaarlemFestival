@@ -214,5 +214,5 @@ $passes = $contentViewModel->passes;
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
-<?php $danceHomeJsVersion = @filemtime(__DIR__ . '/../../../../public/js/cms/dance-home.js') ?: time(); ?>
-<script src="/js/cms/dance-home.js?v=<?= (int)$danceHomeJsVersion ?>"></script>
+<script src="/js/cms/page-editor.js"></script>
+<script src="/js/cms/dance-home.js"></script>
