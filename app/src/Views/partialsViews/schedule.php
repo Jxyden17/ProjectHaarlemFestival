@@ -18,10 +18,10 @@ if ($normalizedEventName === 'a stroll through history') {
     $eventType = 'tour';
 } elseif ($normalizedEventName === 'tellingstory') {
     $eventType = 'stories';
-} elseif ($normalizedEventName === 'dance'||$normalizedEventName === 'jazz') {
+} elseif ($normalizedEventName === 'dance'){//||$normalizedEventName === 'jazz') {
     $eventType = 'dance';
-//}elseif ($normalizedEventName === 'jazz') {
-//    $eventType = 'jazz';
+}elseif ($normalizedEventName === 'jazz') {
+    $eventType = 'jazz';
 } else {
     $eventType = 'home';
 }
@@ -193,6 +193,52 @@ if ($scheduleSectionClass !== '') {
                                     </span>
                                 </div>
                                 <div><?= htmlspecialchars($row->availableTickets . '/' . $row->totalTickets) ?></div>
+                                <div class="schedule-price"><?= htmlspecialchars($row->price) ?></div>
+                            <?php elseif ($isJazz): ?>
+                                <div jazz-schedule-img-holder>
+                                        <?php
+                                        $specialImages = [
+                                            "rilan & the bombadiers" => "Rilan-&-The-Bombadiers",
+                                            "eric vloeimans and hotspot!" => "hotspot"
+                                        ];
+                                        $performerNameClean = strtolower(trim($row->event));
+                                        if (isset($specialImages[$performerNameClean])) {
+                                            $imgName = $specialImages[$performerNameClean];
+                                        } else 
+                                        {
+                                            $imgName = preg_replace('/[^a-z0-9]+/', '-', $performerNameClean);
+                                        }
+                                        $imgPath = "/img/jazzIMG/{$imgName}.png";
+                                        ?>
+                                        <div class="jazz-artist-card">
+                                            <img src="<?= $imgPath ?>" alt="<?= htmlspecialchars($row->event) ?>">
+                                        </div>
+                                    </div>
+                                <div class="<?= $scheduleHasIcons ? 'schedule-cell schedule-cell--time' : '' ?>">
+                                    <?php if ($scheduleHasIcons): ?>
+                                        <span class="schedule-cell-icon"><i data-lucide="clock-3" aria-hidden="true"></i></span>
+                                    <?php endif; ?>
+                                    <span><?= htmlspecialchars($row->time) ?></span>
+                                </div>
+                                <div><?= htmlspecialchars($row->location) ?></div>
+                                <div class="<?= $scheduleHasIcons ? 'schedule-cell schedule-cell--location' : '' ?>">
+                                    <?php if ($scheduleHasIcons): ?>
+                                        <span class="schedule-cell-icon"><i data-lucide="map-pin" aria-hidden="true"></i></span>
+                                    <?php endif; ?>
+                                    <span><?= htmlspecialchars($row->event) ?></span>
+                                </div>
+                                    <span class="jazz-free-spots">
+                                        <?php if($row->totalTickets=="-1")
+                                        {
+                                            $ticketShow="∞";
+                                        }
+                                        else
+                                        {
+                                             $ticketShow=$row->availableTickets . '/' . $row->totalTickets;
+                                        }
+                                        ?>
+                                      <div><?= htmlspecialchars($ticketShow) ?></div>
+                                    </span>
                                 <div class="schedule-price"><?= htmlspecialchars($row->price) ?></div>
                             <?php elseif ($isDance): ?>
                                 <div class="<?= $scheduleHasIcons ? 'schedule-cell schedule-cell--date' : '' ?>">

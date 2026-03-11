@@ -266,3 +266,13 @@
         max-width: 9rem;
     }
 }
+.jazz-free-spots
+{
+    color:#6E11B0;
+    background-color:#F3E8FF;
+    border-radius: 999rem;
+    max-width: 3.3rem;
+    display: flex; 
+    align-items: center;
+    justify-content: center;
+}
