@@ -1,15 +1,35 @@
-<div class="py-4">
-    <h1 class="mb-3">Welcome<?php if (isset($email) && $email !== ''): ?>, <?= htmlspecialchars($email) ?><?php endif; ?>.</h1>
-    <p class="lead">This is your starter template. Use it as a clean base for new projects.</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title> <?=htmlentities($section->title) ?></title>
+    <link href="/css/Home/index.css" rel="stylesheet">
+</head>
+<body>
 
-    <?php if (!isset($email) || $email === ''): ?>
-        <div class="mt-4">
-            <a class="btn btn-primary me-2" href="/login">Login</a>
-            <a class="btn btn-outline-secondary" href="/register">Register</a>
-        </div>
-    <?php else: ?>
-        <div class="mt-4">
-            <a class="btn btn-outline-secondary" href="/logout">Logout</a>
-        </div>
+    <?php if ($hero): ?>
+        <?php $section = $hero; include __DIR__ . '/../partialsViews/Home/hero.php'; ?>
     <?php endif; ?>
-</div>
+
+    <?php if ($about): ?>
+        <?php $section = $about; include __DIR__ . '/../partialsViews/Home/about.php'; ?>
+    <?php endif; ?>
+
+    <?php if ($discover): ?>
+        <?php $section = $discover; include __DIR__ . '/../partialsViews/Home/discover.php'; ?>
+    <?php endif; ?>
+
+    <?php if ($scheduleData): ?>
+        <?php $section = $scheduleData; include __DIR__ . '/../partialsViews/schedule.php'; ?>
+    <?php endif; ?> 
+
+    <?php if ($map): ?>
+        <?php $section = $map; include __DIR__ . '/../partialsViews/Home/map.php'; ?>
+    <?php endif; ?> 
+
+    <?php if ($faq): ?>
+        <?php $section = $faq; include __DIR__ . '/../partialsViews/Home/faq.php'; ?>
+    <?php endif; ?>
+</body>
+</html>

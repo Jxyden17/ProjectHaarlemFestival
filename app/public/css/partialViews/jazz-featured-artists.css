@@ -10,8 +10,9 @@
 }
 
 .jazz-artists-title {
-    display: inline-flex;
+    display: flex;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
     color: var(--natural-light);
     font-size: 1.55rem;
@@ -40,9 +41,9 @@
     position: relative;
     overflow: hidden;
     border-radius: 0.45rem;
-    border: 0.0625rem solid var(--dance-card-border);
+    border: 0.0625rem ;
     aspect-ratio: 1.55 / 1;
-    background: var(--dance-card-bg);
+   
 }
 
 .jazz-artist-card img {

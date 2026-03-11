@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Haarlem Festival</title>
+    <title><?= htmlspecialchars($pageTitle ?? 'Tour Event') ?></title>
     <link href="/css/Tour/index.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/partialViews/schedule.css">
 </head>
 <body>
 
@@ -20,9 +21,9 @@
         <?php $section = $discover; include __DIR__ . '/../partialsViews/Tour/description.php'; ?>
     <?php endif; ?>
 
-    <!--<?php if ($schedule): ?>
-        <?php $section = $schedule; include __DIR__ . '/../partialsViews/schedule.php'; ?>
-    <?php endif; ?> -->
+    <?php if ($scheduleData): ?>
+        <?php $section = $scheduleData; include __DIR__ . '/../partialsViews/schedule.php'; ?>
+    <?php endif; ?>
 
     <?php if ($guide): ?>
         <?php $section = $guide; include __DIR__ . '/../partialsViews/Tour/route_guides.php'; ?>

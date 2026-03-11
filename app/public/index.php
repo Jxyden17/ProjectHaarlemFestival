@@ -20,44 +20,70 @@ $renderErrorPage = static function (int $statusCode, string $title, string $mess
 };
 
 try {
-    // Repositories
+    $eventMapper = new App\Mapper\EventMapper();
+    $danceMapper = new App\Mapper\DanceMapper($eventMapper);
+    $pageMapper = new App\Mapper\PageMapper();
+    $scheduleMapper = new App\Mapper\ScheduleMapper($eventMapper);
+
     $userRepo = new App\Repository\UserRepository();
     $passwordResetRepo = new App\Repository\PasswordResetRepository();
-    $scheduleRepo = new App\Repository\ScheduleRepository();
-    $danceRepo = new App\Repository\DanceRepository();
+    $scheduleRepo = new App\Repository\ScheduleRepository($scheduleMapper);
+    $danceRepo = new App\Repository\DanceRepository($danceMapper);
+    $mediaRepo = new App\Repository\MediaRepository();
     $pageRepo = new App\Repository\PageRepository();
-    $jazzRepo = new App\Repository\JazzDummyRepository();
+    $jazzRepo = new App\Repository\JazzRepository();
+    $yummyRepo = new App\Repository\YummyRepository();
 
-
-    // Services
     $mailConfig = App\Models\MailConfig::fromEnvironment();
-    $pageService = new App\Service\PageService($pageRepo);
+    $pageService = new App\Service\PageService($pageRepo, $pageMapper);
     $mailService = new App\Service\MailService($mailConfig);
-    $scheduleService = new App\Service\ScheduleService($scheduleRepo);
-    $danceService = new App\Service\DanceService($danceRepo);
-    $jazzService = new App\Service\JazzService($jazzRepo,$scheduleRepo);
-
+    $htmlSanitizerService = new App\Service\HtmlSanitizerService();
+    $scheduleService = new App\Service\ScheduleService($scheduleRepo, $scheduleMapper);
+    $danceService = new App\Service\DanceService($danceRepo, $pageService);
+    $danceViewModelMapper = new App\Mapper\DanceViewModelMapper($danceService, $scheduleService);
+    $mediaService = new App\Service\MediaService($mediaRepo, $danceRepo);
+    $yummyService = new App\Service\YummyService($yummyRepo);
+    $jazzService = new App\Service\JazzService($jazzRepo, $scheduleRepo);
     $authService = new App\Service\AuthService($userRepo, $passwordResetRepo, $mailService);
-    $cmsService = new App\Service\CmsService($userRepo);
 
-    // Controllers
+    $cmsScheduleMapper = new App\Mapper\CmsScheduleMapper($danceService);
+    $cmsDanceMapper = new App\Mapper\CmsDanceMapper();
+    $cmsScheduleService = new App\Service\Cms\CmsScheduleService($scheduleRepo);
+    $cmsDanceService = new App\Service\Cms\CmsDanceService(
+        $danceRepo,
+        $pageRepo,
+        $pageService,
+        $htmlSanitizerService,
+        $cmsDanceMapper
+    );
+    $cmsService = new App\Service\Cms\CmsService($userRepo);
+    $cmsEventEditorService = new App\Service\Cms\CmsEventEditorService(
+        $scheduleService,
+        $cmsScheduleMapper,
+        $pageRepo
+    );
+
     $authController = new App\Controllers\AuthController($authService);
-    $homeController = new App\Controllers\HomeController();
-    $danceController = new App\Controllers\DanceController($scheduleService, $danceService);
-    $tourController = new App\Controllers\TourController($pageService);
+    $homeController = new App\Controllers\HomeController($pageService, $scheduleService);
+    $danceController = new App\Controllers\DanceController($danceService, $danceViewModelMapper);
+    $tourController = new App\Controllers\TourController($pageService, $scheduleService);
+    $jazzController = new App\Controllers\JazzController($scheduleService, $jazzService);
+    $yummyController = new App\Controllers\YummyController($yummyService);
+
     $cmsController = new App\Controllers\Cms\CmsController($cmsService);
     $cmsEventsController = new App\Controllers\Cms\CmsEventsController($cmsService);
     $cmsTicketsController = new App\Controllers\Cms\CmsTicketsController($cmsService);
     $cmsUsersController = new App\Controllers\Cms\CmsUsersController($cmsService);
     $jazzController = new App\Controllers\JazzController($scheduleService, $jazzService);
-    $UserController = new App\Controllers\UserController($cmsService);
+    $storiesController = new App\Controllers\StoriesController($pageService);
+    $cmsDanceContentController = new App\Controllers\Cms\CmsDanceContentController($cmsDanceService);
+    $cmsEventEditorController = new App\Controllers\Cms\CmsEventEditorController($cmsScheduleService, $cmsEventEditorService);
+    $cmsMediaController = new App\Controllers\Cms\CmsMediaController($mediaService);
+    $cmsTourContentController = new App\Controllers\Cms\CmsTourContentController($pageService, $cmsEventEditorService);
 
-    // Routes
     $dispatcher = simpleDispatcher(function (RouteCollector $r) {
-        // Home route
         $r->addRoute('GET', '/', ['HomeController', 'index']);
 
-        // Auth routes
         $r->addRoute('GET', '/login', ['AuthController', 'showLogin']);
         $r->addRoute('POST', '/login', ['AuthController', 'login']);
         $r->addRoute('GET', '/register', ['AuthController', 'showRegister']);
@@ -68,34 +94,47 @@ try {
         $r->addRoute('POST', '/reset-password', ['AuthController', 'resetPassword']);
         $r->addRoute('GET', '/logout', ['AuthController', 'logout']);
 
-        //Tour
         $r->addRoute('GET', '/tour', ['TourController', 'index']);
         $r->addRoute('GET', '/tour/details', ['TourController', 'details']);
 
-        // Dance routes
         $r->addRoute('GET', '/dance', ['DanceController', 'index']);
+        $r->addRoute('GET', '/dance/{detailSlug}', ['DanceController', 'detail']);
+
+        $r->addRoute('GET', '/yummy', ['YummyController', 'index']);
+        $r->addRoute('GET', '/yummy/{slug}', ['YummyController', 'restaurant']);
+
+        //Stories Routes
+        $r->addRoute('GET', '/stories', ['StoriesController', 'index']);
+        $r->addRoute('GET', '/stories/details', ['StoriesController', 'details']);
+        $r->addRoute('GET', '/stories/{slug}', ['StoriesController', 'details']);
 
         // CMS routes
         $r->addRoute('GET', '/cms', ['CmsController', 'index']);
         $r->addRoute('GET', '/cms/events', ['CmsEventsController', 'index']);
+        $r->addRoute('GET', '/cms/events/{eventSlug}/schedule', ['CmsEventEditorController', 'index']);
+        $r->addRoute('POST', '/cms/events/{eventSlug}/schedule', ['CmsEventEditorController', 'update']);
+        $r->addRoute('GET', '/cms/events/dance-home', ['CmsDanceContentController', 'index']);
+        $r->addRoute('POST', '/cms/events/dance-home', ['CmsDanceContentController', 'update']);
+        $r->addRoute('GET', '/cms/events/dance-detail/{detailSlug}', ['CmsDanceContentController', 'detail']);
+        $r->addRoute('POST', '/cms/events/dance-detail/{detailSlug}', ['CmsDanceContentController', 'updateDetail']);
+        $r->addRoute('GET', '/cms/events/tour-home', ['CmsTourContentController', 'index']);
+        $r->addRoute('POST', '/cms/events/tour-home', ['CmsTourContentController', 'update']);
+        $r->addRoute('GET', '/cms/events/tour-details', ['CmsTourContentController', 'details']);
+        $r->addRoute('POST', '/cms/events/tour-details', ['CmsTourContentController', 'detailsUpdate']);
+        $r->addRoute('POST', '/cms/media/upload-replace', ['CmsMediaController', 'uploadReplace']);
+        $r->addRoute('POST', '/cms/media/upload-audio', ['CmsMediaController', 'uploadAudio']);
         $r->addRoute('GET', '/cms/tickets', ['CmsTicketsController', 'index']);
         $r->addRoute('GET', '/cms/users', ['CmsUsersController', 'index']);
         $r->addRoute('GET', '/cms/users/create', ['CmsUsersController', 'showCreateForm']);
         $r->addRoute('POST', '/cms/users/create', ['CmsUsersController', 'addUser']);
-        $r->addRoute('GET', '/cms/users/edit', ['CmsUsersController', 'showAdminEditForm']);
-        $r->addRoute('GET', '/cms/users/editSelf', ['CmsUsersController', 'showSelfEditForm']);
-        $r->addRoute('POST', '/cms/users/edit', ['CmsUsersController', 'editUserAsAdmin']);
-        $r->addRoute('POST', '/cms/users/editSelf', ['CmsUsersController', 'editUserAsUser']);
+        $r->addRoute('GET', '/cms/users/edit', ['CmsUsersController', 'showEditForm']);
+        $r->addRoute('POST', '/cms/users/edit', ['CmsUsersController', 'editUser']);
         $r->addRoute('GET', '/cms/users/delete', ['CmsUsersController', 'showDeleteConfirmation']);
         $r->addRoute('POST', '/cms/users/delete', ['CmsUsersController', 'deleteUser']);
-        // Jazz routes
-        $r->addRoute('GET', '/jazz', ['JazzController', 'index']);
-        // User routes
-        $r->addRoute('GET', '/user', ['UserController', 'index']);
 
+        $r->addRoute('GET', '/jazz', ['JazzController', 'index']);
     });
 
-    // Dispatch request
     $httpMethod = $_SERVER['REQUEST_METHOD'];
     $uri = strtok($_SERVER['REQUEST_URI'], '?');
     $routeInfo = $dispatcher->dispatch($httpMethod, $uri);
@@ -116,27 +155,40 @@ try {
                 'HomeController' => $homeController,
                 'DanceController' => $danceController,
                 'TourController' => $tourController,
+                'YummyController' => $yummyController,
                 'CmsController' => $cmsController,
                 'JazzController' => $jazzController,
+                'StoriesController' => $storiesController,
                 'CmsEventsController' => $cmsEventsController,
                 'CmsTicketsController' => $cmsTicketsController,
                 'CmsUsersController' => $cmsUsersController,
-                'UserController' => $UserController,
+                'CmsEventEditorController' => $cmsEventEditorController,
+                'CmsDanceContentController' => $cmsDanceContentController,
+                'CmsTourContentController' => $cmsTourContentController,
+                'CmsMediaController' => $cmsMediaController,
             ];
 
             if (!isset($controllerMap[$controllerName])) {
-                $renderErrorPage(500, 'Application error', 'The requested controller could not be resolved.', $showDebug, "Controller not found: {$controllerName}");
+                $renderErrorPage(
+                    500,
+                    'Application error',
+                    'The requested controller could not be resolved.',
+                    $showDebug,
+                    "Controller not found: {$controllerName}"
+                );
             }
 
             $controller = $controllerMap[$controllerName];
-
-            // Call the method and pass dynamic route variables
             $controller->$method($vars);
             break;
     }
 } catch (\Throwable $e) {
-  # $debugError = $e->getMessage();
-   # $renderErrorPage(503, 'Service temporarily unavailable', 'We cannot connect to the database right now. Please try again in a moment.', $showDebug, $debugError
-    #);
-    var_dump($e);
+    $debugError = $e->getMessage();
+    $renderErrorPage(
+        503,
+        'Service temporarily unavailable',
+        'We cannot connect to the database right now. Please try again in a moment.',
+        $showDebug,
+        $debugError
+    );
 }

@@ -2,251 +2,176 @@
 
 namespace App\Service;
 
-use App\Models\PerformerModel;
-use App\Models\SessionModel;
-use App\Models\SessionPerformerModel;
-use App\Models\VenueModel;
-use App\Models\EventModel;
-use App\Repository\ScheduleRepository;
-use App\Service\Interfaces\IScheduleService;
-use App\Models\ViewModels\Shared\ScheduleDayFilterViewModel;
+use App\Mapper\ScheduleMapper;
+use App\Models\Event\EventModel;
+use App\Models\Event\SessionModel;
+use App\Models\Event\SessionPerformerModel;
+use App\Models\ViewModels\Cms\Schedule\ScheduleEditorViewModel;
 use App\Models\ViewModels\Shared\ScheduleGroupViewModel;
 use App\Models\ViewModels\Shared\ScheduleRowViewModel;
 use App\Models\ViewModels\Shared\ScheduleViewModel;
+use App\Repository\Interfaces\IScheduleRepository;
+use App\Service\Interfaces\IScheduleService;
 
 class ScheduleService implements IScheduleService
 {
-    private ScheduleRepository $scheduleRepo;
+    private IScheduleRepository $scheduleRepo;
+    private ScheduleMapper $scheduleMapper;
 
-    public function __construct(ScheduleRepository $scheduleRepo)
+    public function __construct(IScheduleRepository $scheduleRepo, ScheduleMapper $scheduleMapper)
     {
         $this->scheduleRepo = $scheduleRepo;
+        $this->scheduleMapper = $scheduleMapper;
     }
 
     public function getScheduleDataForEvent(string $eventName, string $title): ScheduleViewModel
     {
-        $event = $this->scheduleRepo->findEventByName($eventName);
+        $event = $this->getEventRowsOrFail($eventName);
 
-        if ($event === null) {
-            throw new \RuntimeException($eventName . ' event not found.');
+        return $this->scheduleMapper->mapScheduleViewModel($event->sessions, $title, $event->name, false);
+    }
+
+    public function getScheduleDataForAllEvents(string $title): ScheduleViewModel
+    {
+        $events = $this->scheduleRepo->getAllEvents();
+        $allSessions = [];
+
+        if ($events === []) {
+            throw new \RuntimeException('No events found.');
         }
 
-        $venues = $this->scheduleRepo->getVenuesByEventId($event->id);
-        $sessions = $this->scheduleRepo->getSessionsByEventId($event->id);
-        $performers = $this->scheduleRepo->getPerformersByEventId($event->id);
-        $sessionPerformers = $this->scheduleRepo->getSessionPerformersByEventId($event->id);
-
-        $this->linkScheduleModels($event, $venues, $sessions, $performers, $sessionPerformers);
-        return $this->buildScheduleViewModel($event->sessions, $title);
-    }
-
-    private function linkScheduleModels(EventModel $event,array $venues,array $sessions,array $performers,array $sessionPerformers): void {
-        $venueById = $this->indexVenuesById($venues);
-        $performerById = $this->indexPerformersById($performers);
-        $sessionById = $this->linkSessionsToEventAndVenue($event, $sessions, $venueById);
-        $this->linkSessionPerformers($sessionPerformers, $sessionById, $performerById);
-    }
-
-    private function indexVenuesById(array $venues): array
-    {
-        $venueById = [];
-        foreach ($venues as $venue) {
-            if (!$venue instanceof VenueModel) {
+        foreach ($events as $event) {
+            if (!$event instanceof EventModel) {
                 continue;
             }
 
-            $venue->sessions = [];
-            $venueById[$venue->id] = $venue;
-        }
-
-        return $venueById;
-    }
-
-    private function indexPerformersById(array $performers): array
-    {
-        $performerById = [];
-        foreach ($performers as $performer) {
-            if (!$performer instanceof PerformerModel) {
-                continue;
-            }
-
-            $performer->sessionPerformers = [];
-            $performerById[$performer->id] = $performer;
-        }
-
-        return $performerById;
-    }
-
-    private function linkSessionsToEventAndVenue(EventModel $event, array $sessions, array $venueById): array
-    {
-        $sessionById = [];
-        $event->sessions = [];
-
-        foreach ($sessions as $session) {
-            if (!$session instanceof SessionModel) {
-                continue;
-            }
-
-            $session->event = $event;
-            $session->venue = $venueById[$session->venueId] ?? null;
-            $session->sessionPerformers = [];
-            $sessionById[$session->id] = $session;
-            $event->sessions[] = $session;
-
-            if ($session->venue !== null) {
-                $session->venue->sessions[] = $session;
+            $eventFromRows = $this->mapEventRows($event);
+            foreach ($eventFromRows->sessions as $session) {
+                if ($session instanceof SessionModel) {
+                    $allSessions[] = $session;
+                }
             }
         }
 
-        return $sessionById;
+        return $this->scheduleMapper->mapScheduleViewModel($allSessions, $title, 'All Events', true);
     }
 
-    private function linkSessionPerformers(array $sessionPerformers, array $sessionById, array $performerById): void
+    public function getScheduleRowsByPerformerName(string $eventName, string $performerName): array
     {
-        foreach ($sessionPerformers as $sessionPerformer) {
-            if (!$sessionPerformer instanceof SessionPerformerModel) {
-                continue;
-            }
-
-            $session = $sessionById[$sessionPerformer->sessionId] ?? null;
-            $performer = $performerById[$sessionPerformer->performerId] ?? null;
-
-            $sessionPerformer->session = $session;
-            $sessionPerformer->performer = $performer;
-
-            if ($session !== null) {
-                $session->sessionPerformers[] = $sessionPerformer;
-            }
-
-            if ($performer !== null) {
-                $performer->sessionPerformers[] = $sessionPerformer;
-            }
-        }
-    }
-
-    private function buildScheduleViewModel(array $sessions, string $title): ScheduleViewModel
-    {
-        $groups = [];
-        $dayCounts = [];
-
-        foreach ($sessions as $session) {
-            if (!$session instanceof SessionModel) {
-                continue;
-            }
-
-            $this->appendSessionToScheduleGroups($session, $groups, $dayCounts);
+        $performer = trim((string) $performerName);
+        if ($performer === '') {
+            return [];
         }
 
-        $this->finalizeGroupSubtitles($groups);
-        $dayFilters = $this->buildDayFilters($dayCounts);
+        $title = $eventName . ' Festival Schedule';
+        $scheduleData = $this->getScheduleDataForEvent($eventName, $title);
+        $matchingRows = [];
 
-        return new ScheduleViewModel($title, $dayFilters, array_values($groups));
-    }
-
-    private function appendSessionToScheduleGroups(SessionModel $session, array &$groups, array &$dayCounts): void
-    {
-        $dt = new \DateTime($session->date);
-        $dayLabel = $dt->format('l');
-        $dayKey = strtolower($dayLabel);
-        $groupKey = $session->date;
-        $dayCounts[$dayLabel] = ($dayCounts[$dayLabel] ?? 0) + 1;
-
-        if (!isset($groups[$groupKey]) || !$groups[$groupKey] instanceof ScheduleGroupViewModel) {
-            $groups[$groupKey] = $this->createScheduleGroup($dt, $dayKey);
-        }
-
-        $groups[$groupKey]->rows[] = $this->createScheduleRow($session, $dt);
-    }
-
-    private function createScheduleGroup(\DateTime $dt, string $dayKey): ScheduleGroupViewModel
-    {
-        return new ScheduleGroupViewModel(
-            $dt->format('l - F j, Y'),
-            $dayKey,
-            ''
-        );
-    }
-
-    private function createScheduleRow(SessionModel $session, \DateTime $dt): ScheduleRowViewModel
-    {
-        return new ScheduleRowViewModel(
-            $dt->format('M j, Y'),
-            substr($session->startTime, 0, 5),
-            $this->buildEventLabel($session),
-            $session->venue !== null ? $session->venue->venueName : 'Unknown venue',
-            $this->formatPrice($session->price),
-            '/book?session_id=' . $session->id
-        );
-    }
-
-    private function buildEventLabel(SessionModel $session): string
-    {
-        $lineup = $this->buildPerformerLineup($session);
-
-        if (empty($lineup)) {
-            return 'Session';
-        }
-
-        return implode(' B2B ', $lineup);
-    }
-
-    private function buildPerformerLineup(SessionModel $session): array
-    {
-        $lineup = [];
-
-        foreach ($session->sessionPerformers as $sessionPerformer) {
-            if (!$sessionPerformer instanceof SessionPerformerModel) {
-                continue;
-            }
-
-            if ($sessionPerformer->performer !== null) {
-                $lineup[] = $sessionPerformer->performer->performerName;
-            }
-        }
-
-        sort($lineup);
-
-        return $lineup;
-    }
-
-    private function formatPrice(float $price): string
-    {
-        return '€ ' . number_format($price, 2, '.', '');
-    }
-
-    private function finalizeGroupSubtitles(array $groups): void
-    {
-        foreach ($groups as $group) {
+        foreach ($scheduleData->groups as $group) {
             if (!$group instanceof ScheduleGroupViewModel) {
                 continue;
             }
 
-            $group->subtitle = count($group->rows) . ' events scheduled';
+            foreach ($group->rows as $row) {
+                if (!$row instanceof ScheduleRowViewModel) {
+                    continue;
+                }
+
+                if (stripos($row->event, $performer) === false) {
+                    continue;
+                }
+
+                $matchingRows[] = $row;
+            }
         }
+
+        return $matchingRows;
     }
 
-    private function buildDayFilters(array $dayCounts): array
+    public function getScheduleRowsByPerformerId(string $eventName, int $performerId): array
     {
-        $dayFilters = [new ScheduleDayFilterViewModel('all', 'All Days', '', true)];
-
-        foreach ($dayCounts as $day => $count) {
-            $dayFilters[] = new ScheduleDayFilterViewModel(
-                strtolower($day),
-                $day,
-                $this->buildFilterCountLabel($count),
-                false
-            );
+        if ($performerId <= 0) {
+            return [];
         }
 
-        return $dayFilters;
+        $rows = $this->scheduleRepo->getScheduleRowsByEventNameAndPerformerId($eventName, $performerId);
+        if ($rows === []) {
+            return [];
+        }
+
+        $event = $this->scheduleMapper->mapEventRowsToEvent($rows, $eventName);
+        $matchingRows = [];
+
+        foreach ($event->sessions as $session) {
+            if (!$session instanceof SessionModel) {
+                continue;
+            }
+
+            foreach ($session->sessionPerformers as $sessionPerformer) {
+                if (!$sessionPerformer instanceof SessionPerformerModel) {
+                    continue;
+                }
+
+                if ($sessionPerformer->performerId !== $performerId) {
+                    continue;
+                }
+
+                $matchingRows[] = $this->scheduleMapper->mapScheduleRow($session, new \DateTime($session->date));
+                break;
+            }
+        }
+
+        return $matchingRows;
     }
 
-    private function buildFilterCountLabel(int $count): string
+    public function getScheduleEditorData(string $eventName): ScheduleEditorViewModel
     {
-        if ($count <= 0) {
-            return '';
+        $event = $this->findEventOrFail($eventName);
+        $venues = $this->scheduleRepo->getVenuesByEventId((int) $event->id);
+        $performers = $this->scheduleRepo->getPerformersByEventId((int) $event->id);
+        $sessions = $this->scheduleRepo->getSessionsByEventId((int) $event->id);
+        $sessionPerformers = $this->scheduleRepo->getSessionPerformersByEventId((int) $event->id);
+
+        $sessionPerformerMap = $this->scheduleMapper->buildSessionPerformerMap($sessionPerformers);
+
+        return new ScheduleEditorViewModel(
+            $event->name,
+            $this->scheduleMapper->mapVenueRows($venues),
+            $this->scheduleMapper->mapPerformerRows($performers),
+            $this->scheduleMapper->mapSessionRows($sessions, $sessionPerformerMap)
+        );
+    }
+
+    private function findEventOrFail(string $eventName): EventModel
+    {
+        $event = $this->scheduleRepo->findEventByName($eventName);
+        if ($event === null) {
+            throw new \RuntimeException($eventName . ' event not found.');
         }
 
-        return '(' . $count . ')';
+        return $event;
+    }
+
+    private function getEventRowsOrFail(string $eventName): EventModel
+    {
+        $rows = $this->scheduleRepo->getScheduleRowsByEventName($eventName);
+
+        return $this->scheduleMapper->mapEventRowsToEvent($rows, $eventName);
+    }
+
+    private function mapEventRows(EventModel $event): EventModel
+    {
+        $venues = $this->scheduleRepo->getVenuesByEventId((int) $event->id);
+        $performers = $this->scheduleRepo->getPerformersByEventId((int) $event->id);
+        $sessions = $this->scheduleRepo->getSessionsByEventId((int) $event->id);
+        $sessionPerformers = $this->scheduleRepo->getSessionPerformersByEventId((int) $event->id);
+
+        return $this->scheduleMapper->mapEventRowsFromCollections(
+            $event,
+            $venues,
+            $sessions,
+            $performers,
+            $sessionPerformers
+        );
     }
 }

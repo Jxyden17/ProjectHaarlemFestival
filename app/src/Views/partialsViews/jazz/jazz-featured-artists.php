@@ -1,9 +1,10 @@
-<section >
+
   
-    <div >
-        <h2 >          
-            Featured Artists
-        </h2>
+<div >
+    <h2 class="jazz-artists-title">          
+        Featured Artists
+    </h2>
+</div>
 <?php
 // Associatieve array met uitzonderingen (key = artiestennaam lowercase)
 $specialImages = [

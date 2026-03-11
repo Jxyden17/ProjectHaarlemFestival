@@ -1,23 +1,20 @@
 <?php
-use App\Models\ViewModels\Dance\DanceBannerStatsViewModel;
-
-$danceBannerStats = $danceBannerStats ?? null;
-$totalEvents = $danceBannerStats instanceof DanceBannerStatsViewModel ? $danceBannerStats->totalEvents : 0;
-$totalLocations = $danceBannerStats instanceof DanceBannerStatsViewModel ? $danceBannerStats->totalLocations : 0;
+$badge = trim((string)($danceIndexViewModel->bannerBadge ?? ''));
+$title = trim((string)($danceIndexViewModel->bannerTitle ?? ''));
+$description = (string)($danceIndexViewModel->bannerDescription ?? '');
+$totalEvents = (int)($danceIndexViewModel->totalEvents ?? 0);
+$totalLocations = (int)($danceIndexViewModel->totalLocations ?? 0);
 ?>
 
 <section class="dance-banner">
     <div class="dance-banner-inner">
         <div class="dance-banner-badge">
             <i data-lucide="calendar-days" aria-hidden="true"></i>
-            <span>This Weekend - July 24-26, 2026</span>
+            <span><?= htmlspecialchars($badge) ?></span>
         </div>
 
-        <h1 class="dance-banner-title">Dance Events In Haarlem</h1>
-        <p class="dance-banner-description">
-            Discover the best dance music events happening this weekend. From progressive house to trance,
-            experience world-class DJs in Haarlem's top venues.
-        </p>
+        <h1 class="dance-banner-title"><?= htmlspecialchars($title) ?></h1>
+        <div class="dance-banner-description"><?= $description ?></div>
 
         <div class="dance-banner-stats">
             <div class="dance-stat-card">
