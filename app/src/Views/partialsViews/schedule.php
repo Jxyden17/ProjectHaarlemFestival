@@ -18,8 +18,10 @@ if ($normalizedEventName === 'a stroll through history') {
     $eventType = 'tour';
 } elseif ($normalizedEventName === 'tellingstory') {
     $eventType = 'stories';
-} elseif ($normalizedEventName === 'dance') {
+} elseif ($normalizedEventName === 'dance'||$normalizedEventName === 'jazz') {
     $eventType = 'dance';
+//}elseif ($normalizedEventName === 'jazz') {
+//    $eventType = 'jazz';
 } else {
     $eventType = 'home';
 }
@@ -28,6 +30,7 @@ $isTour = $eventType === 'tour';
 $isStories = $eventType === 'stories';
 $isDance = $eventType === 'dance';
 $isHome = $eventType === 'home';
+$isJazz = $eventType === 'jazz';
 $showLanguageFilter = $isTour || $isStories;
 
 $dayFilters = $scheduleData->dayFilters;
@@ -127,6 +130,13 @@ if ($scheduleSectionClass !== '') {
                     <div>TIME</div>
                     <div>EVENT</div>
                     <div>LOCATION</div>
+                    <div>PRICE</div>
+                <?php elseif ($isJazz): ?>
+                    <div>IMAGE</div>
+                    <div>TIME</div>
+                    <div>LOCATION</div>
+                    <div>NAME</div>
+                    <div>FREE SPOTS</div>
                     <div>PRICE</div>
                 <?php endif; ?>
                 <div></div>
