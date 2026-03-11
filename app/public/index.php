@@ -74,6 +74,8 @@ try {
     $cmsEventsController = new App\Controllers\Cms\CmsEventsController($cmsService);
     $cmsTicketsController = new App\Controllers\Cms\CmsTicketsController($cmsService);
     $cmsUsersController = new App\Controllers\Cms\CmsUsersController($cmsService);
+    $jazzController = new App\Controllers\JazzController($scheduleService, $jazzService);
+    $storiesController = new App\Controllers\StoriesController($pageService);
     $cmsDanceContentController = new App\Controllers\Cms\CmsDanceContentController($cmsDanceService);
     $cmsEventEditorController = new App\Controllers\Cms\CmsEventEditorController($cmsScheduleService, $cmsEventEditorService);
     $cmsMediaController = new App\Controllers\Cms\CmsMediaController($mediaService);
@@ -101,6 +103,12 @@ try {
         $r->addRoute('GET', '/yummy', ['YummyController', 'index']);
         $r->addRoute('GET', '/yummy/{slug}', ['YummyController', 'restaurant']);
 
+        //Stories Routes
+        $r->addRoute('GET', '/stories', ['StoriesController', 'index']);
+        $r->addRoute('GET', '/stories/details', ['StoriesController', 'details']);
+        $r->addRoute('GET', '/stories/{slug}', ['StoriesController', 'details']);
+
+        // CMS routes
         $r->addRoute('GET', '/cms', ['CmsController', 'index']);
         $r->addRoute('GET', '/cms/events', ['CmsEventsController', 'index']);
         $r->addRoute('GET', '/cms/events/{eventSlug}/schedule', ['CmsEventEditorController', 'index']);
@@ -150,6 +158,7 @@ try {
                 'YummyController' => $yummyController,
                 'CmsController' => $cmsController,
                 'JazzController' => $jazzController,
+                'StoriesController' => $storiesController,
                 'CmsEventsController' => $cmsEventsController,
                 'CmsTicketsController' => $cmsTicketsController,
                 'CmsUsersController' => $cmsUsersController,
