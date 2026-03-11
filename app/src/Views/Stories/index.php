@@ -21,7 +21,7 @@
     <?php endif; ?>
 
     <?php if ($schedule): ?>
-        <?php $section = $schedule; include __DIR__ . '/../partialsViews/Stories/schedule.php'; ?>
+        <?php $section = $schedule; include __DIR__ . '../partialsViews/schedule.php'; ?>
     <?php endif; ?>
 
     <?php if ($explore): ?>
@@ -31,5 +31,6 @@
     <?php if ($faq): ?>
         <?php $section = $faq; include __DIR__ . '/../partialsViews/Stories/faq.php'; ?>
     <?php endif; ?> 
+
 </body>
 </html>

@@ -1,5 +1,4 @@
 <?php
-// Custom hero for stories pages. Reuse generic data but can add story-specific classes
 use App\Models\Page\Section;
 
 $section = $section ?? null;
@@ -29,7 +28,7 @@ $secondItem = $items[1] ?? null;
             <span class="hero-badge-text">This Weekend • July 24-27, 2025</span>
         </div>
 
-        <h1><?= htmlspecialchars($section->title) ?></h1>
+        <h2><?= htmlspecialchars($section->title) ?></h2>
         <p><?= htmlspecialchars($firstItem->content ?? '') ?></p>
         <p><?= htmlspecialchars($secondItem->content ?? '') ?></p>
 
