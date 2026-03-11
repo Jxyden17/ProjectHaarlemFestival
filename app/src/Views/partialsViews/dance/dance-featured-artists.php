@@ -1,60 +1,48 @@
-<section class="dance-artists">
+<?php
+$artistsTitle = trim((string)($danceIndexViewModel->artistsTitle ?? ''));
+$artistCards = is_array($danceIndexViewModel->artistCards ?? null) ? $danceIndexViewModel->artistCards : [];
+?>
+
+<section class="dance-artists" id="dance-featured-artists">
     <div class="dance-artists-inner">
         <h2 class="dance-artists-title">
             <span class="dance-artists-title-icon">
                 <i data-lucide="music-4" aria-hidden="true"></i>
             </span>
-            Featured Artists
+            <?= htmlspecialchars($artistsTitle) ?>
         </h2>
 
         <div class="dance-artists-grid">
-            <article class="dance-artist-card">
-                <img src="/img/danceIMG/nickyRomero.jpg" alt="Nicky Romero">
-                <div class="dance-artist-card-content">
-                    <span class="dance-artist-card-genre">Electro House</span>
-                    <h3 class="dance-artist-card-name">Nicky Romero</h3>
-                </div>
-            </article>
-
-            <article class="dance-artist-card">
-                <img src="/img/danceIMG/Tiesto.jpg" alt="Tiesto">
-                <div class="dance-artist-card-content">
-                    <span class="dance-artist-card-genre">Trance</span>
-                    <h3 class="dance-artist-card-name">Tiesto</h3>
-                </div>
-            </article>
-
-            <article class="dance-artist-card">
-                <img src="/img/danceIMG/ArminVanBuuren.png" alt="Armin van Buuren">
-                <div class="dance-artist-card-content">
-                    <span class="dance-artist-card-genre">Trance</span>
-                    <h3 class="dance-artist-card-name">Armin van Buuren</h3>
-                </div>
-            </article>
-
-            <article class="dance-artist-card">
-                <img src="/img/danceIMG/martinGarrix.png" alt="Martin Garrix">
-                <div class="dance-artist-card-content">
-                    <span class="dance-artist-card-genre">Dance & Electronic</span>
-                    <h3 class="dance-artist-card-name">Martin Garrix</h3>
-                </div>
-            </article>
-
-            <article class="dance-artist-card">
-                <img src="/img/danceIMG/afrojack.jpg" alt="Afrojack">
-                <div class="dance-artist-card-content">
-                    <span class="dance-artist-card-genre">House</span>
-                    <h3 class="dance-artist-card-name">Afrojack</h3>
-                </div>
-            </article>
-
-            <article class="dance-artist-card">
-                <img src="/img/danceIMG/hardwell.png" alt="Hardwell">
-                <div class="dance-artist-card-content">
-                    <span class="dance-artist-card-genre">Dance</span>
-                    <h3 class="dance-artist-card-name">Hardwell</h3>
-                </div>
-            </article>
+            <?php foreach ($artistCards as $artistCard): ?>
+                <?php
+                $name = trim((string)($artistCard['name'] ?? ''));
+                $genre = trim((string)($artistCard['genre'] ?? ''));
+                $image = trim((string)($artistCard['image'] ?? ''));
+                $detailUrl = trim((string)($artistCard['detailUrl'] ?? ''));
+                if ($name === '' || $image === '') {
+                    continue;
+                }
+                ?>
+                <?php if ($detailUrl !== ''): ?>
+                    <a class="dance-artist-card-link" href="<?= htmlspecialchars($detailUrl) ?>" aria-label="View details for <?= htmlspecialchars($name) ?>">
+                        <article class="dance-artist-card">
+                            <img src="<?= htmlspecialchars($image) ?>" alt="<?= htmlspecialchars($name) ?>">
+                            <div class="dance-artist-card-content">
+                                <span class="dance-artist-card-genre"><?= htmlspecialchars($genre) ?></span>
+                                <h3 class="dance-artist-card-name"><?= htmlspecialchars($name) ?></h3>
+                            </div>
+                        </article>
+                    </a>
+                <?php else: ?>
+                    <article class="dance-artist-card">
+                        <img src="<?= htmlspecialchars($image) ?>" alt="<?= htmlspecialchars($name) ?>">
+                        <div class="dance-artist-card-content">
+                            <span class="dance-artist-card-genre"><?= htmlspecialchars($genre) ?></span>
+                            <h3 class="dance-artist-card-name"><?= htmlspecialchars($name) ?></h3>
+                        </div>
+                    </article>
+                <?php endif; ?>
+            <?php endforeach; ?>
         </div>
     </div>
 </section>

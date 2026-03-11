@@ -1,0 +1,519 @@
+.dance-detail-banner {
+    position: relative;
+    min-height: clamp(18rem, 32vw, 26rem);
+    overflow: hidden;
+}
+
+.dance-detail-banner::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0) 100%);
+    z-index: 2;
+}
+
+.dance-detail-banner-media {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+.dance-detail-panel {
+    position: relative;
+}
+
+.dance-detail-panel img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.dance-detail-panel::after {
+    content: none;
+}
+
+.dance-detail-panel-main {
+    z-index: 1;
+}
+
+.dance-detail-banner-content {
+    position: absolute;
+    left: 50%;
+    bottom: 2.2rem;
+    transform: translateX(-50%);
+    z-index: 3;
+    width: min(66rem, calc(100% - 3rem));
+    margin: 0;
+    padding: 0 1.5rem;
+    color: var(--natural-light);
+}
+
+.dance-detail-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: #f2f6ff;
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1;
+    border: 0.0625rem solid rgba(157, 190, 235, 0.45);
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 0.5rem;
+    padding: 0.3rem 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.dance-detail-back-link i {
+    width: 1rem;
+    height: 1rem;
+}
+
+.dance-detail-badge {
+    display: block;
+    width: fit-content;
+    color: #58d6ff;
+    background: rgba(10, 35, 60, 0.7);
+    border: 0.0625rem solid rgba(57, 187, 255, 0.6);
+    border-radius: 999rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    padding: 0.18rem 0.48rem;
+    margin-bottom: 0.42rem;
+}
+
+.dance-detail-title {
+    margin: 0 0 0.26rem;
+    color: #f8f8f8;
+    font-size: clamp(2rem, 5vw, 3.4rem);
+    line-height: 1.05;
+}
+
+.dance-detail-subtitle {
+    margin: 0;
+    color: rgba(245, 245, 245, 0.88);
+    font-size: clamp(0.95rem, 1.7vw, 1.18rem);
+    line-height: 1.35;
+}
+
+@media (max-width: 62rem) {
+    .dance-detail-banner-media {
+        grid-template-columns: 1fr 1.4fr 1fr;
+    }
+}
+
+@media (max-width: 48rem) {
+    .dance-detail-banner-media {
+        grid-template-columns: 1fr;
+    }
+
+    .dance-detail-panel-left,
+    .dance-detail-panel-right {
+        display: none;
+    }
+
+    .dance-detail-banner-content {
+        width: calc(100% - 2rem);
+        padding: 0 1rem;
+        bottom: 1.4rem;
+    }
+}
+
+.dance-detail-highlights {
+    padding: 2.35rem 0 2.8rem;
+}
+
+.dance-detail-highlights-inner {
+    width: min(66rem, calc(100% - 3rem));
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+.dance-detail-highlights-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: #f5f5f5;
+    font-size: 2.35rem;
+    margin: 0 0 1.15rem;
+}
+
+.dance-detail-highlights-title svg {
+    color: var(--accent-color);
+    width: 1.45rem;
+    height: 1.45rem;
+}
+
+.dance-detail-highlights-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem;
+}
+
+.dance-detail-highlight-card {
+    display: flex;
+    gap: 0.8rem;
+    background: rgba(8, 24, 45, 0.9);
+    border: 0.0625rem solid rgba(44, 88, 137, 0.35);
+    border-radius: 0.45rem;
+    padding: 0.92rem 0.95rem;
+}
+
+.dance-detail-highlight-icon {
+    flex: 0 0 auto;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.4rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent-color);
+    background: rgba(199, 150, 54, 0.18);
+}
+
+.dance-detail-highlight-icon i {
+    width: 0.82rem;
+    height: 0.82rem;
+}
+
+.dance-detail-highlight-card h3 {
+    margin: 0 0 0.16rem;
+    color: #f5f5f5;
+    font-size: 1.12rem;
+}
+
+.dance-detail-highlight-card p {
+    margin: 0;
+    color: rgba(245, 245, 245, 0.72);
+    font-size: 1rem;
+    line-height: 1.34;
+}
+
+@media (max-width: 48rem) {
+    .dance-detail-highlights-inner {
+        width: calc(100% - 2rem);
+        padding: 0 1rem;
+    }
+
+    .dance-detail-highlights-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dance-detail-highlights-title {
+        font-size: 1.6rem;
+    }
+}
+
+.dance-detail-tracks {
+    padding: 0 0 2.4rem;
+}
+
+.dance-detail-tracks-inner {
+    width: min(66rem, calc(100% - 3rem));
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+.dance-detail-tracks-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #f5f5f5;
+    font-size: 2.1rem;
+    margin: 0 0 1rem;
+}
+
+.dance-detail-tracks-title svg {
+    color: var(--accent-color);
+    width: 1.2rem;
+    height: 1.2rem;
+}
+
+.dance-detail-tracks-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.85rem;
+}
+
+.dance-detail-track-card {
+    background: rgba(8, 24, 45, 0.9);
+    border: 0.0625rem solid rgba(44, 88, 137, 0.35);
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.dance-detail-track-cover {
+    position: relative;
+    aspect-ratio: 1 / 1;
+}
+
+.dance-detail-track-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.dance-detail-track-play {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    background: var(--accent-color);
+    color: #0f2035;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    cursor: pointer;
+    padding: 0;
+}
+
+.dance-detail-track-play svg {
+    width: 1rem;
+    height: 1rem;
+    margin-left: 0.1rem;
+}
+
+.dance-detail-track-play svg * {
+    fill: currentColor;
+    stroke: none;
+}
+
+.dance-detail-track-play:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.dance-detail-track-content {
+    padding: 0.8rem 0.75rem 0.9rem;
+}
+
+.dance-detail-track-content h3 {
+    margin: 0 0 0.15rem;
+    color: #f5f5f5;
+    font-size: 1.05rem;
+}
+
+.dance-detail-track-content p {
+    margin: 0;
+    color: rgba(245, 245, 245, 0.78);
+    font-size: 0.86rem;
+}
+
+.dance-detail-track-content small {
+    color: rgba(245, 245, 245, 0.45);
+    font-size: 0.72rem;
+}
+
+.dance-detail-tracks-note {
+    margin: 0.95rem 0 0;
+    text-align: center;
+    color: rgba(245, 245, 245, 0.65);
+    font-size: 0.82rem;
+}
+
+.dance-detail-tracks-note svg {
+    width: 0.85rem;
+    height: 0.85rem;
+    vertical-align: -0.1rem;
+}
+
+@media (max-width: 62rem) {
+    .dance-detail-tracks-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 48rem) {
+    .dance-detail-tracks-inner {
+        width: calc(100% - 2rem);
+        padding: 0 1rem;
+    }
+
+    .dance-detail-tracks-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.dance-detail-schedule {
+    padding: 0 0 2.4rem;
+}
+
+.dance-detail-schedule-inner {
+    width: min(66rem, calc(100% - 3rem));
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+.dance-detail-schedule-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: #f5f5f5;
+    font-size: 2.3rem;
+    margin: 0 0 1rem;
+}
+
+.dance-detail-schedule-title svg {
+    width: 1.35rem;
+    height: 1.35rem;
+    color: var(--accent-color);
+}
+
+.dance-detail-schedule-table {
+    border: 0.0625rem solid rgba(44, 88, 137, 0.35);
+    border-radius: 0.65rem;
+    overflow: hidden;
+    background: rgba(8, 24, 45, 0.55);
+}
+
+.dance-detail-schedule-head,
+.dance-detail-schedule-row {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 2.2fr 1.55fr 0.75fr 0.75fr;
+    gap: 0.75rem;
+    align-items: center;
+    padding: 0.92rem 1rem;
+}
+
+.dance-detail-schedule-head {
+    color: rgba(245, 245, 245, 0.66);
+    font-size: 0.92rem;
+    border-bottom: 0.0625rem solid rgba(44, 88, 137, 0.32);
+}
+
+.dance-detail-schedule-row {
+    border-top: 0.0625rem solid rgba(44, 88, 137, 0.22);
+    color: #f5f5f5;
+    font-size: 1rem;
+}
+
+.dance-detail-schedule-cell-date,
+.dance-detail-schedule-cell-time,
+.dance-detail-schedule-cell-location {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.dance-detail-schedule-cell-icon {
+    width: 1.55rem;
+    height: 1.55rem;
+    border-radius: 0.4rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(199, 150, 54, 0.2);
+    color: var(--accent-color);
+}
+
+.dance-detail-schedule-cell-icon svg,
+.dance-detail-schedule-cell-time svg,
+.dance-detail-schedule-cell-location svg {
+    width: 0.82rem;
+    height: 0.82rem;
+}
+
+.dance-detail-schedule-price {
+    color: var(--accent-color);
+}
+
+.dance-detail-schedule-book {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.45rem 0.78rem;
+    border-radius: 0.45rem;
+    background: var(--accent-color);
+    color: #111827;
+    text-decoration: none;
+    font-size: 0.86rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.dance-detail-schedule-empty {
+    padding: 1rem;
+    color: rgba(245, 245, 245, 0.75);
+}
+
+.dance-detail-important-card {
+    margin-top: 1rem;
+    max-width: none;
+    border: 0.0625rem solid rgba(82, 106, 132, 0.52);
+    border-radius: 0.65rem;
+    padding: 0.95rem 1rem 1rem;
+    background: linear-gradient(90deg, rgba(199, 150, 54, 0.16) 0%, rgba(199, 150, 54, 0.06) 100%);
+}
+
+.dance-detail-important-title {
+    margin: 0 0 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: #f5f5f5;
+    font-size: 1.15rem;
+}
+
+.dance-detail-important-icon {
+    width: 1.9rem;
+    height: 1.9rem;
+    border-radius: 0.4rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent-color);
+    background: rgba(199, 150, 54, 0.2);
+}
+
+.dance-detail-important-icon svg {
+    width: 0.82rem;
+    height: 0.82rem;
+}
+
+.dance-detail-important-content,
+.dance-detail-important-content ul {
+    margin: 0;
+    color: rgba(245, 245, 245, 0.86);
+    font-size: 0.98rem;
+    line-height: 1.45;
+}
+
+.dance-detail-important-content ul {
+    padding-left: 1rem;
+}
+
+.dance-detail-important-content li+li {
+    margin-top: 0.2rem;
+}
+
+@media (max-width: 62rem) {
+
+    .dance-detail-schedule-head,
+    .dance-detail-schedule-row {
+        grid-template-columns: 1fr;
+        gap: 0.45rem;
+    }
+
+    .dance-detail-schedule-head {
+        display: none;
+    }
+}
+
+@media (max-width: 48rem) {
+    .dance-detail-schedule-inner {
+        width: calc(100% - 2rem);
+        padding: 0 1rem;
+    }
+
+    .dance-detail-schedule-title {
+        font-size: 1.8rem;
+    }
+}

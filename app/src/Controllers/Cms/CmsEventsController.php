@@ -3,20 +3,26 @@
 namespace App\Controllers\Cms;
 
 use App\Controllers\BaseController;
-use App\Service\Interfaces\ICmsService;
+use App\Service\Cms\Interfaces\ICmsService;
+use App\Service\Interfaces\IDanceService;
 
 class CmsEventsController extends BaseController
 {
     private ICmsService $cmsService;
+    private IDanceService $danceService;
 
-    public function __construct(ICmsService $cmsService)
+    public function __construct(ICmsService $cmsService, IDanceService $danceService)
     {
         $this->cmsService = $cmsService;
+        $this->danceService = $danceService;
     }
 
     public function index(): void
     {
         $this->requireAdmin();
-        $this->renderCms('cms/events/index', ['title' => 'Event Management']);
+        $this->renderCms('cms/events/index', [
+            'title' => 'Event Management',
+            'danceDetailPages' => $this->danceService->getPublishedDanceDetailPages(),
+        ]);
     }
 }

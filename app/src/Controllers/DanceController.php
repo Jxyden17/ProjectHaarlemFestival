@@ -2,34 +2,47 @@
 
 namespace App\Controllers;
 
-use App\Models\ViewModels\Dance\DanceIndexViewModel;
+use App\Mapper\DanceViewModelMapper;
+use App\Models\Event\EventDetailPageModel;
 use App\Service\Interfaces\IDanceService;
-use App\Service\Interfaces\IScheduleService;
 
 class DanceController extends BaseController
 {
-    private IScheduleService $scheduleService;
     private IDanceService $danceService;
+    private DanceViewModelMapper $danceViewModelMapper;
 
-    public function __construct(IScheduleService $scheduleService, IDanceService $danceService)
+    public function __construct(IDanceService $danceService, DanceViewModelMapper $danceViewModelMapper)
     {
-        $this->scheduleService = $scheduleService;
         $this->danceService = $danceService;
+        $this->danceViewModelMapper = $danceViewModelMapper;
     }
 
     public function index(): void
     {
-        $bannerStats = $this->danceService->getDanceBannerStats();
-        $schedule = $this->scheduleService->getScheduleDataForEvent('Dance', 'DANCE! Festival Schedule');
-        $venues = $this->danceService->getDanceVenues();
+        $danceIndexViewModel = $this->danceViewModelMapper->buildIndexViewModel();
 
         $this->render('dance/index', [
-            'title' => 'Dance',
-            'danceIndexViewModel' => new DanceIndexViewModel(
-                $schedule,
-                $bannerStats,
-                $venues
-            ),
+            'title' => $danceIndexViewModel->pageTitle,
+            'danceIndexViewModel' => $danceIndexViewModel,
+        ]);
+    }
+
+    public function detail(array $vars = []): void
+    {
+        $detailSlug = trim((string)($vars['detailSlug'] ?? ''));
+        $detailMeta = $this->danceService->getDanceDetailPageBySlug($detailSlug);
+
+        if (!$detailMeta instanceof EventDetailPageModel) {
+            http_response_code(404);
+            echo 'Dance detail page not found.';
+            return;
+        }
+
+        $detailViewModel = $this->danceViewModelMapper->buildDetailViewModel($detailMeta);
+
+        $this->render('dance/detail', [
+            'title' => $detailViewModel->pageTitle,
+            'danceDetailViewModel' => $detailViewModel,
         ]);
     }
 }
