@@ -67,8 +67,7 @@ class DanceRepository implements IDanceRepository
                     edp.event_id,
                     edp.performer_id,
                     edp.page_id,
-                    edp.public_slug,
-                    edp.cms_slug,
+                    edp.detail_slug,
                     edp.entity_type,
                     edp.display_order,
                     p.slug AS page_slug,
@@ -86,9 +85,9 @@ class DanceRepository implements IDanceRepository
         return array_map(fn(array $row): EventDetailPageModel => $this->danceMapper->mapDetailPageRow($row), $rows);
     }
 
-    public function findDetailPageByPublicSlug(string $publicSlug): ?EventDetailPageModel
+    public function findDetailPageBySlug(string $detailSlug): ?EventDetailPageModel
     {
-        if (trim($publicSlug) === '') {
+        if (trim($detailSlug) === '') {
             return null;
         }
 
@@ -97,8 +96,7 @@ class DanceRepository implements IDanceRepository
                     edp.event_id,
                     edp.performer_id,
                     edp.page_id,
-                    edp.public_slug,
-                    edp.cms_slug,
+                    edp.detail_slug,
                     edp.entity_type,
                     edp.display_order,
                     p.slug AS page_slug,
@@ -107,40 +105,10 @@ class DanceRepository implements IDanceRepository
              FROM event_detail_pages edp
              INNER JOIN pages p ON p.id = edp.page_id
              LEFT JOIN performers pf ON pf.id = edp.performer_id
-             WHERE edp.public_slug = :public_slug
+             WHERE edp.detail_slug = :detail_slug
              LIMIT 1'
         );
-        $stmt->execute([':public_slug' => trim($publicSlug)]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        return $row ? $this->danceMapper->mapDetailPageRow($row) : null;
-    }
-
-    public function findDetailPageByCmsSlug(string $cmsSlug): ?EventDetailPageModel
-    {
-        if (trim($cmsSlug) === '') {
-            return null;
-        }
-
-        $stmt = $this->db->prepare(
-            'SELECT edp.id,
-                    edp.event_id,
-                    edp.performer_id,
-                    edp.page_id,
-                    edp.public_slug,
-                    edp.cms_slug,
-                    edp.entity_type,
-                    edp.display_order,
-                    p.slug AS page_slug,
-                    p.page_name,
-                    pf.performer_name
-             FROM event_detail_pages edp
-             INNER JOIN pages p ON p.id = edp.page_id
-             LEFT JOIN performers pf ON pf.id = edp.performer_id
-             WHERE edp.cms_slug = :cms_slug
-             LIMIT 1'
-        );
-        $stmt->execute([':cms_slug' => trim($cmsSlug)]);
+        $stmt->execute([':detail_slug' => trim($detailSlug)]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
         return $row ? $this->danceMapper->mapDetailPageRow($row) : null;

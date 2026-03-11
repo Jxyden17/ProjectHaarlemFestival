@@ -43,31 +43,7 @@ class CmsDanceService implements ICmsDanceService
     public function getDanceHomeFormData(): DanceHomeContentViewModel
     {
         $page = $this->getDanceHomePage();
-        $schedule = $page->getSection('dance_schedule');
-        $banner = $page->getSection('dance_banner');
-        $info = $page->getSection('dance_info');
-        $passes = $page->getSection('dance_passes');
-        $capacity = $page->getSection('dance_capacity');
-        $special = $page->getSection('dance_special_session');
-
-        $passRows = $this->cmsDanceMapper->mapPassViewModels($passes);
-
-        return new DanceHomeContentViewModel(
-            $schedule !== null ? $schedule->title : '',
-            $banner !== null ? (string)$banner->subTitle : '',
-            $banner !== null ? $banner->title : '',
-            $banner !== null ? (string)$banner->description : '',
-            '',
-            [],
-            $info !== null ? $info->title : '',
-            $info !== null ? (string)$info->description : '',
-            $passes !== null ? $passes->title : '',
-            $passRows,
-            $capacity !== null ? $capacity->title : '',
-            $capacity !== null ? (string)$capacity->description : '',
-            $special !== null ? $special->title : '',
-            $special !== null ? (string)$special->description : ''
-        );
+        return $this->cmsDanceMapper->mapHomeContentViewModelFromPage($page);
     }
 
     public function saveDanceHomePage(DanceHomeContentRequest $request): void
@@ -82,28 +58,13 @@ class CmsDanceService implements ICmsDanceService
     {
         $meta = $this->resolveDetailPageMeta($detailSlug);
         $page = $this->pageService->getPageBySlug($meta->pageSlug, $this->buildEditorTitle($meta));
-        $hero = $page->getSection('dance_detail_hero');
-        $highlights = $page->getSection('dance_detail_highlights');
-        $tracks = $page->getSection('dance_detail_tracks');
-        $info = $page->getSection('dance_detail_info');
-        $performerName = $this->resolveDetailPerformerName($meta, $hero);
+        $performerName = $this->resolveDetailPerformerName($meta, $page->getSection('dance_detail_hero'));
 
-        return new DanceDetailContentViewModel(
-            $meta->cmsSlug,
+        return $this->cmsDanceMapper->mapDetailContentViewModel(
+            $meta,
+            $page,
             $this->buildEditorTitle($meta),
-            $meta->getPublicPath(),
-            $performerName,
-            $performerName,
-            $hero !== null ? (string)$hero->subTitle : '',
-            $hero !== null ? (string)$hero->description : '',
-            $this->cmsDanceMapper->mapHeroImageViewModels($hero),
-            $highlights !== null ? $highlights->title : '',
-            $this->cmsDanceMapper->mapHighlightViewModels($highlights),
-            $tracks !== null ? $tracks->title : '',
-            $tracks !== null ? (string)$tracks->description : '',
-            $this->cmsDanceMapper->mapTrackViewModels($tracks),
-            $info !== null ? $info->title : '',
-            $info !== null ? (string)$info->description : ''
+            $performerName
         );
     }
 
@@ -113,7 +74,7 @@ class CmsDanceService implements ICmsDanceService
         $existingTrackAudioUrls = $this->getExistingTrackAudioUrlsByItemId($meta->pageSlug);
         $normalizedInput = $this->normalizeDetailPageInput($request, $existingTrackAudioUrls);
         $this->validateDetailPageInput($normalizedInput);
-        $page = $this->buildDanceDetailPage($meta->pageSlug, $this->buildEditorTitle($meta), $normalizedInput);
+        $page = $this->buildDanceDetailPage($meta->pageSlug, $normalizedInput);
         $this->persistDanceDetailPage($meta->pageSlug, $page);
     }
 
@@ -124,7 +85,7 @@ class CmsDanceService implements ICmsDanceService
 
     private function resolveDetailPageMeta(string $detailSlug): EventDetailPageModel
     {
-        $meta = $this->danceRepository->findDetailPageByCmsSlug($detailSlug);
+        $meta = $this->danceRepository->findDetailPageBySlug($detailSlug);
         if ($meta === null) {
             throw new \InvalidArgumentException('Unknown dance detail page.');
         }
@@ -157,6 +118,7 @@ class CmsDanceService implements ICmsDanceService
         $passes = $request->passes();
 
         return [
+            'page_title' => $request->pageTitle(),
             'schedule_title' => $request->scheduleTitle(),
             'banner_badge' => $request->bannerBadge(),
             'banner_title' => $request->bannerTitle(),
@@ -175,6 +137,7 @@ class CmsDanceService implements ICmsDanceService
     private function normalizeDetailPageInput(DanceDetailContentRequest $request, array $existingTrackAudioUrls = []): array
     {
         return [
+            'page_title' => trim($request->pageTitle()),
             'hero_title' => trim($request->heroTitle()),
             'hero_badge' => trim($request->heroBadge()),
             'hero_subtitle' => trim($request->heroSubtitle()),
@@ -196,6 +159,10 @@ class CmsDanceService implements ICmsDanceService
 
     private function validateHomePageInput(array $input): void
     {
+        if ($input['page_title'] === '') {
+            throw new \InvalidArgumentException('Browser tab title is required.');
+        }
+
         if ($input['schedule_title'] === '') {
             throw new \InvalidArgumentException('Schedule title is required.');
         }
@@ -227,6 +194,10 @@ class CmsDanceService implements ICmsDanceService
 
     private function validateDetailPageInput(array $input): void
     {
+        if ($input['page_title'] === '') {
+            throw new \InvalidArgumentException('Browser tab title is required.');
+        }
+
         if ($input['hero_title'] === '') {
             throw new \InvalidArgumentException('Hero title is required.');
         }
@@ -254,7 +225,7 @@ class CmsDanceService implements ICmsDanceService
 
     private function buildDanceHomePage(array $input): Page
     {
-        $page = new Page('Dance Home', 'dance-home');
+        $page = new Page($input['page_title'], 'dance-home');
         $page->sections = [
             new Section(0, 'dance_schedule', $input['schedule_title'], '', ''),
             new Section(0, 'dance_banner', $input['banner_title'], $input['banner_badge'], $input['banner_description']),
@@ -269,9 +240,9 @@ class CmsDanceService implements ICmsDanceService
         return $page;
     }
 
-    private function buildDanceDetailPage(string $pageSlug, string $pageName, array $input): Page
+    private function buildDanceDetailPage(string $pageSlug, array $input): Page
     {
-        $page = new Page($pageName, $pageSlug);
+        $page = new Page($input['page_title'], $pageSlug);
         $page->sections = [
             new Section(0, 'dance_detail_hero', $input['hero_title'], $input['hero_badge'], $input['hero_subtitle']),
             new Section(0, 'dance_detail_highlights', $input['highlights_title'], '', ''),
@@ -338,6 +309,7 @@ class CmsDanceService implements ICmsDanceService
             throw new \RuntimeException('Required dance sections are missing.');
         }
 
+        $this->pageRepository->updatePageName($pageId, $page->title);
         $this->pageRepository->saveOrUpdateSection($pageId, 'dance_schedule', $scheduleSection->title, null, null, 5);
         $this->pageRepository->saveOrUpdateSection($pageId, 'dance_banner', $bannerSection->title, $bannerSection->subTitle, $bannerSection->description, 10);
         $this->pageRepository->saveOrUpdateSection($pageId, 'dance_info', $infoSection->title, null, $infoSection->description, 20);
@@ -365,6 +337,7 @@ class CmsDanceService implements ICmsDanceService
             throw new \RuntimeException('Required dance detail sections are missing.');
         }
 
+        $this->pageRepository->updatePageName($pageId, $page->title);
         $heroSectionId = $this->pageRepository->saveOrUpdateSection($pageId, 'dance_detail_hero', $heroSection->title, $heroSection->subTitle, $heroSection->description, 10);
         $this->pageRepository->saveOrUpdateSectionItems($heroSectionId, $this->cmsDanceMapper->mapHeroImageRows($heroSection->items));
 

@@ -65,6 +65,7 @@ class DanceViewModelMapper
         }
 
         return new DanceIndexViewModel(
+            $homeContent->title,
             $schedule,
             $bannerSection?->subTitle,
             $bannerSection?->title,
@@ -159,6 +160,7 @@ class DanceViewModelMapper
         }
 
         return new DanceDetailViewModel(
+            $detailPage->title,
             $performerName,
             $heroSection?->subTitle,
             $heroSection?->description,
@@ -168,7 +170,7 @@ class DanceViewModelMapper
             $tracksSection?->title,
             $tracksSection?->description,
             $trackItems,
-            $this->danceService->getDanceScheduleTitle(),
+            '',
             $this->getScheduleRowsForDetail($detailMeta),
             $infoSection?->title,
             $infoSection?->description

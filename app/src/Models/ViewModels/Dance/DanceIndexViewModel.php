@@ -6,6 +6,7 @@ use App\Models\ViewModels\Shared\ScheduleViewModel;
 
 class DanceIndexViewModel
 {
+    public string $pageTitle;
     public ScheduleViewModel $schedule;
     public string $bannerBadge;
     public string $bannerTitle;
@@ -25,6 +26,7 @@ class DanceIndexViewModel
     public array $venues;
 
     public function __construct(
+        ?string $pageTitle,
         ScheduleViewModel $schedule,
         ?string $bannerBadge = null,
         ?string $bannerTitle = null,
@@ -43,6 +45,7 @@ class DanceIndexViewModel
         ?string $specialHtml = null,
         ?array $venues = null
     ) {
+        $this->pageTitle = $this->normalizeText($pageTitle, 'Dance');
         $this->schedule = $schedule;
         $this->bannerBadge = trim((string)$bannerBadge);
         $this->bannerTitle = trim((string)$bannerTitle);

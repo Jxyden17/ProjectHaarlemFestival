@@ -194,4 +194,17 @@ class PageRepository implements IPageRepository
 
         return (int) $row['id'];
     }
+
+    public function updatePageName(int $pageId, string $pageName): void
+    {
+        $stmt = $this->db->prepare(
+            'UPDATE pages
+             SET page_name = :page_name
+             WHERE id = :id'
+        );
+        $stmt->execute([
+            ':page_name' => $pageName,
+            ':id' => $pageId,
+        ]);
+    }
 }

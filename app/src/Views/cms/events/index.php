@@ -24,13 +24,16 @@ $danceDetailPages = is_array($danceDetailPages ?? null) ? $danceDetailPages : []
                         <h2 class="h5 mb-0">Dance</h2>
                         <span class="badge text-bg-success">Live</span>
                     </div>
-                    <div class="d-grid gap-2 d-md-flex flex-wrap">
+                    <div class="mb-3">
                         <a href="/cms/events/dance/schedule" class="btn btn-outline-primary">Edit Schedule</a>
                         <a href="/cms/events/dance-home" class="btn btn-primary">Edit Home Content</a>
+                    </div>
+                    <p class="mb-1">Sub Pages:</p>
+                    <div class="d-grid gap-2 d-md-flex flex-wrap">
                         <?php foreach ($danceDetailPages as $detailPage): ?>
-                            <?php if (!$detailPage instanceof EventDetailPageModel || trim((string)$detailPage->cmsSlug) === '') { continue; } ?>
-                            <a href="/cms/events/dance-detail/<?= rawurlencode($detailPage->cmsSlug) ?>" class="btn btn-outline-primary">
-                                Edit <?= htmlspecialchars(trim((string)($detailPage->performerName ?? '')) !== '' ? (string)$detailPage->performerName : $detailPage->cmsSlug) ?>
+                            <?php if (!$detailPage instanceof EventDetailPageModel || trim((string)$detailPage->detailSlug) === '') { continue; } ?>
+                            <a href="/cms/events/dance-detail/<?= rawurlencode($detailPage->detailSlug) ?>" class="btn btn-outline-primary">
+                                Edit <?= htmlspecialchars(trim((string)($detailPage->performerName ?? '')) !== '' ? (string)$detailPage->performerName : $detailPage->detailSlug) ?>
                             </a>
                         <?php endforeach; ?>
                     </div>

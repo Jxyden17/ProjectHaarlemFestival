@@ -11,6 +11,5 @@ interface IDanceRepository
     public function getVenuesByEventId(int $eventId): array;
     public function getPerformersByEventId(int $eventId): array;
     public function getDetailPagesByEventId(int $eventId): array;
-    public function findDetailPageByPublicSlug(string $publicSlug): ?EventDetailPageModel;
-    public function findDetailPageByCmsSlug(string $cmsSlug): ?EventDetailPageModel;
+    public function findDetailPageBySlug(string $detailSlug): ?EventDetailPageModel;
 }

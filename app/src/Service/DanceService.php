@@ -63,9 +63,9 @@ class DanceService implements IDanceService
         return $this->pageService->getPageBySlug($slug, 'Dance Detail');
     }
 
-    public function getDanceDetailPageByPublicSlug(string $publicSlug): ?EventDetailPageModel
+    public function getDanceDetailPageBySlug(string $detailSlug): ?EventDetailPageModel
     {
-        return $this->danceRepository->findDetailPageByPublicSlug($publicSlug);
+        return $this->danceRepository->findDetailPageBySlug($detailSlug);
     }
 
     public function getPublishedDanceDetailPages(): array

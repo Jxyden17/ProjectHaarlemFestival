@@ -2,19 +2,129 @@
 
 namespace App\Mapper;
 
+use App\Models\Event\EventDetailPageModel;
+use App\Models\Page\Page;
 use App\Models\Page\Section;
 use App\Models\Page\SectionItem;
 use App\Models\Requests\Cms\Dance\DanceDetailHeroImageRowRequest;
 use App\Models\Requests\Cms\Dance\DanceDetailHighlightRowRequest;
 use App\Models\Requests\Cms\Dance\DanceDetailTrackRowRequest;
 use App\Models\Requests\Cms\Dance\DanceHomePassRowRequest;
+use App\Models\Requests\Cms\DanceDetailContentRequest;
+use App\Models\Requests\Cms\DanceHomeContentRequest;
+use App\Models\ViewModels\Cms\Dance\DanceDetailContentViewModel;
 use App\Models\ViewModels\Cms\Dance\DanceDetailHeroImageRowViewModel;
 use App\Models\ViewModels\Cms\Dance\DanceDetailHighlightRowViewModel;
 use App\Models\ViewModels\Cms\Dance\DanceDetailTrackRowViewModel;
+use App\Models\ViewModels\Cms\Dance\DanceHomeContentViewModel;
 use App\Models\ViewModels\Cms\Dance\DanceHomePassRowViewModel;
 
 class CmsDanceMapper
 {
+    public function mapHomeContentViewModelFromPage(Page $page): DanceHomeContentViewModel
+    {
+        $schedule = $page->getSection('dance_schedule');
+        $banner = $page->getSection('dance_banner');
+        $info = $page->getSection('dance_info');
+        $passes = $page->getSection('dance_passes');
+        $capacity = $page->getSection('dance_capacity');
+        $special = $page->getSection('dance_special_session');
+
+        return new DanceHomeContentViewModel(
+            $page->title,
+            $schedule !== null ? $schedule->title : '',
+            $banner !== null ? (string)$banner->subTitle : '',
+            $banner !== null ? $banner->title : '',
+            $banner !== null ? (string)$banner->description : '',
+            '',
+            [],
+            $info !== null ? $info->title : '',
+            $info !== null ? (string)$info->description : '',
+            $passes !== null ? $passes->title : '',
+            $this->mapPassViewModels($passes),
+            $capacity !== null ? $capacity->title : '',
+            $capacity !== null ? (string)$capacity->description : '',
+            $special !== null ? $special->title : '',
+            $special !== null ? (string)$special->description : ''
+        );
+    }
+
+    public function mapHomeRequestToContentViewModel(DanceHomeContentRequest $request): DanceHomeContentViewModel
+    {
+        return new DanceHomeContentViewModel(
+            $request->pageTitle(),
+            $request->scheduleTitle(),
+            $request->bannerBadge(),
+            $request->bannerTitle(),
+            $request->bannerDescription(),
+            '',
+            [],
+            $request->importantInformationTitle(),
+            $request->importantInformationHtml(),
+            $request->passesTitle(),
+            $this->mapPassRequestViewModels($request->passes()),
+            $request->capacityTitle(),
+            $request->capacityHtml(),
+            $request->specialTitle(),
+            $request->specialHtml()
+        );
+    }
+
+    public function mapDetailContentViewModel(
+        EventDetailPageModel $meta,
+        Page $page,
+        string $editorTitle,
+        string $performerName
+    ): DanceDetailContentViewModel {
+        $hero = $page->getSection('dance_detail_hero');
+        $highlights = $page->getSection('dance_detail_highlights');
+        $tracks = $page->getSection('dance_detail_tracks');
+        $info = $page->getSection('dance_detail_info');
+
+        return new DanceDetailContentViewModel(
+            $meta->detailSlug,
+            $editorTitle,
+            $meta->getPublicPath(),
+            $page->title,
+            $performerName,
+            $performerName,
+            $hero !== null ? (string)$hero->subTitle : '',
+            $hero !== null ? (string)$hero->description : '',
+            $this->mapHeroImageViewModels($hero),
+            $highlights !== null ? $highlights->title : '',
+            $this->mapHighlightViewModels($highlights),
+            $tracks !== null ? $tracks->title : '',
+            $tracks !== null ? (string)$tracks->description : '',
+            $this->mapTrackViewModels($tracks),
+            $info !== null ? $info->title : '',
+            $info !== null ? (string)$info->description : ''
+        );
+    }
+
+    public function mapDetailRequestToContentViewModel(
+        DanceDetailContentRequest $request,
+        DanceDetailContentViewModel $baseViewModel
+    ): DanceDetailContentViewModel {
+        return new DanceDetailContentViewModel(
+            $baseViewModel->detailSlug,
+            $baseViewModel->editorTitle,
+            $baseViewModel->publicPath,
+            $request->pageTitle(),
+            $baseViewModel->performerName,
+            $baseViewModel->performerName,
+            $request->heroBadge(),
+            $request->heroSubtitle(),
+            $this->mapHeroImageRequestViewModels($request->heroImages()),
+            $request->highlightsTitle(),
+            $this->mapHighlightRequestViewModels($request->highlights()),
+            $request->tracksTitle(),
+            $request->tracksNote(),
+            $this->mapTrackRequestViewModels($request->tracks()),
+            $request->importantInformationTitle(),
+            $request->importantInformationHtml()
+        );
+    }
+
     public function mapPassViewModels(?Section $passes): array
     {
         if ($passes === null) {
@@ -32,6 +142,25 @@ class CmsDanceMapper
                 $item->title,
                 (string)($item->content ?? ''),
                 (string)($item->url ?? '') === 'highlight'
+            );
+        }
+
+        return $rows;
+    }
+
+    public function mapPassRequestViewModels(array $passes): array
+    {
+        $rows = [];
+        foreach ($passes as $pass) {
+            if (!$pass instanceof DanceHomePassRowRequest) {
+                continue;
+            }
+
+            $rows[] = new DanceHomePassRowViewModel(
+                $pass->id(),
+                $pass->label(),
+                $pass->price(),
+                $pass->highlight()
             );
         }
 
@@ -295,6 +424,20 @@ class CmsDanceMapper
         return $rows;
     }
 
+    public function mapHeroImageRequestViewModels(array $heroImages): array
+    {
+        $rows = [];
+        foreach ($heroImages as $image) {
+            if (!$image instanceof DanceDetailHeroImageRowRequest) {
+                continue;
+            }
+
+            $rows[] = new DanceDetailHeroImageRowViewModel($image->id(), $image->image(), $image->alt());
+        }
+
+        return $rows;
+    }
+
     public function mapHighlightViewModels(?Section $section): array
     {
         if ($section === null) {
@@ -312,6 +455,25 @@ class CmsDanceMapper
                 trim((string)($item->icon ?? '')),
                 trim($item->title),
                 trim((string)($item->content ?? ''))
+            );
+        }
+
+        return $rows;
+    }
+
+    public function mapHighlightRequestViewModels(array $highlights): array
+    {
+        $rows = [];
+        foreach ($highlights as $highlight) {
+            if (!$highlight instanceof DanceDetailHighlightRowRequest) {
+                continue;
+            }
+
+            $rows[] = new DanceDetailHighlightRowViewModel(
+                $highlight->id(),
+                $highlight->icon(),
+                $highlight->title(),
+                $highlight->content()
             );
         }
 
@@ -337,6 +499,27 @@ class CmsDanceMapper
                 trim((string)($item->content ?? '')),
                 trim((string)($item->image ?? '')),
                 trim((string)($item->url ?? ''))
+            );
+        }
+
+        return $rows;
+    }
+
+    public function mapTrackRequestViewModels(array $tracks): array
+    {
+        $rows = [];
+        foreach ($tracks as $track) {
+            if (!$track instanceof DanceDetailTrackRowRequest) {
+                continue;
+            }
+
+            $rows[] = new DanceDetailTrackRowViewModel(
+                $track->id(),
+                $track->title(),
+                $track->subtitle(),
+                $track->year(),
+                $track->image(),
+                $track->audioUrl()
             );
         }
 

@@ -4,6 +4,7 @@ namespace App\Models\ViewModels\Cms\Dance;
 
 class DanceHomeContentViewModel
 {
+    public string $pageTitle;
     public string $scheduleTitle;
     public string $bannerBadge;
     public string $bannerTitle;
@@ -20,6 +21,7 @@ class DanceHomeContentViewModel
     public string $specialHtml;
 
     public function __construct(
+        string $pageTitle,
         string $scheduleTitle,
         string $bannerBadge,
         string $bannerTitle,
@@ -35,6 +37,7 @@ class DanceHomeContentViewModel
         string $specialTitle,
         string $specialHtml
     ) {
+        $this->pageTitle = $pageTitle;
         $this->scheduleTitle = $scheduleTitle;
         $this->bannerBadge = $bannerBadge;
         $this->bannerTitle = $bannerTitle;

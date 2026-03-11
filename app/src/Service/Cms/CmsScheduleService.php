@@ -166,6 +166,7 @@ class CmsScheduleService implements ICmsScheduleService
             $normalizedRows[] = [
                 'id' => $id,
                 'performer_name' => $name,
+                'detail_slug' => $slug,
                 'performer_type' => $type !== '' ? $type : null,
                 'description' => $description !== '' ? $description : null,
             ];
