@@ -11,13 +11,19 @@
     </div>
 
     <div class="hero-info">
-
         <h1><?= htmlspecialchars($section->title) ?></h1>
 
-        <p class="hero-description">
-            <?= htmlspecialchars($section->description) ?>
-        </p>
+        <?php foreach ($section->items as $item): ?>
 
+            <p class="restaurant-stars">
+                <?= htmlspecialchars($item->icon) ?>
+            </p>
+
+            <p class="restaurant-content">
+                <?= htmlspecialchars($item->content) ?>
+            </p>
+
+        <?php endforeach; ?>
     </div>
 
 </section>
