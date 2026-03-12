@@ -15,9 +15,15 @@
                             <?php endfor; ?>
                         </div>
                     </div>
-                    <a class="story-feature-button" href="<?= htmlspecialchars((string) ($item->url ?? '#')) ?>">
-                        <?= htmlspecialchars((string) (($item->category ?? '') !== '' ? $item->category : 'Listen')) ?>
-                    </a>
+                    <button
+                        type="button"
+                        class="story-feature-button story-detail-track-play"
+                        data-audio-src="<?= htmlspecialchars((string) ($item->url ?? '')) ?>"
+                        data-state="paused"
+                    >
+                        <i data-lucide="play" aria-hidden="true"></i>
+                        <span><?= htmlspecialchars((string) (($item->category ?? '') !== '' ? $item->category : 'Listen')) ?></span>
+                    </button>
                 </article>
             <?php endforeach; ?>
         </div>

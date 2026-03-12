@@ -34,5 +34,6 @@
             <?php endif; ?>
         </div>
     </main>
+    <script src="/js/stories-detail-audio.js"></script>
 </body>
 </html>
