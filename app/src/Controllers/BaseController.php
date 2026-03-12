@@ -6,6 +6,14 @@ use App\Models\Enums\UserRole;
 
 class BaseController
 {
+    protected function json(array $payload, int $statusCode = 200): void
+    {
+        http_response_code($statusCode);
+        header('Content-Type: application/json; charset=UTF-8');
+        echo json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        exit;
+    }
+
     protected function render(string $view, array $data = []): void
     {
         $this->renderWithLayout($view, $data, __DIR__ . '/../Views/shared/layout.php');

@@ -26,12 +26,7 @@ $detailTrackAudioModule = $contentViewModel->pageSlug === '' ? '' : 'dance_detai
         <a href="/cms/events" class="btn btn-outline-secondary">Back to Events</a>
     </div>
 
-    <?php
-    $successMessage = 'Dance detail content updated.';
-    include __DIR__ . '/../../partialsViews/cms/form-feedback.php';
-    ?>
-
-    <form method="POST" action="<?= htmlspecialchars($formAction) ?>" class="card border-0 shadow-sm" data-quill-form="1" data-image-upload-module="<?= htmlspecialchars($detailMediaModule) ?>" data-debug-enabled="<?= $isDebugMode ? '1' : '0' ?>">
+    <form method="POST" action="<?= htmlspecialchars($formAction) ?>" class="card border-0 shadow-sm" data-quill-form="1" data-image-upload-module="<?= htmlspecialchars($detailMediaModule) ?>" data-debug-enabled="<?= $isDebugMode ? '1' : '0' ?>" data-save-api="/cms/events/dance-detail/<?= rawurlencode($contentViewModel->pageSlug) ?>/updateAPI">
         <div class="card-body p-4">
             <h2 class="h5">Page</h2>
             <div class="mb-3">
@@ -200,4 +195,5 @@ $detailTrackAudioModule = $contentViewModel->pageSlug === '' ? '' : 'dance_detai
 <script src="/js/cms/media-upload.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
 <script src="/js/cms/page-editor.js"></script>
+<script src="/js/cms/form-save-api.js"></script>
 <script src="/js/cms/dance-detail.js"></script>

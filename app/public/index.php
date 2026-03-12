@@ -119,8 +119,10 @@ try {
         $r->addRoute('POST', '/cms/events/{eventSlug}/schedule', ['CmsEventEditorController', 'update']);
         $r->addRoute('GET', '/cms/events/dance-home', ['CmsDanceContentController', 'index']);
         $r->addRoute('POST', '/cms/events/dance-home', ['CmsDanceContentController', 'update']);
+        $r->addRoute('POST', '/cms/events/dance-homeAPI', ['CmsDanceContentController', 'updateAPI']);
         $r->addRoute('GET', '/cms/events/dance-detail/{pageSlug}', ['CmsDanceContentController', 'detail']);
         $r->addRoute('POST', '/cms/events/dance-detail/{pageSlug}', ['CmsDanceContentController', 'updateDetail']);
+        $r->addRoute('POST', '/cms/events/dance-detail/{pageSlug}/updateAPI', ['CmsDanceContentController', 'updateDetailAPI']);
         $r->addRoute('GET', '/cms/events/tour-home', ['CmsTourContentController', 'index']);
         $r->addRoute('POST', '/cms/events/tour-home', ['CmsTourContentController', 'update']);
         $r->addRoute('GET', '/cms/events/tour-details', ['CmsTourContentController', 'details']);

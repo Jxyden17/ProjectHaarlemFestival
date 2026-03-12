@@ -51,6 +51,25 @@ class CmsDanceContentController extends BaseController
         }
     }
 
+    public function updateAPI(array $vars = []): void
+    {
+        $this->requireAdmin();
+        $request = DanceHomeContentRequest::fromArray($_POST);
+
+        try {
+            $this->danceService->saveDanceHomePage($request);
+            $this->json([
+                'success' => true,
+                'message' => 'Dance home content updated.',
+            ]);
+        } catch (\Throwable $e) {
+            $this->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 422);
+        }
+    }
+
     public function detail(array $vars = []): void
     {
         $this->requireAdmin();
@@ -87,6 +106,27 @@ class CmsDanceContentController extends BaseController
                 'error' => $e->getMessage(),
                 'success' => false,
             ]);
+        }
+    }
+
+    public function updateDetailAPI(array $vars = []): void
+    {
+        $this->requireAdmin();
+
+        $pageSlug = trim((string)($vars['pageSlug'] ?? ''));
+        $request = DanceDetailContentRequest::fromArray($_POST);
+
+        try {
+            $this->danceService->saveDanceDetailPage($pageSlug, $request);
+            $this->json([
+                'success' => true,
+                'message' => 'Dance detail content updated.',
+            ]);
+        } catch (\Throwable $e) {
+            $this->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 422);
         }
     }
 }

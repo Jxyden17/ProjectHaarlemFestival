@@ -2,3 +2,7 @@ const danceHomeForm = document.querySelector('form[action="/cms/events/dance-hom
 if (danceHomeForm && window.CmsPageEditor) {
     window.CmsPageEditor.initializeQuillEditors(danceHomeForm);
 }
+
+if (danceHomeForm && window.CmsFormSaveAPI) {
+    window.CmsFormSaveAPI.initialize(danceHomeForm);
+}

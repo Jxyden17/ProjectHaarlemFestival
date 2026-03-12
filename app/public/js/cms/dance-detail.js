@@ -103,3 +103,7 @@ if (danceDetailForm) {
 if (danceDetailForm && window.CmsPageEditor) {
     window.CmsPageEditor.initializeQuillEditors(danceDetailForm);
 }
+
+if (danceDetailForm && window.CmsFormSaveAPI) {
+    window.CmsFormSaveAPI.initialize(danceDetailForm);
+}
