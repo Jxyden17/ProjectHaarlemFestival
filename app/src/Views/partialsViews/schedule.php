@@ -44,7 +44,7 @@ if ($scheduleSectionClass !== '') {
 
 <link rel="stylesheet" href="/css/partialViews/schedule.css">
 
-<section class="<?= htmlspecialchars(implode(' ', $sectionClasses)) ?>">
+<section id="schedule" class="<?= htmlspecialchars(implode(' ', $sectionClasses)) ?>">
     <div class="schedule-container">
         <div class="schedule-header">
             <h2 class="schedule-title<?= $scheduleTitleIcon === '' ? '' : ' schedule-title--with-icon' ?>">
