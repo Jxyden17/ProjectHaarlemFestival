@@ -467,52 +467,66 @@ body {
 
 .venues-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 30px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
 }
 
 .venue-card {
-    background: var(--darker-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 30px;
-    transition: border-color 0.3s ease;
+    background: rgba(28, 59, 98, 0.92);
+    border: 1px solid rgba(118, 150, 198, 0.1);
+    border-radius: 14px;
+    padding: 22px 24px 20px;
+    min-height: 170px;
+    transition: border-color 0.3s ease, transform 0.3s ease;
 }
 
 .venue-card:hover {
-    border-color: var(--stories-accent);
+    border-color: rgba(199, 150, 54, 0.38);
+    transform: translateY(-2px);
+}
+
+.venue-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.venue-pin {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 18px;
+    margin-top: 2px;
+    background: url("/img/storiesIMG/Icon-for-the-hero-pointer.png") center/contain no-repeat;
+}
+
+.venue-heading-copy {
+    min-width: 0;
 }
 
 .venue-header h3 {
-    font-size: 18px;
+    font-size: 24px;
     font-weight: 700;
-    margin-bottom: 8px;
+    line-height: 1.2;
+    margin: 0 0 6px;
     color: var(--text-light);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.venue-header h3::before {
-    content: "📍";
-    font-size: 20px;
 }
 
 .venue-address {
-    font-size: 13px;
-    color: var(--text-muted);
-    margin-bottom: 15px;
+    font-size: 14px;
+    color: rgba(235, 241, 250, 0.82);
+    margin-bottom: 0;
     margin-top: 0;
 }
 
 .venue-description {
-    margin-bottom: 20px;
+    margin-bottom: 18px;
 }
 
 .venue-description p {
-    font-size: 14px;
-    color: var(--text-muted);
-    line-height: 1.7;
+    font-size: 16px;
+    color: rgba(235, 241, 250, 0.9);
+    line-height: 1.65;
     margin: 0;
 }
 
@@ -520,25 +534,23 @@ body {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin-top: 15px;
-    padding-top: 15px;
-    border-top: 1px solid var(--border-color);
+    margin-top: auto;
 }
 
 .tag {
     display: inline-block;
-    padding: 6px 12px;
-    background-color: var(--border-color);
-    color: var(--text-light);
+    padding: 4px 10px;
+    background-color: rgba(124, 96, 191, 0.5);
+    color: #f1e9ff;
     border-radius: 20px;
     font-size: 12px;
     font-weight: 500;
     white-space: nowrap;
 }
 
-.tag:nth-child(1) { background-color: rgba(106, 93, 175, 0.3); color: #9B8ED2; }
-.tag:nth-child(2) { background-color: rgba(82, 68, 138, 0.3); color: #9B8ED2; }
-.tag:nth-child(3) { background-color: rgba(106, 93, 175, 0.3); color: #9B8ED2; }
+.tag:nth-child(1) { background-color: rgba(121, 92, 184, 0.72); color: #f7efff; }
+.tag:nth-child(2) { background-color: rgba(110, 86, 175, 0.72); color: #f7efff; }
+.tag:nth-child(3) { background-color: rgba(121, 92, 184, 0.72); color: #f7efff; }
 
 /* ========================================
    Schedule Section
@@ -864,6 +876,15 @@ body {
         font-size: 28px;
     }
 
+    .venues-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .venue-header h3 {
+        font-size: 21px;
+    }
+
     .explore-grid {
         grid-template-columns: 1fr;
     }
@@ -918,6 +939,14 @@ body {
     .venue-card,
     .schedule-item {
         padding: 15px;
+    }
+
+    .venue-header h3 {
+        font-size: 18px;
+    }
+
+    .venue-description p {
+        font-size: 14px;
     }
 
     .faq-question {
