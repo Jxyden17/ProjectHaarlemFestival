@@ -194,4 +194,10 @@ class PageRepository implements IPageRepository
 
         return (int) $row['id'];
     }
+
+    public function getAllPages(): array
+    {
+        $stmt = $this->db->query('SELECT id,event_id, page_name, slug FROM pages ORDER BY page_name ASC');
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

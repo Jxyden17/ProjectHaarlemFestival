@@ -193,7 +193,7 @@ $passes = $contentViewModel->passes;
             </div>
         </div>
         <div class="card-footer d-flex justify-content-end">
-            <button type="submit" class="btn btn-primary">Save Content</button>
+            <button type="submit" class="btn btn-primary save-btn">Save Content</button>
         </div>
     </form>
 </div>

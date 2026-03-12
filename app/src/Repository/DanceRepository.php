@@ -145,5 +145,4 @@ class DanceRepository implements IDanceRepository
 
         return $row ? $this->danceMapper->mapDetailPageRow($row) : null;
     }
-
 }
