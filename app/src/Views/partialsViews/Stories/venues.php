@@ -17,8 +17,13 @@ if (!$section instanceof Section) {
             <?php foreach ($section->items as $item): ?>
                 <div class="venue-card">
                     <div class="venue-header">
-                        <h3><?= htmlspecialchars($item->title) ?></h3>
-                        <p class="venue-address"><?= htmlspecialchars($item->subTitle) ?></p>
+                        <span class="venue-pin" aria-hidden="true"></span>
+                        <div class="venue-heading-copy">
+                            <h3><?= htmlspecialchars($item->title) ?></h3>
+                            <?php if (!empty($item->subTitle)): ?>
+                                <p class="venue-address"><?= htmlspecialchars($item->subTitle) ?></p>
+                            <?php endif; ?>
+                        </div>
                     </div>
 
                     <div class="venue-description">

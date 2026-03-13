@@ -79,7 +79,8 @@ try {
     $cmsEventsController = new App\Controllers\Cms\CmsEventsController($cmsService, $danceService);
     $cmsTicketsController = new App\Controllers\Cms\CmsTicketsController($cmsService);
     $cmsUsersController = new App\Controllers\Cms\CmsUsersController($cmsService);
-    $storiesController = new App\Controllers\StoriesController($pageService);
+    $jazzController = new App\Controllers\JazzController($scheduleService, $jazzService);
+    $storiesController = new App\Controllers\StoriesController($pageService, $scheduleService);
     $cmsDanceContentController = new App\Controllers\Cms\CmsDanceContentController($cmsDanceService, $cmsDanceMapper);
     $cmsEventEditorController = new App\Controllers\Cms\CmsEventEditorController($cmsScheduleService, $cmsEventEditorService);
     $cmsMediaController = new App\Controllers\Cms\CmsMediaController($mediaService);

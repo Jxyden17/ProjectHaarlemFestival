@@ -16,7 +16,7 @@ class DanceRepository implements IDanceRepository
     public function __construct(DanceMapper $danceMapper)
     {
         $this->db = Database::getInstance();
-        $this->danceMapper = $danceMapper
+        $this->danceMapper = $danceMapper;
     }
 
     public function getDetailPagesByEventId(int $eventId): array

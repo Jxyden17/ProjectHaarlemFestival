@@ -15,6 +15,16 @@ if (!$section instanceof Section) {
 
         <div class="explore-grid">
             <?php foreach ($section->items as $item): ?>
+                <?php
+                $itemTitle = trim((string) ($item->title ?? ''));
+                $itemUrl = trim((string) ($item->url ?? ''));
+
+                if ($itemTitle === 'Yummy!') {
+                    $itemUrl = '/yummy';
+                } elseif ($itemTitle === 'Haarlem Jazz') {
+                    $itemUrl = '/jazz';
+                }
+                ?>
                 <div class="explore-card">
                     <?php if ($item->image): ?>
                         <div class="explore-image">
@@ -27,8 +37,8 @@ if (!$section instanceof Section) {
                             <p class="explore-subtitle"><?= htmlspecialchars($item->subTitle) ?></p>
                         <?php endif; ?>
                         <p class="explore-text"><?= htmlspecialchars($item->content) ?></p>
-                        <?php if ($item->url): ?>
-                            <a href="<?= htmlspecialchars($item->url) ?>" class="explore-btn">Explore</a>
+                        <?php if ($itemUrl !== ''): ?>
+                            <a href="<?= htmlspecialchars($itemUrl) ?>" class="explore-btn">Explore</a>
                         <?php endif; ?>
                     </div>
                 </div>
