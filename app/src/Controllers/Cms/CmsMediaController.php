@@ -17,18 +17,20 @@ class CmsMediaController extends BaseController
     public function uploadReplace(): void
     {
         $this->requireAdmin();
-        header('Content-Type: application/json');
         $result = $this->mediaService->uploadReplace($_SERVER, $_POST, $_FILES);
-        http_response_code((int)($result['status_code'] ?? 500));
-        echo json_encode($result['body'] ?? ['success' => false, 'message' => 'Image upload failed']);
+        $this->json(
+            $result['body'] ?? ['success' => false, 'message' => 'Image upload failed'],
+            (int)($result['status_code'] ?? 500)
+        );
     }
 
     public function uploadAudio(): void
     {
         $this->requireAdmin();
-        header('Content-Type: application/json');
         $result = $this->mediaService->uploadAudio($_SERVER, $_POST, $_FILES);
-        http_response_code((int)($result['status_code'] ?? 500));
-        echo json_encode($result['body'] ?? ['success' => false, 'message' => 'Audio upload failed']);
+        $this->json(
+            $result['body'] ?? ['success' => false, 'message' => 'Audio upload failed'],
+            (int)($result['status_code'] ?? 500)
+        );
     }
 }

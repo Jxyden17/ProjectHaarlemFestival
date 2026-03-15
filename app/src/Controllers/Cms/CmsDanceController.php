@@ -8,7 +8,7 @@ use App\Models\Requests\Cms\DanceDetailContentRequest;
 use App\Models\Requests\Cms\DanceHomeContentRequest;
 use App\Service\Cms\Interfaces\ICmsDanceService;
 
-class CmsDanceContentController extends BaseController
+class CmsDanceController extends BaseController
 {
     private ICmsDanceService $danceService;
     private CmsDanceMapper $cmsDanceMapper;
@@ -58,15 +58,9 @@ class CmsDanceContentController extends BaseController
 
         try {
             $this->danceService->saveDanceHomePage($request);
-            $this->json([
-                'success' => true,
-                'message' => 'Dance home content updated.',
-            ]);
+            $this->json(['success' => true,'message' => 'Dance home content updated.',]);
         } catch (\Throwable $e) {
-            $this->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 422);
+            $this->json(['success' => false, 'message' => $e->getMessage(),], 422);
         }
     }
 
