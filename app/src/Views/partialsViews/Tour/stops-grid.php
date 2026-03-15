@@ -21,7 +21,7 @@ if (!$section instanceof Section) {
                 <h3><?= $item->title ?></h3>
                 <p><?= $item->subTitle ?></p>
                 <p><?= $item->content ?></p>
-                <a href="/tour/details?id=<?= $item->position ?>" class="Read-More">Read More</a>
+                <a href="/tour/details?id=<?= $item->url ?>" class="Read-More">Read More</a>
             </div>
         </div>
         <?php endforeach; ?>

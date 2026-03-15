@@ -12,7 +12,7 @@
         <div class="info-grid">
             <?php foreach ($section->getItemsByCategorie('grid') as $item): ?>
                 <div class="info-item">
-                    <div class="info-icon"><?= htmlspecialchars($item->image) ?></div>
+                    <div class="info-icon"><?= htmlspecialchars($item->icon ?? '') ?></div>
                     <div class="info-label"><?= htmlspecialchars($item->title) ?></div>
                     <div class="info-value"><?= $item->content ?></div>
                 </div>

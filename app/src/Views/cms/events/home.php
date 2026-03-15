@@ -54,7 +54,7 @@ $mapItems = $map?->getItemsByCategorie('map_location') ?? [];
                 <?php foreach ($labels as $index => $label): ?>
                     <div class="d-flex gap-2 mb-2">
                         <input type="hidden" name="items[about][<?= (int)$index ?>][id]" value="<?= (int)$label->id ?>">
-                        <input type="text" name="items[about][<?= (int)$index ?>][icon]" class="form-control" placeholder="Icon" value="<?= htmlspecialchars($label->icon ?? $label->subTitle ?? '') ?>">
+                        <input type="text" name="items[about][<?= (int)$index ?>][icon_class]" class="form-control" placeholder="Icon" value="<?= htmlspecialchars($label->icon ??  $label->subTitle ?? '') ?>">
                         <input type="text" name="items[about][<?= (int)$index ?>][title]" class="form-control" placeholder="Title" value="<?= htmlspecialchars($label->title ?? '') ?>">
                     </div>
                 <?php endforeach; ?>

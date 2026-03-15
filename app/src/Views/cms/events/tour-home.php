@@ -62,6 +62,7 @@ $guideItems = $guide?->getItemsByCategorie('guide') ?? [];
 
             <?php foreach ($stopsItems as $index => $item): ?>
                 <div class="mb-3">
+                    <h4><?= htmlspecialchars($item->title ?? '') ?></h4>
                     <input type="hidden" name="items[tour_overview][<?= (int)$index ?>][id]" class="tour-item-id" value="<?= (int)($item->id) ?>">
                     <label class="form-label">Letter</label>
                     <input type="text" name="items[tour_overview][<?= (int)$index ?>][icon_class]" class="form-control mb-2" value="<?= htmlspecialchars($item->icon ?? '') ?>">
@@ -101,18 +102,16 @@ $guideItems = $guide?->getItemsByCategorie('guide') ?? [];
 
             <?php foreach ($discoverGridItems as $index => $item): ?>
                 <input type="hidden" name="items[discover][<?= (int)$index ?>][id]" value="<?= (int)$item->id ?>">
-
                 <div class="mb-3">
-                    <label class="form-label">Grid Item <?= (int)$index + 1 ?> Title</label>
+                    <label class="form-label"><?= htmlspecialchars($item->title ?? '') ?> Icon</label>
+                    <input type="text" name="items[discover][<?= (int)$index ?>][icon_class]" class="form-control" value="<?= htmlspecialchars($item->icon ?? '') ?>">
+                    <label class="form-label"><?= htmlspecialchars($item->title ?? '') ?> Title</label>
                     <input type="text" name="items[discover][<?= (int)$index ?>][title]" class="form-control" value="<?= htmlspecialchars($item->title) ?>">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Grid Item <?= (int)$index + 1 ?> Content</label>
+                    <label class="form-label"><?= htmlspecialchars($item->title ?? '') ?> Content</label>
                     <textarea name="items[discover][<?= (int)$index ?>][content]" data-quill="1" class="form-control" rows="2"><?= htmlspecialchars($item->content) ?></textarea>
                 </div>
                 <input type="hidden" name="items[discover][<?= (int)$index ?>][link_url]" value="<?= htmlspecialchars($item->url ?? '') ?>">
                 <input type="hidden" name="items[discover][<?= (int)$index ?>][duration]" value="<?= htmlspecialchars($item->duration ?? '') ?>">
-                <input type="hidden" name="items[discover][<?= (int)$index ?>][icon_class]" value="<?= htmlspecialchars($item->icon ?? '') ?>">
                 <input type="hidden" name="items[discover][<?= (int)$index ?>][item_subtitle]" value="<?= htmlspecialchars($item->subTitle ?? '') ?>">
             <?php endforeach; ?>
 
@@ -121,7 +120,7 @@ $guideItems = $guide?->getItemsByCategorie('guide') ?? [];
                 <input type="hidden" name="items[discover][<?= (int)$rowIndex ?>][id]" value="<?= (int)$item->id ?>">
 
                 <div class="mb-3">
-                    <label class="form-label">Price Item <?= (int)$index + 1 ?> Title</label>
+                    <label class="form-label"><?= htmlspecialchars($item->title ?? '') ?> Title</label>
                     <input type="text" name="items[discover][<?= (int)$rowIndex ?>][title]" class="form-control" value="<?= htmlspecialchars($item->title) ?>">
                 </div>
                 <div class="mb-3">

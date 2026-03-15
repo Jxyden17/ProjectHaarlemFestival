@@ -108,7 +108,7 @@ $openingTimeHours = $openingTime->getItemsByCategorie('opening_hours') ?? [];
             <h2 class="h5 mt-4">Informations</h2>
             <?php foreach ($openingTimeInfo as $index => $item): ?>
                 <?php $rowIndex = $index; ?>
-                <div class="mb-3">
+                <div class="d-flex gap-2 mb-2">
                     <input type="hidden" name="items[openings_time][<?= (int)$rowIndex ?>][id]" value="<?= (int)$item->id ?>">
                     <label class="form-label">Title</label>
                     <input type="text" name="items[openings_time][<?= (int)$rowIndex ?>][title]" class="form-control mb-2" value="<?= htmlspecialchars($item->title) ?>">
@@ -123,7 +123,7 @@ $openingTimeHours = $openingTime->getItemsByCategorie('opening_hours') ?? [];
             <h2 class="h5 mt-4">Opening Times</h2>
             <?php foreach ($openingTimeHours as $index => $item): ?>
                 <?php $rowIndex = $index + 100; ?>
-                <div class="mb-3">
+                <div class="d-flex gap-2 mb-2">
                     <input type="hidden" name="items[openings_time][<?= (int)$rowIndex ?>][id]" value="<?= (int)$item->id ?>">
                     <label class="form-label">Dag</label>
                     <input type="text" name="items[openings_time][<?= (int)$rowIndex ?>][title]" class="form-control mb-2" value="<?= htmlspecialchars($item->title) ?>">
