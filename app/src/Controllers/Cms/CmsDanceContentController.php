@@ -2,28 +2,21 @@
 
 namespace App\Controllers\Cms;
 
+use App\Mapper\CmsDanceMapper;
 use App\Controllers\BaseController;
-use App\Models\Requests\Cms\Dance\DanceDetailHeroImageRowRequest;
-use App\Models\Requests\Cms\Dance\DanceDetailHighlightRowRequest;
-use App\Models\Requests\Cms\Dance\DanceDetailTrackRowRequest;
-use App\Models\Requests\Cms\Dance\DanceHomePassRowRequest;
 use App\Models\Requests\Cms\DanceDetailContentRequest;
 use App\Models\Requests\Cms\DanceHomeContentRequest;
-use App\Models\ViewModels\Cms\Dance\DanceDetailContentViewModel;
-use App\Models\ViewModels\Cms\Dance\DanceDetailHeroImageRowViewModel;
-use App\Models\ViewModels\Cms\Dance\DanceDetailHighlightRowViewModel;
-use App\Models\ViewModels\Cms\Dance\DanceDetailTrackRowViewModel;
-use App\Models\ViewModels\Cms\Dance\DanceHomeContentViewModel;
-use App\Models\ViewModels\Cms\Dance\DanceHomePassRowViewModel;
 use App\Service\Cms\Interfaces\ICmsDanceService;
 
 class CmsDanceContentController extends BaseController
 {
     private ICmsDanceService $danceService;
+    private CmsDanceMapper $cmsDanceMapper;
 
-    public function __construct(ICmsDanceService $danceService)
+    public function __construct(ICmsDanceService $danceService, CmsDanceMapper $cmsDanceMapper)
     {
         $this->danceService = $danceService;
+        $this->cmsDanceMapper = $cmsDanceMapper;
     }
 
     public function index(): void
@@ -48,7 +41,7 @@ class CmsDanceContentController extends BaseController
             header('Location: /cms/events/dance-home?saved=1');
             exit;
         } catch (\Throwable $e) {
-            $contentViewModel = $this->mapHomePostToFormData($request);
+            $contentViewModel = $this->cmsDanceMapper->mapHomeRequestToContentViewModel($request);
             $this->renderCms('cms/events/dance-home', [
                 'title' => 'Dance Home Content',
                 'contentViewModel' => $contentViewModel,
@@ -85,7 +78,8 @@ class CmsDanceContentController extends BaseController
             header('Location: /cms/events/dance-detail/' . rawurlencode($detailSlug) . '?saved=1');
             exit;
         } catch (\Throwable $e) {
-            $contentViewModel = $this->mapDetailPostToFormData($detailSlug, $request);
+            $baseViewModel = $this->danceService->getDanceDetailFormData($detailSlug);
+            $contentViewModel = $this->cmsDanceMapper->mapDetailRequestToContentViewModel($request, $baseViewModel);
             $this->renderCms('cms/events/dance-detail', [
                 'title' => $contentViewModel->editorTitle,
                 'contentViewModel' => $contentViewModel,
@@ -94,90 +88,5 @@ class CmsDanceContentController extends BaseController
                 'success' => false,
             ]);
         }
-    }
-
-    private function mapHomePostToFormData(DanceHomeContentRequest $request): DanceHomeContentViewModel
-    {
-        $passRows = [];
-        $passes = $request->passes();
-        foreach ($passes as $pass) {
-            if (!$pass instanceof DanceHomePassRowRequest) {
-                continue;
-            }
-
-            $passRows[] = new DanceHomePassRowViewModel(
-                $pass->id(),
-                $pass->label(),
-                $pass->price(),
-                $pass->highlight()
-            );
-        }
-
-        return new DanceHomeContentViewModel(
-            $request->scheduleTitle(),
-            $request->bannerBadge(),
-            $request->bannerTitle(),
-            $request->bannerDescription(),
-            '',
-            [],
-            $request->importantInformationTitle(),
-            $request->importantInformationHtml(),
-            $request->passesTitle(),
-            $passRows,
-            $request->capacityTitle(),
-            $request->capacityHtml(),
-            $request->specialTitle(),
-            $request->specialHtml()
-        );
-    }
-
-    private function mapDetailPostToFormData(string $detailSlug, DanceDetailContentRequest $request): DanceDetailContentViewModel
-    {
-        $baseViewModel = $this->danceService->getDanceDetailFormData($detailSlug);
-
-        $heroImages = [];
-        foreach ($request->heroImages() as $row) {
-            if (!$row instanceof DanceDetailHeroImageRowRequest) {
-                continue;
-            }
-
-            $heroImages[] = new DanceDetailHeroImageRowViewModel($row->id(), $row->image(), $row->alt());
-        }
-
-        $highlights = [];
-        foreach ($request->highlights() as $row) {
-            if (!$row instanceof DanceDetailHighlightRowRequest) {
-                continue;
-            }
-
-            $highlights[] = new DanceDetailHighlightRowViewModel($row->id(), $row->icon(), $row->title(), $row->content());
-        }
-
-        $tracks = [];
-        foreach ($request->tracks() as $row) {
-            if (!$row instanceof DanceDetailTrackRowRequest) {
-                continue;
-            }
-
-            $tracks[] = new DanceDetailTrackRowViewModel($row->id(), $row->title(), $row->subtitle(), $row->year(), $row->image());
-        }
-
-        return new DanceDetailContentViewModel(
-            $baseViewModel->detailSlug,
-            $baseViewModel->editorTitle,
-            $baseViewModel->publicPath,
-            $baseViewModel->performerName,
-            $request->heroTitle(),
-            $request->heroBadge(),
-            $request->heroSubtitle(),
-            $heroImages,
-            $request->highlightsTitle(),
-            $highlights,
-            $request->tracksTitle(),
-            $request->tracksNote(),
-            $tracks,
-            $request->importantInformationTitle(),
-            $request->importantInformationHtml()
-        );
     }
 }

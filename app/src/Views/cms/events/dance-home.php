@@ -2,7 +2,7 @@
 use App\Models\ViewModels\Cms\Dance\DanceHomeContentViewModel;
 $contentViewModel = (isset($contentViewModel) && $contentViewModel instanceof DanceHomeContentViewModel)
     ? $contentViewModel
-    : new DanceHomeContentViewModel('', '', '', '', '', [], '', '', '', [], '', '', '', '');
+    : new DanceHomeContentViewModel('', '', '', '', '', '', [], '', '', '', [], '', '', '', '');
 $passes = $contentViewModel->passes;
 ?>
 <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
@@ -23,6 +23,21 @@ $passes = $contentViewModel->passes;
 
     <form method="POST" action="/cms/events/dance-home" class="card border-0 shadow-sm" data-quill-form="1">
         <div class="card-body p-4">
+            <h2 class="h5">Page</h2>
+            <div class="mb-3">
+                <label for="page_title" class="form-label">Browser Tab Title</label>
+                <input
+                    type="text"
+                    id="page_title"
+                    name="page_title"
+                    class="form-control"
+                    value="<?= htmlspecialchars($contentViewModel->pageTitle) ?>"
+                    required
+                >
+            </div>
+
+            <hr>
+
             <h2 class="h5">Schedule</h2>
             <div class="mb-3">
                 <label for="schedule_title" class="form-label">Schedule Title</label>

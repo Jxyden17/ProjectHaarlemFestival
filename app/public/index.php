@@ -36,10 +36,13 @@ try {
 
     $mailConfig = App\Models\MailConfig::fromEnvironment();
     $pageService = new App\Service\PageService($pageRepo, $pageMapper);
+    $cmsPageSaveService = new App\Service\Cms\CmsPageSaveService($pageRepo);
     $mailService = new App\Service\MailService($mailConfig);
     $htmlSanitizerService = new App\Service\HtmlSanitizerService();
+    $cmsDanceValidator = new App\Validator\Cms\CmsDanceValidator();
+    $cmsScheduleValidator = new App\Validator\Cms\CmsScheduleValidator();
     $scheduleService = new App\Service\ScheduleService($scheduleRepo, $scheduleMapper);
-    $danceService = new App\Service\DanceService($danceRepo, $pageService);
+    $danceService = new App\Service\DanceService($danceRepo, $scheduleRepo, $pageService);
     $danceViewModelMapper = new App\Mapper\DanceViewModelMapper($danceService, $scheduleService);
     $mediaService = new App\Service\MediaService($mediaRepo, $danceRepo);
     $yummyService = new App\Service\YummyService($yummyRepo);
@@ -48,19 +51,21 @@ try {
 
     $cmsScheduleMapper = new App\Mapper\CmsScheduleMapper($danceService);
     $cmsDanceMapper = new App\Mapper\CmsDanceMapper();
-    $cmsScheduleService = new App\Service\Cms\CmsScheduleService($scheduleRepo);
+    $cmsScheduleService = new App\Service\Cms\CmsScheduleService($scheduleRepo, $cmsScheduleValidator);
     $cmsDanceService = new App\Service\Cms\CmsDanceService(
         $danceRepo,
-        $pageRepo,
+        $cmsPageSaveService,
         $pageService,
         $htmlSanitizerService,
-        $cmsDanceMapper
+        $cmsDanceMapper,
+        $cmsDanceValidator
     );
     $cmsService = new App\Service\Cms\CmsService($userRepo);
     $cmsEventEditorService = new App\Service\Cms\CmsEventEditorService(
         $scheduleService,
         $cmsScheduleMapper,
-        $pageRepo
+        $pageRepo,
+        $cmsPageSaveService
     );
 
     $authController = new App\Controllers\AuthController($authService);
@@ -71,10 +76,12 @@ try {
     $yummyController = new App\Controllers\YummyController($yummyService);
 
     $cmsController = new App\Controllers\Cms\CmsController($cmsService);
-    $cmsEventsController = new App\Controllers\Cms\CmsEventsController($cmsService);
+    $cmsEventsController = new App\Controllers\Cms\CmsEventsController($cmsService, $danceService);
     $cmsTicketsController = new App\Controllers\Cms\CmsTicketsController($cmsService);
     $cmsUsersController = new App\Controllers\Cms\CmsUsersController($cmsService);
-    $cmsDanceContentController = new App\Controllers\Cms\CmsDanceContentController($cmsDanceService);
+    $jazzController = new App\Controllers\JazzController($scheduleService, $jazzService);
+    $storiesController = new App\Controllers\StoriesController($pageService, $scheduleService);
+    $cmsDanceContentController = new App\Controllers\Cms\CmsDanceContentController($cmsDanceService, $cmsDanceMapper);
     $cmsEventEditorController = new App\Controllers\Cms\CmsEventEditorController($cmsScheduleService, $cmsEventEditorService);
     $cmsMediaController = new App\Controllers\Cms\CmsMediaController($mediaService);
     $cmsTourContentController = new App\Controllers\Cms\CmsTourContentController($pageService, $cmsEventEditorService);
@@ -102,6 +109,12 @@ try {
         $r->addRoute('GET', '/yummy', ['YummyController', 'index']);
         $r->addRoute('GET', '/yummy/{slug}', ['YummyController', 'restaurant']);
 
+        //Stories Routes
+        $r->addRoute('GET', '/stories', ['StoriesController', 'index']);
+        $r->addRoute('GET', '/stories/details', ['StoriesController', 'details']);
+        $r->addRoute('GET', '/stories/{slug}', ['StoriesController', 'details']);
+
+        // CMS routes
         $r->addRoute('GET', '/cms', ['CmsController', 'index']);
         $r->addRoute('GET', '/cms/events', ['CmsEventsController', 'index']);
         $r->addRoute('GET', '/cms/events/{eventSlug}/schedule', ['CmsEventEditorController', 'index']);
@@ -153,6 +166,7 @@ try {
                 'YummyController' => $yummyController,
                 'CmsController' => $cmsController,
                 'JazzController' => $jazzController,
+                'StoriesController' => $storiesController,
                 'CmsEventsController' => $cmsEventsController,
                 'CmsTicketsController' => $cmsTicketsController,
                 'CmsUsersController' => $cmsUsersController,

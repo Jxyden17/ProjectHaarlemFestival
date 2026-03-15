@@ -7,6 +7,7 @@ class DanceDetailContentViewModel
     public string $detailSlug;
     public string $editorTitle;
     public string $publicPath;
+    public string $pageTitle;
     public string $performerName;
     public string $heroTitle;
     public string $heroBadge;
@@ -24,6 +25,7 @@ class DanceDetailContentViewModel
         string $detailSlug,
         string $editorTitle,
         string $publicPath,
+        string $pageTitle,
         string $performerName,
         string $heroTitle,
         string $heroBadge,
@@ -40,6 +42,7 @@ class DanceDetailContentViewModel
         $this->detailSlug = $detailSlug;
         $this->editorTitle = $editorTitle;
         $this->publicPath = $publicPath;
+        $this->pageTitle = $pageTitle;
         $this->performerName = $performerName;
         $this->heroTitle = $heroTitle;
         $this->heroBadge = $heroBadge;

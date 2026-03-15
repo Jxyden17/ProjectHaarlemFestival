@@ -287,13 +287,13 @@ class MediaService implements IMediaService
     }
 
     private function buildDanceDetailModuleConfig(
-        string $cmsSlug,
+        string $detailSlug,
         string $sectionType,
         string $itemCategory,
         array $allowedPrefixes = ['/img/danceIMG/']
     ): ?MediaModuleConfig
     {
-        $detailPage = $this->danceRepository->findDetailPageByCmsSlug($cmsSlug);
+        $detailPage = $this->danceRepository->findDetailPageBySlug($detailSlug);
         if ($detailPage === null) {
             return null;
         }

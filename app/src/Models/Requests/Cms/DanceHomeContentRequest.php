@@ -7,6 +7,7 @@ use App\Models\Requests\Cms\Dance\DanceHomePassRowRequest;
 
 class DanceHomeContentRequest
 {
+    private string $pageTitle;
     private string $scheduleTitle;
     private string $bannerBadge;
     private string $bannerTitle;
@@ -23,6 +24,7 @@ class DanceHomeContentRequest
     private string $specialHtml;
 
     private function __construct(
+        string $pageTitle,
         string $scheduleTitle,
         string $bannerBadge,
         string $bannerTitle,
@@ -38,6 +40,7 @@ class DanceHomeContentRequest
         string $specialTitle,
         string $specialHtml
     ) {
+        $this->pageTitle = $pageTitle;
         $this->scheduleTitle = $scheduleTitle;
         $this->bannerBadge = $bannerBadge;
         $this->bannerTitle = $bannerTitle;
@@ -57,6 +60,7 @@ class DanceHomeContentRequest
     public static function fromArray(array $input): self
     {
         return new self(
+            (string)($input['page_title'] ?? ''),
             (string)($input['schedule_title'] ?? ''),
             (string)($input['banner_badge'] ?? ''),
             (string)($input['banner_title'] ?? ''),
@@ -72,6 +76,11 @@ class DanceHomeContentRequest
             (string)($input['special_title'] ?? ''),
             (string)($input['special_html'] ?? '')
         );
+    }
+
+    public function pageTitle(): string
+    {
+        return trim($this->pageTitle);
     }
 
     private static function mapArtists(array $input): array

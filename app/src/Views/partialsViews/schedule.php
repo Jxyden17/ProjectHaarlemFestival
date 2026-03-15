@@ -10,7 +10,7 @@ if (!$scheduleData instanceof ScheduleViewModel) {
     return;
 }
 
-$title = $scheduleData->title;
+$scheduleHeading = $scheduleData->title;
 $eventName = $scheduleData->eventName ?? '';
 $normalizedEventName = strtolower(trim($eventName));
 
@@ -44,14 +44,14 @@ if ($scheduleSectionClass !== '') {
 
 <link rel="stylesheet" href="/css/partialViews/schedule.css">
 
-<section class="<?= htmlspecialchars(implode(' ', $sectionClasses)) ?>">
+<section id="schedule" class="<?= htmlspecialchars(implode(' ', $sectionClasses)) ?>">
     <div class="schedule-container">
         <div class="schedule-header">
             <h2 class="schedule-title<?= $scheduleTitleIcon === '' ? '' : ' schedule-title--with-icon' ?>">
                 <?php if ($scheduleTitleIcon !== ''): ?>
                     <i data-lucide="<?= htmlspecialchars($scheduleTitleIcon) ?>" aria-hidden="true"></i>
                 <?php endif; ?>
-                <?= htmlspecialchars($title) ?>
+                <?= htmlspecialchars($scheduleHeading) ?>
             </h2>
         </div>
 
@@ -115,10 +115,17 @@ if ($scheduleSectionClass !== '') {
                     <div>NAAM</div>
                     <div>AGE</div>
                     <div>PRICE</div>
-                <?php elseif ($isTour || $isStories): ?>
+                <?php elseif ($isTour): ?>
                     <div>DATE</div>
                     <div>TIME</div>
                     <div>LOCATION</div>
+                    <div>LANGUAGE</div>
+                    <div>FREE SPOTS</div>
+                    <div>PRICE</div>
+                <?php elseif ($isStories): ?>
+                    <div>DATE</div>
+                    <div>TIME</div>
+                    <div>LOCATION / ACTS</div>
                     <div>LANGUAGE</div>
                     <div>FREE SPOTS</div>
                     <div>PRICE</div>
@@ -151,6 +158,17 @@ if ($scheduleSectionClass !== '') {
                             $languageSlug = 'unknown';
                         }
 
+                        $priceLabel = trim((string) ($row->price ?? ''));
+                        $normalizedPrice = strtolower($priceLabel);
+                        $isPayAsYouLike = $isStories && (
+                            $normalizedPrice === 'pay as you like' ||
+                            $normalizedPrice === '€ 0.00' ||
+                            $normalizedPrice === '0' ||
+                            $normalizedPrice === '0.00'
+                        );
+                        $bookUrl = $isPayAsYouLike ? '/stories/pay-as-you-like' : (string) ($row->bookUrl ?? '#');
+                        $bookLabel = $isPayAsYouLike ? 'Pay As You Like' : 'Book Now';
+
                         $rowAttributes = [];
                         if ($showLanguageFilter) {
                             $rowAttributes[] = 'data-language="' . htmlspecialchars($languageSlug) . '"';
@@ -173,7 +191,7 @@ if ($scheduleSectionClass !== '') {
                                     <span class="schedule-age-badge"><?= htmlspecialchars($row->ageLabel ?? 'N/A') ?></span>
                                 </div>
                                 <div class="schedule-price"><?= htmlspecialchars($row->price) ?></div>
-                            <?php elseif ($isTour || $isStories): ?>
+                            <?php elseif ($isTour): ?>
                                 <div><?= htmlspecialchars($row->date) ?></div>
                                 <div><?= htmlspecialchars($row->time) ?></div>
                                 <div><?= htmlspecialchars($row->location) ?></div>
@@ -183,6 +201,23 @@ if ($scheduleSectionClass !== '') {
                                     </span>
                                 </div>
                                 <div><?= htmlspecialchars($row->availableTickets . '/' . $row->totalTickets) ?></div>
+                                <div class="schedule-price"><?= htmlspecialchars($row->price) ?></div>
+                            <?php elseif ($isStories): ?>
+                                <div><?= htmlspecialchars($row->date) ?></div>
+                                <div><?= htmlspecialchars($row->time) ?></div>
+                                <div>
+                                    <?= htmlspecialchars($row->location) ?>
+                                    <?php if (!empty($row->event)): ?>
+                                        <br>
+                                        <span>(<?= htmlspecialchars($row->event) ?>)</span>
+                                    <?php endif; ?>
+                                </div>
+                                <div>
+                                    <span class="schedule-language-badge schedule-language-<?= htmlspecialchars($languageSlug) ?>">
+                                        <?= htmlspecialchars($languageLabel) ?>
+                                    </span>
+                                </div>
+                                <div><?= htmlspecialchars( $row->totalTickets . '+' ) ?></div>
                                 <div class="schedule-price"><?= htmlspecialchars($row->price) ?></div>
                             <?php elseif ($isDance): ?>
                                 <div class="<?= $scheduleHasIcons ? 'schedule-cell schedule-cell--date' : '' ?>">
@@ -207,8 +242,8 @@ if ($scheduleSectionClass !== '') {
                                 <div class="schedule-price"><?= htmlspecialchars($row->price) ?></div>
                             <?php endif; ?>
                             <div>
-                                <a class="schedule-book-btn" href="<?= htmlspecialchars($row->bookUrl) ?>">
-                                    Book Now
+                                <a class="schedule-book-btn" href="<?= htmlspecialchars($bookUrl) ?>">
+                                    <?= htmlspecialchars($bookLabel) ?>
                                 </a>
                             </div>
                         </div>

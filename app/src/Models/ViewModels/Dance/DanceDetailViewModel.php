@@ -4,6 +4,7 @@ namespace App\Models\ViewModels\Dance;
 
 class DanceDetailViewModel
 {
+    public string $pageTitle;
     public string $performerName;
     public string $badge;
     public string $subtitle;
@@ -19,6 +20,7 @@ class DanceDetailViewModel
     public string $importantInfoHtml;
 
     public function __construct(
+        ?string $pageTitle = null,
         ?string $performerName = null,
         ?string $badge = null,
         ?string $subtitle = null,
@@ -33,6 +35,7 @@ class DanceDetailViewModel
         ?string $importantInfoTitle = null,
         ?string $importantInfoHtml = null
     ) {
+        $this->pageTitle = $this->normalizeText($pageTitle, 'Dance Detail');
         $this->performerName = trim((string)$performerName);
         $this->badge = trim((string)$badge);
         $this->subtitle = trim((string)$subtitle);
