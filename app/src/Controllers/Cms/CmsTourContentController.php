@@ -48,9 +48,6 @@ class CmsTourContentController extends BaseController
         $this->requireAdmin();
         $sections = is_array($_POST['sections']) ? $_POST['sections'] : [];
         $items = is_array($_POST['items']) ? $_POST['items'] : [];
-
-        // $items = $this->applyUploadedImages($items, $_FILES['item_images'] ?? []);
-
         try {
             $this->cmsEventEditorService->savePageContent(1, $sections, $items);
             $_SESSION['cms_tour_success'] = 'Tour content opgeslagen.';

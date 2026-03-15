@@ -12,8 +12,8 @@
         <div class="info-grid">
             <?php foreach ($section->getItemsByCategorie('grid') as $item): ?>
                 <div class="info-item">
-                    <div class="info-icon"><?= $item->image ?></div>
-                    <div class="info-label"><?= $item->title ?></div>
+                    <div class="info-icon"><?= htmlspecialchars($item->image) ?></div>
+                    <div class="info-label"><?= htmlspecialchars($item->title) ?></div>
                     <div class="info-value"><?= $item->content ?></div>
                 </div>
             <?php endforeach; ?>
@@ -25,8 +25,8 @@
                     <?php foreach ($section->getItemsByCategorie('price') as $item): ?>
                     <div class="price-item">
                         <div class="price-label">
-                            <span class="price-name"><?= $item->title ?></span>
-                            <span class="price-subtitle"><?= $item->url ?></span>
+                            <span class="price-name"><?= htmlspecialchars($item->title) ?></span>
+                            <span class="price-subtitle"><?= htmlspecialchars($item->url) ?></span>
                         </div>
                         <div class="price-value"><?= $item->content ?></div>
                     </div>
@@ -36,7 +36,7 @@
                 <h2 class="section-title">Important Information</h2>
                 <ul class="info-list">
                 <?php foreach($section->getItemsByCategorie('info') as $item): ?>
-                    <li><?= $item->title ?></li>
+                    <li><?= htmlspecialchars($item->title) ?></li>
                 <?php endforeach; ?>
                 </ul>
             </div>

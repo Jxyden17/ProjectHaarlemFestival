@@ -6,7 +6,6 @@ $openingTimeInfo = $openingTime->getItemsByCategorie('info') ?? [];
 $openingTimeHours = $openingTime->getItemsByCategorie('opening_hours') ?? [];
 ?>
 
-<link rel="stylesheet" href="/css/Cms/cms-layout.css">
 <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
 
 <div class="container py-4">

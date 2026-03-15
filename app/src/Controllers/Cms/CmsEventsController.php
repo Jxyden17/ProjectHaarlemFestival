@@ -17,7 +17,6 @@ class CmsEventsController extends BaseController
     public function index(): void
     {
         $this->requireAdmin();
-        $pages = $this->cmsService->getAllPages();
         $this->renderCms('cms/events/index', ['title' => 'Event Management']);
     }
 }

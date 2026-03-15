@@ -78,6 +78,7 @@ try {
     $cmsEventEditorController = new App\Controllers\Cms\CmsEventEditorController($cmsScheduleService, $cmsEventEditorService);
     $cmsMediaController = new App\Controllers\Cms\CmsMediaController($mediaService);
     $cmsTourContentController = new App\Controllers\Cms\CmsTourContentController($pageService, $cmsEventEditorService);
+    $cmsHomeContentController = new App\Controllers\Cms\CmsHomeContentController($pageService, $cmsEventEditorService);
 
     $dispatcher = simpleDispatcher(function (RouteCollector $r) {
         $r->addRoute('GET', '/', ['HomeController', 'index']);
@@ -123,6 +124,8 @@ try {
         $r->addRoute('POST', '/cms/users/edit', ['CmsUsersController', 'editUser']);
         $r->addRoute('GET', '/cms/users/delete', ['CmsUsersController', 'showDeleteConfirmation']);
         $r->addRoute('POST', '/cms/users/delete', ['CmsUsersController', 'deleteUser']);
+        $r->addRoute('GET', '/cms/events/home', ['CmsHomeContentController', 'index']);
+        $r->addRoute('POST', '/cms/events/home', ['CmsHomeContentController', 'update']);
 
         $r->addRoute('GET', '/jazz', ['JazzController', 'index']);
     });
@@ -157,6 +160,7 @@ try {
                 'CmsDanceContentController' => $cmsDanceContentController,
                 'CmsTourContentController' => $cmsTourContentController,
                 'CmsMediaController' => $cmsMediaController,
+                'CmsHomeContentController' => $cmsHomeContentController,
             ];
 
             if (!isset($controllerMap[$controllerName])) {
