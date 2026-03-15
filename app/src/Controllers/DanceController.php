@@ -29,8 +29,8 @@ class DanceController extends BaseController
 
     public function detail(array $vars = []): void
     {
-        $detailSlug = trim((string)($vars['detailSlug'] ?? ''));
-        $detailMeta = $this->danceService->getDanceDetailPageBySlug($detailSlug);
+        $pageSlug = trim((string)($vars['pageSlug'] ?? ''));
+        $detailMeta = $this->danceService->getDanceDetailPageBySlug($pageSlug);
 
         if (!$detailMeta instanceof EventDetailPageModel) {
             http_response_code(404);

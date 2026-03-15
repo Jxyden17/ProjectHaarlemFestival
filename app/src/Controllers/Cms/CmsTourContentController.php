@@ -34,6 +34,7 @@ class CmsTourContentController extends BaseController
 
         $viewData = [
         'pageTitle' => $page->title,
+        'pageSlug' => $page->slug,
         'hero'      => $page->getSection('hero'),
         'stops'     => $page->getSection('tour_overview'),
         'discover'  => $page->getSection('discover'),
@@ -76,6 +77,7 @@ class CmsTourContentController extends BaseController
 
         $viewData = [
         'pageTitle' => $page->title,
+        'pageSlug' => $page->slug,
         'pageId' => $pageId,
         'header'      => $page->getSection('header'),
         'history'     => $page->getSection('history'),

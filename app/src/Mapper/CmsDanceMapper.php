@@ -124,7 +124,7 @@ class CmsDanceMapper
         $info = $page->getSection('dance_detail_info');
 
         return new DanceDetailContentViewModel(
-            $meta->detailSlug,
+            $meta->pageSlug,
             $editorTitle,
             $meta->getPublicPath(),
             $page->title,
@@ -148,7 +148,7 @@ class CmsDanceMapper
         DanceDetailContentViewModel $baseViewModel
     ): DanceDetailContentViewModel {
         return new DanceDetailContentViewModel(
-            $baseViewModel->detailSlug,
+            $baseViewModel->pageSlug,
             $baseViewModel->editorTitle,
             $baseViewModel->publicPath,
             $request->pageTitle(),

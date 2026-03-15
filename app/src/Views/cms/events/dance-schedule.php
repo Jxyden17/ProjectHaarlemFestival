@@ -219,5 +219,8 @@ $formAction = (string)($formAction ?? '/cms/events/dance-schedule');
     </form>
 </div>
 
-<?php $danceScheduleJsVersion = @filemtime(__DIR__ . '/../../../../public/js/cms/dance-schedule.js') ?: time(); ?>
-<script src="/js/cms/dance-schedule.js?v=<?= (int)$danceScheduleJsVersion ?>"></script>
+<?php include __DIR__ . '/../../partialsViews/cms/upload-feedback-modal.php'; ?>
+
+<script src="/js/cms/upload-feedback.js"></script>
+<script src="/js/cms/media-upload.js"></script>
+<script src="/js/cms/dance-schedule.js"></script>

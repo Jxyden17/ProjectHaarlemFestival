@@ -11,6 +11,6 @@ interface ICmsDanceService
 {
     public function getDanceHomeFormData(): DanceHomeContentViewModel;
     public function saveDanceHomePage(DanceHomeContentRequest $request): void;
-    public function getDanceDetailFormData(string $detailSlug): DanceDetailContentViewModel;
-    public function saveDanceDetailPage(string $detailSlug, DanceDetailContentRequest $request): void;
+    public function getDanceDetailFormData(string $pageSlug): DanceDetailContentViewModel;
+    public function saveDanceDetailPage(string $pageSlug, DanceDetailContentRequest $request): void;
 }

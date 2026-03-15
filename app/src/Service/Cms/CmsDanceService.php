@@ -58,9 +58,9 @@ class CmsDanceService implements ICmsDanceService
         $this->persistDanceHomePage($page);
     }
 
-    public function getDanceDetailFormData(string $detailSlug): DanceDetailContentViewModel
+    public function getDanceDetailFormData(string $pageSlug): DanceDetailContentViewModel
     {
-        $meta = $this->resolveDetailPageMeta($detailSlug);
+        $meta = $this->resolveDetailPageMeta($pageSlug);
         $page = $this->pageService->getPageBySlug($meta->pageSlug, $this->buildEditorTitle($meta));
         $performerName = $this->resolveDetailPerformerName($meta, $page->getSection('dance_detail_hero'));
 
@@ -72,9 +72,9 @@ class CmsDanceService implements ICmsDanceService
         );
     }
 
-    public function saveDanceDetailPage(string $detailSlug, DanceDetailContentRequest $request): void
+    public function saveDanceDetailPage(string $pageSlug, DanceDetailContentRequest $request): void
     {
-        $meta = $this->resolveDetailPageMeta($detailSlug);
+        $meta = $this->resolveDetailPageMeta($pageSlug);
         $existingPage = $this->pageService->getPageBySlug($meta->pageSlug, $this->buildEditorTitle($meta));
         $existingTrackAudioUrls = $this->getExistingTrackAudioUrlsByItemId($existingPage);
         $normalizedInput = $this->normalizeDetailPageInput($request, $existingTrackAudioUrls);
@@ -89,9 +89,9 @@ class CmsDanceService implements ICmsDanceService
         return $this->pageService->getPageBySlug('dance-home', 'Dance Home');
     }
 
-    private function resolveDetailPageMeta(string $detailSlug): EventDetailPageModel
+    private function resolveDetailPageMeta(string $pageSlug): EventDetailPageModel
     {
-        $meta = $this->danceRepository->findDetailPageBySlug($detailSlug);
+        $meta = $this->danceRepository->findDetailPageByPageSlug($pageSlug);
         if ($meta === null) {
             throw new \InvalidArgumentException('Unknown dance detail page.');
         }

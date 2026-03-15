@@ -2,16 +2,25 @@
 $success = !empty($success);
 $errorMessage = isset($error) ? trim((string)$error) : '';
 $successMessage = isset($successMessage) ? trim((string)$successMessage) : 'Saved successfully.';
+$feedbackClass = 'd-none';
+$feedbackVariant = 'success';
+$feedbackMessage = '';
+
+if ($success) {
+    $feedbackClass = '';
+    $feedbackVariant = 'success';
+    $feedbackMessage = $successMessage;
+} elseif ($errorMessage !== '') {
+    $feedbackClass = '';
+    $feedbackVariant = 'danger';
+    $feedbackMessage = $errorMessage;
+}
 ?>
 
-<?php if ($success): ?>
-    <div class="alert alert-success" role="alert">
-        <?= htmlspecialchars($successMessage) ?>
-    </div>
-<?php endif; ?>
-
-<?php if ($errorMessage !== ''): ?>
-    <div class="alert alert-danger" role="alert">
-        <?= htmlspecialchars($errorMessage) ?>
-    </div>
-<?php endif; ?>
+<div
+    class="alert alert-<?= htmlspecialchars($feedbackVariant) ?> <?= htmlspecialchars($feedbackClass) ?>"
+    role="alert"
+    data-cms-form-feedback="1"
+>
+    <?= htmlspecialchars($feedbackMessage) ?>
+</div>

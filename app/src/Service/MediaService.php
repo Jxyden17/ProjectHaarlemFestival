@@ -96,6 +96,7 @@ class MediaService implements IMediaService
             $currentPath,
             $mediaType === self::TYPE_AUDIO
         );
+        $currentPath = $this->resolveStoredCurrentPath($mediaType, $currentPath, $sectionItemId);
 
         return new MediaUploadRequest(
             $moduleConfig,
@@ -172,6 +173,20 @@ class MediaService implements IMediaService
         }
 
         return $currentPath;
+    }
+
+    private function resolveStoredCurrentPath(string $mediaType, string $currentPath, ?int $sectionItemId): string
+    {
+        if ($mediaType !== self::TYPE_IMAGE || $sectionItemId === null || $sectionItemId <= 0) {
+            return $currentPath;
+        }
+
+        $storedCurrentPath = $this->mediaRepository->findSectionItemImagePathById($sectionItemId);
+        if ($storedCurrentPath === null || $storedCurrentPath === '') {
+            return $currentPath;
+        }
+
+        return $storedCurrentPath;
     }
 
     private function validateAndExtractUploadFileInfo(string $mediaType, array $file): array
@@ -268,6 +283,15 @@ class MediaService implements IMediaService
             return $this->buildDanceDetailModuleConfig($matches[1], 'dance_detail_tracks', 'track', ['/audio/dance/']);
         }
 
+        if (preg_match('/^tour_image:([a-z0-9-]+):([a-z_]+)$/', $module, $matches) === 1) {
+            return new MediaModuleConfig(
+                ['/img/historyIMG/'],
+                $matches[1],
+                $matches[2],
+                null
+            );
+        }
+
         $map = [
             'dance_artist' => new MediaModuleConfig(
                 ['/img/danceIMG/'],
@@ -287,13 +311,13 @@ class MediaService implements IMediaService
     }
 
     private function buildDanceDetailModuleConfig(
-        string $detailSlug,
+        string $pageSlug,
         string $sectionType,
         string $itemCategory,
         array $allowedPrefixes = ['/img/danceIMG/']
     ): ?MediaModuleConfig
     {
-        $detailPage = $this->danceRepository->findDetailPageBySlug($detailSlug);
+        $detailPage = $this->danceRepository->findDetailPageByPageSlug($pageSlug);
         if ($detailPage === null) {
             return null;
         }
@@ -316,7 +340,15 @@ class MediaService implements IMediaService
             return 'skipped_missing_section_item_id';
         }
 
-        if ($mediaType === self::TYPE_AUDIO) {
+        if ($mediaType === self::TYPE_IMAGE && $request->moduleConfig->itemCategory === null) {
+            $updated = $this->mediaRepository->updateSectionItemImagePathBySection(
+                $request->sectionItemId,
+                $publicPath,
+                (string)$request->moduleConfig->pageSlug,
+                (string)$request->moduleConfig->sectionType
+            );
+            $errorMessage = 'Could not update image path in database for this item';
+        } elseif ($mediaType === self::TYPE_AUDIO) {
             $updated = $this->mediaRepository->updateSectionItemLinkUrl(
                 $request->sectionItemId,
                 $publicPath,
@@ -342,7 +374,7 @@ class MediaService implements IMediaService
                 $message .= ' [section_item_id=' . $request->sectionItemId
                     . ', page_slug=' . (string)$request->moduleConfig->pageSlug
                     . ', section_type=' . (string)$request->moduleConfig->sectionType
-                    . ', item_category=' . (string)$request->moduleConfig->itemCategory
+                    . ', item_category=' . (string)($request->moduleConfig->itemCategory ?? '')
                     . ', path=' . $publicPath . ']';
             }
 

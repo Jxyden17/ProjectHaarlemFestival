@@ -81,7 +81,7 @@ try {
     $cmsUsersController = new App\Controllers\Cms\CmsUsersController($cmsService);
     $jazzController = new App\Controllers\JazzController($scheduleService, $jazzService);
     $storiesController = new App\Controllers\StoriesController($pageService, $scheduleService);
-    $cmsDanceContentController = new App\Controllers\Cms\CmsDanceContentController($cmsDanceService, $cmsDanceMapper);
+    $cmsDanceController = new App\Controllers\Cms\CmsDanceController($cmsDanceService, $cmsDanceMapper);
     $cmsEventEditorController = new App\Controllers\Cms\CmsEventEditorController($cmsScheduleService, $cmsEventEditorService);
     $cmsMediaController = new App\Controllers\Cms\CmsMediaController($mediaService);
     $cmsTourContentController = new App\Controllers\Cms\CmsTourContentController($pageService, $cmsEventEditorService);
@@ -104,7 +104,7 @@ try {
         $r->addRoute('GET', '/tour/details', ['TourController', 'details']);
 
         $r->addRoute('GET', '/dance', ['DanceController', 'index']);
-        $r->addRoute('GET', '/dance/{detailSlug}', ['DanceController', 'detail']);
+        $r->addRoute('GET', '/dance/{pageSlug}', ['DanceController', 'detail']);
 
         $r->addRoute('GET', '/yummy', ['YummyController', 'index']);
         $r->addRoute('GET', '/yummy/{slug}', ['YummyController', 'restaurant']);
@@ -119,10 +119,12 @@ try {
         $r->addRoute('GET', '/cms/events', ['CmsEventsController', 'index']);
         $r->addRoute('GET', '/cms/events/{eventSlug}/schedule', ['CmsEventEditorController', 'index']);
         $r->addRoute('POST', '/cms/events/{eventSlug}/schedule', ['CmsEventEditorController', 'update']);
-        $r->addRoute('GET', '/cms/events/dance-home', ['CmsDanceContentController', 'index']);
-        $r->addRoute('POST', '/cms/events/dance-home', ['CmsDanceContentController', 'update']);
-        $r->addRoute('GET', '/cms/events/dance-detail/{detailSlug}', ['CmsDanceContentController', 'detail']);
-        $r->addRoute('POST', '/cms/events/dance-detail/{detailSlug}', ['CmsDanceContentController', 'updateDetail']);
+        $r->addRoute('GET', '/cms/events/dance-home', ['CmsDanceController', 'index']);
+        $r->addRoute('POST', '/cms/events/dance-home', ['CmsDanceController', 'update']);
+        $r->addRoute('POST', '/cms/events/dance-homeAPI', ['CmsDanceController', 'updateAPI']);
+        $r->addRoute('GET', '/cms/events/dance-detail/{pageSlug}', ['CmsDanceController', 'detail']);
+        $r->addRoute('POST', '/cms/events/dance-detail/{pageSlug}', ['CmsDanceController', 'updateDetail']);
+        $r->addRoute('POST', '/cms/events/dance-detail/{pageSlug}/updateAPI', ['CmsDanceController', 'updateDetailAPI']);
         $r->addRoute('GET', '/cms/events/tour-home', ['CmsTourContentController', 'index']);
         $r->addRoute('POST', '/cms/events/tour-home', ['CmsTourContentController', 'update']);
         $r->addRoute('GET', '/cms/events/tour-details', ['CmsTourContentController', 'details']);
@@ -171,7 +173,7 @@ try {
                 'CmsTicketsController' => $cmsTicketsController,
                 'CmsUsersController' => $cmsUsersController,
                 'CmsEventEditorController' => $cmsEventEditorController,
-                'CmsDanceContentController' => $cmsDanceContentController,
+                'CmsDanceController' => $cmsDanceController,
                 'CmsTourContentController' => $cmsTourContentController,
                 'CmsMediaController' => $cmsMediaController,
                 'CmsHomeContentController' => $cmsHomeContentController,
@@ -192,6 +194,9 @@ try {
             break;
     }
 } catch (\Throwable $e) {
+    if ($showDebug) {
+        var_dump($e);
+    }
     $debugError = $e->getMessage();
     $renderErrorPage(
         503,
