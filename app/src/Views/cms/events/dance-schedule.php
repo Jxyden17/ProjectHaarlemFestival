@@ -214,7 +214,7 @@ $formAction = (string)($formAction ?? '/cms/events/dance-schedule');
             </div>
         </div>
         <div class="card-footer d-flex justify-content-end">
-            <button type="submit" class="btn btn-primary">Save Schedule</button>
+            <button type="submit" class="btn btn-primary save-btn">Save Schedule</button>
         </div>
     </form>
 </div>

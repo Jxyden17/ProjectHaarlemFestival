@@ -79,11 +79,13 @@ try {
     $cmsEventsController = new App\Controllers\Cms\CmsEventsController($cmsService, $danceService);
     $cmsTicketsController = new App\Controllers\Cms\CmsTicketsController($cmsService);
     $cmsUsersController = new App\Controllers\Cms\CmsUsersController($cmsService);
-    $storiesController = new App\Controllers\StoriesController($pageService);
+    $jazzController = new App\Controllers\JazzController($scheduleService, $jazzService);
+    $storiesController = new App\Controllers\StoriesController($pageService, $scheduleService);
     $cmsDanceController = new App\Controllers\Cms\CmsDanceController($cmsDanceService, $cmsDanceMapper);
     $cmsEventEditorController = new App\Controllers\Cms\CmsEventEditorController($cmsScheduleService, $cmsEventEditorService);
     $cmsMediaController = new App\Controllers\Cms\CmsMediaController($mediaService);
     $cmsTourContentController = new App\Controllers\Cms\CmsTourContentController($pageService, $cmsEventEditorService);
+    $cmsHomeContentController = new App\Controllers\Cms\CmsHomeContentController($pageService, $cmsEventEditorService);
 
     $dispatcher = simpleDispatcher(function (RouteCollector $r) {
         $r->addRoute('GET', '/', ['HomeController', 'index']);
@@ -137,6 +139,8 @@ try {
         $r->addRoute('POST', '/cms/users/edit', ['CmsUsersController', 'editUser']);
         $r->addRoute('GET', '/cms/users/delete', ['CmsUsersController', 'showDeleteConfirmation']);
         $r->addRoute('POST', '/cms/users/delete', ['CmsUsersController', 'deleteUser']);
+        $r->addRoute('GET', '/cms/events/home', ['CmsHomeContentController', 'index']);
+        $r->addRoute('POST', '/cms/events/home', ['CmsHomeContentController', 'update']);
 
         $r->addRoute('GET', '/jazz', ['JazzController', 'index']);
     });
@@ -172,6 +176,7 @@ try {
                 'CmsDanceController' => $cmsDanceController,
                 'CmsTourContentController' => $cmsTourContentController,
                 'CmsMediaController' => $cmsMediaController,
+                'CmsHomeContentController' => $cmsHomeContentController,
             ];
 
             if (!isset($controllerMap[$controllerName])) {
@@ -189,6 +194,9 @@ try {
             break;
     }
 } catch (\Throwable $e) {
+    if ($showDebug) {
+        var_dump($e);
+    }
     $debugError = $e->getMessage();
     $renderErrorPage(
         503,

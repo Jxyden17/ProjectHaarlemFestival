@@ -7,6 +7,7 @@ use App\Models\Database;
 use App\Models\Event\EventModel;
 use App\Repository\Interfaces\IScheduleRepository;
 use PDO;
+use PDOException;
 
 class ScheduleRepository implements IScheduleRepository
 {

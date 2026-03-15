@@ -26,12 +26,12 @@ $pageSlug = (string)($pageSlug ?? 'tour-home');
             <h2 class="h2">Header</h2>
             <div class="mb-3">
                 <label for="hero_title" class="form-label">Title</label>
-                <textarea id="hero_title" name="sections[hero][title]" class="form-control" data-quill="1" rows="2" required><?= htmlspecialchars($hero?->title) ?></textarea>
+                <input id="hero_title" name="sections[hero][title]" class="form-control" rows="2" value="<?= htmlspecialchars($hero?->title) ?>">
             </div>
 
             <div class="mb-3">
                 <label for="hero_subtitle" class="form-label">SubTitle</label>
-                <textarea id="hero_subtitle" name="sections[hero][subtitle]" class="form-control" data-quill="1" rows="2" required><?= htmlspecialchars($hero?->subTitle) ?></textarea>
+                <input id="hero_subtitle" name="sections[hero][subtitle]" class="form-control" rows="2" value="<?= htmlspecialchars($hero?->subTitle) ?>">
                 <input type="hidden" name="sections[hero][description]" value="<?= htmlspecialchars($hero?->description) ?>">
             </div>
 
@@ -57,26 +57,27 @@ $pageSlug = (string)($pageSlug ?? 'tour-home');
             <h2>Stops on the tour</h2>
             <div class="mb-3">
                 <label for="tour_overview_title"  class="form-label">Title</label>
-                <textarea id="tour_overview_title" name="sections[tour_overview][title]" data-quill="1" class="form-control" rows="2" required><?= htmlspecialchars($stops?->title) ?></textarea>
+                <input id="tour_overview_title" name="sections[tour_overview][title]" class="form-control" rows="2" value="<?= htmlspecialchars($stops?->title) ?>">
                 <input type="hidden" name="sections[tour_overview][subtitle]" value="<?= htmlspecialchars($stops?->subTitle ?? '') ?>">
                 <input type="hidden" name="sections[tour_overview][description]" value="<?= htmlspecialchars($stops?->description ?? '') ?>">
             </div>
 
             <?php foreach ($stopsItems as $index => $item): ?>
-                <div class="mb-3" data-tour-upload-row="1" data-tour-section-type="tour_overview" data-tour-item-category="<?= htmlspecialchars((string)($item->category ?? '')) ?>">
+                <div class="mb-3">
+                    <h4><?= htmlspecialchars($item->title ?? '') ?></h4>
                     <input type="hidden" name="items[tour_overview][<?= (int)$index ?>][id]" class="tour-item-id" value="<?= (int)($item->id) ?>">
                     <input type="hidden" name="items[tour_overview][<?= (int)$index ?>][image_path]" class="performer-artist-image" value="<?= htmlspecialchars($item->image ?? '') ?>">
                     <label class="form-label">Letter</label>
-                    <textarea name="items[tour_overview][<?= (int)$index ?>][icon_class]" data-quill="1" class="form-control mb-2" rows="2" required><?= htmlspecialchars($item->icon ?? '') ?></textarea>
+                    <input type="text" name="items[tour_overview][<?= (int)$index ?>][icon_class]" class="form-control mb-2" value="<?= htmlspecialchars($item->icon ?? '') ?>">
 
                     <label class="form-label">Title</label>
-                    <textarea name="items[tour_overview][<?= (int)$index ?>][title]" data-quill="1" class="form-control mb-2" rows="2" required><?= htmlspecialchars($item->title ?? '') ?></textarea>
+                    <input type="text" name="items[tour_overview][<?= (int)$index ?>][title]" class="form-control mb-2" value="<?= htmlspecialchars($item->title ?? '') ?>">
 
                     <label class="form-label">Subtitle</label>
-                    <textarea name="items[tour_overview][<?= (int)$index ?>][item_subtitle]" data-quill="1" class="form-control mb-2" rows="2"><?= htmlspecialchars($item->subTitle ?? '') ?></textarea>
+                    <input type="text" name="items[tour_overview][<?= (int)$index ?>][item_subtitle]" class="form-control mb-2" value="<?= htmlspecialchars($item->subTitle ?? '') ?>">
 
                     <label class="form-label">Duration</label>
-                    <textarea name="items[tour_overview][<?= (int)$index ?>][duration]" data-quill="1" class="form-control mb-2" rows="2"><?= htmlspecialchars($item->duration ?? '') ?></textarea>
+                    <input type="text" name="items[tour_overview][<?= (int)$index ?>][duration]" class="form-control mb-2" value="<?= htmlspecialchars($item->duration ?? '') ?>">
 
                     <label class="form-label">Content</label>
                     <textarea name="items[tour_overview][<?= (int)$index ?>][content]" data-quill="1" class="form-control mb-2" rows="3"><?= htmlspecialchars($item->content ?? '') ?></textarea>
@@ -91,7 +92,7 @@ $pageSlug = (string)($pageSlug ?? 'tour-home');
             <h2>Discover Section</h2>
             <div class="mb-3">
                 <label for="discover_title" class="form-label">Title</label>
-                <textarea id="discover_title" name="sections[discover][title]" data-quill="1" class="form-control" rows="2" required><?= htmlspecialchars($discover?->title) ?></textarea>
+                <input id="discover_title" name="sections[discover][title]" class="form-control" rows="2" value="<?= htmlspecialchars($discover?->title) ?>">
             </div>
             <div class="mb-3">
                 <label for="discover_subtitle" class="form-label">Subtitle</label>
@@ -104,18 +105,16 @@ $pageSlug = (string)($pageSlug ?? 'tour-home');
 
             <?php foreach ($discoverGridItems as $index => $item): ?>
                 <input type="hidden" name="items[discover][<?= (int)$index ?>][id]" value="<?= (int)$item->id ?>">
-
                 <div class="mb-3">
-                    <label class="form-label">Grid Item <?= (int)$index + 1 ?> Title</label>
-                    <textarea name="items[discover][<?= (int)$index ?>][title]" data-quill="1" class="form-control" rows="2"><?= htmlspecialchars($item->title) ?></textarea>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Grid Item <?= (int)$index + 1 ?> Content</label>
+                    <label class="form-label"><?= htmlspecialchars($item->title ?? '') ?> Icon</label>
+                    <input type="text" name="items[discover][<?= (int)$index ?>][icon_class]" class="form-control" value="<?= htmlspecialchars($item->icon ?? '') ?>">
+                    <label class="form-label"><?= htmlspecialchars($item->title ?? '') ?> Title</label>
+                    <input type="text" name="items[discover][<?= (int)$index ?>][title]" class="form-control" value="<?= htmlspecialchars($item->title) ?>">
+                    <label class="form-label"><?= htmlspecialchars($item->title ?? '') ?> Content</label>
                     <textarea name="items[discover][<?= (int)$index ?>][content]" data-quill="1" class="form-control" rows="2"><?= htmlspecialchars($item->content) ?></textarea>
                 </div>
                 <input type="hidden" name="items[discover][<?= (int)$index ?>][link_url]" value="<?= htmlspecialchars($item->url ?? '') ?>">
                 <input type="hidden" name="items[discover][<?= (int)$index ?>][duration]" value="<?= htmlspecialchars($item->duration ?? '') ?>">
-                <input type="hidden" name="items[discover][<?= (int)$index ?>][icon_class]" value="<?= htmlspecialchars($item->icon ?? '') ?>">
                 <input type="hidden" name="items[discover][<?= (int)$index ?>][item_subtitle]" value="<?= htmlspecialchars($item->subTitle ?? '') ?>">
             <?php endforeach; ?>
 
@@ -124,12 +123,12 @@ $pageSlug = (string)($pageSlug ?? 'tour-home');
                 <input type="hidden" name="items[discover][<?= (int)$rowIndex ?>][id]" value="<?= (int)$item->id ?>">
 
                 <div class="mb-3">
-                    <label class="form-label">Price Item <?= (int)$index + 1 ?> Title</label>
-                    <textarea name="items[discover][<?= (int)$rowIndex ?>][title]" data-quill="1" class="form-control" rows="2"><?= htmlspecialchars($item->title) ?></textarea>
+                    <label class="form-label"><?= htmlspecialchars($item->title ?? '') ?> Title</label>
+                    <input type="text" name="items[discover][<?= (int)$rowIndex ?>][title]" class="form-control" value="<?= htmlspecialchars($item->title) ?>">
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Price Item <?= (int)$index + 1 ?> Link</label>
-                    <textarea name="items[discover][<?= (int)$rowIndex ?>][link_url]" data-quill="1" class="form-control" rows="2"><?= htmlspecialchars($item->url) ?></textarea>
+                    <input type="text" name="items[discover][<?= (int)$rowIndex ?>][link_url]" class="form-control" value="<?= htmlspecialchars($item->url) ?>">
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Price Item <?= (int)$index + 1 ?> Content</label>
@@ -146,7 +145,7 @@ $pageSlug = (string)($pageSlug ?? 'tour-home');
 
                 <div class="mb-3">
                     <label class="form-label">Info Item <?= (int)$index + 1 ?> Title</label>
-                    <textarea name="items[discover][<?= (int)$rowIndex ?>][title]" data-quill="1" class="form-control" rows="2"><?= htmlspecialchars($item->title) ?></textarea>
+                    <input type="text" name="items[discover][<?= (int)$rowIndex ?>][title]" class="form-control" value="<?= htmlspecialchars($item->title) ?>">
                 </div>
                 <input type="hidden" name="items[discover][<?= (int)$rowIndex ?>][content]" value="<?= htmlspecialchars($item->content ?? '') ?>">
                 <input type="hidden" name="items[discover][<?= (int)$rowIndex ?>][link_url]" value="<?= htmlspecialchars($item->url ?? '') ?>">
@@ -158,11 +157,11 @@ $pageSlug = (string)($pageSlug ?? 'tour-home');
             <h2>Meet your Guides Section</h2>
             <div class="mb-3">
                 <label for="guide_title" class="form-label">Title</label>
-                <textarea id="guide_title" name="sections[guide][title]" data-quill="1" class="form-control" rows="2"><?= htmlspecialchars($guide?->title) ?></textarea>
+                <input id="guide_title" name="sections[guide][title]" class="form-control" rows="2" value="<?= htmlspecialchars($guide?->title) ?>">
             </div>
             <div class="mb-3">
                 <label for="guide_subtitle" class="form-label">SubTitle</label>
-                <textarea id="guide_subtitle" name="sections[guide][subtitle]" data-quill="1" class="form-control" rows="2"><?= htmlspecialchars($guide?->subTitle) ?></textarea>
+                <input id="guide_subtitle" name="sections[guide][subtitle]" class="form-control" rows="2" value="<?= htmlspecialchars($guide?->subTitle) ?>">
             </div>
             <div class="mb-3">
                 <label for="guide_description" class="form-label">Description</label>
@@ -179,10 +178,10 @@ $pageSlug = (string)($pageSlug ?? 'tour-home');
                     <a href="<?= htmlspecialchars($item->image ?? '') ?>" class="btn btn-sm btn-outline-secondary performer-download-link<?= ($item->image ?? '') === '' ? ' d-none' : '' ?>" download>Download</a>
 
                     <label class="form-label mt-2">Guide <?= (int)$index + 1 ?> Name</label>
-                    <textarea name="items[guide][<?= (int)$index ?>][title]" data-quill="1" class="form-control mb-2" rows="2"><?= htmlspecialchars($item->title) ?></textarea>
+                    <input type="text" name="items[guide][<?= (int)$index ?>][title]" class="form-control mb-2" value="<?= htmlspecialchars($item->title) ?>">
 
                     <label class="form-label">Guide <?= (int)$index + 1 ?> Role</label>
-                    <textarea name="items[guide][<?= (int)$index ?>][item_subtitle]" data-quill="1" class="form-control mb-2" rows="2"><?= htmlspecialchars($item->subTitle) ?></textarea>
+                    <input type="text" name="items[guide][<?= (int)$index ?>][item_subtitle]" class="form-control mb-2" value="<?= htmlspecialchars($item->subTitle) ?>">
 
                     <label class="form-label">Guide <?= (int)$index + 1 ?> Description</label>
                     <textarea name="items[guide][<?= (int)$index ?>][content]" data-quill="1" class="form-control" rows="3"><?= htmlspecialchars($item->content) ?></textarea>
@@ -192,7 +191,7 @@ $pageSlug = (string)($pageSlug ?? 'tour-home');
                 </div>
             <?php endforeach; ?>
 
-            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <button type="submit" class="btn btn-primary save-btn">Save Changes</button>
         </div>
     </form>
 </div>

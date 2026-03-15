@@ -29,10 +29,16 @@
             return;
         }
 
+        if (form.dataset.saveApiInitialized === '1') {
+            return;
+        }
+
         const saveApiUrl = form.dataset.saveApi || '';
         if (saveApiUrl === '') {
             return;
         }
+
+        form.dataset.saveApiInitialized = '1';
 
         form.addEventListener('submit', async (event) => {
             event.preventDefault();
@@ -69,7 +75,22 @@
         });
     }
 
+    function initializeAll(root) {
+        const scope = root instanceof ParentNode ? root : document;
+        const forms = scope.querySelectorAll('form[data-save-api]');
+        forms.forEach((form) => {
+            initialize(form);
+        });
+    }
+
     window.CmsFormSaveAPI = {
         initialize,
+        initializeAll,
     };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => initializeAll(), { once: true });
+    } else {
+        initializeAll();
+    }
 })();

@@ -14,8 +14,18 @@
                         <?= htmlspecialchars($item->content) ?>
                     </div>
                     <?php if ($item->url): ?>
-                        <a href="<?= htmlspecialchars($item->url) ?>" class="view-profile-btn">View Profile</a>
-                    <?php endif; ?>
+                    <?php
+                    $profileUrl = $item->url;
+                        if ($item->title === 'Mister Anansi') {
+                            $profileUrl = '/stories/details?slug=mister-anansi';
+                        } elseif ($item->title === 'Omdenken Podcast') {
+                            $profileUrl = '/stories/details?slug=omdenken-podcast';
+                        } elseif ($item->title === 'Corrie ten Boom') {
+                            $profileUrl = '/stories/details?slug=corrie-ten-boom';
+                        }
+                        ?>
+                    <a href="<?= htmlspecialchars($profileUrl) ?>" class="view-profile-btn">View Profile</a>
+                <?php endif; ?>
                 </div>
             </div>
         <?php endforeach; ?>
