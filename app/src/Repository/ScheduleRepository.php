@@ -7,6 +7,7 @@ use App\Models\Database;
 use App\Models\Event\EventModel;
 use App\Repository\Interfaces\IScheduleRepository;
 use PDO;
+use PDOException;
 
 class ScheduleRepository implements IScheduleRepository
 {
@@ -314,24 +315,55 @@ class ScheduleRepository implements IScheduleRepository
             return;
         }
 
-        $update = $this->db->prepare(
-            'UPDATE event_detail_pages
-             SET detail_slug = :detail_slug
-             WHERE event_id = :event_id
-               AND performer_id = :performer_id'
-        );
-
         foreach ($performerRows as $row) {
             $slug = trim((string)($row['detail_slug'] ?? ''));
             if ($slug === '') {
                 continue;
             }
 
-            $update->execute([
+            $params = [
                 ':detail_slug' => $slug,
                 ':event_id' => $eventId,
                 ':performer_id' => (int)$row['id'],
-            ]);
+            ];
+
+            $this->executeSlugUpdateWithFallback($params);
+        }
+    }
+
+    private function executeSlugUpdateWithFallback(array $params): void
+    {
+        $queries = [
+            'UPDATE event_detail_pages
+             SET detail_slug = :detail_slug
+             WHERE event_id = :event_id
+               AND performer_id = :performer_id',
+            'UPDATE event_detail_pages
+             SET public_slug = :detail_slug,
+                 cms_slug = :detail_slug
+             WHERE event_id = :event_id
+               AND performer_id = :performer_id',
+            'UPDATE pages p
+             INNER JOIN event_detail_pages edp ON edp.page_id = p.id
+             SET p.slug = :detail_slug
+             WHERE edp.event_id = :event_id
+               AND edp.performer_id = :performer_id',
+        ];
+
+        $lastException = null;
+
+        foreach ($queries as $query) {
+            try {
+                $stmt = $this->db->prepare($query);
+                $stmt->execute($params);
+                return;
+            } catch (PDOException $exception) {
+                $lastException = $exception;
+            }
+        }
+
+        if ($lastException instanceof PDOException) {
+            throw $lastException;
         }
     }
 }
