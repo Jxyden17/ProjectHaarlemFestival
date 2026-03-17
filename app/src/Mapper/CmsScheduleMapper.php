@@ -3,9 +3,9 @@
 namespace App\Mapper;
 
 use App\Models\Page\SectionItem;
-use App\Models\Requests\Cms\Schedule\SchedulePerformerRowRequest;
-use App\Models\Requests\Cms\Schedule\ScheduleSessionRowRequest;
-use App\Models\Requests\Cms\Schedule\ScheduleVenueRowRequest;
+use App\Models\Edit\Schedule\SchedulePerformerEditRow;
+use App\Models\Edit\Schedule\ScheduleSessionEditRow;
+use App\Models\Edit\Schedule\ScheduleVenueEditRow;
 use App\Models\ViewModels\Cms\Schedule\ScheduleEditorPerformerRowViewModel;
 use App\Models\ViewModels\Cms\Schedule\ScheduleEditorSessionRowViewModel;
 use App\Models\ViewModels\Cms\Schedule\ScheduleEditorVenueRowViewModel;
@@ -56,7 +56,7 @@ class CmsScheduleMapper
         $venues = [];
 
         foreach ($rows as $row) {
-            if (!$row instanceof ScheduleVenueRowRequest) {
+            if (!$row instanceof ScheduleVenueEditRow) {
                 continue;
             }
 
@@ -76,7 +76,7 @@ class CmsScheduleMapper
         $performers = [];
 
         foreach ($rows as $index => $row) {
-            if (!$row instanceof SchedulePerformerRowRequest) {
+            if (!$row instanceof SchedulePerformerEditRow) {
                 continue;
             }
 
@@ -106,7 +106,7 @@ class CmsScheduleMapper
         $sessions = [];
 
         foreach ($rows as $row) {
-            if (!$row instanceof ScheduleSessionRowRequest) {
+            if (!$row instanceof ScheduleSessionEditRow) {
                 continue;
             }
 

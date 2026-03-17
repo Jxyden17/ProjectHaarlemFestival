@@ -2,8 +2,8 @@
 
 namespace App\Service\Cms\Interfaces;
 
-use App\Models\Requests\Cms\UpdateDanceDetailRequest;
-use App\Models\Requests\Cms\UpdateDanceHomeRequest;
+use App\Models\Requests\UpdateDanceDetailRequest;
+use App\Models\Requests\UpdateDanceHomeRequest;
 use App\Models\ViewModels\Cms\Dance\DanceDetailEditViewModel;
 use App\Models\ViewModels\Cms\Dance\DanceHomeEditViewModel;
 

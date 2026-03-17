@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Models\Requests\Cms;
+namespace App\Models\Requests;
 
-use App\Models\Requests\Cms\Dance\DanceDetailHeroImageRowRequest;
-use App\Models\Requests\Cms\Dance\DanceDetailHighlightRowRequest;
-use App\Models\Requests\Cms\Dance\DanceDetailTrackRowRequest;
+use App\Models\Edit\Dance\DanceDetailHeroImageEditRow;
+use App\Models\Edit\Dance\DanceDetailHighlightEditRow;
+use App\Models\Edit\Dance\DanceDetailTrackEditRow;
 
 class UpdateDanceDetailRequest
 {
@@ -61,7 +61,7 @@ class UpdateDanceDetailRequest
         $rows = [];
         foreach ($input as $row) {
             if (is_array($row)) {
-                $rows[] = DanceDetailHeroImageRowRequest::fromArray($row);
+                $rows[] = DanceDetailHeroImageEditRow::fromArray($row);
             }
         }
 
@@ -73,7 +73,7 @@ class UpdateDanceDetailRequest
         $rows = [];
         foreach ($input as $row) {
             if (is_array($row)) {
-                $rows[] = DanceDetailHighlightRowRequest::fromArray($row);
+                $rows[] = DanceDetailHighlightEditRow::fromArray($row);
             }
         }
 
@@ -85,7 +85,7 @@ class UpdateDanceDetailRequest
         $rows = [];
         foreach ($input as $row) {
             if (is_array($row)) {
-                $rows[] = DanceDetailTrackRowRequest::fromArray($row);
+                $rows[] = DanceDetailTrackEditRow::fromArray($row);
             }
         }
 

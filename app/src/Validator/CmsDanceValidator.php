@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Validator\Cms;
+namespace App\Validator;
 
 use App\Models\Dance\DanceDetailEditInput;
 use App\Models\Dance\DanceHomeEditInput;

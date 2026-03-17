@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Models\Requests\Cms;
+namespace App\Models\Requests;
 
-use App\Models\Requests\Cms\Dance\DanceHomePassRowRequest;
+use App\Models\Edit\Dance\DanceHomePassEditRow;
 
 class UpdateDanceHomeRequest
 {
@@ -71,7 +71,7 @@ class UpdateDanceHomeRequest
                 continue;
             }
 
-            $rows[] = DanceHomePassRowRequest::fromArray($row);
+            $rows[] = DanceHomePassEditRow::fromArray($row);
         }
 
         return $rows;

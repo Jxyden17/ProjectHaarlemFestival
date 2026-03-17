@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Models\Requests\Cms\Dance;
+namespace App\Models\Edit\Dance;
 
-class DanceDetailHighlightRowRequest
+class DanceDetailHighlightEditRow
 {
     private int $id;
     private string $icon;

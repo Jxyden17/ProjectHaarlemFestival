@@ -10,8 +10,8 @@ use App\Models\Event\EventDetailPageModel;
 use App\Models\Page\Page;
 use App\Models\Page\Section;
 use App\Models\Page\SectionItem;
-use App\Models\Requests\Cms\UpdateDanceDetailRequest;
-use App\Models\Requests\Cms\UpdateDanceHomeRequest;
+use App\Models\Requests\UpdateDanceDetailRequest;
+use App\Models\Requests\UpdateDanceHomeRequest;
 use App\Models\ViewModels\Cms\Dance\DanceDetailEditViewModel;
 use App\Models\ViewModels\Cms\Dance\DanceHomeEditViewModel;
 use App\Repository\Interfaces\IDanceRepository;
@@ -19,7 +19,7 @@ use App\Service\Cms\Interfaces\ICmsDanceService;
 use App\Service\Cms\Interfaces\ICmsPageSaveService;
 use App\Service\Interfaces\IHtmlSanitizerService;
 use App\Service\Interfaces\IPageService;
-use App\Validator\Cms\CmsDanceValidator;
+use App\Validator\CmsDanceValidator;
 
 class CmsDanceService implements ICmsDanceService
 {

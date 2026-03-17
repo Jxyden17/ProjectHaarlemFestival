@@ -39,8 +39,8 @@ try {
     $cmsPageSaveService = new App\Service\Cms\CmsPageSaveService($pageRepo);
     $mailService = new App\Service\MailService($mailConfig);
     $htmlSanitizerService = new App\Service\HtmlSanitizerService();
-    $cmsDanceValidator = new App\Validator\Cms\CmsDanceValidator();
-    $cmsScheduleValidator = new App\Validator\Cms\CmsScheduleValidator();
+    $cmsDanceValidator = new App\Validator\CmsDanceValidator();
+    $cmsScheduleValidator = new App\Validator\CmsScheduleValidator();
     $scheduleService = new App\Service\ScheduleService($scheduleRepo, $scheduleMapper);
     $danceService = new App\Service\DanceService($danceRepo, $scheduleRepo, $pageService, $scheduleService);
     $danceViewModelMapper = new App\Mapper\DanceViewModelMapper();

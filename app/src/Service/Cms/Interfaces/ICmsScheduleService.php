@@ -2,9 +2,9 @@
 
 namespace App\Service\Cms\Interfaces;
 
-use App\Models\Commands\Cms\Schedule\ScheduleSaveCommand;
+use App\Models\Edit\Schedule\ScheduleSaveInput;
 
 interface ICmsScheduleService
 {
-    public function saveScheduleData(string $eventName, ScheduleSaveCommand $command): void;
+    public function saveScheduleData(string $eventName, ScheduleSaveInput $input): void;
 }

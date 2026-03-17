@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Validator\Cms;
+namespace App\Validator;
 
 class CmsScheduleValidator
 {

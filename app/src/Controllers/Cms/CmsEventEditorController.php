@@ -3,7 +3,7 @@
 namespace App\Controllers\Cms;
 
 use App\Controllers\BaseController;
-use App\Models\Requests\Cms\ScheduleEditorRequest;
+use App\Models\Requests\ScheduleEditorRequest;
 use App\Service\Cms\Interfaces\ICmsEventEditorService;
 use App\Service\Cms\Interfaces\ICmsScheduleService;
 
@@ -42,7 +42,7 @@ class CmsEventEditorController extends BaseController
         $request = ScheduleEditorRequest::fromArray($_POST);
 
         try {
-            $this->cmsScheduleService->saveScheduleData($eventName, $request->toSaveCommand());
+            $this->cmsScheduleService->saveScheduleData($eventName, $request->toSaveInput());
             header('Location: /cms/events/' . $eventSlug . '/schedule?saved=1');
             exit;
         } catch (\Throwable $e) {

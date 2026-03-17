@@ -4,8 +4,8 @@ namespace App\Controllers\Cms;
 
 use App\Mapper\CmsDanceViewModelMapper;
 use App\Controllers\BaseController;
-use App\Models\Requests\Cms\UpdateDanceDetailRequest;
-use App\Models\Requests\Cms\UpdateDanceHomeRequest;
+use App\Models\Requests\UpdateDanceDetailRequest;
+use App\Models\Requests\UpdateDanceHomeRequest;
 use App\Service\Cms\Interfaces\ICmsDanceService;
 
 class CmsDanceController extends BaseController

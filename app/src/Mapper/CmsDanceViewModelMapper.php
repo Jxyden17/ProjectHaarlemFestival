@@ -6,12 +6,12 @@ use App\Models\Event\EventDetailPageModel;
 use App\Models\Page\Page;
 use App\Models\Page\Section;
 use App\Models\Page\SectionItem;
-use App\Models\Requests\Cms\Dance\DanceDetailHeroImageRowRequest;
-use App\Models\Requests\Cms\Dance\DanceDetailHighlightRowRequest;
-use App\Models\Requests\Cms\Dance\DanceDetailTrackRowRequest;
-use App\Models\Requests\Cms\Dance\DanceHomePassRowRequest;
-use App\Models\Requests\Cms\UpdateDanceDetailRequest;
-use App\Models\Requests\Cms\UpdateDanceHomeRequest;
+use App\Models\Edit\Dance\DanceDetailHeroImageEditRow;
+use App\Models\Edit\Dance\DanceDetailHighlightEditRow;
+use App\Models\Edit\Dance\DanceDetailTrackEditRow;
+use App\Models\Edit\Dance\DanceHomePassEditRow;
+use App\Models\Requests\UpdateDanceDetailRequest;
+use App\Models\Requests\UpdateDanceHomeRequest;
 use App\Models\ViewModels\Cms\Dance\DanceDetailEditViewModel;
 use App\Models\ViewModels\Cms\Dance\DanceDetailHeroImageRowViewModel;
 use App\Models\ViewModels\Cms\Dance\DanceDetailHighlightRowViewModel;
@@ -161,7 +161,7 @@ class CmsDanceViewModelMapper
     {
         $rows = [];
         foreach ($passes as $pass) {
-            if (!$pass instanceof DanceHomePassRowRequest) {
+            if (!$pass instanceof DanceHomePassEditRow) {
                 continue;
             }
 
@@ -202,7 +202,7 @@ class CmsDanceViewModelMapper
     {
         $rows = [];
         foreach ($heroImages as $image) {
-            if (!$image instanceof DanceDetailHeroImageRowRequest) {
+            if (!$image instanceof DanceDetailHeroImageEditRow) {
                 continue;
             }
 
@@ -239,7 +239,7 @@ class CmsDanceViewModelMapper
     {
         $rows = [];
         foreach ($highlights as $highlight) {
-            if (!$highlight instanceof DanceDetailHighlightRowRequest) {
+            if (!$highlight instanceof DanceDetailHighlightEditRow) {
                 continue;
             }
 
@@ -283,7 +283,7 @@ class CmsDanceViewModelMapper
     {
         $rows = [];
         foreach ($tracks as $track) {
-            if (!$track instanceof DanceDetailTrackRowRequest) {
+            if (!$track instanceof DanceDetailTrackEditRow) {
                 continue;
             }
 

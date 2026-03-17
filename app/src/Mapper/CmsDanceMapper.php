@@ -5,10 +5,10 @@ namespace App\Mapper;
 use App\Models\Page\Page;
 use App\Models\Page\Section;
 use App\Models\Page\SectionItem;
-use App\Models\Requests\Cms\Dance\DanceDetailHeroImageRowRequest;
-use App\Models\Requests\Cms\Dance\DanceDetailHighlightRowRequest;
-use App\Models\Requests\Cms\Dance\DanceDetailTrackRowRequest;
-use App\Models\Requests\Cms\Dance\DanceHomePassRowRequest;
+use App\Models\Edit\Dance\DanceDetailHeroImageEditRow;
+use App\Models\Edit\Dance\DanceDetailHighlightEditRow;
+use App\Models\Edit\Dance\DanceDetailTrackEditRow;
+use App\Models\Edit\Dance\DanceHomePassEditRow;
 
 class CmsDanceMapper
 {
@@ -79,7 +79,7 @@ class CmsDanceMapper
     {
         $result = [];
         foreach ($passes as $pass) {
-            if (!$pass instanceof DanceHomePassRowRequest) {
+            if (!$pass instanceof DanceHomePassEditRow) {
                 continue;
             }
 
@@ -110,7 +110,7 @@ class CmsDanceMapper
     {
         $result = [];
         foreach ($heroImages as $image) {
-            if (!$image instanceof DanceDetailHeroImageRowRequest) {
+            if (!$image instanceof DanceDetailHeroImageEditRow) {
                 continue;
             }
 
@@ -135,7 +135,7 @@ class CmsDanceMapper
     {
         $result = [];
         foreach ($highlights as $highlight) {
-            if (!$highlight instanceof DanceDetailHighlightRowRequest) {
+            if (!$highlight instanceof DanceDetailHighlightEditRow) {
                 continue;
             }
 
@@ -164,7 +164,7 @@ class CmsDanceMapper
     {
         $result = [];
         foreach ($tracks as $track) {
-            if (!$track instanceof DanceDetailTrackRowRequest) {
+            if (!$track instanceof DanceDetailTrackEditRow) {
                 continue;
             }
 
