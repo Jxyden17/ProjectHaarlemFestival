@@ -42,15 +42,17 @@ try {
     $cmsDanceValidator = new App\Validator\Cms\CmsDanceValidator();
     $cmsScheduleValidator = new App\Validator\Cms\CmsScheduleValidator();
     $scheduleService = new App\Service\ScheduleService($scheduleRepo, $scheduleMapper);
-    $danceService = new App\Service\DanceService($danceRepo, $scheduleRepo, $pageService);
-    $danceViewModelMapper = new App\Mapper\DanceViewModelMapper($danceService, $scheduleService);
-    $mediaService = new App\Service\MediaService($mediaRepo, $danceRepo);
+    $danceService = new App\Service\DanceService($danceRepo, $scheduleRepo, $pageService, $scheduleService);
+    $danceViewModelMapper = new App\Mapper\DanceViewModelMapper();
+    $imageUploadService = new App\Service\ImageUploadService($mediaRepo, $danceRepo);
+    $audioUploadService = new App\Service\AudioUploadService($mediaRepo, $danceRepo);
     $yummyService = new App\Service\YummyService($yummyRepo);
     $jazzService = new App\Service\JazzService($jazzRepo, $scheduleRepo);
     $authService = new App\Service\AuthService($userRepo, $passwordResetRepo, $mailService);
 
     $cmsScheduleMapper = new App\Mapper\CmsScheduleMapper($danceService);
     $cmsDanceMapper = new App\Mapper\CmsDanceMapper();
+    $cmsDanceViewModelMapper = new App\Mapper\CmsDanceViewModelMapper();
     $cmsScheduleService = new App\Service\Cms\CmsScheduleService($scheduleRepo, $cmsScheduleValidator);
     $cmsDanceService = new App\Service\Cms\CmsDanceService(
         $danceRepo,
@@ -58,6 +60,7 @@ try {
         $pageService,
         $htmlSanitizerService,
         $cmsDanceMapper,
+        $cmsDanceViewModelMapper,
         $cmsDanceValidator
     );
     $cmsService = new App\Service\Cms\CmsService($userRepo);
@@ -81,9 +84,9 @@ try {
     $cmsUsersController = new App\Controllers\Cms\CmsUsersController($cmsService);
     $jazzController = new App\Controllers\JazzController($scheduleService, $jazzService);
     $storiesController = new App\Controllers\StoriesController($pageService, $scheduleService);
-    $cmsDanceController = new App\Controllers\Cms\CmsDanceController($cmsDanceService, $cmsDanceMapper);
+    $cmsDanceController = new App\Controllers\Cms\CmsDanceController($cmsDanceService, $cmsDanceViewModelMapper);
     $cmsEventEditorController = new App\Controllers\Cms\CmsEventEditorController($cmsScheduleService, $cmsEventEditorService);
-    $cmsMediaController = new App\Controllers\Cms\CmsMediaController($mediaService);
+    $cmsMediaController = new App\Controllers\Cms\CmsMediaController($imageUploadService, $audioUploadService);
     $cmsTourContentController = new App\Controllers\Cms\CmsTourContentController($pageService, $cmsEventEditorService);
     $cmsHomeContentController = new App\Controllers\Cms\CmsHomeContentController($pageService, $cmsEventEditorService);
 
@@ -129,7 +132,7 @@ try {
         $r->addRoute('POST', '/cms/events/tour-home', ['CmsTourContentController', 'update']);
         $r->addRoute('GET', '/cms/events/tour-details', ['CmsTourContentController', 'details']);
         $r->addRoute('POST', '/cms/events/tour-details', ['CmsTourContentController', 'detailsUpdate']);
-        $r->addRoute('POST', '/cms/media/upload-replace', ['CmsMediaController', 'uploadReplace']);
+        $r->addRoute('POST', '/cms/media/upload-image', ['CmsMediaController', 'uploadImage']);
         $r->addRoute('POST', '/cms/media/upload-audio', ['CmsMediaController', 'uploadAudio']);
         $r->addRoute('GET', '/cms/tickets', ['CmsTicketsController', 'index']);
         $r->addRoute('GET', '/cms/users', ['CmsUsersController', 'index']);

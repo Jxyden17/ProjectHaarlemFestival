@@ -2,70 +2,77 @@
 
 namespace App\Validator\Cms;
 
+use App\Models\Dance\DanceDetailEditInput;
+use App\Models\Dance\DanceHomeEditInput;
+
 class CmsDanceValidator
 {
-    public function validateHomePageInput(array $input): void
+    public function validateHomePageInput(DanceHomeEditInput $input): void
     {
-        if ($input['page_title'] === '') {
+        if ($input->pageTitle === '') {
             throw new \InvalidArgumentException('Browser tab title is required.');
         }
 
-        if ($input['schedule_title'] === '') {
+        if ($input->scheduleTitle === '') {
             throw new \InvalidArgumentException('Schedule title is required.');
         }
 
-        if ($input['banner_title'] === '') {
+        if ($input->featuredArtistsTitle === '') {
+            throw new \InvalidArgumentException('Featured artists title is required.');
+        }
+
+        if ($input->bannerTitle === '') {
             throw new \InvalidArgumentException('Banner title is required.');
         }
 
-        if ($input['banner_description'] === '') {
+        if ($input->bannerDescription === '') {
             throw new \InvalidArgumentException('Banner description is required.');
         }
 
-        if ($input['important_information_title'] === '' || $input['important_information_html'] === '') {
+        if ($input->importantInformationTitle === '' || $input->importantInformationHtml === '') {
             throw new \InvalidArgumentException('Important information is required.');
         }
 
-        if ($input['passes_title'] === '' || count($input['pass_items']) === 0) {
+        if ($input->passesTitle === '' || count($input->passItems) === 0) {
             throw new \InvalidArgumentException('At least one pass row is required.');
         }
 
-        if ($input['capacity_title'] === '' || $input['capacity_html'] === '') {
+        if ($input->capacityTitle === '' || $input->capacityHtml === '') {
             throw new \InvalidArgumentException('Capacity content is required.');
         }
 
-        if ($input['special_title'] === '' || $input['special_html'] === '') {
+        if ($input->specialTitle === '' || $input->specialHtml === '') {
             throw new \InvalidArgumentException('Special session content is required.');
         }
     }
 
-    public function validateDetailPageInput(array $input): void
+    public function validateDetailPageInput(DanceDetailEditInput $input): void
     {
-        if ($input['page_title'] === '') {
+        if ($input->pageTitle === '') {
             throw new \InvalidArgumentException('Browser tab title is required.');
         }
 
-        if ($input['hero_title'] === '') {
+        if ($input->heroTitle === '') {
             throw new \InvalidArgumentException('Hero title is required.');
         }
 
-        if ($input['hero_subtitle'] === '') {
+        if ($input->heroSubtitle === '') {
             throw new \InvalidArgumentException('Hero subtitle is required.');
         }
 
-        if (count($input['hero_images']) === 0) {
+        if (count($input->heroImages) === 0) {
             throw new \InvalidArgumentException('At least one hero image row is required.');
         }
 
-        if ($input['highlights_title'] === '' || count($input['highlights']) === 0) {
+        if ($input->highlightsTitle === '' || count($input->highlights) === 0) {
             throw new \InvalidArgumentException('At least one highlight is required.');
         }
 
-        if ($input['tracks_title'] === '' || count($input['tracks']) === 0) {
+        if ($input->tracksTitle === '' || count($input->tracks) === 0) {
             throw new \InvalidArgumentException('At least one track is required.');
         }
 
-        if ($input['important_information_title'] === '' || $input['important_information_html'] === '') {
+        if ($input->importantInformationTitle === '' || $input->importantInformationHtml === '') {
             throw new \InvalidArgumentException('Important information is required.');
         }
     }

@@ -178,12 +178,8 @@ class CmsScheduleService implements ICmsScheduleService
         return trim($slug, '-');
     }
 
-    private function normalizeSessionRows(
-        array $rows,
-        array $allowedVenueIds,
-        array $allowedPerformerIds,
-        array $allowedSessionIds
-    ): array {
+    private function normalizeSessionRows(array $rows, array $allowedVenueIds, array $allowedPerformerIds, array $allowedSessionIds): array
+    {
         $sessionRows = [];
         $sessionPerformerRows = [];
         $seenSessionPerformer = [];
@@ -211,11 +207,8 @@ class CmsScheduleService implements ICmsScheduleService
         return [$sessionRows, $sessionPerformerRows];
     }
 
-    private function normalizeSingleSessionRow(
-        ScheduleSessionRowRequest $row,
-        array $allowedVenueIds,
-        array $allowedSessionIds
-    ): array {
+    private function normalizeSingleSessionRow(ScheduleSessionRowRequest $row, array $allowedVenueIds, array $allowedSessionIds): array
+    {
         $id = $row->id();
         $venueId = $row->venueId();
         $date = $row->date();
@@ -250,12 +243,8 @@ class CmsScheduleService implements ICmsScheduleService
         ];
     }
 
-    private function normalizeSessionPerformerRows(
-        int $sessionId,
-        array $performerIds,
-        array $allowedPerformerIds,
-        array &$seenSessionPerformer
-    ): array {
+    private function normalizeSessionPerformerRows(int $sessionId, array $performerIds, array $allowedPerformerIds, array &$seenSessionPerformer): array
+    {
         $normalizedRows = [];
 
         foreach ($performerIds as $performerIdRaw) {

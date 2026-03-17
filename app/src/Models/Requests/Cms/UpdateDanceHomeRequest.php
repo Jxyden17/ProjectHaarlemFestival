@@ -2,18 +2,16 @@
 
 namespace App\Models\Requests\Cms;
 
-use App\Models\Requests\Cms\Dance\DanceHomeArtistRowRequest;
 use App\Models\Requests\Cms\Dance\DanceHomePassRowRequest;
 
-class DanceHomeContentRequest
+class UpdateDanceHomeRequest
 {
     private string $pageTitle;
     private string $scheduleTitle;
+    private string $featuredArtistsTitle;
     private string $bannerBadge;
     private string $bannerTitle;
     private string $bannerDescription;
-    private string $artistsTitle;
-    private array $artists;
     private string $importantInformationTitle;
     private string $importantInformationHtml;
     private string $passesTitle;
@@ -23,30 +21,13 @@ class DanceHomeContentRequest
     private string $specialTitle;
     private string $specialHtml;
 
-    private function __construct(
-        string $pageTitle,
-        string $scheduleTitle,
-        string $bannerBadge,
-        string $bannerTitle,
-        string $bannerDescription,
-        string $artistsTitle,
-        array $artists,
-        string $importantInformationTitle,
-        string $importantInformationHtml,
-        string $passesTitle,
-        array $passes,
-        string $capacityTitle,
-        string $capacityHtml,
-        string $specialTitle,
-        string $specialHtml
-    ) {
+    private function __construct(string $pageTitle, string $scheduleTitle, string $featuredArtistsTitle, string $bannerBadge, string $bannerTitle, string $bannerDescription, string $importantInformationTitle, string $importantInformationHtml, string $passesTitle, array $passes, string $capacityTitle, string $capacityHtml, string $specialTitle, string $specialHtml) {
         $this->pageTitle = $pageTitle;
         $this->scheduleTitle = $scheduleTitle;
+        $this->featuredArtistsTitle = $featuredArtistsTitle;
         $this->bannerBadge = $bannerBadge;
         $this->bannerTitle = $bannerTitle;
         $this->bannerDescription = $bannerDescription;
-        $this->artistsTitle = $artistsTitle;
-        $this->artists = $artists;
         $this->importantInformationTitle = $importantInformationTitle;
         $this->importantInformationHtml = $importantInformationHtml;
         $this->passesTitle = $passesTitle;
@@ -62,11 +43,10 @@ class DanceHomeContentRequest
         return new self(
             (string)($input['page_title'] ?? ''),
             (string)($input['schedule_title'] ?? ''),
+            (string)($input['featured_artists_title'] ?? ''),
             (string)($input['banner_badge'] ?? ''),
             (string)($input['banner_title'] ?? ''),
             (string)($input['banner_description'] ?? ''),
-            (string)($input['artists_title'] ?? ''),
-            self::mapArtists(is_array($input['artists'] ?? null) ? $input['artists'] : []),
             (string)($input['important_information_title'] ?? ''),
             (string)($input['important_information_html'] ?? ''),
             (string)($input['passes_title'] ?? ''),
@@ -81,20 +61,6 @@ class DanceHomeContentRequest
     public function pageTitle(): string
     {
         return trim($this->pageTitle);
-    }
-
-    private static function mapArtists(array $input): array
-    {
-        $rows = [];
-        foreach ($input as $row) {
-            if (!is_array($row)) {
-                continue;
-            }
-
-            $rows[] = DanceHomeArtistRowRequest::fromArray($row);
-        }
-
-        return $rows;
     }
 
     private static function mapPasses(array $input): array
@@ -116,6 +82,11 @@ class DanceHomeContentRequest
         return trim($this->scheduleTitle);
     }
 
+    public function featuredArtistsTitle(): string
+    {
+        return trim($this->featuredArtistsTitle);
+    }
+
     public function bannerTitle(): string
     {
         return trim($this->bannerTitle);
@@ -129,16 +100,6 @@ class DanceHomeContentRequest
     public function bannerDescription(): string
     {
         return trim($this->bannerDescription);
-    }
-
-    public function artistsTitle(): string
-    {
-        return trim($this->artistsTitle);
-    }
-
-    public function artists(): array
-    {
-        return $this->artists;
     }
 
     public function importantInformationTitle(): string

@@ -14,17 +14,8 @@ class ScheduleSessionRowRequest
     private int $amountSold;
     private array $performerIds;
 
-    public function __construct(
-        int $id,
-        string $date,
-        string $startTime,
-        int $venueId,
-        string $label,
-        string $price,
-        int $availableSpots,
-        int $amountSold,
-        array $performerIds
-    ) {
+    public function __construct(int $id, string $date, string $startTime, int $venueId, string $label, string $price, int $availableSpots, int $amountSold, array $performerIds)
+    {
         $this->id = $id;
         $this->date = $date;
         $this->startTime = $startTime;

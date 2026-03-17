@@ -6,7 +6,7 @@ use App\Models\Requests\Cms\Dance\DanceDetailHeroImageRowRequest;
 use App\Models\Requests\Cms\Dance\DanceDetailHighlightRowRequest;
 use App\Models\Requests\Cms\Dance\DanceDetailTrackRowRequest;
 
-class DanceDetailContentRequest
+class UpdateDanceDetailRequest
 {
     private string $pageTitle;
     private string $heroTitle;
@@ -21,20 +21,7 @@ class DanceDetailContentRequest
     private string $importantInformationTitle;
     private string $importantInformationHtml;
 
-    private function __construct(
-        string $pageTitle,
-        string $heroTitle,
-        string $heroBadge,
-        string $heroSubtitle,
-        array $heroImages,
-        string $highlightsTitle,
-        array $highlights,
-        string $tracksTitle,
-        string $tracksNote,
-        array $tracks,
-        string $importantInformationTitle,
-        string $importantInformationHtml
-    ) {
+    private function __construct(string $pageTitle, string $heroTitle, string $heroBadge, string $heroSubtitle, array $heroImages, string $highlightsTitle, array $highlights, string $tracksTitle, string $tracksNote, array $tracks, string $importantInformationTitle, string $importantInformationHtml) {
         $this->pageTitle = $pageTitle;
         $this->heroTitle = $heroTitle;
         $this->heroBadge = $heroBadge;

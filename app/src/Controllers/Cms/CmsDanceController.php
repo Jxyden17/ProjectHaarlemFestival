@@ -2,21 +2,21 @@
 
 namespace App\Controllers\Cms;
 
-use App\Mapper\CmsDanceMapper;
+use App\Mapper\CmsDanceViewModelMapper;
 use App\Controllers\BaseController;
-use App\Models\Requests\Cms\DanceDetailContentRequest;
-use App\Models\Requests\Cms\DanceHomeContentRequest;
+use App\Models\Requests\Cms\UpdateDanceDetailRequest;
+use App\Models\Requests\Cms\UpdateDanceHomeRequest;
 use App\Service\Cms\Interfaces\ICmsDanceService;
 
 class CmsDanceController extends BaseController
 {
     private ICmsDanceService $danceService;
-    private CmsDanceMapper $cmsDanceMapper;
+    private CmsDanceViewModelMapper $cmsDanceViewModelMapper;
 
-    public function __construct(ICmsDanceService $danceService, CmsDanceMapper $cmsDanceMapper)
+    public function __construct(ICmsDanceService $danceService, CmsDanceViewModelMapper $cmsDanceViewModelMapper)
     {
         $this->danceService = $danceService;
-        $this->cmsDanceMapper = $cmsDanceMapper;
+        $this->cmsDanceViewModelMapper = $cmsDanceViewModelMapper;
     }
 
     public function index(): void
@@ -34,14 +34,14 @@ class CmsDanceController extends BaseController
     public function update(): void
     {
         $this->requireAdmin();
-        $request = DanceHomeContentRequest::fromArray($_POST);
+        $request = UpdateDanceHomeRequest::fromArray($_POST);
 
         try {
             $this->danceService->saveDanceHomePage($request);
             header('Location: /cms/events/dance-home?saved=1');
             exit;
         } catch (\Throwable $e) {
-            $contentViewModel = $this->cmsDanceMapper->mapHomeRequestToContentViewModel($request);
+            $contentViewModel = $this->cmsDanceViewModelMapper->mapHomeRequestToContentViewModel($request);
             $this->renderCms('cms/events/dance-home', [
                 'title' => 'Dance Home Content',
                 'contentViewModel' => $contentViewModel,
@@ -54,7 +54,7 @@ class CmsDanceController extends BaseController
     public function updateAPI(array $vars = []): void
     {
         $this->requireAdmin();
-        $request = DanceHomeContentRequest::fromArray($_POST);
+        $request = UpdateDanceHomeRequest::fromArray($_POST);
 
         try {
             $this->danceService->saveDanceHomePage($request);
@@ -84,7 +84,7 @@ class CmsDanceController extends BaseController
         $this->requireAdmin();
 
         $pageSlug = trim((string)($vars['pageSlug'] ?? ''));
-        $request = DanceDetailContentRequest::fromArray($_POST);
+        $request = UpdateDanceDetailRequest::fromArray($_POST);
 
         try {
             $this->danceService->saveDanceDetailPage($pageSlug, $request);
@@ -92,7 +92,7 @@ class CmsDanceController extends BaseController
             exit;
         } catch (\Throwable $e) {
             $baseViewModel = $this->danceService->getDanceDetailFormData($pageSlug);
-            $contentViewModel = $this->cmsDanceMapper->mapDetailRequestToContentViewModel($request, $baseViewModel);
+            $contentViewModel = $this->cmsDanceViewModelMapper->mapDetailRequestToContentViewModel($request, $baseViewModel);
             $this->renderCms('cms/events/dance-detail', [
                 'title' => $contentViewModel->editorTitle,
                 'contentViewModel' => $contentViewModel,
@@ -108,7 +108,7 @@ class CmsDanceController extends BaseController
         $this->requireAdmin();
 
         $pageSlug = trim((string)($vars['pageSlug'] ?? ''));
-        $request = DanceDetailContentRequest::fromArray($_POST);
+        $request = UpdateDanceDetailRequest::fromArray($_POST);
 
         try {
             $this->danceService->saveDanceDetailPage($pageSlug, $request);

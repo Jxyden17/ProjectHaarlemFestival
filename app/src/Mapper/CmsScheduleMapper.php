@@ -20,13 +20,13 @@ class CmsScheduleMapper
         $this->danceService = $danceService;
     }
 
-    public function applyDanceArtistImageMetadata(string $eventName, array $performers): array
+    public function applyDanceFeaturedArtistImageMetadata(string $eventName, array $performers): array
     {
         if (strtolower($eventName) !== 'dance') {
             return $performers;
         }
 
-        $artistImageRows = $this->getDanceArtistImageRows();
+        $featuredArtistImageRows = $this->getDanceFeaturedArtistImageRows();
         $result = [];
 
         foreach ($performers as $index => $performer) {
@@ -34,7 +34,7 @@ class CmsScheduleMapper
                 continue;
             }
 
-            $imageRow = $artistImageRows[$index] ?? null;
+            $imageRow = $featuredArtistImageRows[$index] ?? null;
             $artistSectionItemId = $imageRow instanceof SectionItem ? $imageRow->id : 0;
             $artistImagePath = $imageRow instanceof SectionItem ? (string) ($imageRow->image ?? '') : '';
 
@@ -126,22 +126,22 @@ class CmsScheduleMapper
         return $sessions;
     }
 
-    private function getDanceArtistImageRows(): array
+    private function getDanceFeaturedArtistImageRows(): array
     {
-        $danceHome = $this->danceService->getDanceHomePage();
+        $danceHome = $this->danceService->getDanceHomeContentPage();
         $artistsSection = $danceHome->getSection('dance_artists');
-        $artistImageRows = [];
+        $featuredArtistImageRows = [];
 
         if ($artistsSection === null) {
-            return $artistImageRows;
+            return $featuredArtistImageRows;
         }
 
         foreach ($artistsSection->getItemsByCategorie('artist') as $item) {
             if ($item instanceof SectionItem) {
-                $artistImageRows[] = $item;
+                $featuredArtistImageRows[] = $item;
             }
         }
 
-        return $artistImageRows;
+        return $featuredArtistImageRows;
     }
 }

@@ -1,12 +1,12 @@
 <?php
-use App\Models\ViewModels\Cms\Dance\DanceDetailContentViewModel;
+use App\Models\ViewModels\Cms\Dance\DanceDetailEditViewModel;
 use App\Models\ViewModels\Cms\Dance\DanceDetailHeroImageRowViewModel;
 use App\Models\ViewModels\Cms\Dance\DanceDetailHighlightRowViewModel;
 use App\Models\ViewModels\Cms\Dance\DanceDetailTrackRowViewModel;
 
-$contentViewModel = (isset($contentViewModel) && $contentViewModel instanceof DanceDetailContentViewModel)
+$contentViewModel = (isset($contentViewModel) && $contentViewModel instanceof DanceDetailEditViewModel)
     ? $contentViewModel
-    : new DanceDetailContentViewModel('', 'Dance Detail Content', '', '', '', '', '', '', [], '', [], '', '', [], '', '');
+    : new DanceDetailEditViewModel('', 'Dance Detail Content', '', '', '', '', '', '', [], '', [], '', '', [], '', '');
 $heroImages = $contentViewModel->heroImages;
 $highlights = $contentViewModel->highlights;
 $tracks = $contentViewModel->tracks;

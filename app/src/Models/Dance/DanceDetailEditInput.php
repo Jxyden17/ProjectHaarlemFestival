@@ -1,14 +1,10 @@
 <?php
 
-namespace App\Models\ViewModels\Cms\Dance;
+namespace App\Models\Dance;
 
-class DanceDetailContentViewModel
+class DanceDetailEditInput
 {
-    public string $pageSlug;
-    public string $editorTitle;
-    public string $publicPath;
     public string $pageTitle;
-    public string $performerName;
     public string $heroTitle;
     public string $heroBadge;
     public string $heroSubtitle;
@@ -21,29 +17,9 @@ class DanceDetailContentViewModel
     public string $importantInformationTitle;
     public string $importantInformationHtml;
 
-    public function __construct(
-        string $pageSlug,
-        string $editorTitle,
-        string $publicPath,
-        string $pageTitle,
-        string $performerName,
-        string $heroTitle,
-        string $heroBadge,
-        string $heroSubtitle,
-        array $heroImages,
-        string $highlightsTitle,
-        array $highlights,
-        string $tracksTitle,
-        string $tracksNote,
-        array $tracks,
-        string $importantInformationTitle,
-        string $importantInformationHtml
-    ) {
-        $this->pageSlug = $pageSlug;
-        $this->editorTitle = $editorTitle;
-        $this->publicPath = $publicPath;
+    public function __construct(string $pageTitle, string $heroTitle, string $heroBadge, string $heroSubtitle, array $heroImages, string $highlightsTitle, array $highlights, string $tracksTitle, string $tracksNote, array $tracks, string $importantInformationTitle, string $importantInformationHtml)
+    {
         $this->pageTitle = $pageTitle;
-        $this->performerName = $performerName;
         $this->heroTitle = $heroTitle;
         $this->heroBadge = $heroBadge;
         $this->heroSubtitle = $heroSubtitle;

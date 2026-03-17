@@ -38,7 +38,7 @@ class CmsEventEditorService implements ICmsEventEditorService
         return new ScheduleEditorViewModel(
             $editorViewModel->eventName,
             $editorViewModel->venues,
-            $this->cmsScheduleMapper->applyDanceArtistImageMetadata($eventName, $editorViewModel->performers),
+            $this->cmsScheduleMapper->applyDanceFeaturedArtistImageMetadata($eventName, $editorViewModel->performers),
             $editorViewModel->sessions
         );
     }
