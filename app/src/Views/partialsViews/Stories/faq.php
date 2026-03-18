@@ -17,11 +17,11 @@ if (!$section instanceof Section) {
             <?php foreach ($section->items as $item): ?>
                 <div class="faq-item">
                     <button class="faq-question" onclick="toggleFAQ(this)">
-                        <span class="faq-q"><?= htmlspecialchars($item->title) ?></span>
+                        <span class="faq-q"><?= htmlspecialchars((string)($item->title ?? '')) ?></span>
                         <span class="faq-icon">+</span>
                     </button>
                     <div class="faq-answer">
-                        <p><?= htmlspecialchars($item->content) ?></p>
+                        <p><?= htmlspecialchars((string)($item->content ?? '')) ?></p>
                     </div>
                 </div>
             <?php endforeach; ?>

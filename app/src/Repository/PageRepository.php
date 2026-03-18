@@ -85,6 +85,23 @@ class PageRepository implements IPageRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function findPagesByEventId(int $eventId): array
+    {
+        if ($eventId <= 0) {
+            return [];
+        }
+
+        $stmt = $this->db->prepare(
+            'SELECT id, page_name, slug
+             FROM pages
+             WHERE event_id = :event_id
+             ORDER BY id ASC'
+        );
+        $stmt->execute([':event_id' => $eventId]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function saveOrUpdateSection(
         int $pageId,
         string $sectionType,

@@ -17,18 +17,18 @@ if (!$section instanceof Section) {
             <?php foreach ($section->items as $item): ?>
                 <div class="venue-card">
                     <div class="venue-header">
-                        <h3><?= htmlspecialchars($item->title) ?></h3>
-                        <p class="venue-address"><?= htmlspecialchars($item->subTitle) ?></p>
+                        <h3><?= htmlspecialchars((string)($item->title ?? '')) ?></h3>
+                        <p class="venue-address"><?= htmlspecialchars((string)($item->subTitle ?? '')) ?></p>
                     </div>
 
                     <div class="venue-description">
-                        <p><?= htmlspecialchars($item->content) ?></p>
+                        <p><?= htmlspecialchars((string)($item->content ?? '')) ?></p>
                     </div>
 
-                    <?php if ($item->category): ?>
+                    <?php if (trim((string)($item->category ?? '')) !== ''): ?>
                         <div class="venue-tags">
                             <?php 
-                            $tags = array_filter(array_map('trim', explode(',', $item->category)));
+                            $tags = array_filter(array_map('trim', explode(',', (string)($item->category ?? ''))));
                             foreach ($tags as $tag): 
                             ?>
                                 <span class="tag"><?= htmlspecialchars($tag) ?></span>

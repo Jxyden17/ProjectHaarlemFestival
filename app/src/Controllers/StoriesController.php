@@ -3,14 +3,17 @@
 namespace App\Controllers;
 
 use App\Service\Interfaces\IPageService;
+use App\Service\Interfaces\IScheduleService;
 
 class StoriesController extends BaseController
 {
     private IPageService $pageService;
+    private IScheduleService $scheduleService;
 
-    public function __construct(IPageService $pageService) 
+    public function __construct(IPageService $pageService, IScheduleService $scheduleService) 
     {
         $this->pageService = $pageService;
+        $this->scheduleService = $scheduleService;
     }
 
     public function index(): void
@@ -27,12 +30,15 @@ class StoriesController extends BaseController
             return;
         }
 
+        $scheduleViewModel = $this->scheduleService->getScheduleDataForEvent('TellingStory', 'Stories Schedule');
+
         $viewData = [
             'pageTitle' => $page->title,
             'hero'      => $page->getSection('hero'),
             'grid'      => $page->getSection('grid'),
             'venues'    => $page->getSection('venues'),
             'schedule'  => $page->getSection('schedule'),
+            'scheduleData' => $scheduleViewModel,
             'explore'   => $page->getSection('explore'),
             'faq'       => $page->getSection('faq')
         ];
@@ -41,12 +47,22 @@ class StoriesController extends BaseController
 
     public function details($slug = null): void
     {
-        // If no slug provided, try to get it from GET parameter
         if (!$slug) {
             $slug = isset($_GET['slug']) ? $_GET['slug'] : null;
         }
 
-        if (!$slug) {
+        $slug = trim((string)$slug);
+        if ($slug === '') {
+            http_response_code(404);
+            $this->render('shared/error', [
+                'errorTitle' => 'Page not found',
+                'errorMessage' => 'The page you requested does not exist.',
+            ]);
+            return;
+        }
+
+        $page = $this->pageService->getPageBySlug($slug, ucfirst(str_replace('-', ' ', $slug)));
+        if ((int)($page->id ?? 0) <= 0) {
             http_response_code(404);
             $this->render('shared/error', [
                 'errorTitle' => 'Page not found',
@@ -56,11 +72,14 @@ class StoriesController extends BaseController
         }
 
         $viewData = [
-            'pageTitle' => ucfirst(str_replace('-', ' ', $slug)),
-            'slug' => $slug
+            'pageTitle' => $page->title,
+            'hero' => $page->getSection('hero'),
+            'about' => $page->getSection('about'),
+            'gallery' => $page->getSection('gallery'),
+            'featured' => $page->getSection('featured'),
+            'booking' => $page->getSection('booking'),
         ];
 
-        http_response_code(200);
-        echo "Profile of: " . htmlspecialchars($slug);
+        $this->render('Stories/details', $viewData);
     }
 }

@@ -76,14 +76,15 @@ try {
     $yummyController = new App\Controllers\YummyController($yummyService);
 
     $cmsController = new App\Controllers\Cms\CmsController($cmsService);
-    $cmsEventsController = new App\Controllers\Cms\CmsEventsController($cmsService, $danceService);
+    $cmsEventsController = new App\Controllers\Cms\CmsEventsController($cmsService, $danceService, $pageService);
     $cmsTicketsController = new App\Controllers\Cms\CmsTicketsController($cmsService);
     $cmsUsersController = new App\Controllers\Cms\CmsUsersController($cmsService);
-    $storiesController = new App\Controllers\StoriesController($pageService);
+    $storiesController = new App\Controllers\StoriesController($pageService, $scheduleService);
     $cmsDanceContentController = new App\Controllers\Cms\CmsDanceContentController($cmsDanceService, $cmsDanceMapper);
     $cmsEventEditorController = new App\Controllers\Cms\CmsEventEditorController($cmsScheduleService, $cmsEventEditorService);
     $cmsMediaController = new App\Controllers\Cms\CmsMediaController($mediaService);
     $cmsTourContentController = new App\Controllers\Cms\CmsTourContentController($pageService, $cmsEventEditorService);
+    $cmsStoriesContentController = new App\Controllers\Cms\CmsStoriesContentController($pageService, $cmsEventEditorService);
 
     $dispatcher = simpleDispatcher(function (RouteCollector $r) {
         $r->addRoute('GET', '/', ['HomeController', 'index']);
@@ -125,6 +126,10 @@ try {
         $r->addRoute('POST', '/cms/events/tour-home', ['CmsTourContentController', 'update']);
         $r->addRoute('GET', '/cms/events/tour-details', ['CmsTourContentController', 'details']);
         $r->addRoute('POST', '/cms/events/tour-details', ['CmsTourContentController', 'detailsUpdate']);
+        $r->addRoute('GET', '/cms/events/stories-home', ['CmsStoriesContentController', 'index']);
+        $r->addRoute('POST', '/cms/events/stories-home', ['CmsStoriesContentController', 'update']);
+        $r->addRoute('GET', '/cms/events/stories-details', ['CmsStoriesContentController', 'details']);
+        $r->addRoute('POST', '/cms/events/stories-details', ['CmsStoriesContentController', 'detailsUpdate']);
         $r->addRoute('POST', '/cms/media/upload-replace', ['CmsMediaController', 'uploadReplace']);
         $r->addRoute('POST', '/cms/media/upload-audio', ['CmsMediaController', 'uploadAudio']);
         $r->addRoute('GET', '/cms/tickets', ['CmsTicketsController', 'index']);
@@ -169,6 +174,7 @@ try {
                 'CmsEventEditorController' => $cmsEventEditorController,
                 'CmsDanceContentController' => $cmsDanceContentController,
                 'CmsTourContentController' => $cmsTourContentController,
+                'CmsStoriesContentController' => $cmsStoriesContentController,
                 'CmsMediaController' => $cmsMediaController,
             ];
 

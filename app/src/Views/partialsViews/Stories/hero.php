@@ -9,16 +9,19 @@ if (!$section instanceof Section) {
 $items = is_array($section->items) ? $section->items : [];
 $firstItem = $items[0] ?? null;
 $secondItem = $items[1] ?? null;
+$heroImages = array_values(array_filter($items, static fn ($item) => trim((string)($item->image ?? '')) !== ''));
 ?>
 
 <section class="stories-hero-section">
-    <div class="stories-hero-images">
-        <?php foreach ($items as $item): ?>
-            <div class="stories-hero-img-item">
-                <img src="<?= htmlspecialchars($item->image) ?>" alt="<?= htmlspecialchars($item->title); ?>">
-            </div>
-        <?php endforeach; ?>
-    </div>
+    <?php if ($heroImages !== []): ?>
+        <div class="stories-hero-images">
+            <?php foreach ($heroImages as $item): ?>
+                <div class="stories-hero-img-item">
+                    <img src="<?= htmlspecialchars((string)($item->image ?? '')) ?>" alt="<?= htmlspecialchars((string)($item->title ?? 'Stories image')) ?>">
+                </div>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
 
     <div class="stories-hero-overlay"></div>
 
@@ -28,9 +31,13 @@ $secondItem = $items[1] ?? null;
             <span class="hero-badge-text">This Weekend • July 24-27, 2025</span>
         </div>
 
-        <h2><?= htmlspecialchars($section->title) ?></h2>
-        <p><?= htmlspecialchars($firstItem->content ?? '') ?></p>
-        <p><?= htmlspecialchars($secondItem->content ?? '') ?></p>
+        <h1><?= htmlspecialchars((string)($section->title ?? 'Stories in Haarlem')) ?></h1>
+        <?php if (trim((string)($firstItem->content ?? '')) !== ''): ?>
+            <p><?= htmlspecialchars((string)($firstItem->content ?? '')) ?></p>
+        <?php endif; ?>
+        <?php if (trim((string)($secondItem->content ?? '')) !== ''): ?>
+            <p><?= htmlspecialchars((string)($secondItem->content ?? '')) ?></p>
+        <?php endif; ?>
 
         <div class="hero-info-cards">
             <div class="hero-info-card">

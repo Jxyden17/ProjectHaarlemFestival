@@ -37,4 +37,9 @@ class PageService implements IPageService
 
         return $this->pageMapper->mapPageRows($pageRows);
     }
+
+    public function getPagesByEventId(int $eventId): array
+    {
+        return $this->pageRepo->findPagesByEventId($eventId);
+    }
 }

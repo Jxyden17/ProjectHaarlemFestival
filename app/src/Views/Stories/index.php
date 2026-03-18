@@ -20,8 +20,8 @@
         <?php $section = $venues; include __DIR__ . '/../partialsViews/Stories/venues.php'; ?>
     <?php endif; ?>
 
-    <?php if ($schedule): ?>
-        <?php $section = $schedule; include __DIR__ . '../partialsViews/schedule.php'; ?>
+    <?php if (isset($scheduleData)): ?>
+        <?php include __DIR__ . '/../partialsViews/schedule.php'; ?>
     <?php endif; ?>
 
     <?php if ($explore): ?>

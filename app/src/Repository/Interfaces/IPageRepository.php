@@ -8,6 +8,8 @@ interface IPageRepository
 
     public function findPageRowsBySlug(string $slug): array;
 
+    public function findPagesByEventId(int $eventId): array;
+
     public function findPageIdBySlug(string $slug): ?int;
 
     public function findSectionIdsByPageId(int $pageId): array;
