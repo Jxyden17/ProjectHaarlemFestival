@@ -20,7 +20,7 @@ class DanceController extends BaseController
     public function index(): void
     {
         $danceIndexViewModel = $this->danceViewModelMapper->buildIndexViewModel(
-            $this->danceService->getDanceIndexPage()
+            $this->danceService->getDanceIndexData()
         );
 
         $this->render('dance/index', [
@@ -41,7 +41,7 @@ class DanceController extends BaseController
         }
 
         $detailViewModel = $this->danceViewModelMapper->buildDetailViewModel(
-            $this->danceService->getDanceDetailPage($detailMeta)
+            $this->danceService->getDanceDetailData($detailMeta)
         );
 
         $this->render('dance/detail', [

@@ -5,7 +5,7 @@ namespace App\Models\Dance;
 use App\Models\Event\EventDetailPageModel;
 use App\Models\Page\Page;
 
-class DanceDetailPageInput
+class DanceDetailData
 {
     public Page $contentPage;
     public EventDetailPageModel $detailMeta;

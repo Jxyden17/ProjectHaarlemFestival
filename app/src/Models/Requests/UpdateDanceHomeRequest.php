@@ -41,26 +41,26 @@ class UpdateDanceHomeRequest
     public static function fromArray(array $input): self
     {
         return new self(
-            (string)($input['page_title'] ?? ''),
-            (string)($input['schedule_title'] ?? ''),
-            (string)($input['featured_artists_title'] ?? ''),
-            (string)($input['banner_badge'] ?? ''),
-            (string)($input['banner_title'] ?? ''),
-            (string)($input['banner_description'] ?? ''),
-            (string)($input['important_information_title'] ?? ''),
-            (string)($input['important_information_html'] ?? ''),
-            (string)($input['passes_title'] ?? ''),
+            trim((string)($input['page_title'] ?? '')),
+            trim((string)($input['schedule_title'] ?? '')),
+            trim((string)($input['featured_artists_title'] ?? '')),
+            trim((string)($input['banner_badge'] ?? '')),
+            trim((string)($input['banner_title'] ?? '')),
+            trim((string)($input['banner_description'] ?? '')),
+            trim((string)($input['important_information_title'] ?? '')),
+            trim((string)($input['important_information_html'] ?? '')),
+            trim((string)($input['passes_title'] ?? '')),
             self::mapPasses(is_array($input['passes'] ?? null) ? $input['passes'] : []),
-            (string)($input['capacity_title'] ?? ''),
-            (string)($input['capacity_html'] ?? ''),
-            (string)($input['special_title'] ?? ''),
-            (string)($input['special_html'] ?? '')
+            trim((string)($input['capacity_title'] ?? '')),
+            trim((string)($input['capacity_html'] ?? '')),
+            trim((string)($input['special_title'] ?? '')),
+            trim((string)($input['special_html'] ?? ''))
         );
     }
 
     public function pageTitle(): string
     {
-        return trim($this->pageTitle);
+        return $this->pageTitle;
     }
 
     private static function mapPasses(array $input): array
@@ -79,42 +79,42 @@ class UpdateDanceHomeRequest
 
     public function scheduleTitle(): string
     {
-        return trim($this->scheduleTitle);
+        return $this->scheduleTitle;
     }
 
     public function featuredArtistsTitle(): string
     {
-        return trim($this->featuredArtistsTitle);
+        return $this->featuredArtistsTitle;
     }
 
     public function bannerTitle(): string
     {
-        return trim($this->bannerTitle);
+        return $this->bannerTitle;
     }
 
     public function bannerBadge(): string
     {
-        return trim($this->bannerBadge);
+        return $this->bannerBadge;
     }
 
     public function bannerDescription(): string
     {
-        return trim($this->bannerDescription);
+        return $this->bannerDescription;
     }
 
     public function importantInformationTitle(): string
     {
-        return trim($this->importantInformationTitle);
+        return $this->importantInformationTitle;
     }
 
     public function importantInformationHtml(): string
     {
-        return trim($this->importantInformationHtml);
+        return $this->importantInformationHtml;
     }
 
     public function passesTitle(): string
     {
-        return trim($this->passesTitle);
+        return $this->passesTitle;
     }
 
     public function passes(): array
@@ -124,21 +124,21 @@ class UpdateDanceHomeRequest
 
     public function capacityTitle(): string
     {
-        return trim($this->capacityTitle);
+        return $this->capacityTitle;
     }
 
     public function capacityHtml(): string
     {
-        return trim($this->capacityHtml);
+        return $this->capacityHtml;
     }
 
     public function specialTitle(): string
     {
-        return trim($this->specialTitle);
+        return $this->specialTitle;
     }
 
     public function specialHtml(): string
     {
-        return trim($this->specialHtml);
+        return $this->specialHtml;
     }
 }

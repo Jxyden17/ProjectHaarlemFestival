@@ -2,8 +2,8 @@
 
 namespace App\Service;
 
-use App\Models\Dance\DanceDetailPageInput;
-use App\Models\Dance\DanceIndexPageInput;
+use App\Models\Dance\DanceDetailData;
+use App\Models\Dance\DanceIndexData;
 use App\Models\Event\EventDetailPageModel;
 use App\Models\Event\EventModel;
 use App\Models\Page\Page;
@@ -30,9 +30,9 @@ class DanceService implements IDanceService
         $this->scheduleService = $scheduleService;
     }
 
-    public function getDanceIndexPage(): DanceIndexPageInput
+    public function getDanceIndexData(): DanceIndexData
     {
-        $homePage = $this->getDanceHomeContentPage();
+        $homePage = $this->getDanceHomePage();
         $event = $this->getDanceEvent();
         $performers = [];
         $detailPages = [];
@@ -44,7 +44,7 @@ class DanceService implements IDanceService
             $venues = $this->scheduleRepository->getVenuesByEventId($event->id);
         }
 
-        return new DanceIndexPageInput(
+        return new DanceIndexData(
             $homePage,
             $this->scheduleService->getScheduleDataForEvent(
                 self::DANCE_EVENT_NAME,
@@ -56,9 +56,9 @@ class DanceService implements IDanceService
         );
     }
 
-    public function getDanceDetailPage(EventDetailPageModel $detailMeta): DanceDetailPageInput
+    public function getDanceDetailData(EventDetailPageModel $detailMeta): DanceDetailData
     {
-        return new DanceDetailPageInput(
+        return new DanceDetailData(
             $this->getDanceDetailContentPage($detailMeta->pageSlug),
             $detailMeta,
             $detailMeta->performerId === null
@@ -67,7 +67,7 @@ class DanceService implements IDanceService
         );
     }
 
-    public function getDanceHomeContentPage(): Page
+    public function getDanceHomePage(): Page
     {
         return $this->pageService->getPageBySlug('dance-home', 'Dance Home');
     }
@@ -82,7 +82,7 @@ class DanceService implements IDanceService
         return $this->danceRepository->findDetailPageByPageSlug($pageSlug);
     }
 
-    public function getPublishedDanceDetailPages(): array
+    public function getDanceDetailPages(): array
     {
         $event = $this->getDanceEvent();
         if (!$event instanceof EventModel) {

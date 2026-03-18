@@ -2,18 +2,14 @@
 
 namespace App\Service\Cms;
 
-use App\Mapper\CmsDanceViewModelMapper;
 use App\Mapper\CmsDanceMapper;
-use App\Models\Dance\DanceDetailEditInput;
-use App\Models\Dance\DanceHomeEditInput;
+use App\Models\Dance\DanceDetailEditorData;
 use App\Models\Event\EventDetailPageModel;
 use App\Models\Page\Page;
 use App\Models\Page\Section;
 use App\Models\Page\SectionItem;
 use App\Models\Requests\UpdateDanceDetailRequest;
 use App\Models\Requests\UpdateDanceHomeRequest;
-use App\Models\ViewModels\Cms\Dance\DanceDetailEditViewModel;
-use App\Models\ViewModels\Cms\Dance\DanceHomeEditViewModel;
 use App\Repository\Interfaces\IDanceRepository;
 use App\Service\Cms\Interfaces\ICmsDanceService;
 use App\Service\Cms\Interfaces\ICmsPageSaveService;
@@ -28,41 +24,58 @@ class CmsDanceService implements ICmsDanceService
     private IPageService $pageService;
     private IHtmlSanitizerService $htmlSanitizer;
     private CmsDanceMapper $cmsDanceMapper;
-    private CmsDanceViewModelMapper $cmsDanceViewModelMapper;
     private CmsDanceValidator $danceValidator;
 
-    public function __construct(IDanceRepository $danceRepository, ICmsPageSaveService $pageSaveService, IPageService $pageService, IHtmlSanitizerService $htmlSanitizer, CmsDanceMapper $cmsDanceMapper, CmsDanceViewModelMapper $cmsDanceViewModelMapper, CmsDanceValidator $danceValidator)
+    public function __construct(IDanceRepository $danceRepository, ICmsPageSaveService $pageSaveService, IPageService $pageService, IHtmlSanitizerService $htmlSanitizer, CmsDanceMapper $cmsDanceMapper, CmsDanceValidator $danceValidator)
     {
         $this->danceRepository = $danceRepository;
         $this->pageSaveService = $pageSaveService;
         $this->pageService = $pageService;
         $this->htmlSanitizer = $htmlSanitizer;
         $this->cmsDanceMapper = $cmsDanceMapper;
-        $this->cmsDanceViewModelMapper = $cmsDanceViewModelMapper;
         $this->danceValidator = $danceValidator;
     }
 
-    public function getDanceHomeFormData(): DanceHomeEditViewModel
+    public function getDanceHomePage(): Page
     {
-        $page = $this->getDanceHomePage();
-        return $this->cmsDanceViewModelMapper->mapHomeContentViewModelFromPage($page);
+        return $this->pageService->getPageBySlug('dance-home', 'Dance Home');
     }
 
     public function saveDanceHomePage(UpdateDanceHomeRequest $request): void
     {
-        $homeEditInput = $this->buildDanceHomeEditInput($request);
-        $this->danceValidator->validateHomePageInput($homeEditInput);
-        $page = $this->buildDanceHomePage($homeEditInput);
+        $bannerDescription = $this->sanitizeWysiwygField($request->bannerDescription());
+        $importantInformationHtml = $this->sanitizeWysiwygField($request->importantInformationHtml());
+        $passItems = $this->cmsDanceMapper->normalizePasses($request->passes());
+        $capacityHtml = $this->sanitizeWysiwygField($request->capacityHtml());
+        $specialHtml = $this->sanitizeWysiwygField($request->specialHtml());
+
+        $this->danceValidator->validateHomePageInput(
+            $request,
+            $passItems,
+            $bannerDescription,
+            $importantInformationHtml,
+            $capacityHtml,
+            $specialHtml
+        );
+
+        $page = $this->buildDanceHomePage(
+            $request,
+            $passItems,
+            $bannerDescription,
+            $importantInformationHtml,
+            $capacityHtml,
+            $specialHtml
+        );
         $this->persistDanceHomePage($page);
     }
 
-    public function getDanceDetailFormData(string $pageSlug): DanceDetailEditViewModel
+    public function getDanceDetailEditorData(string $pageSlug): DanceDetailEditorData
     {
         $meta = $this->resolveDetailPageMeta($pageSlug);
         $page = $this->pageService->getPageBySlug($meta->pageSlug, $this->buildEditorTitle($meta));
         $performerName = $this->resolveDetailPerformerName($meta, $page->getSection('dance_detail_hero'));
 
-        return $this->cmsDanceViewModelMapper->mapDetailContentViewModel(
+        return new DanceDetailEditorData(
             $meta,
             $page,
             $this->buildEditorTitle($meta),
@@ -75,16 +88,29 @@ class CmsDanceService implements ICmsDanceService
         $meta = $this->resolveDetailPageMeta($pageSlug);
         $existingPage = $this->pageService->getPageBySlug($meta->pageSlug, $this->buildEditorTitle($meta));
         $existingTrackAudioUrls = $this->getExistingTrackAudioUrlsByItemId($existingPage);
-        $detailEditInput = $this->buildDanceDetailEditInput($request, $existingTrackAudioUrls);
-        $this->danceValidator->validateDetailPageInput($detailEditInput);
-        $page = $this->buildDanceDetailPage($meta->pageSlug, $detailEditInput);
+        $heroImages = $this->cmsDanceMapper->normalizeHeroImages($request->heroImages());
+        $highlights = $this->cmsDanceMapper->normalizeHighlights($request->highlights());
+        $tracks = $this->cmsDanceMapper->normalizeTracks($request->tracks(), $existingTrackAudioUrls);
+        $importantInformationHtml = $this->sanitizeWysiwygField($request->importantInformationHtml());
+
+        $this->danceValidator->validateDetailPageInput(
+            $request,
+            $heroImages,
+            $highlights,
+            $tracks,
+            $importantInformationHtml
+        );
+
+        $page = $this->buildDanceDetailPage(
+            $meta->pageSlug,
+            $request,
+            $heroImages,
+            $highlights,
+            $tracks,
+            $importantInformationHtml
+        );
         $page->id = $existingPage->id;
         $this->persistDanceDetailPage($page);
-    }
-
-    private function getDanceHomePage(): Page
-    {
-        return $this->pageService->getPageBySlug('dance-home', 'Dance Home');
     }
 
     private function resolveDetailPageMeta(string $pageSlug): EventDetailPageModel
@@ -117,80 +143,42 @@ class CmsDanceService implements ICmsDanceService
         return $hero === null ? '' : trim((string)$hero->title);
     }
 
-    private function buildDanceHomeEditInput(UpdateDanceHomeRequest $request): DanceHomeEditInput
-    {
-        return new DanceHomeEditInput(
-            $request->pageTitle(),
-            $request->scheduleTitle(),
-            $request->featuredArtistsTitle(),
-            $request->bannerBadge(),
-            $request->bannerTitle(),
-            $this->sanitizeWysiwygField($request->bannerDescription()),
-            $request->importantInformationTitle(),
-            $this->sanitizeWysiwygField($request->importantInformationHtml()),
-            $request->passesTitle(),
-            $this->cmsDanceMapper->normalizePasses($request->passes()),
-            $request->capacityTitle(),
-            $this->sanitizeWysiwygField($request->capacityHtml()),
-            $request->specialTitle(),
-            $this->sanitizeWysiwygField($request->specialHtml())
-        );
-    }
-
-    private function buildDanceDetailEditInput(UpdateDanceDetailRequest $request, array $existingTrackAudioUrls = []): DanceDetailEditInput
-    {
-        return new DanceDetailEditInput(
-            $request->pageTitle(),
-            $request->heroTitle(),
-            $request->heroBadge(),
-            $request->heroSubtitle(),
-            $this->cmsDanceMapper->normalizeHeroImages($request->heroImages()),
-            $request->highlightsTitle(),
-            $this->cmsDanceMapper->normalizeHighlights($request->highlights()),
-            $request->tracksTitle(),
-            $request->tracksNote(),
-            $this->cmsDanceMapper->normalizeTracks($request->tracks(), $existingTrackAudioUrls),
-            $request->importantInformationTitle(),
-            $this->sanitizeWysiwygField($request->importantInformationHtml())
-        );
-    }
-
     private function sanitizeWysiwygField(string $value): string
     {
         return $this->htmlSanitizer->sanitizeWysiwygHtml($value);
     }
 
-    private function buildDanceHomePage(DanceHomeEditInput $input): Page
+    private function buildDanceHomePage(UpdateDanceHomeRequest $request, array $passItems, string $bannerDescription, string $importantInformationHtml, string $capacityHtml, string $specialHtml): Page
     {
-        $page = new Page($input->pageTitle, 'dance-home');
+        $page = new Page($request->pageTitle(), 'dance-home');
         $page->sections = [
-            new Section(0, 'dance_schedule', $input->scheduleTitle, '', ''),
-            new Section(0, 'dance_banner', $input->bannerTitle, $input->bannerBadge, $input->bannerDescription),
-            new Section(0, 'dance_artists', $input->featuredArtistsTitle, '', ''),
-            new Section(0, 'dance_info', $input->importantInformationTitle, '', $input->importantInformationHtml),
-            new Section(0, 'dance_passes', $input->passesTitle, '', ''),
-            new Section(0, 'dance_capacity', $input->capacityTitle, '', $input->capacityHtml),
-            new Section(0, 'dance_special_session', $input->specialTitle, '', $input->specialHtml),
+            new Section(0, 'dance_schedule', $request->scheduleTitle(), '', ''),
+            new Section(0, 'dance_banner', $request->bannerTitle(), $request->bannerBadge(), $bannerDescription),
+            new Section(0, 'dance_artists', $request->featuredArtistsTitle(), '', ''),
+            new Section(0, 'dance_info', $request->importantInformationTitle(), '', $importantInformationHtml),
+            new Section(0, 'dance_passes', $request->passesTitle(), '', ''),
+            new Section(0, 'dance_capacity', $request->capacityTitle(), '', $capacityHtml),
+            new Section(0, 'dance_special_session', $request->specialTitle(), '', $specialHtml),
         ];
 
-        $this->appendSectionItems($page, 'dance_passes', $input->passItems);
+        $this->appendSectionItems($page, 'dance_passes', $passItems);
 
         return $page;
     }
 
-    private function buildDanceDetailPage(string $pageSlug, DanceDetailEditInput $input): Page
+    private function buildDanceDetailPage(string $pageSlug, UpdateDanceDetailRequest $request, array $heroImages, array $highlights, array $tracks, string $importantInformationHtml): Page
     {
-        $page = new Page($input->pageTitle, $pageSlug);
+        $page = new Page($request->pageTitle(), $pageSlug);
         $page->sections = [
-            new Section(0, 'dance_detail_hero', $input->heroTitle, $input->heroBadge, $input->heroSubtitle),
-            new Section(0, 'dance_detail_highlights', $input->highlightsTitle, '', ''),
-            new Section(0, 'dance_detail_tracks', $input->tracksTitle, '', $input->tracksNote),
-            new Section(0, 'dance_detail_info', $input->importantInformationTitle, '', $input->importantInformationHtml),
+            new Section(0, 'dance_detail_hero', $request->heroTitle(), $request->heroBadge(), $request->heroSubtitle()),
+            new Section(0, 'dance_detail_highlights', $request->highlightsTitle(), '', ''),
+            new Section(0, 'dance_detail_tracks', $request->tracksTitle(), '', $request->tracksNote()),
+            new Section(0, 'dance_detail_info', $request->importantInformationTitle(), '', $importantInformationHtml),
         ];
 
-        $this->appendSectionItems($page, 'dance_detail_hero', $input->heroImages);
-        $this->appendSectionItems($page, 'dance_detail_highlights', $input->highlights);
-        $this->appendSectionItems($page, 'dance_detail_tracks', $input->tracks);
+        $this->appendSectionItems($page, 'dance_detail_hero', $heroImages);
+        $this->appendSectionItems($page, 'dance_detail_highlights', $highlights);
+        $this->appendSectionItems($page, 'dance_detail_tracks', $tracks);
 
         return $page;
     }

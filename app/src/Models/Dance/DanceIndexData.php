@@ -5,7 +5,7 @@ namespace App\Models\Dance;
 use App\Models\Page\Page;
 use App\Models\ViewModels\Shared\ScheduleViewModel;
 
-class DanceIndexPageInput
+class DanceIndexData
 {
     public Page $homePage;
     public ScheduleViewModel $schedule;

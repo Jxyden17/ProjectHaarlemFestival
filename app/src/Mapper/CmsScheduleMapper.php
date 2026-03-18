@@ -128,7 +128,7 @@ class CmsScheduleMapper
 
     private function getDanceFeaturedArtistImageRows(): array
     {
-        $danceHome = $this->danceService->getDanceHomeContentPage();
+        $danceHome = $this->danceService->getDanceHomePage();
         $artistsSection = $danceHome->getSection('dance_artists');
         $featuredArtistImageRows = [];
 

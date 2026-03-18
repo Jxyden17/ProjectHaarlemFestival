@@ -2,6 +2,7 @@
 
 namespace App\Mapper;
 
+use App\Models\Dance\DanceDetailEditorData;
 use App\Models\Event\EventDetailPageModel;
 use App\Models\Page\Page;
 use App\Models\Page\Section;
@@ -37,7 +38,7 @@ class CmsDanceViewModelMapper
     private const ITEM_CATEGORY_HIGHLIGHT = 'highlight';
     private const ITEM_CATEGORY_TRACK = 'track';
 
-    public function mapHomeContentViewModelFromPage(Page $page): DanceHomeEditViewModel
+    public function mapHomePageToEditViewModel(Page $page): DanceHomeEditViewModel
     {
         $schedule = $page->getSection(self::SECTION_SCHEDULE);
         $artists = $page->getSection(self::SECTION_ARTISTS);
@@ -65,7 +66,7 @@ class CmsDanceViewModelMapper
         );
     }
 
-    public function mapHomeRequestToContentViewModel(UpdateDanceHomeRequest $request): DanceHomeEditViewModel
+    public function mapHomeRequestToEditViewModel(UpdateDanceHomeRequest $request): DanceHomeEditViewModel
     {
         return new DanceHomeEditViewModel(
             $request->pageTitle(),
@@ -85,8 +86,12 @@ class CmsDanceViewModelMapper
         );
     }
 
-    public function mapDetailContentViewModel(EventDetailPageModel $meta, Page $page, string $editorTitle, string $performerName): DanceDetailEditViewModel
+    public function mapDetailDataToEditViewModel(DanceDetailEditorData $detailData): DanceDetailEditViewModel
     {
+        $meta = $detailData->detailMeta;
+        $page = $detailData->contentPage;
+        $editorTitle = $detailData->editorTitle;
+        $performerName = $detailData->performerName;
         $hero = $page->getSection(self::SECTION_DETAIL_HERO);
         $highlights = $page->getSection(self::SECTION_DETAIL_HIGHLIGHTS);
         $tracks = $page->getSection(self::SECTION_DETAIL_TRACKS);
@@ -112,7 +117,7 @@ class CmsDanceViewModelMapper
         );
     }
 
-    public function mapDetailRequestToContentViewModel(UpdateDanceDetailRequest $request, DanceDetailEditViewModel $baseViewModel): DanceDetailEditViewModel
+    public function mapDetailRequestToEditViewModel(UpdateDanceDetailRequest $request, DanceDetailEditViewModel $baseViewModel): DanceDetailEditViewModel
     {
         return new DanceDetailEditViewModel(
             $baseViewModel->pageSlug,

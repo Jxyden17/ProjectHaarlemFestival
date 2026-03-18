@@ -60,7 +60,6 @@ try {
         $pageService,
         $htmlSanitizerService,
         $cmsDanceMapper,
-        $cmsDanceViewModelMapper,
         $cmsDanceValidator
     );
     $cmsService = new App\Service\Cms\CmsService($userRepo);
@@ -123,8 +122,8 @@ try {
         $r->addRoute('GET', '/cms/events/{eventSlug}/schedule', ['CmsEventEditorController', 'index']);
         $r->addRoute('POST', '/cms/events/{eventSlug}/schedule', ['CmsEventEditorController', 'update']);
         $r->addRoute('GET', '/cms/events/dance-home', ['CmsDanceController', 'index']);
-        $r->addRoute('POST', '/cms/events/dance-home', ['CmsDanceController', 'update']);
-        $r->addRoute('POST', '/cms/events/dance-homeAPI', ['CmsDanceController', 'updateAPI']);
+        $r->addRoute('POST', '/cms/events/dance-home', ['CmsDanceController', 'updateHome']);
+        $r->addRoute('POST', '/cms/events/dance-homeAPI', ['CmsDanceController', 'updateHomeAPI']);
         $r->addRoute('GET', '/cms/events/dance-detail/{pageSlug}', ['CmsDanceController', 'detail']);
         $r->addRoute('POST', '/cms/events/dance-detail/{pageSlug}', ['CmsDanceController', 'updateDetail']);
         $r->addRoute('POST', '/cms/events/dance-detail/{pageSlug}/updateAPI', ['CmsDanceController', 'updateDetailAPI']);

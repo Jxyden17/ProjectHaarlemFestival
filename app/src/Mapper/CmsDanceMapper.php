@@ -168,7 +168,7 @@ class CmsDanceMapper
                 continue;
             }
 
-            $audioUrl = trim($track->audioUrl());
+            $audioUrl = $track->audioUrl();
             $trackId = $track->id();
             if ($audioUrl === '' && $trackId > 0 && isset($existingTrackAudioUrls[$trackId])) {
                 $audioUrl = trim((string)$existingTrackAudioUrls[$trackId]);
@@ -293,13 +293,15 @@ class CmsDanceMapper
                 continue;
             }
 
+            $linkUrl = trim((string)($track->url ?? ''));
+
             $rows[] = [
                 'id' => $track->id,
                 'title' => trim($track->title),
                 'item_subtitle' => trim((string)($track->subTitle ?? '')),
                 'content' => trim((string)($track->content ?? '')),
                 'image_path' => trim((string)($track->image ?? '')),
-                'link_url' => trim((string)($track->url ?? '')) !== '' ? trim((string)($track->url ?? '')) : null,
+                'link_url' => $linkUrl !== '' ? $linkUrl : null,
                 'duration' => null,
                 'icon_class' => null,
                 'order_index' => $index++,

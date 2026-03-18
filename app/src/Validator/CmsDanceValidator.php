@@ -2,77 +2,77 @@
 
 namespace App\Validator;
 
-use App\Models\Dance\DanceDetailEditInput;
-use App\Models\Dance\DanceHomeEditInput;
+use App\Models\Requests\UpdateDanceDetailRequest;
+use App\Models\Requests\UpdateDanceHomeRequest;
 
 class CmsDanceValidator
 {
-    public function validateHomePageInput(DanceHomeEditInput $input): void
+    public function validateHomePageInput(UpdateDanceHomeRequest $request, array $passItems, string $bannerDescription, string $importantInformationHtml, string $capacityHtml, string $specialHtml): void
     {
-        if ($input->pageTitle === '') {
+        if ($request->pageTitle() === '') {
             throw new \InvalidArgumentException('Browser tab title is required.');
         }
 
-        if ($input->scheduleTitle === '') {
+        if ($request->scheduleTitle() === '') {
             throw new \InvalidArgumentException('Schedule title is required.');
         }
 
-        if ($input->featuredArtistsTitle === '') {
+        if ($request->featuredArtistsTitle() === '') {
             throw new \InvalidArgumentException('Featured artists title is required.');
         }
 
-        if ($input->bannerTitle === '') {
+        if ($request->bannerTitle() === '') {
             throw new \InvalidArgumentException('Banner title is required.');
         }
 
-        if ($input->bannerDescription === '') {
+        if ($bannerDescription === '') {
             throw new \InvalidArgumentException('Banner description is required.');
         }
 
-        if ($input->importantInformationTitle === '' || $input->importantInformationHtml === '') {
+        if ($request->importantInformationTitle() === '' || $importantInformationHtml === '') {
             throw new \InvalidArgumentException('Important information is required.');
         }
 
-        if ($input->passesTitle === '' || count($input->passItems) === 0) {
+        if ($request->passesTitle() === '' || count($passItems) === 0) {
             throw new \InvalidArgumentException('At least one pass row is required.');
         }
 
-        if ($input->capacityTitle === '' || $input->capacityHtml === '') {
+        if ($request->capacityTitle() === '' || $capacityHtml === '') {
             throw new \InvalidArgumentException('Capacity content is required.');
         }
 
-        if ($input->specialTitle === '' || $input->specialHtml === '') {
+        if ($request->specialTitle() === '' || $specialHtml === '') {
             throw new \InvalidArgumentException('Special session content is required.');
         }
     }
 
-    public function validateDetailPageInput(DanceDetailEditInput $input): void
+    public function validateDetailPageInput(UpdateDanceDetailRequest $request, array $heroImages, array $highlights, array $tracks, string $importantInformationHtml): void
     {
-        if ($input->pageTitle === '') {
+        if ($request->pageTitle() === '') {
             throw new \InvalidArgumentException('Browser tab title is required.');
         }
 
-        if ($input->heroTitle === '') {
+        if ($request->heroTitle() === '') {
             throw new \InvalidArgumentException('Hero title is required.');
         }
 
-        if ($input->heroSubtitle === '') {
+        if ($request->heroSubtitle() === '') {
             throw new \InvalidArgumentException('Hero subtitle is required.');
         }
 
-        if (count($input->heroImages) === 0) {
+        if (count($heroImages) === 0) {
             throw new \InvalidArgumentException('At least one hero image row is required.');
         }
 
-        if ($input->highlightsTitle === '' || count($input->highlights) === 0) {
+        if ($request->highlightsTitle() === '' || count($highlights) === 0) {
             throw new \InvalidArgumentException('At least one highlight is required.');
         }
 
-        if ($input->tracksTitle === '' || count($input->tracks) === 0) {
+        if ($request->tracksTitle() === '' || count($tracks) === 0) {
             throw new \InvalidArgumentException('At least one track is required.');
         }
 
-        if ($input->importantInformationTitle === '' || $input->importantInformationHtml === '') {
+        if ($request->importantInformationTitle() === '' || $importantInformationHtml === '') {
             throw new \InvalidArgumentException('Important information is required.');
         }
     }

@@ -2,8 +2,8 @@
 
 namespace App\Mapper;
 
-use App\Models\Dance\DanceDetailPageInput;
-use App\Models\Dance\DanceIndexPageInput;
+use App\Models\Dance\DanceDetailData;
+use App\Models\Dance\DanceIndexData;
 use App\Models\Event\EventDetailPageModel;
 use App\Models\Event\PerformerModel;
 use App\Models\Page\Section;
@@ -30,17 +30,17 @@ class DanceViewModelMapper
     private const ITEM_CATEGORY_HIGHLIGHT = 'highlight';
     private const ITEM_CATEGORY_TRACK = 'track';
 
-    public function buildIndexViewModel(DanceIndexPageInput $indexPageInput): DanceIndexViewModel
+    public function buildIndexViewModel(DanceIndexData $indexData): DanceIndexViewModel
     {
-        $homePage = $indexPageInput->homePage;
-        $schedule = $indexPageInput->schedule;
+        $homePage = $indexData->homePage;
+        $schedule = $indexData->schedule;
         $bannerSection = $homePage->getSection(self::INDEX_SECTION_BANNER);
         $featuredArtistsSection = $homePage->getSection(self::INDEX_SECTION_ARTISTS);
         $infoSection = $homePage->getSection(self::INDEX_SECTION_INFO);
         $passesSection = $homePage->getSection(self::INDEX_SECTION_PASSES);
         $capacitySection = $homePage->getSection(self::INDEX_SECTION_CAPACITY);
         $specialSection = $homePage->getSection(self::INDEX_SECTION_SPECIAL);
-        $detailUrlsByPerformerId = $this->mapDetailUrlsByPerformerId($indexPageInput->detailPages);
+        $detailUrlsByPerformerId = $this->mapDetailUrlsByPerformerId($indexData->detailPages);
         [$totalEvents, $totalLocations] = $this->extractScheduleStats($schedule);
 
         return new DanceIndexViewModel(
@@ -52,7 +52,7 @@ class DanceViewModelMapper
             $totalEvents,
             $totalLocations,
             $featuredArtistsSection?->title,
-            $this->buildFeaturedArtistCardsFromOrderedImages($featuredArtistsSection, $indexPageInput->performers, $detailUrlsByPerformerId),
+            $this->buildFeaturedArtistCardsFromOrderedImages($featuredArtistsSection, $indexData->performers, $detailUrlsByPerformerId),
             $infoSection?->title,
             $infoSection?->description,
             $passesSection?->title,
@@ -61,18 +61,18 @@ class DanceViewModelMapper
             $capacitySection?->description,
             $specialSection?->title,
             $specialSection?->description,
-            $indexPageInput->venues
+            $indexData->venues
         );
     }
 
-    public function buildDetailViewModel(DanceDetailPageInput $detailPageInput): DanceDetailViewModel
+    public function buildDetailViewModel(DanceDetailData $detailData): DanceDetailViewModel
     {
-        $contentPage = $detailPageInput->contentPage;
+        $contentPage = $detailData->contentPage;
         $heroSection = $contentPage->getSection(self::DETAIL_SECTION_HERO);
         $highlightsSection = $contentPage->getSection(self::DETAIL_SECTION_HIGHLIGHTS);
         $tracksSection = $contentPage->getSection(self::DETAIL_SECTION_TRACKS);
         $infoSection = $contentPage->getSection(self::DETAIL_SECTION_INFO);
-        $performerName = $this->resolvePerformerName($detailPageInput->detailMeta, $heroSection);
+        $performerName = $this->resolvePerformerName($detailData->detailMeta, $heroSection);
 
         return new DanceDetailViewModel(
             $contentPage->title,
@@ -86,7 +86,7 @@ class DanceViewModelMapper
             $tracksSection?->description,
             $this->buildTrackItems($tracksSection),
             '',
-            $detailPageInput->scheduleRows,
+            $detailData->scheduleRows,
             $infoSection?->title,
             $infoSection?->description
         );

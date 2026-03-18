@@ -22,7 +22,9 @@ class CmsDanceController extends BaseController
     public function index(): void
     {
         $this->requireAdmin();
-        $contentViewModel = $this->danceService->getDanceHomeFormData();
+        $contentViewModel = $this->cmsDanceViewModelMapper->mapHomePageToEditViewModel(
+            $this->danceService->getDanceHomePage()
+        );
 
         $this->renderCms('cms/events/dance-home', [
             'title' => 'Dance Home Content',
@@ -31,7 +33,7 @@ class CmsDanceController extends BaseController
         ]);
     }
 
-    public function update(): void
+    public function updateHome(): void
     {
         $this->requireAdmin();
         $request = UpdateDanceHomeRequest::fromArray($_POST);
@@ -41,7 +43,7 @@ class CmsDanceController extends BaseController
             header('Location: /cms/events/dance-home?saved=1');
             exit;
         } catch (\Throwable $e) {
-            $contentViewModel = $this->cmsDanceViewModelMapper->mapHomeRequestToContentViewModel($request);
+            $contentViewModel = $this->cmsDanceViewModelMapper->mapHomeRequestToEditViewModel($request);
             $this->renderCms('cms/events/dance-home', [
                 'title' => 'Dance Home Content',
                 'contentViewModel' => $contentViewModel,
@@ -51,7 +53,7 @@ class CmsDanceController extends BaseController
         }
     }
 
-    public function updateAPI(array $vars = []): void
+    public function updateHomeAPI(array $vars = []): void
     {
         $this->requireAdmin();
         $request = UpdateDanceHomeRequest::fromArray($_POST);
@@ -69,12 +71,12 @@ class CmsDanceController extends BaseController
         $this->requireAdmin();
 
         $pageSlug = trim((string)($vars['pageSlug'] ?? ''));
-        $contentViewModel = $this->danceService->getDanceDetailFormData($pageSlug);
+        $detailData = $this->danceService->getDanceDetailEditorData($pageSlug);
+        $contentViewModel = $this->cmsDanceViewModelMapper->mapDetailDataToEditViewModel($detailData);
 
         $this->renderCms('cms/events/dance-detail', [
             'title' => $contentViewModel->editorTitle,
             'contentViewModel' => $contentViewModel,
-            'formAction' => '/cms/events/dance-detail/' . $contentViewModel->pageSlug,
             'success' => isset($_GET['saved']),
         ]);
     }
@@ -91,12 +93,12 @@ class CmsDanceController extends BaseController
             header('Location: /cms/events/dance-detail/' . rawurlencode($pageSlug) . '?saved=1');
             exit;
         } catch (\Throwable $e) {
-            $baseViewModel = $this->danceService->getDanceDetailFormData($pageSlug);
-            $contentViewModel = $this->cmsDanceViewModelMapper->mapDetailRequestToContentViewModel($request, $baseViewModel);
+            $detailData = $this->danceService->getDanceDetailEditorData($pageSlug);
+            $baseViewModel = $this->cmsDanceViewModelMapper->mapDetailDataToEditViewModel($detailData);
+            $contentViewModel = $this->cmsDanceViewModelMapper->mapDetailRequestToEditViewModel($request, $baseViewModel);
             $this->renderCms('cms/events/dance-detail', [
                 'title' => $contentViewModel->editorTitle,
                 'contentViewModel' => $contentViewModel,
-                'formAction' => '/cms/events/dance-detail/' . $contentViewModel->pageSlug,
                 'error' => $e->getMessage(),
                 'success' => false,
             ]);
@@ -123,4 +125,5 @@ class CmsDanceController extends BaseController
             ], 422);
         }
     }
+
 }
