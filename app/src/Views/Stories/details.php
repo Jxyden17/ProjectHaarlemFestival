@@ -15,6 +15,20 @@ $bookingPriceLabel = $bookingPriceLabelItems[0] ?? null;
 $bookingDate = $bookingDateItems[0] ?? null;
 $bookingLocation = $bookingLocationItems[0] ?? null;
 $bookingButton = $bookingButtonItems[0] ?? null;
+$renderInlineRichText = static function (?string $html, string $fallback = ''): string {
+    $value = trim((string)($html ?? ''));
+    if ($value === '') {
+        return htmlspecialchars($fallback);
+    }
+
+    $value = preg_replace('/^\s*<p>(.*)<\/p>\s*$/is', '$1', $value) ?? $value;
+    return strip_tags($value, '<strong><em><u><a><br>');
+};
+
+$renderBlockRichText = static function (?string $html): string {
+    $value = trim((string)($html ?? ''));
+    return $value === '' ? '' : $value;
+};
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -49,9 +63,9 @@ $bookingButton = $bookingButtonItems[0] ?? null;
 
         <section class="stories-detail-hero">
             <div class="stories-detail-panel">
-                <p class="hero-badge-text"><?= htmlspecialchars((string)($hero?->subTitle ?? 'Story detail')) ?></p>
-                <h1 style="font-size: 48px; line-height: 1.1; margin: 8px 0 18px;"><?= htmlspecialchars((string)($hero?->title ?? $pageTitle ?? 'Stories')) ?></h1>
-                <p style="color: #b0b8c1; font-size: 16px; line-height: 1.8;"><?= htmlspecialchars((string)($hero?->description ?? '')) ?></p>
+                <p class="hero-badge-text"><?= $renderInlineRichText($hero?->subTitle ?? null, 'Story detail') ?></p>
+                <h1 style="font-size: 48px; line-height: 1.1; margin: 8px 0 18px;"><?= $renderInlineRichText($hero?->title ?? null, (string)($pageTitle ?? 'Stories')) ?></h1>
+                <div style="color: #b0b8c1; font-size: 16px; line-height: 1.8;"><?= $renderBlockRichText($hero?->description ?? null) ?></div>
                 <div class="stories-detail-tags">
                     <?php foreach ($heroTags as $item): ?>
                         <span class="stories-detail-tag"><?= htmlspecialchars((string)($item->title ?? '')) ?></span>
@@ -65,13 +79,13 @@ $bookingButton = $bookingButtonItems[0] ?? null;
             <div class="stories-detail-panel">
                 <h2 style="margin-top:0;"><?= htmlspecialchars((string)($about?->title ?? 'About')) ?></h2>
                 <?php foreach ($aboutItems as $item): ?>
-                    <p style="color:#b0b8c1; line-height:1.8;"><?= htmlspecialchars((string)($item->content ?? '')) ?></p>
+                    <div style="color:#b0b8c1; line-height:1.8;"><?= $renderBlockRichText($item->content ?? null) ?></div>
                 <?php endforeach; ?>
             </div>
 
             <aside class="stories-detail-panel">
-                <h2 style="margin-top:0;"><?= htmlspecialchars((string)($booking?->title ?? 'Booking')) ?></h2>
-                <p style="color:#b0b8c1;"><?= htmlspecialchars((string)($booking?->description ?? '')) ?></p>
+                <h2 style="margin-top:0;"><?= $renderInlineRichText($booking?->title ?? null, 'Booking') ?></h2>
+                <div style="color:#b0b8c1;"><?= $renderBlockRichText($booking?->description ?? null) ?></div>
                 <div class="stories-booking-list">
                     <?php if ($bookingDate): ?><div><strong>Date</strong><br><?= htmlspecialchars((string)($bookingDate->title ?? '')) ?></div><?php endif; ?>
                     <?php if ($bookingLocation): ?><div><strong>Location</strong><br><?= htmlspecialchars((string)($bookingLocation->title ?? '')) ?></div><?php endif; ?>

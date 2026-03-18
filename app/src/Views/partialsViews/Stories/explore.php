@@ -6,12 +6,27 @@ $section = $section ?? null;
 if (!$section instanceof Section) {
     return;
 }
+
+$renderInlineRichText = static function (?string $html, string $fallback = ''): string {
+    $value = trim((string)($html ?? ''));
+    if ($value === '') {
+        return htmlspecialchars($fallback);
+    }
+
+    $value = preg_replace('/^\s*<p>(.*)<\/p>\s*$/is', '$1', $value) ?? $value;
+    return strip_tags($value, '<strong><em><u><a><br>');
+};
+
+$renderBlockRichText = static function (?string $html): string {
+    $value = trim((string)($html ?? ''));
+    return $value === '' ? '' : $value;
+};
 ?>
 
 <section class="explore-section">
     <div class="explore-container">
-        <h2 class="explore-title"><?= htmlspecialchars($section->title ?? '') ?></h2>
-        <p class="explore-description"><?= htmlspecialchars($section->subTitle ?? '') ?></p>
+        <h2 class="explore-title"><?= $renderInlineRichText($section->title ?? null) ?></h2>
+        <div class="explore-description"><?= $renderBlockRichText($section->subTitle ?? null) ?></div>
 
         <div class="explore-grid">
             <?php foreach ($section->items as $item): ?>
@@ -22,11 +37,11 @@ if (!$section instanceof Section) {
                         </div>
                     <?php endif; ?>
                     <div class="explore-content">
-                        <h3><?= htmlspecialchars((string)($item->title ?? '')) ?></h3>
+                        <h3><?= $renderInlineRichText($item->title ?? null) ?></h3>
                         <?php if (trim((string)($item->subTitle ?? '')) !== ''): ?>
-                            <p class="explore-subtitle"><?= htmlspecialchars((string)($item->subTitle ?? '')) ?></p>
+                            <div class="explore-subtitle"><?= $renderBlockRichText($item->subTitle ?? null) ?></div>
                         <?php endif; ?>
-                        <p class="explore-text"><?= htmlspecialchars((string)($item->content ?? '')) ?></p>
+                        <div class="explore-text"><?= $renderBlockRichText($item->content ?? null) ?></div>
                         <?php if (trim((string)($item->url ?? '')) !== ''): ?>
                             <a href="<?= htmlspecialchars((string)($item->url ?? '')) ?>" class="explore-btn">Explore</a>
                         <?php endif; ?>
@@ -37,7 +52,7 @@ if (!$section instanceof Section) {
 
         <?php if ($section->description): ?>
             <div class="explore-footer">
-                <p><?= htmlspecialchars($section->description) ?></p>
+                <div><?= $renderBlockRichText($section->description ?? null) ?></div>
             </div>
         <?php endif; ?>
     </div>

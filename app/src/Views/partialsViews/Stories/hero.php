@@ -9,57 +9,68 @@ if (!$section instanceof Section) {
 $items = is_array($section->items) ? $section->items : [];
 $firstItem = $items[0] ?? null;
 $secondItem = $items[1] ?? null;
-$heroImages = array_values(array_filter($items, static fn ($item) => trim((string)($item->image ?? '')) !== ''));
+$renderInlineRichText = static function (?string $html, string $fallback = ''): string {
+    $value = trim((string)($html ?? ''));
+    if ($value === '') {
+        return htmlspecialchars($fallback);
+    }
+
+    $value = preg_replace('/^\s*<p>(.*)<\/p>\s*$/is', '$1', $value) ?? $value;
+    return strip_tags($value, '<strong><em><u><a><br>');
+};
+
+$renderBlockRichText = static function (?string $html): string {
+    $value = trim((string)($html ?? ''));
+    return $value === '' ? '' : $value;
+};
 ?>
 
 <section class="stories-hero-section">
-    <?php if ($heroImages !== []): ?>
-        <div class="stories-hero-images">
-            <?php foreach ($heroImages as $item): ?>
-                <div class="stories-hero-img-item">
-                    <img src="<?= htmlspecialchars((string)($item->image ?? '')) ?>" alt="<?= htmlspecialchars((string)($item->title ?? 'Stories image')) ?>">
-                </div>
-            <?php endforeach; ?>
-        </div>
-    <?php endif; ?>
-
-    <div class="stories-hero-overlay"></div>
-
-    <div class="stories-hero-text">
-        <div class="hero-badge">
-            <span class="hero-badge-icon">📅</span>
-            <span class="hero-badge-text">This Weekend • July 24-27, 2025</span>
+    <div class="stories-banner-inner">
+        <div class="stories-banner-badge">
+            <span class="stories-banner-badge-icon">🗓</span>
+            <span>This Weekend • July 24-27, 2025</span>
         </div>
 
-        <h1><?= htmlspecialchars((string)($section->title ?? 'Stories in Haarlem')) ?></h1>
+        <h1 class="stories-banner-title"><?= $renderInlineRichText($section->title ?? null, 'Stories in Haarlem') ?></h1>
+
         <?php if (trim((string)($firstItem->content ?? '')) !== ''): ?>
-            <p><?= htmlspecialchars((string)($firstItem->content ?? '')) ?></p>
+            <div class="stories-banner-description"><?= $renderBlockRichText($firstItem->content ?? null) ?></div>
         <?php endif; ?>
         <?php if (trim((string)($secondItem->content ?? '')) !== ''): ?>
-            <p><?= htmlspecialchars((string)($secondItem->content ?? '')) ?></p>
+            <div class="stories-banner-subcopy"><?= $renderBlockRichText($secondItem->content ?? null) ?></div>
         <?php endif; ?>
 
-        <div class="hero-info-cards">
-            <div class="hero-info-card">
-                <span class="info-card-icon">📅</span>
-                <div class="info-card-content">
-                    <h3>Total Events</h3>
-                    <p>15 Shows</p>
+        <div class="stories-banner-stats">
+            <div class="stories-stat-card">
+                <div class="stories-stat-card-icon">
+                    <span>🗓</span>
+                </div>
+                <div>
+                    <div class="stories-stat-card-label">Total Events</div>
+                    <div class="stories-stat-card-value">
+                        15 Shows
+                    </div>
                 </div>
             </div>
-            <div class="hero-info-card">
-                <span class="info-card-icon">📍</span>
-                <div class="info-card-content">
-                    <h3>Venues</h3>
-                    <p>6 Locations</p>
+
+            <div class="stories-stat-card">
+                <div class="stories-stat-card-icon stories-stat-card-icon-venue">
+                    <span>📍</span>
+                </div>
+                <div>
+                    <div class="stories-stat-card-label">Venues</div>
+                    <div class="stories-stat-card-value">
+                        6 Locations
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="hero-actions">
-            <a href="#schedule" class="view-program-btn">
-                <span class="view-program-btn-icon">🎭</span>
-                View program
+        <div class="stories-banner-actions">
+            <a href="#schedule" class="stories-banner-cta">
+                <span>View program</span>
+                <span class="stories-banner-cta-icon">↓</span>
             </a>
         </div>
     </div>
