@@ -4,19 +4,19 @@ namespace App\Controllers\Cms;
 
 use App\Controllers\BaseController;
 use App\Service\Interfaces\IPageService;
-use App\Service\Cms\Interfaces\ICmsEventEditorService;
+use App\Service\Cms\Interfaces\ICmsYummyService;
 
 class CmsYummyContentController extends BaseController
 {
     private IPageService $pageService;
-    private ICmsEventEditorService $editorService;
+    private ICmsYummyService $cmsYummyService;
 
     public function __construct(
         IPageService $pageService,
-        ICmsEventEditorService $editorService
+        ICmsYummyService $cmsYummyService
     ) {
         $this->pageService = $pageService;
-        $this->editorService = $editorService;
+        $this->cmsYummyService = $cmsYummyService;
     }
 
     public function index(): void
@@ -37,7 +37,7 @@ class CmsYummyContentController extends BaseController
         ]);
     }
 
-    public function save(): void
+    public function update(): void
     {
         $this->requireAdmin();
 
@@ -46,8 +46,7 @@ class CmsYummyContentController extends BaseController
 
         try {
 
-            $this->editorService->savePageContentBySlug(
-                'yummy',
+            $this->cmsYummyService->saveYummyContent(
                 $sections,
                 $items
             );
@@ -60,5 +59,45 @@ class CmsYummyContentController extends BaseController
             $_SESSION['cms_error'] = $e->getMessage();
             header('Location: /cms/events/yummy-home');
         }
+    }
+
+    public function detail(array $vars): void
+    {
+        $this->requireAdmin();
+
+        $slug = $vars['slug'] ?? '';
+
+        $page = $this->pageService->getPageBySlug($slug);
+
+        if (!$page) {
+            http_response_code(404);
+            return;
+        }
+
+        $heroSection = $page->getSection('restaurant_hero');
+        $introSection = $page->getSection('restaurant_concept');
+        $contactSection = $page->getSection('restaurant_contact');
+
+        $this->render('cms/events/yummy-detail', [
+            'page' => $page,
+            'heroSection' => $heroSection,
+            'introSection' => $introSection,
+            'contactSection' => $contactSection
+        ]);
+    }
+
+    public function detailUpdate(array $vars): void
+    {
+        $this->requireAdmin();
+
+        $slug = $vars['slug'] ?? '';
+
+        $sections = $_POST['sections'] ?? [];
+        $items = $_POST['items'] ?? [];
+
+        $this->cmsYummyService->savePageContentBySlug($slug, $sections, $items);
+
+        header("Location: /cms/events/yummy-detail/$slug?saved=1");
+        exit;
     }
 }

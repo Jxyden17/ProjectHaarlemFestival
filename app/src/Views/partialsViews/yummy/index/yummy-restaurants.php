@@ -1,6 +1,6 @@
 <section class="restaurants-section">
     <div class="yummy-container">
-        <h2 class="section-title"><?= htmlspecialchars($section->title) ?></h2>
+        <h2 class="section-title"><?= $section->title ?></h2>
 
         <?php if (!empty($section->items)): ?>
             <?php 
@@ -19,18 +19,19 @@
 
                 <div class="restaurant-card">
                     <div class="restaurant-left">
-                        <h3><?= htmlspecialchars($item->title) ?></h3>
+
+                        <h3><?= $item->title ?></h3>
 
                         <?php if (!empty($item->content)): ?>
-                            <p class="restaurant-content">
-                                <?= htmlspecialchars($item->content) ?>
-                            </p>
+                            <div class="restaurant-content">
+                                <?= $item->content ?>
+                            </div>
                         <?php endif; ?>
 
                         <?php if (!empty($item->image)): ?>
-                            <p class="restaurant-stars">
-                                <?= htmlspecialchars($item->image) ?>
-                            </p>
+                            <div class="restaurant-stars">
+                                <?= $item->image ?>
+                            </div>
                         <?php endif; ?>
 
                         <?php if ($venue && !empty($venue->address)): ?>
@@ -39,9 +40,9 @@
                             </p>
                         <?php endif; ?>
 
-                        <a href="/yummy/<?= strtolower(str_replace(' ', '-', $item->title)) ?>" 
+                        <a href="/yummy/<?= strtolower(str_replace(' ', '-', strip_tags($item->title))) ?>" 
                             class="btn-details">
-                            View Details →
+                                View Details →
                         </a>
                     </div>
                 </div>

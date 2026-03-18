@@ -63,6 +63,7 @@ try {
         $cmsScheduleMapper,
         $pageRepo
     );
+    $cmsYummyService = new App\Service\Cms\CmsYummyService($cmsEventEditorService, $pageRepo);
 
     $authController = new App\Controllers\AuthController($authService);
     $homeController = new App\Controllers\HomeController($pageService, $scheduleService);
@@ -79,7 +80,7 @@ try {
     $cmsEventEditorController = new App\Controllers\Cms\CmsEventEditorController($cmsScheduleService, $cmsEventEditorService);
     $cmsMediaController = new App\Controllers\Cms\CmsMediaController($mediaService);
     $cmsTourContentController = new App\Controllers\Cms\CmsTourContentController($pageService, $cmsEventEditorService);
-    $cmsYummyContentController = new App\Controllers\Cms\CmsYummyContentController($pageService, $cmsEventEditorService);
+    $cmsYummyContentController = new App\Controllers\Cms\CmsYummyContentController($pageService, $cmsYummyService);
 
     $dispatcher = simpleDispatcher(function (RouteCollector $r) {
         $r->addRoute('GET', '/', ['HomeController', 'index']);
@@ -117,6 +118,8 @@ try {
         $r->addRoute('POST', '/cms/events/tour-details', ['CmsTourContentController', 'detailsUpdate']);
         $r->addRoute('GET', '/cms/events/yummy-home', ['CmsYummyContentController', 'index']);
         $r->addRoute('POST', '/cms/events/yummy-home', ['CmsYummyContentController', 'update']);
+        $r->addRoute('GET', '/cms/events/yummy-detail/{slug}', ['CmsYummyContentController', 'detail']);
+        $r->addRoute('POST', '/cms/events/yummy-detail/{slug}', ['CmsYummyContentController', 'detailUpdate']);
         $r->addRoute('POST', '/cms/media/upload-replace', ['CmsMediaController', 'uploadReplace']);
         $r->addRoute('POST', '/cms/media/upload-audio', ['CmsMediaController', 'uploadAudio']);
         $r->addRoute('GET', '/cms/tickets', ['CmsTicketsController', 'index']);

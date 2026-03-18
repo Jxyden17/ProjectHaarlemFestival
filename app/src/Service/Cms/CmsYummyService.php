@@ -2,11 +2,11 @@
 
 namespace App\Service\Cms;
 
-use App\Service\Cms\Interfaces\ICmsYummyEditorService;
+use App\Service\Cms\Interfaces\ICmsYummyService;
 use App\Service\Cms\Interfaces\ICmsEventEditorService;
 use App\Repository\PageRepository;
 
-class CmsYummyEditorService implements ICmsYummyEditorService
+class CmsYummyService implements ICmsYummyService
 {
     private ICmsEventEditorService $eventEditor;
     private PageRepository $pageRepository;
@@ -16,19 +16,34 @@ class CmsYummyEditorService implements ICmsYummyEditorService
         PageRepository $pageRepository
     ) {
         $this->eventEditor = $eventEditor;
-        $this->pageRepository = $pageRepository
+        $this->pageRepository = $pageRepository;
     }
 
     public function saveYummyContent(array $sections, array $items): void
     {
-        $page = $this->pageRepository->getPageBySlug('yummy');
+        $pageId = $this->pageRepository->findPageIdBySlug('yummy');
 
-        if (!$page) {
+        if (!$pageId) {
             throw new \RuntimeException('Yummy page not found.');
         }
 
         $this->eventEditor->savePageContent(
-            $page->id,
+            $pageId,
+            $sections,
+            $items
+        );
+    }
+
+    public function savePageContentBySlug(string $slug, array $sections, array $items): void
+    {
+        $page = $this->pageRepository->getPageBySlug($slug);
+
+        if (!$page) {
+            throw new \Exception("Page not found");
+        }
+
+        $this->pageRepository->updatePageContent(
+            $page->getId(),
             $sections,
             $items
         );
