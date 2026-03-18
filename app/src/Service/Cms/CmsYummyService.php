@@ -19,31 +19,18 @@ class CmsYummyService implements ICmsYummyService
         $this->pageRepository = $pageRepository;
     }
 
-    public function saveYummyContent(array $sections, array $items): void
+    public function saveYummyContent(string $slug, array $sections, array $items): void
     {
-        $pageId = $this->pageRepository->findPageIdBySlug('yummy');
+        $slug = $slug ?? 'yummy';
+
+        $pageId = $this->pageRepository->findPageIdBySlug($slug);
 
         if (!$pageId) {
-            throw new \RuntimeException('Yummy page not found.');
+            throw new \RuntimeException('Page not found: ' . $slug);
         }
 
         $this->eventEditor->savePageContent(
             $pageId,
-            $sections,
-            $items
-        );
-    }
-
-    public function savePageContentBySlug(string $slug, array $sections, array $items): void
-    {
-        $page = $this->pageRepository->getPageBySlug($slug);
-
-        if (!$page) {
-            throw new \Exception("Page not found");
-        }
-
-        $this->pageRepository->updatePageContent(
-            $page->getId(),
             $sections,
             $items
         );

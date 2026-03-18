@@ -95,7 +95,11 @@ class CmsYummyContentController extends BaseController
         $sections = $_POST['sections'] ?? [];
         $items = $_POST['items'] ?? [];
 
-        $this->cmsYummyService->savePageContentBySlug($slug, $sections, $items);
+        $this->cmsYummyService->saveYummyContent(
+            $slug,
+            $sections,
+            $items
+        );
 
         header("Location: /cms/events/yummy-detail/$slug?saved=1");
         exit;

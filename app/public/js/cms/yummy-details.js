@@ -1,7 +1,8 @@
-const yummyDetailForm = document.querySelector('form[action^="/cms/events/yummy-detail"]');
+const yummyDetailForm = document.querySelector('form[action="/cms/events/yummy-Detail"]');
 const editors = [];
 
-function initYummyDetailEditors() {
+function initYummyEditors() {
+
     if (!yummyDetailForm || typeof Quill === "undefined") {
         return;
     }
@@ -17,8 +18,10 @@ function initYummyDetailEditors() {
     const fields = yummyDetailForm.querySelectorAll('textarea[data-editor="rich"]');
 
     fields.forEach(field => {
+
         const wrapper = document.createElement("div");
         wrapper.classList.add("mb-2");
+
         field.insertAdjacentElement("afterend", wrapper);
 
         const editor = new Quill(wrapper, {
@@ -35,11 +38,18 @@ function initYummyDetailEditors() {
     });
 
     yummyDetailForm.addEventListener("submit", () => {
+
         editors.forEach(entry => {
+
             const empty = entry.editor.getText().trim() === "";
-            entry.field.value = empty ? "" : entry.editor.root.innerHTML;
+
+            entry.field.value = empty
+                ? ""
+                : entry.editor.root.innerHTML;
+
         });
+
     });
 }
 
-initYummyDetailEditors();
+initYummyEditors();
