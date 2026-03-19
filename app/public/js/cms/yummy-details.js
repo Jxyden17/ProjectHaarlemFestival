@@ -37,18 +37,15 @@ function initYummyEditors() {
         editors.push({ field, editor });
     });
 
-    yummyDetailForm.addEventListener("submit", () => {
+    yummyDetailForm.addEventListener("submit", (e) => {
+        e.preventDefault();
 
         editors.forEach(entry => {
-
             const empty = entry.editor.getText().trim() === "";
-
-            entry.field.value = empty
-                ? ""
-                : entry.editor.root.innerHTML;
-
+            entry.field.value = empty ? "" : entry.editor.root.innerHTML;
         });
 
+        yummyDetailForm.submit();
     });
 }
 

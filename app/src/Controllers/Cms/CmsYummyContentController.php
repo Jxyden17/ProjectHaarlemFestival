@@ -61,7 +61,7 @@ class CmsYummyContentController extends BaseController
         }
     }
 
-    public function detail(array $vars): void
+    public function detail(array $vars = []): void
     {
         $this->requireAdmin();
 
@@ -86,7 +86,7 @@ class CmsYummyContentController extends BaseController
         ]);
     }
 
-    public function detailUpdate(array $vars): void
+    public function detailUpdate(array $vars = []): void
     {
         $this->requireAdmin();
 

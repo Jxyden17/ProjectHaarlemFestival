@@ -100,7 +100,21 @@ class PageRepository implements IPageRepository
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$row) {
-            throw new \RuntimeException('Missing section for update: ' . $sectionType);
+            $insert = $this->db->prepare(
+                'INSERT INTO page_sections (page_id, section_type, title, subtitle, description, order_index)
+                VALUES (:page_id, :section_type, :title, :subtitle, :description, :order_index)'
+            );
+
+            $insert->execute([
+                ':page_id' => $pageId,
+                ':section_type' => $sectionType,
+                ':title' => $title ?? '',
+                ':subtitle' => $subtitle ?? null,
+                ':description' => $description ?? '',
+                ':order_index' => $orderIndex,
+            ]);
+
+            return (int) $this->db->lastInsertId();
         }
 
         $sectionId = (int) $row['id'];
@@ -194,6 +208,4 @@ class PageRepository implements IPageRepository
 
         return (int) $row['id'];
     }
-
-    
 }

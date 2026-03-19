@@ -10,7 +10,6 @@ $contactItems = $contactSection?->items ?? [];
 
     <div class="d-flex align-items-center gap-3 mb-4">
         <a href="/cms/events" class="btn btn-outline-secondary"><- Back to Events</a>
-        <h1 class="h3 mb-1">Yummy Subpage: <?= htmlspecialchars($page->slug) ?></h1>
     </div>
 
     <form method="POST" action="/cms/events/yummy-detail/<?= htmlspecialchars($page->slug) ?>" class="card">

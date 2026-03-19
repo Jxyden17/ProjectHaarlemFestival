@@ -22,7 +22,7 @@ class CmsYummyService implements ICmsYummyService
     public function saveYummyContent(string $slug, array $sections, array $items): void
     {
         $slug = $slug ?? 'yummy';
-
+        
         $pageId = $this->pageRepository->findPageIdBySlug($slug);
 
         if (!$pageId) {

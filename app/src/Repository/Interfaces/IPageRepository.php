@@ -8,8 +8,6 @@ interface IPageRepository
 
     public function findPageRowsBySlug(string $slug): array;
 
-    public function findPageIdBySlug(string $slug): ?int;
-
     public function saveOrUpdateSection(
         int $pageId,
         string $sectionType,
@@ -20,4 +18,6 @@ interface IPageRepository
     ): int;
 
     public function saveOrUpdateSectionItems(int $sectionId, array $items): void;
+
+    public function findPageIdBySlug(string $slug): ?int;
 }

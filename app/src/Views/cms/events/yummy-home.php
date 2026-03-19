@@ -10,7 +10,6 @@ $restaurantItems = $restaurantSection?->items ?? [];
 
     <div class="d-flex align-items-center gap-3 mb-4">
         <a href="/cms/events" class="btn btn-outline-secondary"><- Back to Events</a>
-        <h1 class="h3 mb-1">Yummy Home Content</h1>
     </div>
 
     <form method="POST" action="/cms/events/yummy-home" class="card">

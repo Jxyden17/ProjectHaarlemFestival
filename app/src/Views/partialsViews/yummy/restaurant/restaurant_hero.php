@@ -16,11 +16,11 @@
         <?php foreach ($section->items as $item): ?>
 
             <p class="restaurant-stars">
-                <?= htmlspecialchars($item->icon) ?>
+                <?= htmlspecialchars($item->icon ?? '') ?>
             </p>
 
             <p class="restaurant-content">
-                <?= htmlspecialchars($item->content) ?>
+                <?= htmlspecialchars($item->content ?? '') ?>
             </p>
 
         <?php endforeach; ?>
