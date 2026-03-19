@@ -42,8 +42,9 @@ $renderBlockRichText = static function (?string $html): string {
                             <div class="explore-subtitle"><?= $renderBlockRichText($item->subTitle ?? null) ?></div>
                         <?php endif; ?>
                         <div class="explore-text"><?= $renderBlockRichText($item->content ?? null) ?></div>
-                        <?php if (trim((string)($item->url ?? '')) !== ''): ?>
-                            <a href="<?= htmlspecialchars((string)($item->url ?? '')) ?>" class="explore-btn">Explore</a>
+                        <?php $itemUrl = $resolveStoryUrl($item->url ?? ''); ?>
+                        <?php if ($itemUrl !== ''): ?>
+                            <a href="<?= htmlspecialchars($itemUrl) ?>" class="explore-btn">Explore</a>
                         <?php endif; ?>
                     </div>
                 </div>

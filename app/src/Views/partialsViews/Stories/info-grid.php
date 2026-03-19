@@ -13,6 +13,25 @@ $renderBlockRichText = static function (?string $html): string {
     $value = trim((string)($html ?? ''));
     return $value === '' ? '' : $value;
 };
+
+$resolveStoryUrl = static function (?string $url): string {
+    $value = trim((string)($url ?? ''));
+    if ($value === '') {
+        return '';
+    }
+
+    if (
+        preg_match('#^(?:https?:)?//#i', $value) === 1
+        || str_starts_with($value, '/')
+        || str_starts_with($value, '#')
+        || str_starts_with($value, 'mailto:')
+        || str_starts_with($value, 'tel:')
+    ) {
+        return $value;
+    }
+
+    return '/stories/' . ltrim($value, '/');
+};
 ?>
 <section class="section-wrapper">
     <h2 class="main-grid-title"><?= $renderInlineRichText($section->title ?? null) ?></h2>
@@ -29,8 +48,9 @@ $renderBlockRichText = static function (?string $html): string {
                     <div class="item-content">
                         <?= $renderBlockRichText($item->content ?? null) ?>
                     </div>
-                    <?php if (trim((string)($item->url ?? '')) !== ''): ?>
-                        <a href="<?= htmlspecialchars((string)($item->url ?? '')) ?>" class="view-profile-btn">View Profile</a>
+                    <?php $itemUrl = $resolveStoryUrl($item->url ?? ''); ?>
+                    <?php if ($itemUrl !== ''): ?>
+                        <a href="<?= htmlspecialchars($itemUrl) ?>" class="view-profile-btn">View Profile</a>
                     <?php endif; ?>
                 </div>
             </div>
