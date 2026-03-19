@@ -96,6 +96,7 @@ $storyDetailPages = is_array($storyDetailPages ?? null) ? $storyDetailPages : []
                         <span class="badge text-bg-success">Live</span>
                     </div>
                     <div class="mb-3">
+                        <a href="/cms/events/stories/schedule" class="btn btn-outline-primary">Edit Schedule</a>
                         <a href="/cms/events/stories-home" class="btn btn-primary">Edit Stories Home</a>
                     </div>
                     <p class="mb-1">Sub Pages:</p>

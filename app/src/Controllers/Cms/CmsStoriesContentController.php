@@ -33,7 +33,8 @@ class CmsStoriesContentController extends BaseController
             return;
         }
 
-        $this->render('cms/events/stories-home', [
+        $this->renderCms('cms/events/stories-home', [
+            'title' => 'Stories Home Content',
             'pageTitle' => $page->title,
             'hero' => $page->getSection('hero'),
             'grid' => $page->getSection('grid'),
@@ -41,6 +42,7 @@ class CmsStoriesContentController extends BaseController
             'schedule' => $page->getSection('schedule'),
             'explore' => $page->getSection('explore'),
             'faq' => $page->getSection('faq'),
+            'success' => isset($_GET['saved']),
         ]);
     }
 
@@ -79,14 +81,17 @@ class CmsStoriesContentController extends BaseController
             return;
         }
 
-        $this->render('cms/events/stories-details', [
+        $this->renderCms('cms/events/stories-details', [
+            'title' => 'Stories Detail Content',
             'pageTitle' => $page->title,
             'pageId' => $pageId,
+            'publicPath' => '/stories/' . ltrim((string)$page->slug, '/'),
             'hero' => $page->getSection('hero'),
             'about' => $page->getSection('about'),
             'gallery' => $page->getSection('gallery'),
             'featured' => $page->getSection('featured'),
             'booking' => $page->getSection('booking'),
+            'success' => isset($_GET['saved']),
         ]);
     }
 

@@ -36,7 +36,8 @@ $renderBlockRichText = static function (?string $html): string {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= htmlspecialchars((string)($pageTitle ?? 'Stories')) ?></title>
-    <link href="/css/Stories/index.css" rel="stylesheet">
+    <?php $storiesCssVersion = @filemtime(__DIR__ . '/../../../public/css/Stories/index.css') ?: time(); ?>
+    <link href="/css/Stories/index.css?v=<?= (int)$storiesCssVersion ?>" rel="stylesheet">
     <style>
         .stories-detail-shell { max-width: 1120px; margin: 0 auto; padding: 48px 24px 80px; color: #fff; }
         .stories-detail-hero { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 32px; align-items: stretch; margin-bottom: 48px; }

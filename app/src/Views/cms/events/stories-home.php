@@ -9,9 +9,12 @@ $faqItems = $faq?->items ?? [];
 
 <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
 
-<div class="container py-4">
+<div class="container-lg py-4 py-md-5">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1 class="h3 mb-0">Stories Home Content</h1>
+        <div>
+            <h1 class="h3 mb-1">Stories Home Content</h1>
+            <p class="text-muted mb-0">Public page: <a href="/stories" target="_blank" rel="noreferrer">/stories</a></p>
+        </div>
         <a href="/cms/events" class="btn btn-outline-secondary">Back to Events</a>
     </div>
 
@@ -20,8 +23,8 @@ $faqItems = $faq?->items ?? [];
     include __DIR__ . '/../../partialsViews/cms/form-feedback.php';
     ?>
 
-    <form method="POST" action="/cms/events/stories-home" class="card" data-quill-form="1">
-        <div class="card-body">
+    <form method="POST" action="/cms/events/stories-home" class="card border-0 shadow-sm" data-quill-form="1">
+        <div class="card-body p-4">
             <h2 class="h4">Hero</h2>
             <div class="mb-3">
                 <label for="hero_title" class="form-label">Title</label>
@@ -221,7 +224,9 @@ $faqItems = $faq?->items ?? [];
                 </div>
             <?php endforeach; ?>
 
-            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+        <div class="card-footer d-flex justify-content-end">
+            <button type="submit" class="btn btn-primary">Save Content</button>
         </div>
     </form>
 </div>

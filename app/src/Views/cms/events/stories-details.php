@@ -14,9 +14,14 @@ $bookingTagItems = $booking?->getItemsByCategorie('tag') ?? [];
 
 <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
 
-<div class="container py-4">
+<div class="container-lg py-4 py-md-5">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1 class="h3 mb-0">Stories Detail Content</h1>
+        <div>
+            <h1 class="h3 mb-1"><?= htmlspecialchars((string)($pageTitle ?? 'Stories Detail Content')) ?></h1>
+            <?php if (trim((string)($publicPath ?? '')) !== ''): ?>
+                <p class="text-muted mb-0">Public page: <a href="<?= htmlspecialchars((string)$publicPath) ?>" target="_blank" rel="noreferrer"><?= htmlspecialchars((string)$publicPath) ?></a></p>
+            <?php endif; ?>
+        </div>
         <a href="/cms/events" class="btn btn-outline-secondary">Back to Events</a>
     </div>
 
@@ -25,8 +30,8 @@ $bookingTagItems = $booking?->getItemsByCategorie('tag') ?? [];
     include __DIR__ . '/../../partialsViews/cms/form-feedback.php';
     ?>
 
-    <form method="POST" action="/cms/events/stories-details" class="card" data-quill-form="1">
-        <div class="card-body">
+    <form method="POST" action="/cms/events/stories-details" class="card border-0 shadow-sm" data-quill-form="1">
+        <div class="card-body p-4">
             <input type="hidden" name="page_id" value="<?= (int)($pageId ?? 0) ?>">
 
             <h2 class="h4">Hero</h2>
@@ -175,7 +180,9 @@ $bookingTagItems = $booking?->getItemsByCategorie('tag') ?? [];
                 <?php endforeach; ?>
             <?php endforeach; ?>
 
-            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+        <div class="card-footer d-flex justify-content-end">
+            <button type="submit" class="btn btn-primary">Save Content</button>
         </div>
     </form>
 </div>

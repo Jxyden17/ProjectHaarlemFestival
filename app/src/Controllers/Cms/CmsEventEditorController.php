@@ -25,8 +25,12 @@ class CmsEventEditorController extends BaseController
         $eventName = $this->resolveEventName($vars);
         $eventSlug = $this->toEventSlug($eventName);
         $editorViewModel = $this->cmsEventEditorService->getEditorData($eventName);
-        $this->renderCms('cms/events/dance-schedule', [
-            'title' => $eventName . ' Schedule',
+        $view = $eventName === 'TellingStory' ? 'cms/events/stories-schedule' : 'cms/events/dance-schedule';
+        $title = $eventName === 'TellingStory' ? 'Stories Schedule' : $eventName . ' Schedule';
+
+        $this->renderCms($view, [
+            'title' => $title,
+            'eventName' => $eventName,
             'editorViewModel' => $editorViewModel,
             'formAction' => '/cms/events/' . $eventSlug . '/schedule',
             'success' => isset($_GET['saved']),
@@ -54,9 +58,12 @@ class CmsEventEditorController extends BaseController
                 $request->performers(),
                 $request->sessions()
             );
+            $view = $eventName === 'TellingStory' ? 'cms/events/stories-schedule' : 'cms/events/dance-schedule';
+            $title = $eventName === 'TellingStory' ? 'Stories Schedule' : $eventName . ' Schedule';
 
-            $this->renderCms('cms/events/dance-schedule', [
-                'title' => $eventName . ' Schedule',
+            $this->renderCms($view, [
+                'title' => $title,
+                'eventName' => $eventName,
                 'editorViewModel' => $editorViewModel,
                 'formAction' => '/cms/events/' . $eventSlug . '/schedule',
                 'error' => $e->getMessage(),
@@ -72,8 +79,13 @@ class CmsEventEditorController extends BaseController
             throw new \InvalidArgumentException('Event slug is required.');
         }
 
-        $name = str_replace('-', ' ', strtolower($slug));
-        return ucwords($name);
+        $normalizedSlug = strtolower(str_replace(' ', '-', $slug));
+
+        return match ($normalizedSlug) {
+            'stories', 'tellingstory', 'telling-story' => 'TellingStory',
+            'tour', 'a-stroll-through-history' => 'A Stroll Through History',
+            default => ucwords(str_replace('-', ' ', $normalizedSlug)),
+        };
     }
 
     private function toEventSlug(string $eventName): string
