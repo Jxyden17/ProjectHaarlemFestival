@@ -3,17 +3,17 @@
 namespace App\Models\Dance;
 
 use App\Models\Page\Page;
-use App\Models\ViewModels\Shared\ScheduleViewModel;
+use App\Models\Schedule\ScheduleData;
 
 class DanceIndexData
 {
     public Page $homePage;
-    public ScheduleViewModel $schedule;
+    public ScheduleData $schedule;
     public array $performers;
     public array $detailPages;
     public array $venues;
 
-    public function __construct(Page $homePage, ScheduleViewModel $schedule, array $performers, array $detailPages, array $venues)
+    public function __construct(Page $homePage, ScheduleData $schedule, array $performers, array $detailPages, array $venues)
     {
         $this->homePage = $homePage;
         $this->schedule = $schedule;

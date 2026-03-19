@@ -7,8 +7,8 @@ use App\Models\Dance\DanceIndexData;
 use App\Models\Event\EventDetailPageModel;
 use App\Models\Event\EventModel;
 use App\Models\Page\Page;
+use App\Models\Schedule\ScheduleData;
 use App\Repository\Interfaces\IDanceRepository;
-use App\Repository\Interfaces\IScheduleRepository;
 use App\Service\Interfaces\IDanceService;
 use App\Service\Interfaces\IPageService;
 use App\Service\Interfaces\IScheduleService;
@@ -18,14 +18,12 @@ class DanceService implements IDanceService
     private const DANCE_EVENT_NAME = 'Dance';
 
     private IDanceRepository $danceRepository;
-    private IScheduleRepository $scheduleRepository;
     private IPageService $pageService;
     private IScheduleService $scheduleService;
 
-    public function __construct(IDanceRepository $danceRepository, IScheduleRepository $scheduleRepository, IPageService $pageService, IScheduleService $scheduleService)
+    public function __construct(IDanceRepository $danceRepository, IPageService $pageService, IScheduleService $scheduleService)
     {
         $this->danceRepository = $danceRepository;
-        $this->scheduleRepository = $scheduleRepository;
         $this->pageService = $pageService;
         $this->scheduleService = $scheduleService;
     }
@@ -33,23 +31,32 @@ class DanceService implements IDanceService
     public function getDanceIndexData(): DanceIndexData
     {
         $homePage = $this->getDanceHomePage();
-        $event = $this->getDanceEvent();
-        $performers = [];
-        $detailPages = [];
-        $venues = [];
+        $scheduleTitle = $this->resolveScheduleTitle($homePage);
+        $resources = $this->scheduleService->getEventResources(self::DANCE_EVENT_NAME, $scheduleTitle);
 
-        if ($event instanceof EventModel) {
-            $performers = $this->scheduleRepository->getPerformersByEventId($event->id);
-            $detailPages = $this->danceRepository->getDetailPagesByEventId($event->id);
-            $venues = $this->scheduleRepository->getVenuesByEventId($event->id);
+        if (!is_array($resources)) {
+            return new DanceIndexData(
+                $homePage,
+                new ScheduleData($scheduleTitle, self::DANCE_EVENT_NAME, [], false),
+                [],
+                [],
+                []
+            );
         }
+
+        $event = $resources['event'] ?? null;
+        $schedule = $resources['schedule'] instanceof ScheduleData
+            ? $resources['schedule']
+            : new ScheduleData($scheduleTitle, self::DANCE_EVENT_NAME, [], false);
+        $performers = is_array($resources['performers'] ?? null) ? $resources['performers'] : [];
+        $venues = is_array($resources['venues'] ?? null) ? $resources['venues'] : [];
+        $detailPages = $event instanceof EventModel
+            ? $this->danceRepository->getDetailPagesByEventId($event->id)
+            : [];
 
         return new DanceIndexData(
             $homePage,
-            $this->scheduleService->getScheduleDataForEvent(
-                self::DANCE_EVENT_NAME,
-                $this->resolveScheduleTitle($homePage)
-            ),
+            $schedule,
             $performers,
             $detailPages,
             $venues
@@ -63,7 +70,7 @@ class DanceService implements IDanceService
             $detailMeta,
             $detailMeta->performerId === null
                 ? []
-                : $this->scheduleService->getScheduleRowsByPerformerId(self::DANCE_EVENT_NAME, $detailMeta->performerId)
+                : $this->scheduleService->getScheduleSessionsByPerformerId(self::DANCE_EVENT_NAME, $detailMeta->performerId)
         );
     }
 
@@ -94,7 +101,7 @@ class DanceService implements IDanceService
 
     private function getDanceEvent(): ?EventModel
     {
-        return $this->scheduleRepository->findEventByName(self::DANCE_EVENT_NAME);
+        return $this->scheduleService->findEventByName(self::DANCE_EVENT_NAME);
     }
 
     private function resolveScheduleTitle(Page $homePage): string

@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Mapper\DanceViewModelMapper;
+use App\Mapper\ScheduleViewModelMapper;
 use App\Models\Event\EventDetailPageModel;
 use App\Service\Interfaces\IDanceService;
 
@@ -10,17 +11,25 @@ class DanceController extends BaseController
 {
     private IDanceService $danceService;
     private DanceViewModelMapper $danceViewModelMapper;
+    private ScheduleViewModelMapper $scheduleViewModelMapper;
 
-    public function __construct(IDanceService $danceService, DanceViewModelMapper $danceViewModelMapper)
+    public function __construct(
+        IDanceService $danceService,
+        DanceViewModelMapper $danceViewModelMapper,
+        ScheduleViewModelMapper $scheduleViewModelMapper
+    )
     {
         $this->danceService = $danceService;
         $this->danceViewModelMapper = $danceViewModelMapper;
+        $this->scheduleViewModelMapper = $scheduleViewModelMapper;
     }
 
     public function index(): void
     {
+        $danceIndexData = $this->danceService->getDanceIndexData();
         $danceIndexViewModel = $this->danceViewModelMapper->buildIndexViewModel(
-            $this->danceService->getDanceIndexData()
+            $danceIndexData,
+            $this->scheduleViewModelMapper->mapScheduleData($danceIndexData->schedule)
         );
 
         $this->render('dance/index', [
@@ -40,8 +49,10 @@ class DanceController extends BaseController
             return;
         }
 
+        $detailData = $this->danceService->getDanceDetailData($detailMeta);
         $detailViewModel = $this->danceViewModelMapper->buildDetailViewModel(
-            $this->danceService->getDanceDetailData($detailMeta)
+            $detailData,
+            $this->scheduleViewModelMapper->mapScheduleRows($detailData->scheduleSessions)
         );
 
         $this->render('dance/detail', [

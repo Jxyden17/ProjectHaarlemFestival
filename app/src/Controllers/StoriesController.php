@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Mapper\ScheduleViewModelMapper;
 use App\Service\Interfaces\IPageService;
 use App\Service\Interfaces\IScheduleService;
 
@@ -9,11 +10,17 @@ class StoriesController extends BaseController
 {
     private IPageService $pageService;
     private IScheduleService $scheduleService;
+    private ScheduleViewModelMapper $scheduleViewModelMapper;
 
-    public function __construct(IPageService $pageService, IScheduleService $scheduleService) 
+    public function __construct(
+        IPageService $pageService,
+        IScheduleService $scheduleService,
+        ScheduleViewModelMapper $scheduleViewModelMapper
+    ) 
     {
         $this->pageService = $pageService;
         $this->scheduleService = $scheduleService;
+        $this->scheduleViewModelMapper = $scheduleViewModelMapper;
     }
 
     public function index(): void
@@ -30,7 +37,9 @@ class StoriesController extends BaseController
             return;
         }
 
-        $scheduleViewModel = $this->scheduleService->getScheduleDataForEvent('tellingstory', 'Stories Schedule');
+        $scheduleViewModel = $this->scheduleViewModelMapper->mapScheduleData(
+            $this->scheduleService->getScheduleDataForEvent('tellingstory', 'Stories Schedule')
+        );
 
         $viewData = [
             'pageTitle' => $page->title,

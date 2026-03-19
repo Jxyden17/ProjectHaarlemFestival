@@ -2,18 +2,23 @@
 
 namespace App\Service\Interfaces;
 
+use App\Models\Event\EventModel;
+use App\Models\Schedule\ScheduleData;
 use App\Models\ViewModels\Cms\Schedule\ScheduleEditorViewModel;
-use App\Models\ViewModels\Shared\ScheduleViewModel;
 
 interface IScheduleService
 {
-    public function getScheduleDataForEvent(string $eventName, string $title): ScheduleViewModel;
+    public function getScheduleDataForEvent(string $eventName, string $title): ScheduleData;
 
-    public function getScheduleDataForAllEvents(string $title): ScheduleViewModel;
+    public function getScheduleDataForAllEvents(string $title): ScheduleData;
 
-    public function getScheduleRowsByPerformerName(string $eventName, string $performerName): array;
+    public function getEventResources(string $eventName, string $title): ?array;
 
-    public function getScheduleRowsByPerformerId(string $eventName, int $performerId): array;
+    public function getScheduleSessionsByPerformerName(string $eventName, string $performerName): array;
+
+    public function getScheduleSessionsByPerformerId(string $eventName, int $performerId): array;
+
+    public function findEventByName(string $eventName): ?EventModel;
 
     public function getScheduleEditorData(string $eventName): ScheduleEditorViewModel;
 }

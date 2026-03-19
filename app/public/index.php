@@ -24,25 +24,26 @@ try {
     $danceMapper = new App\Mapper\DanceMapper($eventMapper);
     $pageMapper = new App\Mapper\PageMapper();
     $scheduleMapper = new App\Mapper\ScheduleMapper($eventMapper);
+    $scheduleViewModelMapper = new App\Mapper\ScheduleViewModelMapper();
 
     $userRepo = new App\Repository\UserRepository();
     $passwordResetRepo = new App\Repository\PasswordResetRepository();
     $scheduleRepo = new App\Repository\ScheduleRepository($scheduleMapper);
     $danceRepo = new App\Repository\DanceRepository($danceMapper);
     $mediaRepo = new App\Repository\MediaRepository();
-    $pageRepo = new App\Repository\PageRepository();
+    $pageRepo = new App\Repository\PageRepository($pageMapper);
     $jazzRepo = new App\Repository\JazzRepository();
     $yummyRepo = new App\Repository\YummyRepository();
 
     $mailConfig = App\Models\MailConfig::fromEnvironment();
-    $pageService = new App\Service\PageService($pageRepo, $pageMapper);
+    $pageService = new App\Service\PageService($pageRepo);
     $cmsPageSaveService = new App\Service\Cms\CmsPageSaveService($pageRepo);
     $mailService = new App\Service\MailService($mailConfig);
     $htmlSanitizerService = new App\Service\HtmlSanitizerService();
     $cmsDanceValidator = new App\Validator\CmsDanceValidator();
     $cmsScheduleValidator = new App\Validator\CmsScheduleValidator();
     $scheduleService = new App\Service\ScheduleService($scheduleRepo, $scheduleMapper);
-    $danceService = new App\Service\DanceService($danceRepo, $scheduleRepo, $pageService, $scheduleService);
+    $danceService = new App\Service\DanceService($danceRepo, $pageService, $scheduleService);
     $danceViewModelMapper = new App\Mapper\DanceViewModelMapper();
     $imageUploadService = new App\Service\ImageUploadService($mediaRepo, $danceRepo);
     $audioUploadService = new App\Service\AudioUploadService($mediaRepo, $danceRepo);
@@ -71,18 +72,17 @@ try {
     );
 
     $authController = new App\Controllers\AuthController($authService);
-    $homeController = new App\Controllers\HomeController($pageService, $scheduleService);
-    $danceController = new App\Controllers\DanceController($danceService, $danceViewModelMapper);
-    $tourController = new App\Controllers\TourController($pageService, $scheduleService);
-    $jazzController = new App\Controllers\JazzController($scheduleService, $jazzService);
+    $homeController = new App\Controllers\HomeController($pageService, $scheduleService, $scheduleViewModelMapper);
+    $danceController = new App\Controllers\DanceController($danceService, $danceViewModelMapper, $scheduleViewModelMapper);
+    $tourController = new App\Controllers\TourController($pageService, $scheduleService, $scheduleViewModelMapper);
+    $jazzController = new App\Controllers\JazzController($scheduleService, $jazzService, $scheduleViewModelMapper);
     $yummyController = new App\Controllers\YummyController($yummyService);
 
     $cmsController = new App\Controllers\Cms\CmsController($cmsService);
     $cmsEventsController = new App\Controllers\Cms\CmsEventsController($cmsService, $danceService);
     $cmsTicketsController = new App\Controllers\Cms\CmsTicketsController($cmsService);
     $cmsUsersController = new App\Controllers\Cms\CmsUsersController($cmsService);
-    $jazzController = new App\Controllers\JazzController($scheduleService, $jazzService);
-    $storiesController = new App\Controllers\StoriesController($pageService, $scheduleService);
+    $storiesController = new App\Controllers\StoriesController($pageService, $scheduleService, $scheduleViewModelMapper);
     $cmsDanceController = new App\Controllers\Cms\CmsDanceController($cmsDanceService, $cmsDanceViewModelMapper);
     $cmsEventEditorController = new App\Controllers\Cms\CmsEventEditorController($cmsScheduleService, $cmsEventEditorService);
     $cmsMediaController = new App\Controllers\Cms\CmsMediaController($imageUploadService, $audioUploadService);

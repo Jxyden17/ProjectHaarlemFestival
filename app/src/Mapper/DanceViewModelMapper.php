@@ -10,6 +10,7 @@ use App\Models\Page\Section;
 use App\Models\Page\SectionItem;
 use App\Models\ViewModels\Dance\DanceDetailViewModel;
 use App\Models\ViewModels\Dance\DanceIndexViewModel;
+use App\Models\ViewModels\Shared\ScheduleRowViewModel;
 use App\Models\ViewModels\Shared\ScheduleViewModel;
 
 class DanceViewModelMapper
@@ -30,10 +31,9 @@ class DanceViewModelMapper
     private const ITEM_CATEGORY_HIGHLIGHT = 'highlight';
     private const ITEM_CATEGORY_TRACK = 'track';
 
-    public function buildIndexViewModel(DanceIndexData $indexData): DanceIndexViewModel
+    public function buildIndexViewModel(DanceIndexData $indexData, ScheduleViewModel $schedule): DanceIndexViewModel
     {
         $homePage = $indexData->homePage;
-        $schedule = $indexData->schedule;
         $bannerSection = $homePage->getSection(self::INDEX_SECTION_BANNER);
         $featuredArtistsSection = $homePage->getSection(self::INDEX_SECTION_ARTISTS);
         $infoSection = $homePage->getSection(self::INDEX_SECTION_INFO);
@@ -65,7 +65,7 @@ class DanceViewModelMapper
         );
     }
 
-    public function buildDetailViewModel(DanceDetailData $detailData): DanceDetailViewModel
+    public function buildDetailViewModel(DanceDetailData $detailData, array $scheduleRows): DanceDetailViewModel
     {
         $contentPage = $detailData->contentPage;
         $heroSection = $contentPage->getSection(self::DETAIL_SECTION_HERO);
@@ -86,7 +86,7 @@ class DanceViewModelMapper
             $tracksSection?->description,
             $this->buildTrackItems($tracksSection),
             '',
-            $detailData->scheduleRows,
+            array_values(array_filter($scheduleRows, static fn($row) => $row instanceof ScheduleRowViewModel)),
             $infoSection?->title,
             $infoSection?->description
         );

@@ -6,10 +6,9 @@ use App\Mapper\ScheduleMapper;
 use App\Models\Event\EventModel;
 use App\Models\Event\SessionModel;
 use App\Models\Event\SessionPerformerModel;
+use App\Models\Event\PerformerModel;
+use App\Models\Schedule\ScheduleData;
 use App\Models\ViewModels\Cms\Schedule\ScheduleEditorViewModel;
-use App\Models\ViewModels\Shared\ScheduleGroupViewModel;
-use App\Models\ViewModels\Shared\ScheduleRowViewModel;
-use App\Models\ViewModels\Shared\ScheduleViewModel;
 use App\Repository\Interfaces\IScheduleRepository;
 use App\Service\Interfaces\IScheduleService;
 
@@ -24,14 +23,14 @@ class ScheduleService implements IScheduleService
         $this->scheduleMapper = $scheduleMapper;
     }
 
-    public function getScheduleDataForEvent(string $eventName, string $title): ScheduleViewModel
+    public function getScheduleDataForEvent(string $eventName, string $title): ScheduleData
     {
         $event = $this->getEventRowsOrFail($eventName);
 
-        return $this->scheduleMapper->mapScheduleViewModel($event->sessions, $title, $event->name, false);
+        return new ScheduleData($title, $event->name, $event->sessions, false);
     }
 
-    public function getScheduleDataForAllEvents(string $title): ScheduleViewModel
+    public function getScheduleDataForAllEvents(string $title): ScheduleData
     {
         $events = $this->scheduleRepo->getAllEvents();
         $allSessions = [];
@@ -53,42 +52,66 @@ class ScheduleService implements IScheduleService
             }
         }
 
-        return $this->scheduleMapper->mapScheduleViewModel($allSessions, $title, 'All Events', true);
+        return new ScheduleData($title, 'All Events', $allSessions, true);
     }
 
-    public function getScheduleRowsByPerformerName(string $eventName, string $performerName): array
+    public function getEventResources(string $eventName, string $title): ?array
+    {
+        $event = $this->scheduleRepo->findEventByName($eventName);
+        if ($event === null) {
+            return null;
+        }
+
+        $performers = $this->scheduleRepo->getPerformersByEventId((int) $event->id);
+        $venues = $this->scheduleRepo->getVenuesByEventId((int) $event->id);
+        $fullEvent = $this->mapEventRows($event);
+
+        return [
+            'event' => $event,
+            'schedule' => new ScheduleData($title, $event->name, $fullEvent->sessions, false),
+            'performers' => $performers,
+            'venues' => $venues,
+        ];
+    }
+
+    public function getScheduleSessionsByPerformerName(string $eventName, string $performerName): array
     {
         $performer = trim((string) $performerName);
         if ($performer === '') {
             return [];
         }
 
-        $title = $eventName . ' Festival Schedule';
-        $scheduleData = $this->getScheduleDataForEvent($eventName, $title);
-        $matchingRows = [];
+        $event = $this->getEventRowsOrFail($eventName);
+        $matchingSessions = [];
 
-        foreach ($scheduleData->groups as $group) {
-            if (!$group instanceof ScheduleGroupViewModel) {
+        foreach ($event->sessions as $session) {
+            if (!$session instanceof SessionModel) {
                 continue;
             }
 
-            foreach ($group->rows as $row) {
-                if (!$row instanceof ScheduleRowViewModel) {
+            foreach ($session->sessionPerformers as $sessionPerformer) {
+                if (!$sessionPerformer instanceof SessionPerformerModel) {
                     continue;
                 }
 
-                if (stripos($row->event, $performer) === false) {
+                $performerModel = $sessionPerformer->performer;
+                if (!$performerModel instanceof PerformerModel) {
                     continue;
                 }
 
-                $matchingRows[] = $row;
+                if (stripos($performerModel->performerName, $performer) === false) {
+                    continue;
+                }
+
+                $matchingSessions[] = $session;
+                break;
             }
         }
 
-        return $matchingRows;
+        return $matchingSessions;
     }
 
-    public function getScheduleRowsByPerformerId(string $eventName, int $performerId): array
+    public function getScheduleSessionsByPerformerId(string $eventName, int $performerId): array
     {
         if ($performerId <= 0) {
             return [];
@@ -100,7 +123,7 @@ class ScheduleService implements IScheduleService
         }
 
         $event = $this->scheduleMapper->mapEventRowsToEvent($rows, $eventName);
-        $matchingRows = [];
+        $matchingSessions = [];
 
         foreach ($event->sessions as $session) {
             if (!$session instanceof SessionModel) {
@@ -116,12 +139,17 @@ class ScheduleService implements IScheduleService
                     continue;
                 }
 
-                $matchingRows[] = $this->scheduleMapper->mapScheduleRow($session, new \DateTime($session->date));
+                $matchingSessions[] = $session;
                 break;
             }
         }
 
-        return $matchingRows;
+        return $matchingSessions;
+    }
+
+    public function findEventByName(string $eventName): ?EventModel
+    {
+        return $this->scheduleRepo->findEventByName($eventName);
     }
 
     public function getScheduleEditorData(string $eventName): ScheduleEditorViewModel

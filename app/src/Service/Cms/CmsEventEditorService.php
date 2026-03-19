@@ -99,18 +99,24 @@ class CmsEventEditorService implements ICmsEventEditorService
     private function loadExistingItemMetadata(int $pageId): array
     {
         $metadata = [];
+        $page = $this->pageRepository->findPageById($pageId);
+        if ($page === null) {
+            return $metadata;
+        }
 
-        foreach ($this->pageRepository->findPageRowsById($pageId) as $row) {
-            $itemId = (int) ($row['item_id'] ?? 0);
-            if ($itemId <= 0) {
-                continue;
+        foreach ($page->sections as $section) {
+            foreach ($section->items as $item) {
+                $itemId = (int) ($item->id ?? 0);
+                if ($itemId <= 0) {
+                    continue;
+                }
+
+                $metadata[$itemId] = [
+                    'item_category' => (string) ($item->category ?? ''),
+                    'image_path' => isset($item->image) ? (string) $item->image : null,
+                    'order_index' => (int) ($item->position ?? 0),
+                ];
             }
-
-            $metadata[$itemId] = [
-                'item_category' => (string) ($row['item_category'] ?? ''),
-                'image_path' => isset($row['image_path']) ? (string) $row['image_path'] : null,
-                'order_index' => (int) ($row['item_order_index'] ?? 0),
-            ];
         }
 
         return $metadata;

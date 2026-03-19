@@ -9,12 +9,12 @@ class DanceDetailData
 {
     public Page $contentPage;
     public EventDetailPageModel $detailMeta;
-    public array $scheduleRows;
+    public array $scheduleSessions;
 
-    public function __construct(Page $contentPage, EventDetailPageModel $detailMeta, array $scheduleRows)
+    public function __construct(Page $contentPage, EventDetailPageModel $detailMeta, array $scheduleSessions)
     {
         $this->contentPage = $contentPage;
         $this->detailMeta = $detailMeta;
-        $this->scheduleRows = $scheduleRows;
+        $this->scheduleSessions = $scheduleSessions;
     }
 }
