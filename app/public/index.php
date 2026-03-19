@@ -45,13 +45,13 @@ try {
     $scheduleService = new App\Service\ScheduleService($scheduleRepo, $scheduleMapper);
     $danceService = new App\Service\DanceService($danceRepo, $pageService, $scheduleService);
     $danceViewModelMapper = new App\Mapper\DanceViewModelMapper();
-    $imageUploadService = new App\Service\ImageUploadService($mediaRepo, $danceRepo);
-    $audioUploadService = new App\Service\AudioUploadService($mediaRepo, $danceRepo);
+    $imageUploadService = new App\Service\ImageUploadService($mediaRepo, $danceService);
+    $audioUploadService = new App\Service\AudioUploadService($mediaRepo, $danceService);
     $yummyService = new App\Service\YummyService($yummyRepo);
     $jazzService = new App\Service\JazzService($jazzRepo, $scheduleRepo);
     $authService = new App\Service\AuthService($userRepo, $passwordResetRepo, $mailService);
 
-    $cmsScheduleMapper = new App\Mapper\CmsScheduleMapper($danceService);
+    $cmsScheduleMapper = new App\Mapper\CmsScheduleMapper();
     $cmsDanceMapper = new App\Mapper\CmsDanceMapper();
     $cmsDanceViewModelMapper = new App\Mapper\CmsDanceViewModelMapper();
     $cmsScheduleService = new App\Service\Cms\CmsScheduleService($scheduleRepo, $cmsScheduleValidator);
@@ -67,8 +67,8 @@ try {
     $cmsEventEditorService = new App\Service\Cms\CmsEventEditorService(
         $scheduleService,
         $cmsScheduleMapper,
-        $pageRepo,
-        $cmsPageSaveService
+        $cmsPageSaveService,
+        $danceService
     );
 
     $authController = new App\Controllers\AuthController($authService);

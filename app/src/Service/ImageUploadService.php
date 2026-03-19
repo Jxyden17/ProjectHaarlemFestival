@@ -3,8 +3,8 @@
 namespace App\Service;
 
 use App\Models\Media\MediaModuleConfig;
-use App\Repository\Interfaces\IDanceRepository;
 use App\Repository\Interfaces\IMediaRepository;
+use App\Service\Interfaces\IDanceService;
 use App\Service\Interfaces\IImageUploadService;
 
 class ImageUploadService extends MediaService implements IImageUploadService
@@ -14,12 +14,12 @@ class ImageUploadService extends MediaService implements IImageUploadService
         'image/png' => 'png',
         'image/webp' => 'webp',
     ];
-    private IDanceRepository $danceRepository;
+    private IDanceService $danceService;
 
-    public function __construct(IMediaRepository $mediaRepository, IDanceRepository $danceRepository)
+    public function __construct(IMediaRepository $mediaRepository, IDanceService $danceService)
     {
         parent::__construct($mediaRepository);
-        $this->danceRepository = $danceRepository;
+        $this->danceService = $danceService;
     }
 
     public function uploadImage(array $post, array $files): array
@@ -93,7 +93,7 @@ class ImageUploadService extends MediaService implements IImageUploadService
                 $matches[1],
                 $matches[2],
                 null,
-                MediaModuleConfig::DATABASE_TARGET_SECTION
+                MediaModuleConfig::MATCH_BY_SECTION
             );
         }
 
@@ -108,14 +108,14 @@ class ImageUploadService extends MediaService implements IImageUploadService
                 'dance-home',
                 'dance_artists',
                 'artist',
-                MediaModuleConfig::DATABASE_TARGET_SECTION_ITEM
+                MediaModuleConfig::MATCH_BY_SECTION_AND_CATEGORY
             ),
             'tour' => new MediaModuleConfig(
                 ['/img/historyIMG/'],
                 'tour-home',
                 'tour_items',
                 'tour',
-                MediaModuleConfig::DATABASE_TARGET_SECTION_ITEM
+                MediaModuleConfig::MATCH_BY_SECTION_AND_CATEGORY
             ),
             default => null,
         };
@@ -133,7 +133,7 @@ class ImageUploadService extends MediaService implements IImageUploadService
 
     private function buildDanceDetailImageModuleConfig(string $pageSlug, string $sectionType, string $itemCategory): ?MediaModuleConfig
     {
-        $detailPage = $this->danceRepository->findDetailPageByPageSlug($pageSlug);
+        $detailPage = $this->danceService->getDanceDetailPageBySlug($pageSlug);
         if ($detailPage === null) {
             return null;
         }
@@ -143,7 +143,7 @@ class ImageUploadService extends MediaService implements IImageUploadService
             $detailPage->pageSlug,
             $sectionType,
             $itemCategory,
-            MediaModuleConfig::DATABASE_TARGET_SECTION_ITEM
+            MediaModuleConfig::MATCH_BY_SECTION_AND_CATEGORY
         );
     }
 
@@ -158,7 +158,7 @@ class ImageUploadService extends MediaService implements IImageUploadService
             return null;
         }
 
-        if ($moduleConfig->targetsSection()) {
+        if ($moduleConfig->matchesBySection()) {
             return $sectionItemId;
         }
 
@@ -190,14 +190,14 @@ class ImageUploadService extends MediaService implements IImageUploadService
             return 'skipped_missing_section_item_id';
         }
 
-        if ($moduleConfig->targetsSection()) {
+        if ($moduleConfig->matchesBySection()) {
             $updated = $this->mediaRepository->updateSectionItemImagePathBySection(
                 $sectionItemId,
                 $publicPath,
                 $moduleConfig->pageSlug,
                 $moduleConfig->sectionType
             );
-        } elseif ($moduleConfig->targetsSectionItem()) {
+        } elseif ($moduleConfig->matchesBySectionAndCategory()) {
             $updated = $this->mediaRepository->updateSectionItemImagePath(
                 $sectionItemId,
                 $publicPath,

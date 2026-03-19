@@ -3,9 +3,9 @@
 namespace App\Service;
 
 use App\Models\Media\MediaModuleConfig;
-use App\Repository\Interfaces\IDanceRepository;
 use App\Repository\Interfaces\IMediaRepository;
 use App\Service\Interfaces\IAudioUploadService;
+use App\Service\Interfaces\IDanceService;
 
 class AudioUploadService extends MediaService implements IAudioUploadService
 {
@@ -20,12 +20,12 @@ class AudioUploadService extends MediaService implements IAudioUploadService
         'audio/x-m4a' => 'm4a',
         'audio/aac' => 'aac',
     ];
-    private IDanceRepository $danceRepository;
+    private IDanceService $danceService;
 
-    public function __construct(IMediaRepository $mediaRepository, IDanceRepository $danceRepository)
+    public function __construct(IMediaRepository $mediaRepository, IDanceService $danceService)
     {
         parent::__construct($mediaRepository);
-        $this->danceRepository = $danceRepository;
+        $this->danceService = $danceService;
     }
 
     public function uploadAudio(array $post, array $files): array
@@ -105,7 +105,7 @@ class AudioUploadService extends MediaService implements IAudioUploadService
 
     private function buildDanceDetailAudioModuleConfig(string $pageSlug): ?MediaModuleConfig
     {
-        $detailPage = $this->danceRepository->findDetailPageByPageSlug($pageSlug);
+        $detailPage = $this->danceService->getDanceDetailPageBySlug($pageSlug);
         if ($detailPage === null) {
             return null;
         }
@@ -115,7 +115,7 @@ class AudioUploadService extends MediaService implements IAudioUploadService
             $detailPage->pageSlug,
             'dance_detail_tracks',
             'track',
-            MediaModuleConfig::DATABASE_TARGET_SECTION_ITEM
+            MediaModuleConfig::MATCH_BY_SECTION_AND_CATEGORY
         );
     }
 
