@@ -90,15 +90,15 @@
 
                     <div class="d-flex flex-wrap gap-2">
 
-                    <a href="/cms/events/yummy-detail/ratatouille"
-                        class="btn btn-outline-primary">
-                        Edit Ratatouille
-                    </a>
+                        <a href="/cms/events/yummy-details/ratatouille"
+                            class="btn btn-outline-primary">
+                            Edit Ratatouille
+                        </a>
 
-                    <a href="/cms/events/yummy-detail/cafederoemer"
-                        class="btn btn-outline-primary">
-                        Edit Cafe De Roemer
-                    </a>
+                        <a href="/cms/events/yummy-details/cafederoemer"
+                            class="btn btn-outline-primary">
+                            Edit Cafe De Roemer
+                        </a>
                 </div>
             </div>
         </div>

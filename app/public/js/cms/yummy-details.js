@@ -1,9 +1,9 @@
-const yummyDetailForm = document.querySelector('form[action="/cms/events/yummy-Detail"]');
+const yummyDetailsForm = document.querySelector('form[action="/cms/events/yummy-details"]');
 const editors = [];
 
 function initYummyEditors() {
 
-    if (!yummyDetailForm || typeof Quill === "undefined") {
+    if (!yummyDetailsForm || typeof Quill === "undefined") {
         return;
     }
 
@@ -15,7 +15,7 @@ function initYummyEditors() {
         ["clean"]
     ];
 
-    const fields = yummyDetailForm.querySelectorAll('textarea[data-editor="rich"]');
+    const fields = yummyDetailsForm.querySelectorAll('textarea[data-editor="rich"]');
 
     fields.forEach(field => {
 
@@ -37,7 +37,7 @@ function initYummyEditors() {
         editors.push({ field, editor });
     });
 
-    yummyDetailForm.addEventListener("submit", (e) => {
+    yummyDetailsForm.addEventListener("submit", (e) => {
         e.preventDefault();
 
         editors.forEach(entry => {
@@ -45,7 +45,7 @@ function initYummyEditors() {
             entry.field.value = empty ? "" : entry.editor.root.innerHTML;
         });
 
-        yummyDetailForm.submit();
+        yummyDetailsForm.submit();
     });
 }
 

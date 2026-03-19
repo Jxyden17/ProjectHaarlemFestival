@@ -12,7 +12,7 @@ $contactItems = $contactSection?->items ?? [];
         <a href="/cms/events" class="btn btn-outline-secondary"><- Back to Events</a>
     </div>
 
-    <form method="POST" action="/cms/events/yummy-detail/<?= htmlspecialchars($page->slug) ?>" class="card">
+    <form method="POST" action="/cms/events/yummy-details/<?= htmlspecialchars($page->slug) ?>" class="card">
         
         <section class="mb-5">
             <h2>Hero Banner</h2>
@@ -159,5 +159,5 @@ $contactItems = $contactSection?->items ?? [];
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
-<?php $yummyDetailJsVersion = @filemtime(__DIR__ . '/../../../../public/js/cms/yummy-detail.js') ?: time(); ?>
-<script src="/js/cms/yummy-detail.js?v=<?= (int)$yummyDetailJsVersion ?>"></script>
+<?php $yummyDetailJsVersion = @filemtime(__DIR__ . '/../../../../public/js/cms/yummy-details.js') ?: time(); ?>
+<script src="/js/cms/yummy-details.js?v=<?= (int)$yummyDetailJsVersion ?>"></script>

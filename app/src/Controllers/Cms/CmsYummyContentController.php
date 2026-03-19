@@ -44,21 +44,14 @@ class CmsYummyContentController extends BaseController
         $sections = $_POST['sections'] ?? [];
         $items = $_POST['items'] ?? [];
 
-        try {
+        $this->cmsYummyService->saveYummyContent(
+            'yummy',
+            $sections,
+            $items
+        );
 
-            $this->cmsYummyService->saveYummyContent(
-                $sections,
-                $items
-            );
-
-            header('Location: /cms/events/yummy-home?saved=1');
-            exit;
-
-        } catch (\Throwable $e) {
-
-            $_SESSION['cms_error'] = $e->getMessage();
-            header('Location: /cms/events/yummy-home');
-        }
+        header('Location: /cms/events/yummy-home?saved=1');
+        exit;
     }
 
     public function detail(array $vars = []): void
@@ -78,7 +71,7 @@ class CmsYummyContentController extends BaseController
         $introSection = $page->getSection('restaurant_concept');
         $contactSection = $page->getSection('restaurant_contact');
 
-        $this->render('cms/events/yummy-detail', [
+        $this->render('cms/events/yummy-details', [
             'page' => $page,
             'heroSection' => $heroSection,
             'introSection' => $introSection,
@@ -101,7 +94,7 @@ class CmsYummyContentController extends BaseController
             $items
         );
 
-        header("Location: /cms/events/yummy-detail/$slug?saved=1");
+        header("Location: /cms/events/yummy-details/$slug?saved=1");
         exit;
     }
 }
