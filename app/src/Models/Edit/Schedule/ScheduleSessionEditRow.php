@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Models\Requests\Cms\Schedule;
+namespace App\Models\Edit\Schedule;
 
-class ScheduleSessionRowRequest
+class ScheduleSessionEditRow
 {
     private int $id;
     private string $date;
@@ -14,17 +14,8 @@ class ScheduleSessionRowRequest
     private int $amountSold;
     private array $performerIds;
 
-    public function __construct(
-        int $id,
-        string $date,
-        string $startTime,
-        int $venueId,
-        string $label,
-        string $price,
-        int $availableSpots,
-        int $amountSold,
-        array $performerIds
-    ) {
+    public function __construct(int $id, string $date, string $startTime, int $venueId, string $label, string $price, int $availableSpots, int $amountSold, array $performerIds)
+    {
         $this->id = $id;
         $this->date = $date;
         $this->startTime = $startTime;

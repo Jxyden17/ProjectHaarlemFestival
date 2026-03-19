@@ -1,19 +1,26 @@
 <?php
-use App\Models\ViewModels\Cms\Dance\DanceDetailContentViewModel;
+use App\Models\ViewModels\Cms\Dance\DanceDetailEditViewModel;
 use App\Models\ViewModels\Cms\Dance\DanceDetailHeroImageRowViewModel;
 use App\Models\ViewModels\Cms\Dance\DanceDetailHighlightRowViewModel;
 use App\Models\ViewModels\Cms\Dance\DanceDetailTrackRowViewModel;
 
-$contentViewModel = (isset($contentViewModel) && $contentViewModel instanceof DanceDetailContentViewModel)
+$contentViewModel = (isset($contentViewModel) && $contentViewModel instanceof DanceDetailEditViewModel)
     ? $contentViewModel
-    : new DanceDetailContentViewModel('', 'Dance Detail Content', '', '', '', '', '', '', [], '', [], '', '', [], '', '');
+    : new DanceDetailEditViewModel('', 'Dance Detail Content', '', '', '', '', '', '', [], '', [], '', '', [], '', '');
+$pageSlug = trim((string)$contentViewModel->pageSlug);
+$encodedPageSlug = rawurlencode($pageSlug);
 $heroImages = $contentViewModel->heroImages;
 $highlights = $contentViewModel->highlights;
 $tracks = $contentViewModel->tracks;
-$formAction = (string)($formAction ?? '/cms/events/dance-detail');
-$detailMediaModule = $contentViewModel->pageSlug === '' ? '' : 'dance_detail_hero:' . $contentViewModel->pageSlug;
-$detailTrackMediaModule = $contentViewModel->pageSlug === '' ? '' : 'dance_detail_track:' . $contentViewModel->pageSlug;
-$detailTrackAudioModule = $contentViewModel->pageSlug === '' ? '' : 'dance_detail_track_audio:' . $contentViewModel->pageSlug;
+$formAction = $pageSlug === '' ? '/cms/events/dance-detail' : '/cms/events/dance-detail/' . $encodedPageSlug;
+
+// Builds upload module names for this page slug, or returns an empty string when no slug is available.
+$buildModuleName = static function (string $prefix) use ($pageSlug): string {
+    return $pageSlug === '' ? '' : $prefix . ':' . $pageSlug;
+};
+$detailMediaModule = $buildModuleName('dance_detail_hero');
+$detailTrackMediaModule = $buildModuleName('dance_detail_track');
+$detailTrackAudioModule = $buildModuleName('dance_detail_track_audio');
 ?>
 <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
 
@@ -26,7 +33,7 @@ $detailTrackAudioModule = $contentViewModel->pageSlug === '' ? '' : 'dance_detai
         <a href="/cms/events" class="btn btn-outline-secondary">Back to Events</a>
     </div>
 
-    <form method="POST" action="<?= htmlspecialchars($formAction) ?>" class="card border-0 shadow-sm" data-quill-form="1" data-image-upload-module="<?= htmlspecialchars($detailMediaModule) ?>" data-debug-enabled="<?= $isDebugMode ? '1' : '0' ?>" data-save-api="/cms/events/dance-detail/<?= rawurlencode($contentViewModel->pageSlug) ?>/updateAPI">
+    <form method="POST" action="<?= htmlspecialchars($formAction) ?>" class="card border-0 shadow-sm" data-quill-form="1" data-image-upload-module="<?= htmlspecialchars($detailMediaModule) ?>" data-debug-enabled="<?= $isDebugMode ? '1' : '0' ?>" data-save-api="/cms/events/dance-detail/<?= $encodedPageSlug ?>/updateAPI">
         <div class="card-body p-4">
             <h2 class="h5">Page</h2>
             <div class="mb-3">

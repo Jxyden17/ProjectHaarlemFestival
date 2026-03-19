@@ -2,11 +2,13 @@
 
 namespace App\Repository\Interfaces;
 
+use App\Models\Page\Page;
+
 interface IPageRepository
 {
-    public function findPageRowsById(int $pageId): array;
+    public function findPageById(int $pageId): ?Page;
 
-    public function findPageRowsBySlug(string $slug): array;
+    public function findPageBySlug(string $slug): ?Page;
 
     public function findPageIdBySlug(string $slug): ?int;
 

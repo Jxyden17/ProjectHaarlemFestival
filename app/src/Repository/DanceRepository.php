@@ -2,7 +2,7 @@
 
 namespace App\Repository;
 
-use App\Mapper\DanceMapper;
+use App\Mapper\EventMapper;
 use App\Models\Database;
 use App\Models\Event\EventDetailPageModel;
 use App\Repository\Interfaces\IDanceRepository;
@@ -11,12 +11,12 @@ use PDO;
 class DanceRepository implements IDanceRepository
 {
     private PDO $db;
-    private DanceMapper $danceMapper;
+    private EventMapper $eventMapper;
 
-    public function __construct(DanceMapper $danceMapper)
+    public function __construct(EventMapper $eventMapper)
     {
         $this->db = Database::getInstance();
-        $this->danceMapper = $danceMapper;
+        $this->eventMapper = $eventMapper;
     }
 
     public function getDetailPagesByEventId(int $eventId): array
@@ -40,7 +40,7 @@ class DanceRepository implements IDanceRepository
         $stmt->execute([':event_id' => $eventId]);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        return array_map(fn(array $row): EventDetailPageModel => $this->danceMapper->mapDetailPageRow($row), $rows);
+        return array_map(fn(array $row): EventDetailPageModel => $this->eventMapper->mapDetailPageRow($row), $rows);
     }
 
     public function findDetailPageByPageSlug(string $pageSlug): ?EventDetailPageModel
@@ -68,6 +68,6 @@ class DanceRepository implements IDanceRepository
         $stmt->execute([':page_slug' => trim($pageSlug)]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return $row ? $this->danceMapper->mapDetailPageRow($row) : null;
+        return $row ? $this->eventMapper->mapDetailPageRow($row) : null;
     }
 }

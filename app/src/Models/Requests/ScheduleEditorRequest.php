@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Models\Requests\Cms;
+namespace App\Models\Requests;
 
-use App\Models\Commands\Cms\Schedule\ScheduleSaveCommand;
-use App\Models\Requests\Cms\Schedule\SchedulePerformerRowRequest;
-use App\Models\Requests\Cms\Schedule\ScheduleSessionRowRequest;
-use App\Models\Requests\Cms\Schedule\ScheduleVenueRowRequest;
+use App\Models\Edit\Schedule\SchedulePerformerEditRow;
+use App\Models\Edit\Schedule\ScheduleSaveInput;
+use App\Models\Edit\Schedule\ScheduleSessionEditRow;
+use App\Models\Edit\Schedule\ScheduleVenueEditRow;
 
 class ScheduleEditorRequest
 {
@@ -37,7 +37,7 @@ class ScheduleEditorRequest
                 continue;
             }
 
-            $rows[] = ScheduleVenueRowRequest::fromArray($row);
+            $rows[] = ScheduleVenueEditRow::fromArray($row);
         }
 
         return $rows;
@@ -51,7 +51,7 @@ class ScheduleEditorRequest
                 continue;
             }
 
-            $rows[] = SchedulePerformerRowRequest::fromArray($row);
+            $rows[] = SchedulePerformerEditRow::fromArray($row);
         }
 
         return $rows;
@@ -65,7 +65,7 @@ class ScheduleEditorRequest
                 continue;
             }
 
-            $rows[] = ScheduleSessionRowRequest::fromArray($row);
+            $rows[] = ScheduleSessionEditRow::fromArray($row);
         }
 
         return $rows;
@@ -86,8 +86,8 @@ class ScheduleEditorRequest
         return $this->sessions;
     }
 
-    public function toSaveCommand(): ScheduleSaveCommand
+    public function toSaveInput(): ScheduleSaveInput
     {
-        return new ScheduleSaveCommand($this->venues(), $this->performers(), $this->sessions());
+        return new ScheduleSaveInput($this->venues(), $this->performers(), $this->sessions());
     }
 }

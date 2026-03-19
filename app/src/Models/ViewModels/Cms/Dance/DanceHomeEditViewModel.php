@@ -2,15 +2,14 @@
 
 namespace App\Models\ViewModels\Cms\Dance;
 
-class DanceHomeContentViewModel
+class DanceHomeEditViewModel
 {
     public string $pageTitle;
     public string $scheduleTitle;
+    public string $featuredArtistsTitle;
     public string $bannerBadge;
     public string $bannerTitle;
     public string $bannerDescription;
-    public string $artistsTitle;
-    public array $artists;
     public string $importantInformationTitle;
     public string $importantInformationHtml;
     public string $passesTitle;
@@ -20,30 +19,13 @@ class DanceHomeContentViewModel
     public string $specialTitle;
     public string $specialHtml;
 
-    public function __construct(
-        string $pageTitle,
-        string $scheduleTitle,
-        string $bannerBadge,
-        string $bannerTitle,
-        string $bannerDescription,
-        string $artistsTitle,
-        array $artists,
-        string $importantInformationTitle,
-        string $importantInformationHtml,
-        string $passesTitle,
-        array $passes,
-        string $capacityTitle,
-        string $capacityHtml,
-        string $specialTitle,
-        string $specialHtml
-    ) {
+    public function __construct(string $pageTitle, string $scheduleTitle, string $featuredArtistsTitle, string $bannerBadge, string $bannerTitle, string $bannerDescription, string $importantInformationTitle, string $importantInformationHtml, string $passesTitle, array $passes, string $capacityTitle, string $capacityHtml, string $specialTitle, string $specialHtml) {
         $this->pageTitle = $pageTitle;
         $this->scheduleTitle = $scheduleTitle;
+        $this->featuredArtistsTitle = $featuredArtistsTitle;
         $this->bannerBadge = $bannerBadge;
         $this->bannerTitle = $bannerTitle;
         $this->bannerDescription = $bannerDescription;
-        $this->artistsTitle = $artistsTitle;
-        $this->artists = $artists;
         $this->importantInformationTitle = $importantInformationTitle;
         $this->importantInformationHtml = $importantInformationHtml;
         $this->passesTitle = $passesTitle;

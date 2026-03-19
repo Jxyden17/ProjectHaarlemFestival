@@ -2,23 +2,27 @@
 
 namespace App\Repository;
 
+use App\Mapper\PageMapper;
 use App\Models\Database;
+use App\Models\Page\Page;
 use App\Repository\Interfaces\IPageRepository;
 use PDO;
 
 class PageRepository implements IPageRepository
 {
     private PDO $db;
+    private PageMapper $pageMapper;
 
-    public function __construct()
+    public function __construct(PageMapper $pageMapper)
     {
         $this->db = Database::getInstance();
+        $this->pageMapper = $pageMapper;
     }
 
-    public function findPageRowsById(int $pageId): array
+    public function findPageById(int $pageId): ?Page
     {
         if ($pageId <= 0) {
-            return [];
+            return null;
         }
 
         $stmt = $this->db->prepare(
@@ -48,11 +52,15 @@ class PageRepository implements IPageRepository
              ORDER BY ps.order_index ASC, si.order_index ASC'
         );
         $stmt->execute([':id' => $pageId]);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        if ($rows === []) {
+            return null;
+        }
 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $this->pageMapper->mapPageRows($rows);
     }
 
-    public function findPageRowsBySlug(string $slug): array
+    public function findPageBySlug(string $slug): ?Page
     {
         $stmt = $this->db->prepare(
             'SELECT p.id AS page_id,
@@ -81,8 +89,12 @@ class PageRepository implements IPageRepository
              ORDER BY ps.order_index ASC, si.order_index ASC'
         );
         $stmt->execute([':slug' => $slug]);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        if ($rows === []) {
+            return null;
+        }
 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $this->pageMapper->mapPageRows($rows);
     }
 
     public function saveOrUpdateSection(
