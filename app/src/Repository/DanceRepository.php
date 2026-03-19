@@ -33,31 +33,12 @@ class DanceRepository implements IDanceRepository
                     pf.performer_name
              FROM event_detail_pages edp
              INNER JOIN pages p ON p.id = edp.page_id
-             LEFT JOIN performers pf ON pf.id = edp.performer_id';
-
-    private const DETAIL_PAGES_FALLBACK_SELECT = 'SELECT edp.id,
-                    edp.event_id,
-                    edp.performer_id,
-                    edp.page_id,
-                    p.slug AS detail_slug,
-                    edp.entity_type,
-                    edp.display_order,
-                    p.slug AS page_slug,
-                    p.page_name,
-                    pf.performer_name
-             FROM event_detail_pages edp
-             INNER JOIN pages p ON p.id = edp.page_id
-             LEFT JOIN performers pf ON pf.id = edp.performer_id';
-
-    public function __construct(DanceMapper $danceMapper)
-    {
-        $this->db = Database::getInstance();
-        $this->danceMapper = $danceMapper;
-    }
-
-    public function getDetailPagesByEventId(int $eventId): array
-    {
-        $rows = $this->fetchDetailPageRowsByEventId($eventId);
+             LEFT JOIN performers pf ON pf.id = edp.performer_id
+             WHERE edp.event_id = :event_id
+             ORDER BY edp.display_order ASC, edp.id ASC'
+        );
+        $stmt->execute([':event_id' => $eventId]);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         return array_map(fn(array $row): EventDetailPageModel => $this->danceMapper->mapDetailPageRow($row), $rows);
     }

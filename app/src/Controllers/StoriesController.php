@@ -47,8 +47,10 @@ class StoriesController extends BaseController
 
     public function details($slug = null): void
     {
-        if (!$slug) {
-            $slug = isset($_GET['slug']) ? $_GET['slug'] : null;
+        if (is_array($slug)) {
+            $slug = $slug['slug'] ?? $_GET['slug'] ?? null;
+        } elseif (!$slug) {
+            $slug = $_GET['slug'] ?? null;
         }
 
         $slug = trim((string)$slug);
@@ -67,16 +69,6 @@ class StoriesController extends BaseController
             $this->render('shared/error', [
                 'errorTitle' => 'Page not found',
                 'errorMessage' => 'The page you requested does not exist.',
-            ]);
-            return;
-        }
-
-        $page = $this->pageService->getPageBySlug($slug);
-        if (trim((string) ($page->title ?? '')) === '') {
-            http_response_code(404);
-            $this->render('shared/error', [
-                'errorTitle' => 'Story not found',
-                'errorMessage' => 'The story page you requested does not exist.',
             ]);
             return;
         }

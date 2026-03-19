@@ -7,9 +7,10 @@ if (!$section instanceof Section) {
 }
 
 $items = is_array($section->items) ? $section->items : [];
-$firstItem = $items[0] ?? null;
-$secondItem = $items[1] ?? null;
-<<<<<<< HEAD
+$calendarIcon = '/img/storiesIMG/Icon-for-the-calendar-hero.png';
+$pointerIcon = '/img/storiesIMG/Icon-for-the-hero-pointer.png';
+$viewProgramIcon = '/img/storiesIMG/Icon-for-the-view-program.png';
+
 $renderInlineRichText = static function (?string $html, string $fallback = ''): string {
     $value = trim((string)($html ?? ''));
     if ($value === '') {
@@ -19,30 +20,13 @@ $renderInlineRichText = static function (?string $html, string $fallback = ''): 
     $value = preg_replace('/^\s*<p>(.*)<\/p>\s*$/is', '$1', $value) ?? $value;
     return strip_tags($value, '<strong><em><u><a><br>');
 };
-
-$renderBlockRichText = static function (?string $html): string {
-    $value = trim((string)($html ?? ''));
-    return $value === '' ? '' : $value;
-};
-?>
-
-<section class="stories-hero-section">
-    <div class="stories-banner-inner">
-        <div class="stories-banner-badge">
-            <span class="stories-banner-badge-icon">🗓</span>
-            <span>This Weekend • July 24-27, 2025</span>
-        </div>
-=======
-$calendarIcon = '/img/storiesIMG/Icon-for-the-calendar-hero.png';
-$pointerIcon = '/img/storiesIMG/Icon-for-the-hero-pointer.png';
-$viewProgramIcon = '/img/storiesIMG/Icon-for-the-view-program.png';
 ?>
 
 <section class="stories-hero-section">
     <div class="stories-hero-images">
         <?php foreach ($items as $item): ?>
             <div class="stories-hero-img-item">
-                <img src="<?= htmlspecialchars($item->image) ?>" alt="<?= htmlspecialchars($item->title); ?>">
+                <img src="<?= htmlspecialchars((string)($item->image ?? '')) ?>" alt="<?= htmlspecialchars((string)($item->title ?? '')) ?>">
             </div>
         <?php endforeach; ?>
     </div>
@@ -55,80 +39,41 @@ $viewProgramIcon = '/img/storiesIMG/Icon-for-the-view-program.png';
                 <span class="hero-badge-icon">
                     <img src="<?= htmlspecialchars($calendarIcon) ?>" alt="" aria-hidden="true">
                 </span>
-                <span class="hero-badge-text">This Weekend • July 24-27, 2025</span>
+                <span class="hero-badge-text">This Weekend - July 24-27, 2025</span>
             </div>
->>>>>>> e546708a4f41b4d19a79d29e644b39d8287b434c
 
-        <h1 class="stories-banner-title"><?= $renderInlineRichText($section->title ?? null, 'Stories in Haarlem') ?></h1>
+            <h1 class="stories-banner-title"><?= $renderInlineRichText($section->title ?? null, 'Stories in Haarlem') ?></h1>
 
-<<<<<<< HEAD
-        <?php if (trim((string)($firstItem->content ?? '')) !== ''): ?>
-            <div class="stories-banner-description"><?= $renderBlockRichText($firstItem->content ?? null) ?></div>
-        <?php endif; ?>
-        <?php if (trim((string)($secondItem->content ?? '')) !== ''): ?>
-            <div class="stories-banner-subcopy"><?= $renderBlockRichText($secondItem->content ?? null) ?></div>
-        <?php endif; ?>
-
-        <div class="stories-banner-stats">
-            <div class="stories-stat-card">
-                <div class="stories-stat-card-icon">
-                    <span>🗓</span>
+            <div class="hero-info-cards">
+                <div class="hero-info-card">
+                    <span class="info-card-icon">
+                        <img src="<?= htmlspecialchars($calendarIcon) ?>" alt="" aria-hidden="true">
+                    </span>
+                    <div class="info-card-content">
+                        <h3>Total Events</h3>
+                        <p>15 Shows</p>
+                    </div>
                 </div>
-                <div>
-                    <div class="stories-stat-card-label">Total Events</div>
-                    <div class="stories-stat-card-value">
-                        15 Shows
+
+                <div class="hero-info-card">
+                    <span class="info-card-icon">
+                        <img src="<?= htmlspecialchars($pointerIcon) ?>" alt="" aria-hidden="true">
+                    </span>
+                    <div class="info-card-content">
+                        <h3>Venues</h3>
+                        <p>6 Locations</p>
                     </div>
                 </div>
             </div>
 
-            <div class="stories-stat-card">
-                <div class="stories-stat-card-icon stories-stat-card-icon-venue">
-                    <span>📍</span>
-                </div>
-                <div>
-                    <div class="stories-stat-card-label">Venues</div>
-                    <div class="stories-stat-card-value">
-                        6 Locations
-                    </div>
-=======
-        <div class="hero-info-cards">
-            <div class="hero-info-card">
-                <span class="info-card-icon">
-                    <img src="<?= htmlspecialchars($calendarIcon) ?>" alt="" aria-hidden="true">
-                </span>
-                <div class="info-card-content">
-                    <h3>Total Events</h3>
-                    <p>15 Shows</p>
-                </div>
-            </div>
-            <div class="hero-info-card">
-                <span class="info-card-icon">
-                    <img src="<?= htmlspecialchars($pointerIcon) ?>" alt="" aria-hidden="true">
-                </span>
-                <div class="info-card-content">
-                    <h3>Venues</h3>
-                    <p>6 Locations</p>
->>>>>>> e546708a4f41b4d19a79d29e644b39d8287b434c
-                </div>
-            </div>
-        </div>
-
-<<<<<<< HEAD
-        <div class="stories-banner-actions">
-            <a href="#schedule" class="stories-banner-cta">
-                <span>View program</span>
-                <span class="stories-banner-cta-icon">↓</span>
-=======
-        <div class="hero-actions">
-            <a href="#schedule" class="view-program-btn">
-                        View program
+            <div class="hero-actions">
+                <a href="#schedule" class="view-program-btn">
+                    View program
                     <span class="view-program-btn-icon">
-                    <img src="<?= htmlspecialchars($viewProgramIcon) ?>" alt="" aria-hidden="true">
-                </span>
->>>>>>> e546708a4f41b4d19a79d29e644b39d8287b434c
-            </a>
+                        <img src="<?= htmlspecialchars($viewProgramIcon) ?>" alt="" aria-hidden="true">
+                    </span>
+                </a>
+            </div>
         </div>
     </div>
-</div>
 </section>
