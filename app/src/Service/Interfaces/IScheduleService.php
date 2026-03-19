@@ -4,7 +4,6 @@ namespace App\Service\Interfaces;
 
 use App\Models\Event\EventModel;
 use App\Models\Schedule\ScheduleData;
-use App\Models\ViewModels\Cms\Schedule\ScheduleEditorViewModel;
 
 interface IScheduleService
 {
@@ -19,6 +18,4 @@ interface IScheduleService
     public function getScheduleSessionsByPerformerId(string $eventName, int $performerId): array;
 
     public function findEventByName(string $eventName): ?EventModel;
-
-    public function getScheduleEditorData(string $eventName): ScheduleEditorViewModel;
 }

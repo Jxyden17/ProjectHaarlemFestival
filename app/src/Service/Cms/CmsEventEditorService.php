@@ -7,24 +7,24 @@ use App\Models\Page\SectionItem;
 use App\Models\ViewModels\Cms\Schedule\ScheduleEditorPerformerRowViewModel;
 use App\Models\ViewModels\Cms\Schedule\ScheduleEditorViewModel;
 use App\Service\Cms\Interfaces\ICmsEventEditorService;
+use App\Service\Cms\Interfaces\ICmsScheduleService;
 use App\Service\Cms\Interfaces\ICmsPageSaveService;
 use App\Service\Interfaces\IDanceService;
-use App\Service\Interfaces\IScheduleService;
 
 class CmsEventEditorService implements ICmsEventEditorService
 {
-    private IScheduleService $scheduleService;
+    private ICmsScheduleService $cmsScheduleService;
     private CmsScheduleMapper $cmsScheduleMapper;
     private ICmsPageSaveService $pageSaveService;
     private IDanceService $danceService;
 
     public function __construct(
-        IScheduleService $scheduleService,
+        ICmsScheduleService $cmsScheduleService,
         CmsScheduleMapper $cmsScheduleMapper,
         ICmsPageSaveService $pageSaveService,
         IDanceService $danceService
     ) {
-        $this->scheduleService = $scheduleService;
+        $this->cmsScheduleService = $cmsScheduleService;
         $this->cmsScheduleMapper = $cmsScheduleMapper;
         $this->pageSaveService = $pageSaveService;
         $this->danceService = $danceService;
@@ -32,7 +32,7 @@ class CmsEventEditorService implements ICmsEventEditorService
 
     public function getEditorData(string $eventName): ScheduleEditorViewModel
     {
-        $editorViewModel = $this->scheduleService->getScheduleEditorData($eventName);
+        $editorViewModel = $this->cmsScheduleService->getScheduleEditorData($eventName);
         if (strtolower($eventName) !== 'dance') {
             return $editorViewModel;
         }

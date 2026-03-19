@@ -2,6 +2,7 @@
 
 namespace App\Service\Cms;
 
+use App\Mapper\CmsScheduleMapper;
 use App\Models\Edit\Schedule\SchedulePerformerEditRow;
 use App\Models\Edit\Schedule\ScheduleSaveInput;
 use App\Models\Edit\Schedule\ScheduleSessionEditRow;
@@ -10,6 +11,7 @@ use App\Models\Event\EventModel;
 use App\Models\Event\PerformerModel;
 use App\Models\Event\SessionModel;
 use App\Models\Event\VenueModel;
+use App\Models\ViewModels\Cms\Schedule\ScheduleEditorViewModel;
 use App\Repository\Interfaces\IScheduleRepository;
 use App\Service\Cms\Interfaces\ICmsScheduleService;
 use App\Validator\CmsScheduleValidator;
@@ -17,12 +19,36 @@ use App\Validator\CmsScheduleValidator;
 class CmsScheduleService implements ICmsScheduleService
 {
     private IScheduleRepository $scheduleRepo;
+    private CmsScheduleMapper $cmsScheduleMapper;
     private CmsScheduleValidator $scheduleValidator;
 
-    public function __construct(IScheduleRepository $scheduleRepo, CmsScheduleValidator $scheduleValidator)
+    public function __construct(
+        IScheduleRepository $scheduleRepo,
+        CmsScheduleMapper $cmsScheduleMapper,
+        CmsScheduleValidator $scheduleValidator
+    )
     {
         $this->scheduleRepo = $scheduleRepo;
+        $this->cmsScheduleMapper = $cmsScheduleMapper;
         $this->scheduleValidator = $scheduleValidator;
+    }
+
+    public function getScheduleEditorData(string $eventName): ScheduleEditorViewModel
+    {
+        $event = $this->findEventOrFail($eventName);
+        $venues = $this->scheduleRepo->getVenuesByEventId((int)$event->id);
+        $performers = $this->scheduleRepo->getPerformersByEventId((int)$event->id);
+        $sessions = $this->scheduleRepo->getSessionsByEventId((int)$event->id);
+        $sessionPerformers = $this->scheduleRepo->getSessionPerformersByEventId((int)$event->id);
+
+        $sessionPerformerMap = $this->cmsScheduleMapper->buildSessionPerformerMap($sessionPerformers);
+
+        return new ScheduleEditorViewModel(
+            $event->name,
+            $this->cmsScheduleMapper->mapVenueRows($venues),
+            $this->cmsScheduleMapper->mapPerformerRows($performers),
+            $this->cmsScheduleMapper->mapSessionRows($sessions, $sessionPerformerMap)
+        );
     }
 
     public function saveScheduleData(string $eventName, ScheduleSaveInput $input): void

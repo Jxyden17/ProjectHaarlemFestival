@@ -21,7 +21,6 @@ $renderErrorPage = static function (int $statusCode, string $title, string $mess
 
 try {
     $eventMapper = new App\Mapper\EventMapper();
-    $danceMapper = new App\Mapper\DanceMapper($eventMapper);
     $pageMapper = new App\Mapper\PageMapper();
     $scheduleMapper = new App\Mapper\ScheduleMapper($eventMapper);
     $scheduleViewModelMapper = new App\Mapper\ScheduleViewModelMapper();
@@ -29,7 +28,7 @@ try {
     $userRepo = new App\Repository\UserRepository();
     $passwordResetRepo = new App\Repository\PasswordResetRepository();
     $scheduleRepo = new App\Repository\ScheduleRepository($scheduleMapper);
-    $danceRepo = new App\Repository\DanceRepository($danceMapper);
+    $danceRepo = new App\Repository\DanceRepository($eventMapper);
     $mediaRepo = new App\Repository\MediaRepository();
     $pageRepo = new App\Repository\PageRepository($pageMapper);
     $jazzRepo = new App\Repository\JazzRepository();
@@ -54,7 +53,7 @@ try {
     $cmsScheduleMapper = new App\Mapper\CmsScheduleMapper();
     $cmsDanceMapper = new App\Mapper\CmsDanceMapper();
     $cmsDanceViewModelMapper = new App\Mapper\CmsDanceViewModelMapper();
-    $cmsScheduleService = new App\Service\Cms\CmsScheduleService($scheduleRepo, $cmsScheduleValidator);
+    $cmsScheduleService = new App\Service\Cms\CmsScheduleService($scheduleRepo, $cmsScheduleMapper, $cmsScheduleValidator);
     $cmsDanceService = new App\Service\Cms\CmsDanceService(
         $danceRepo,
         $cmsPageSaveService,
@@ -65,7 +64,7 @@ try {
     );
     $cmsService = new App\Service\Cms\CmsService($userRepo);
     $cmsEventEditorService = new App\Service\Cms\CmsEventEditorService(
-        $scheduleService,
+        $cmsScheduleService,
         $cmsScheduleMapper,
         $cmsPageSaveService,
         $danceService

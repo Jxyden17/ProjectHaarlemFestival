@@ -8,7 +8,6 @@ use App\Models\Event\SessionModel;
 use App\Models\Event\SessionPerformerModel;
 use App\Models\Event\PerformerModel;
 use App\Models\Schedule\ScheduleData;
-use App\Models\ViewModels\Cms\Schedule\ScheduleEditorViewModel;
 use App\Repository\Interfaces\IScheduleRepository;
 use App\Service\Interfaces\IScheduleService;
 
@@ -150,34 +149,6 @@ class ScheduleService implements IScheduleService
     public function findEventByName(string $eventName): ?EventModel
     {
         return $this->scheduleRepo->findEventByName($eventName);
-    }
-
-    public function getScheduleEditorData(string $eventName): ScheduleEditorViewModel
-    {
-        $event = $this->findEventOrFail($eventName);
-        $venues = $this->scheduleRepo->getVenuesByEventId((int) $event->id);
-        $performers = $this->scheduleRepo->getPerformersByEventId((int) $event->id);
-        $sessions = $this->scheduleRepo->getSessionsByEventId((int) $event->id);
-        $sessionPerformers = $this->scheduleRepo->getSessionPerformersByEventId((int) $event->id);
-
-        $sessionPerformerMap = $this->scheduleMapper->buildSessionPerformerMap($sessionPerformers);
-
-        return new ScheduleEditorViewModel(
-            $event->name,
-            $this->scheduleMapper->mapVenueRows($venues),
-            $this->scheduleMapper->mapPerformerRows($performers),
-            $this->scheduleMapper->mapSessionRows($sessions, $sessionPerformerMap)
-        );
-    }
-
-    private function findEventOrFail(string $eventName): EventModel
-    {
-        $event = $this->scheduleRepo->findEventByName($eventName);
-        if ($event === null) {
-            throw new \RuntimeException($eventName . ' event not found.');
-        }
-
-        return $event;
     }
 
     private function getEventRowsOrFail(string $eventName): EventModel

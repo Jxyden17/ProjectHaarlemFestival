@@ -5,12 +5,36 @@ namespace App\Mapper;
 use App\Models\Edit\Schedule\SchedulePerformerEditRow;
 use App\Models\Edit\Schedule\ScheduleSessionEditRow;
 use App\Models\Edit\Schedule\ScheduleVenueEditRow;
+use App\Models\Event\PerformerModel;
+use App\Models\Event\SessionModel;
+use App\Models\Event\SessionPerformerModel;
+use App\Models\Event\VenueModel;
 use App\Models\ViewModels\Cms\Schedule\ScheduleEditorPerformerRowViewModel;
 use App\Models\ViewModels\Cms\Schedule\ScheduleEditorSessionRowViewModel;
 use App\Models\ViewModels\Cms\Schedule\ScheduleEditorVenueRowViewModel;
 
 class CmsScheduleMapper
 {
+    public function mapVenueRows(array $venues): array
+    {
+        $rows = [];
+
+        foreach ($venues as $venue) {
+            if (!$venue instanceof VenueModel) {
+                continue;
+            }
+
+            $rows[] = new ScheduleEditorVenueRowViewModel(
+                $venue->id,
+                $venue->venueName,
+                (string) ($venue->address ?? ''),
+                (string) ($venue->venueType ?? '')
+            );
+        }
+
+        return $rows;
+    }
+
     public function mapVenueViewModels(array $rows): array
     {
         $venues = [];
@@ -61,6 +85,44 @@ class CmsScheduleMapper
         return $performers;
     }
 
+    public function mapPerformerRows(array $performers): array
+    {
+        $rows = [];
+
+        foreach ($performers as $performer) {
+            if (!$performer instanceof PerformerModel) {
+                continue;
+            }
+
+            $rows[] = new ScheduleEditorPerformerRowViewModel(
+                $performer->id,
+                $performer->performerName,
+                (string) ($performer->performerType ?? ''),
+                (string) ($performer->description ?? ''),
+                0,
+                ''
+            );
+        }
+
+        return $rows;
+    }
+
+    public function buildSessionPerformerMap(array $sessionPerformers): array
+    {
+        $sessionPerformerMap = [];
+
+        foreach ($sessionPerformers as $sessionPerformer) {
+            if (!$sessionPerformer instanceof SessionPerformerModel) {
+                continue;
+            }
+
+            $sessionPerformerMap[$sessionPerformer->sessionId] ??= [];
+            $sessionPerformerMap[$sessionPerformer->sessionId][] = $sessionPerformer->performerId;
+        }
+
+        return $sessionPerformerMap;
+    }
+
     public function mapSessionViewModels(array $rows): array
     {
         $sessions = [];
@@ -84,5 +146,30 @@ class CmsScheduleMapper
         }
 
         return $sessions;
+    }
+
+    public function mapSessionRows(array $sessions, array $sessionPerformerMap): array
+    {
+        $rows = [];
+
+        foreach ($sessions as $session) {
+            if (!$session instanceof SessionModel) {
+                continue;
+            }
+
+            $rows[] = new ScheduleEditorSessionRowViewModel(
+                $session->id,
+                $session->date,
+                substr($session->startTime, 0, 5),
+                $session->venueId,
+                (string) ($session->label ?? ''),
+                number_format($session->price, 2, '.', ''),
+                $session->availableSpots,
+                $session->amountSold,
+                array_values(array_map('intval', $sessionPerformerMap[$session->id] ?? []))
+            );
+        }
+
+        return $rows;
     }
 }
