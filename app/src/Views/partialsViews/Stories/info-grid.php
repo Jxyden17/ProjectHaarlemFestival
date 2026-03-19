@@ -48,10 +48,26 @@ $resolveStoryUrl = static function (?string $url): string {
                     <div class="item-content">
                         <?= $renderBlockRichText($item->content ?? null) ?>
                     </div>
+<<<<<<< HEAD
                     <?php $itemUrl = $resolveStoryUrl($item->url ?? ''); ?>
                     <?php if ($itemUrl !== ''): ?>
                         <a href="<?= htmlspecialchars($itemUrl) ?>" class="view-profile-btn">View Profile</a>
                     <?php endif; ?>
+=======
+                    <?php if ($item->url): ?>
+                    <?php
+                    $profileUrl = $item->url;
+                        if ($item->title === 'Mister Anansi') {
+                            $profileUrl = '/stories/details?slug=mister-anansi';
+                        } elseif ($item->title === 'Omdenken Podcast') {
+                            $profileUrl = '/stories/details?slug=omdenken-podcast';
+                        } elseif ($item->title === 'Corrie ten Boom') {
+                            $profileUrl = '/stories/details?slug=corrie-ten-boom';
+                        }
+                        ?>
+                    <a href="<?= htmlspecialchars($profileUrl) ?>" class="view-profile-btn">View Profile</a>
+                <?php endif; ?>
+>>>>>>> e546708a4f41b4d19a79d29e644b39d8287b434c
                 </div>
             </div>
         <?php endforeach; ?>

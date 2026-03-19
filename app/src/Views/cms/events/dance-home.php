@@ -16,12 +16,7 @@ $passes = $contentViewModel->passes;
         <a href="/cms/events" class="btn btn-outline-secondary">Back to Events</a>
     </div>
 
-    <?php
-    $successMessage = 'Dance home content updated.';
-    include __DIR__ . '/../../partialsViews/cms/form-feedback.php';
-    ?>
-
-    <form method="POST" action="/cms/events/dance-home" class="card border-0 shadow-sm" data-quill-form="1">
+    <form method="POST" action="/cms/events/dance-home" class="card border-0 shadow-sm" data-quill-form="1" data-save-api="/cms/events/dance-homeAPI">
         <div class="card-body p-4">
             <h2 class="h5">Page</h2>
             <div class="mb-3">
@@ -208,11 +203,15 @@ $passes = $contentViewModel->passes;
             </div>
         </div>
         <div class="card-footer d-flex justify-content-end">
-            <button type="submit" class="btn btn-primary">Save Content</button>
+            <button type="submit" class="btn btn-primary save-btn">Save Content</button>
         </div>
     </form>
 </div>
 
+<?php include __DIR__ . '/../../partialsViews/cms/upload-feedback-modal.php'; ?>
+
+<script src="/js/cms/upload-feedback.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
-<?php $danceHomeJsVersion = @filemtime(__DIR__ . '/../../../../public/js/cms/dance-home.js') ?: time(); ?>
-<script src="/js/cms/dance-home.js?v=<?= (int)$danceHomeJsVersion ?>"></script>
+<script src="/js/cms/page-editor.js"></script>
+<script src="/js/cms/form-save-api.js"></script>
+<script src="/js/cms/dance-home.js"></script>

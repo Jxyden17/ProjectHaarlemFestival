@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Controllers;
 
 use App\Service\Interfaces\IPageService;
@@ -35,6 +34,7 @@ class StoriesController extends BaseController
         $viewData = [
             'pageTitle' => $page->title,
             'hero'      => $page->getSection('hero'),
+            'callout'   => $page->getSection('callout'),
             'grid'      => $page->getSection('grid'),
             'venues'    => $page->getSection('venues'),
             'schedule'  => $page->getSection('schedule'),
@@ -67,6 +67,16 @@ class StoriesController extends BaseController
             $this->render('shared/error', [
                 'errorTitle' => 'Page not found',
                 'errorMessage' => 'The page you requested does not exist.',
+            ]);
+            return;
+        }
+
+        $page = $this->pageService->getPageBySlug($slug);
+        if (trim((string) ($page->title ?? '')) === '') {
+            http_response_code(404);
+            $this->render('shared/error', [
+                'errorTitle' => 'Story not found',
+                'errorMessage' => 'The story page you requested does not exist.',
             ]);
             return;
         }

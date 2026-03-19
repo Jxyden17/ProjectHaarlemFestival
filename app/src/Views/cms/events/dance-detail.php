@@ -11,9 +11,9 @@ $heroImages = $contentViewModel->heroImages;
 $highlights = $contentViewModel->highlights;
 $tracks = $contentViewModel->tracks;
 $formAction = (string)($formAction ?? '/cms/events/dance-detail');
-$detailMediaModule = $contentViewModel->detailSlug === '' ? '' : 'dance_detail_hero:' . $contentViewModel->detailSlug;
-$detailTrackMediaModule = $contentViewModel->detailSlug === '' ? '' : 'dance_detail_track:' . $contentViewModel->detailSlug;
-$detailTrackAudioModule = $contentViewModel->detailSlug === '' ? '' : 'dance_detail_track_audio:' . $contentViewModel->detailSlug;
+$detailMediaModule = $contentViewModel->pageSlug === '' ? '' : 'dance_detail_hero:' . $contentViewModel->pageSlug;
+$detailTrackMediaModule = $contentViewModel->pageSlug === '' ? '' : 'dance_detail_track:' . $contentViewModel->pageSlug;
+$detailTrackAudioModule = $contentViewModel->pageSlug === '' ? '' : 'dance_detail_track_audio:' . $contentViewModel->pageSlug;
 ?>
 <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
 
@@ -26,12 +26,7 @@ $detailTrackAudioModule = $contentViewModel->detailSlug === '' ? '' : 'dance_det
         <a href="/cms/events" class="btn btn-outline-secondary">Back to Events</a>
     </div>
 
-    <?php
-    $successMessage = 'Dance detail content updated.';
-    include __DIR__ . '/../../partialsViews/cms/form-feedback.php';
-    ?>
-
-    <form method="POST" action="<?= htmlspecialchars($formAction) ?>" class="card border-0 shadow-sm" data-quill-form="1" data-image-upload-module="<?= htmlspecialchars($detailMediaModule) ?>">
+    <form method="POST" action="<?= htmlspecialchars($formAction) ?>" class="card border-0 shadow-sm" data-quill-form="1" data-image-upload-module="<?= htmlspecialchars($detailMediaModule) ?>" data-debug-enabled="<?= $isDebugMode ? '1' : '0' ?>" data-save-api="/cms/events/dance-detail/<?= rawurlencode($contentViewModel->pageSlug) ?>/updateAPI">
         <div class="card-body p-4">
             <h2 class="h5">Page</h2>
             <div class="mb-3">
@@ -189,11 +184,16 @@ $detailTrackAudioModule = $contentViewModel->detailSlug === '' ? '' : 'dance_det
             </div>
         </div>
         <div class="card-footer d-flex justify-content-end">
-            <button type="submit" class="btn btn-primary">Save Content</button>
+            <button type="submit" class="btn btn-primary save-btn">Save Content</button>
         </div>
     </form>
 </div>
 
+<?php include __DIR__ . '/../../partialsViews/cms/upload-feedback-modal.php'; ?>
+
+<script src="/js/cms/upload-feedback.js"></script>
+<script src="/js/cms/media-upload.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
-<?php $danceDetailJsVersion = @filemtime(__DIR__ . '/../../../../public/js/cms/dance-detail.js') ?: time(); ?>
-<script src="/js/cms/dance-detail.js?v=<?= (int)$danceDetailJsVersion ?>"></script>
+<script src="/js/cms/page-editor.js"></script>
+<script src="/js/cms/form-save-api.js"></script>
+<script src="/js/cms/dance-detail.js"></script>

@@ -4,7 +4,7 @@ namespace App\Models\ViewModels\Cms\Dance;
 
 class DanceDetailContentViewModel
 {
-    public string $detailSlug;
+    public string $pageSlug;
     public string $editorTitle;
     public string $publicPath;
     public string $pageTitle;
@@ -22,7 +22,7 @@ class DanceDetailContentViewModel
     public string $importantInformationHtml;
 
     public function __construct(
-        string $detailSlug,
+        string $pageSlug,
         string $editorTitle,
         string $publicPath,
         string $pageTitle,
@@ -39,7 +39,7 @@ class DanceDetailContentViewModel
         string $importantInformationTitle,
         string $importantInformationHtml
     ) {
-        $this->detailSlug = $detailSlug;
+        $this->pageSlug = $pageSlug;
         $this->editorTitle = $editorTitle;
         $this->publicPath = $publicPath;
         $this->pageTitle = $pageTitle;

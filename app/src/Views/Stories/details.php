@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <?php
 $heroImage = $hero?->getFirstItemImage('image') ?? '';
 $heroTags = $hero?->getItemsByCategorie('tag') ?? [];
@@ -52,11 +53,14 @@ $resolveStoryUrl = static function (?string $url): string {
     return '/stories/' . ltrim($value, '/');
 };
 ?>
+=======
+>>>>>>> e546708a4f41b4d19a79d29e644b39d8287b434c
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+<<<<<<< HEAD
     <title><?= htmlspecialchars((string)($pageTitle ?? 'Stories')) ?></title>
     <?php $storiesCssVersion = @filemtime(__DIR__ . '/../../../public/css/Stories/index.css') ?: time(); ?>
     <link href="/css/Stories/index.css?v=<?= (int)$storiesCssVersion ?>" rel="stylesheet">
@@ -137,5 +141,39 @@ $resolveStoryUrl = static function (?string $url): string {
             </section>
         <?php endif; ?>
     </div>
+=======
+    <title><?= htmlspecialchars((string) ($pageTitle ?? 'Story Details')) ?></title>
+    <link href="/css/Stories/details.css" rel="stylesheet">
+</head>
+<body>
+    <main class="story-detail-page">
+        <div class="story-detail-shell">
+            <a class="story-back-link" href="/stories">
+                &larr; Back to Stories
+            </a>
+
+            <?php if ($hero): ?>
+                <?php $section = $hero; include __DIR__ . '/../partialsViews/Stories/details-hero.php'; ?>
+            <?php endif; ?>
+
+            <?php if ($gallery): ?>
+                <?php $section = $gallery; include __DIR__ . '/../partialsViews/Stories/details-gallery.php'; ?>
+            <?php endif; ?>
+
+            <?php if ($about): ?>
+                <?php $section = $about; include __DIR__ . '/../partialsViews/Stories/details-about.php'; ?>
+            <?php endif; ?>
+
+            <?php if ($featured): ?>
+                <?php $section = $featured; include __DIR__ . '/../partialsViews/Stories/details-featured.php'; ?>
+            <?php endif; ?>
+
+            <?php if ($booking): ?>
+                <?php $section = $booking; include __DIR__ . '/../partialsViews/Stories/details-booking.php'; ?>
+            <?php endif; ?>
+        </div>
+    </main>
+    <script src="/js/stories-detail-audio.js"></script>
+>>>>>>> e546708a4f41b4d19a79d29e644b39d8287b434c
 </body>
 </html>

@@ -214,10 +214,13 @@ $formAction = (string)($formAction ?? '/cms/events/dance-schedule');
             </div>
         </div>
         <div class="card-footer d-flex justify-content-end">
-            <button type="submit" class="btn btn-primary">Save Schedule</button>
+            <button type="submit" class="btn btn-primary save-btn">Save Schedule</button>
         </div>
     </form>
 </div>
 
-<?php $danceScheduleJsVersion = @filemtime(__DIR__ . '/../../../../public/js/cms/dance-schedule.js') ?: time(); ?>
-<script src="/js/cms/dance-schedule.js?v=<?= (int)$danceScheduleJsVersion ?>"></script>
+<?php include __DIR__ . '/../../partialsViews/cms/upload-feedback-modal.php'; ?>
+
+<script src="/js/cms/upload-feedback.js"></script>
+<script src="/js/cms/media-upload.js"></script>
+<script src="/js/cms/dance-schedule.js"></script>

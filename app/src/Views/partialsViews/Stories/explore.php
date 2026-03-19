@@ -30,6 +30,16 @@ $renderBlockRichText = static function (?string $html): string {
 
         <div class="explore-grid">
             <?php foreach ($section->items as $item): ?>
+                <?php
+                $itemTitle = trim((string) ($item->title ?? ''));
+                $itemUrl = trim((string) ($item->url ?? ''));
+
+                if ($itemTitle === 'Yummy!') {
+                    $itemUrl = '/yummy';
+                } elseif ($itemTitle === 'Haarlem Jazz') {
+                    $itemUrl = '/jazz';
+                }
+                ?>
                 <div class="explore-card">
                     <?php if (trim((string)($item->image ?? '')) !== ''): ?>
                         <div class="explore-image">
@@ -41,8 +51,12 @@ $renderBlockRichText = static function (?string $html): string {
                         <?php if (trim((string)($item->subTitle ?? '')) !== ''): ?>
                             <div class="explore-subtitle"><?= $renderBlockRichText($item->subTitle ?? null) ?></div>
                         <?php endif; ?>
+<<<<<<< HEAD
                         <div class="explore-text"><?= $renderBlockRichText($item->content ?? null) ?></div>
                         <?php $itemUrl = $resolveStoryUrl($item->url ?? ''); ?>
+=======
+                        <p class="explore-text"><?= htmlspecialchars($item->content) ?></p>
+>>>>>>> e546708a4f41b4d19a79d29e644b39d8287b434c
                         <?php if ($itemUrl !== ''): ?>
                             <a href="<?= htmlspecialchars($itemUrl) ?>" class="explore-btn">Explore</a>
                         <?php endif; ?>
