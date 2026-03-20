@@ -36,7 +36,7 @@
 
                         <?php if ($venue && !empty($venue->address)): ?>
                             <p class="restaurant-address">
-                                <?= htmlspecialchars($venue->address) ?>
+                                <?= $venue->address ?>
                             </p>
                         <?php endif; ?>
 

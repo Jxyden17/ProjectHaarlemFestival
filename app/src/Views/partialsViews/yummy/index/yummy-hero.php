@@ -4,7 +4,7 @@
             <?php foreach ($section->items as $item): ?>
                 <?php if (!empty($item->image)): ?>
                     <img class="yummy-banner"
-                        src="<?= htmlspecialchars($item->image) ?>" alt="">
+                        src="<?= $item->image ?>" alt="">
                 <?php endif; ?>
             <?php endforeach; ?>
 

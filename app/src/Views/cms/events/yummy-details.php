@@ -19,7 +19,7 @@ $contactItems = $contactSection?->items ?? [];
 
             <textarea
                 name="sections[restaurant_hero][title]"
-                data-editor="rich"
+                data-quill="1"
                 class="form-control"
             ><?= htmlspecialchars($heroSection?->title) ?></textarea>
 
@@ -51,13 +51,13 @@ $contactItems = $contactSection?->items ?? [];
 
             <textarea
                 name="sections[restaurant_concept][title]"
-                data-editor="rich"
+                data-quill="1"
                 class="form-control"
             ><?= htmlspecialchars($introSection?->title) ?></textarea>
 
             <textarea
                 name="sections[restaurant_concept][description]"
-                data-editor="rich"
+                data-quill="1"
                 class="form-control mt-3"
             ><?= htmlspecialchars($introSection?->description) ?></textarea>
 
@@ -74,7 +74,7 @@ $contactItems = $contactSection?->items ?? [];
 
                     <textarea
                         name="items[restaurant_concept][<?= $i ?>][title]"
-                        data-editor="rich"
+                        data-quill="1"
                         class="form-control"
                     ><?= htmlspecialchars($item->title) ?></textarea>
 
@@ -82,7 +82,7 @@ $contactItems = $contactSection?->items ?? [];
 
                     <textarea
                         name="items[restaurant_concept][<?= $i ?>][content]"
-                        data-editor="rich"
+                        data-quill="1"
                         class="form-control"
                     ><?= htmlspecialchars($item->content) ?></textarea>
 
@@ -105,7 +105,7 @@ $contactItems = $contactSection?->items ?? [];
 
             <textarea
                 name="sections[restaurant_contact][title]"
-                data-editor="rich"
+                data-quill="1"
                 class="form-control mb-4"
             ><?= htmlspecialchars($contactSection?->title) ?></textarea>
 
@@ -123,7 +123,7 @@ $contactItems = $contactSection?->items ?? [];
 
                         <textarea
                             name="items[restaurant_contact][<?= $i ?>][title]"
-                            data-editor="rich"
+                            data-quill="1"
                             class="form-control"
                         ><?= htmlspecialchars($item->title) ?></textarea>
 
@@ -131,7 +131,7 @@ $contactItems = $contactSection?->items ?? [];
 
                         <textarea
                             name="items[restaurant_contact][<?= $i ?>][content]"
-                            data-editor="rich"
+                            data-quill="1"
                             class="form-control"
                         ><?= htmlspecialchars($item->content ?? '') ?></textarea>
                         
@@ -159,5 +159,5 @@ $contactItems = $contactSection?->items ?? [];
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
-<?php $yummyDetailJsVersion = @filemtime(__DIR__ . '/../../../../public/js/cms/yummy-details.js') ?: time(); ?>
-<script src="/js/cms/yummy-details.js?v=<?= (int)$yummyDetailJsVersion ?>"></script>
+<script src="/js/cms/page-editor.js"></script>
+<script src="/js/cms/yummy-details.js"></script>

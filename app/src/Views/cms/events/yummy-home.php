@@ -18,13 +18,13 @@ $restaurantItems = $restaurantSection?->items ?? [];
 
             <textarea
                 name="sections[yummy_header][title]"
-                data-editor="rich"
+                data-quill="1"
                 class="form-control"
             ><?= htmlspecialchars($heroSection?->title) ?></textarea>
 
             <textarea
                 name="sections[yummy_header][description]"
-                data-editor="rich"
+                data-quill="1"
                 class="form-control mt-3"
             ><?= htmlspecialchars($heroSection?->description) ?></textarea>
 
@@ -41,13 +41,11 @@ $restaurantItems = $restaurantSection?->items ?? [];
 
                 <input type="hidden"
                     name="items[yummy_header][<?= $i ?>][order_index]"
-                    data-editor="rich"
                     value="<?= $i ?>"
                 >
 
                 <input type="hidden"
                     name="items[yummy_header][<?= $i ?>][item_category]"
-                    data-editor="rich"
                     value="hero"
                 >
             <?php endforeach; ?>
@@ -58,7 +56,7 @@ $restaurantItems = $restaurantSection?->items ?? [];
 
             <textarea
                 name="sections[yummy-map][title]"
-                data-editor="rich"
+                data-quill="1"
                 class="form-control"
             ><?= htmlspecialchars($mapSection?->title) ?></textarea>
 
@@ -83,19 +81,17 @@ $restaurantItems = $restaurantSection?->items ?? [];
 
                     <textarea
                         name="items[yummy-map][<?= $i ?>][item_subtitle]"
-                        data-editor="rich"
+                        data-quill="1"
                         class="form-control"
                     ><?= htmlspecialchars($item->subTitle) ?></textarea>
 
                     <input type="hidden"
                         name="items[yummy-map][<?= $i ?>][order_index]"
-                        data-editor="rich"
                         value="<?= $i ?>"
                     >
 
                     <input type="hidden"
                         name="items[yummy-map][<?= $i ?>][item_category]"
-                        data-editor="rich"
                         value="map"
                     >
                 </div>
@@ -108,7 +104,7 @@ $restaurantItems = $restaurantSection?->items ?? [];
 
             <textarea
                 name="sections[yummy-restaurants][title]"
-                data-editor="rich"
+                data-quill="1"
                 class="form-control mb-4"
             ><?= htmlspecialchars($restaurantSection?->title) ?></textarea>
 
@@ -125,7 +121,7 @@ $restaurantItems = $restaurantSection?->items ?? [];
 
                     <textarea
                         name="items[yummy-restaurants][<?= $i ?>][title]"
-                        data-editor="rich"
+                        data-quill="1"
                         class="form-control"
                     ><?= htmlspecialchars($item->title) ?></textarea>
 
@@ -133,7 +129,7 @@ $restaurantItems = $restaurantSection?->items ?? [];
 
                     <textarea
                         name="items[yummy-restaurants][<?= $i ?>][content]"
-                        data-editor="rich"
+                        data-quill="1"
                         class="form-control"
                     ><?= htmlspecialchars($item->content) ?></textarea>
 
@@ -141,19 +137,17 @@ $restaurantItems = $restaurantSection?->items ?? [];
 
                     <textarea
                         name="items[yummy-restaurants][<?= $i ?>][image_path]"
-                        data-editor="rich"
+                        data-quill="1"
                         class="form-control"
                     ><?= htmlspecialchars($item->image ?? '') ?></textarea>
                     
                     <input type="hidden"
                         name="items[yummy-restaurants][<?= $i ?>][order_index]"
-                        data-editor="rich"
                         value="<?= $i ?>"
                     >
 
                     <input type="hidden"
                         name="items[yummy-restaurants][<?= $i ?>][item_category]"
-                        data-editor="rich"
                         value="restaurant"
                     >
                 </div>
@@ -171,5 +165,5 @@ $restaurantItems = $restaurantSection?->items ?? [];
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
-<?php $yummyHomeJsVersion = @filemtime(__DIR__ . '/../../../../public/js/cms/yummy-home.js') ?: time(); ?>
-<script src="/js/cms/yummy-home.js?v=<?= (int)$yummyHomeJsVersion ?>"></script>
+<script src="/js/cms/page-editor.js"></script>
+<script src="/js/cms/yummy-home.js"></script>

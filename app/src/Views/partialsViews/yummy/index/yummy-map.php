@@ -8,12 +8,12 @@
 
                         <h2><?= $section->title ?></h2>
 
-                        <span class="map-tag"><?= htmlspecialchars($item->title) ?></span>
+                        <span class="map-tag"><?= $item->title ?></span>
 
                     </div>
 
                     <div class="map-container">
-                        <iframe src="<?= htmlspecialchars($item->content) ?>" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                        <iframe src="<?= $item->content ?>" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
                     </div>
 
                     <div class="map-description">
