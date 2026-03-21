@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\Enums\UserRole;
+use App\Models\Enums\Event;
 
 class BaseController
 {
@@ -54,5 +55,28 @@ class BaseController
             header('Location: /');
             exit;
         }
+    }
+
+    protected function noPageFounded(string $title, string $message): void
+    {
+        http_response_code(404);
+        $this->renderCms('shared/error', [
+            'title' => $title,
+            'errorMessage' => $message,
+        ]);
+    }
+
+    protected function getSelectedEvent() :Event
+    {
+        $id = $_GET['event_id'];
+
+        foreach (Event::cases() as $event) 
+        {
+            if ($event->value == $id) 
+            {
+                return $event;
+            }
+        }
+        throw new \InvalidArgumentException('Event ID is required and must be valid.');
     }
 }

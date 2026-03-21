@@ -25,11 +25,13 @@ class CmsEventEditorController extends BaseController
         $eventName = $this->resolveEventName($vars);
         $eventSlug = $this->toEventSlug($eventName);
         $editorViewModel = $this->cmsEventEditorService->getEditorData($eventName);
+        $tourDetailPages = $this->cmsEventEditorService->getTourDetailPages();
         $this->renderCms('cms/events/dance-schedule', [
             'title' => $eventName . ' Schedule',
             'editorViewModel' => $editorViewModel,
             'formAction' => '/cms/events/' . $eventSlug . '/schedule',
             'success' => isset($_GET['saved']),
+            'tourDetailPages' => $tourDetailPages
         ]);
     }
 

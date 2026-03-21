@@ -37,7 +37,6 @@ class CmsTourContentController extends BaseController
         'hero'      => $page->getSection('hero'),
         'stops'     => $page->getSection('tour_overview'),
         'discover'  => $page->getSection('discover'),
-        'schedule' => $page->getSection('schedule'),
         'guide'   => $page->getSection('guide')
     ];
         $this->renderCms('cms/events/tour-home', $viewData);
@@ -101,6 +100,5 @@ class CmsTourContentController extends BaseController
              $_SESSION['cms_tour_error'] = 'Opslaan mislukt.' . $e->getMessage();
         }
         header('Location: /cms/events');
-
     }
 }

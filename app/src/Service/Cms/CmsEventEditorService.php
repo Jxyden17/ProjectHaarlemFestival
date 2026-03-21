@@ -174,4 +174,16 @@ class CmsEventEditorService implements ICmsEventEditorService
         $normalized = trim((string) $value);
         return $normalized === '' ? null : $normalized;
     }
+
+    public function getTourDetailPages(): array
+    {
+        $pages = [];
+        foreach ($this->pageRepository->getTourDetailPages() as $row) {
+            $pages[] = [
+                'id' => (int) ($row['id'] ?? 0),
+                'name' => (string) ($row['page_name'] ?? ''),
+            ];
+        }
+        return $pages;
+    }
 }

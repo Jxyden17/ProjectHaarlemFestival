@@ -15,6 +15,7 @@ $isCms = str_starts_with($currentPath, '/cms');
 $isUsers = str_starts_with($currentPath, '/cms/users');
 $isEvents = str_starts_with($currentPath, '/cms/events');
 $isTickets = str_starts_with($currentPath, '/cms/tickets');
+$isEventManagement = str_starts_with($currentPath, '/cms/eventManagement');
 ?>
 
 <div class="container-fluid cms-shell">
@@ -25,7 +26,7 @@ $isTickets = str_starts_with($currentPath, '/cms/tickets');
             </div>
 
             <nav class="mt-3">
-                <a href="/cms" class="cms-nav-link<?= $isCms && !$isUsers && !$isEvents && !$isTickets ? ' is-active' : '' ?>">
+                <a href="/cms" class="cms-nav-link<?= $isCms && !$isUsers && !$isEvents && !$isTickets && !$isArtists && !$isSchedules ? ' is-active' : '' ?>">
                     <i data-lucide="layout-dashboard"></i>
                     Dashboard
                 </a>
@@ -35,11 +36,15 @@ $isTickets = str_starts_with($currentPath, '/cms/tickets');
                 </a>
                 <a href="/cms/events" class="cms-nav-link<?= $isEvents ? ' is-active' : '' ?>">
                     <i data-lucide="calendar-days"></i>
-                    Event Management
+                    Page Management
                 </a>
                 <a href="/cms/tickets" class="cms-nav-link<?= $isTickets ? ' is-active' : '' ?>">
                     <i data-lucide="ticket"></i>
                     Ticket Management
+                </a>
+                <a href="/cms/eventManagement" class="cms-nav-link<?= $isEventManagement ? ' is-active' : '' ?>">
+                    <i data-lucide="clapperboard"></i>
+                    Event Management
                 </a>
             </nav>
 

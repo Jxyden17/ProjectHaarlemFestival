@@ -1,27 +1,28 @@
 <?php
-
 namespace App\Controllers\Cms;
 
 use App\Controllers\BaseController;
 use App\Models\Enums\Event;
-use App\Service\Cms\Interfaces\ICmsService;
+use App\Repository\Interfaces\IScheduleRepository;
 
-class CmsTicketsController extends BaseController
+class CmsVenuesController extends BaseController
 {
-    private ICmsService $cmsService;
+    private IScheduleRepository $scheduleRepository;
 
-    public function __construct(ICmsService $cmsService)
+    public function __construct(IScheduleRepository $scheduleRepository)
     {
-        $this->cmsService = $cmsService;
+        $this->scheduleRepository = $scheduleRepository;
     }
 
     public function index(): void
     {
         $this->requireAdmin();
-
         $selectedEvent = $this->resolveSelectedEvent();
-        $this->renderCms('cms/tickets/index', [
-            'title' => 'Ticket Management',
+        $venues = $this->scheduleRepository->getVenuesByEventId($selectedEvent->value);
+
+        $this->renderCms('cms/venues/index', [
+            'title' => 'Venue Management',
+            'venues' => $venues,
             'selectedEvent' => $selectedEvent,
         ]);
     }

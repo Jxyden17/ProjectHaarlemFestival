@@ -146,6 +146,64 @@ class ScheduleRepository implements IScheduleRepository
         return array_map(fn(array $row) => $this->scheduleMapper->mapSessionRow($row), $rows);
     }
 
+    public function getSessionById(int $id): ?\App\Models\Event\SessionModel
+    {
+        $stmt = $this->db->prepare(
+            'SELECT id, event_id, venue_id, date, start_time, language_id, label, price, available_spots, amount_sold
+             FROM sessions
+             WHERE id = :id
+             LIMIT 1'
+        );
+        $stmt->execute([':id' => $id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $row ? $this->scheduleMapper->mapSessionRow($row) : null;
+    }
+
+    public function createSessionForTicketing(int $eventId, int $venueId, string $date, string $startTime, int $availableSpots): int
+    {
+        $stmt = $this->db->prepare(
+            'INSERT INTO sessions (event_id, venue_id, date, start_time, label, price, available_spots, amount_sold)
+             VALUES (:event_id, :venue_id, :date, :start_time, NULL, 0, :available_spots, 0)'
+        );
+        $stmt->execute([
+            ':event_id' => $eventId,
+            ':venue_id' => $venueId,
+            ':date' => $date,
+            ':start_time' => $startTime,
+            ':available_spots' => $availableSpots,
+        ]);
+
+        return (int) $this->db->lastInsertId();
+    }
+
+    public function updateSessionForTicketing(int $id, int $eventId, string $date, string $startTime, int $availableSpots): bool
+    {
+        $stmt = $this->db->prepare(
+            'UPDATE sessions
+             SET date = :date, start_time = :start_time, available_spots = :available_spots
+             WHERE id = :id AND event_id = :event_id'
+        );
+
+        return $stmt->execute([
+            ':id' => $id,
+            ':event_id' => $eventId,
+            ':date' => $date,
+            ':start_time' => $startTime,
+            ':available_spots' => $availableSpots,
+        ]);
+    }
+
+    public function deleteSessionById(int $id, int $eventId): bool
+    {
+        $stmt = $this->db->prepare('DELETE FROM sessions WHERE id = :id AND event_id = :event_id');
+
+        return $stmt->execute([
+            ':id' => $id,
+            ':event_id' => $eventId,
+        ]);
+    }
+
     public function getVenuesByEventId(int $eventId): array
     {
         $stmt = $this->db->prepare(

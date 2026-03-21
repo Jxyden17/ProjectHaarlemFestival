@@ -32,4 +32,5 @@ interface IPageRepository
     ): int;
 
     public function saveOrUpdateSectionItems(int $sectionId, array $items): void;
+    public function getTourDetailPages(): array;
 }
