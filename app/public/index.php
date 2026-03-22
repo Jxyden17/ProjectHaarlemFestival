@@ -97,6 +97,9 @@ try {
     $cartService = new App\Service\CartService($cartRepo);
     $cartController = new App\Controllers\CartController($cartService);
     $bookController = new App\Controllers\BookController($cartService);
+    $checkoutRepo = new App\Repository\CheckoutRepository();
+    $checkoutService = new App\Service\CheckoutService($cartService, $cartRepo, $checkoutRepo);
+    $checkoutController = new App\Controllers\CheckoutController($checkoutService);
 
 
 
@@ -167,6 +170,8 @@ try {
         $r->addRoute('POST', '/cart/update', ['CartController', 'update']);
         $r->addRoute('POST', '/cart/remove', ['CartController', 'remove']);
         $r->addRoute('GET', '/book/{sessionId:\d+}', ['BookController', 'index']);
+        $r->addRoute('GET', '/checkout', ['CheckoutController', 'index']);
+        $r->addRoute('POST', '/checkout/confirm', ['CheckoutController', 'confirm']);
 
 
     });
@@ -206,6 +211,7 @@ try {
                 'CmsHomeContentController' => $cmsHomeContentController,
                 'CartController' => $cartController,
                 'BookController' => $bookController,
+                'CheckoutController' => $checkoutController,
             ];
 
             if (!isset($controllerMap[$controllerName])) {

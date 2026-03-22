@@ -163,9 +163,6 @@
                         <div class="col-lg-6">
                             <div class="form-check bg-light rounded p-3">
                                 <input class="form-check-input" type="checkbox" value="" id="program-confirm" disabled>
-                                <label class="form-check-label" for="program-confirm">
-                                    I confirm: all participants are 12+ years old and no strollers.
-                                </label>
                             </div>
                         </div>
 
@@ -175,9 +172,9 @@
                                 <div class="display-6 fw-bold mb-0">&euro;<?= number_format((float) $subtotal, 2) ?></div>
                             </div>
 
-                            <button type="button" class="btn btn-primary px-5" disabled>
+                            <a href="/checkout" class="btn btn-primary px-5">
                                 Buy Now
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>
