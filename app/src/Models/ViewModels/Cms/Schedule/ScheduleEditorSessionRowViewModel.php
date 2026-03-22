@@ -13,6 +13,7 @@ class ScheduleEditorSessionRowViewModel
     public int $availableSpots;
     public int $amountSold;
     public array $performerIds;
+    public ?int $languageId;
 
     public function __construct(
         int $id,
@@ -23,7 +24,8 @@ class ScheduleEditorSessionRowViewModel
         string $price,
         int $availableSpots,
         int $amountSold,
-        array $performerIds
+        array $performerIds,
+        ?int $languageId
     ) {
         $this->id = $id;
         $this->date = $date;
@@ -34,5 +36,6 @@ class ScheduleEditorSessionRowViewModel
         $this->availableSpots = $availableSpots;
         $this->amountSold = $amountSold;
         $this->performerIds = $performerIds;
+        $this->languageId = $languageId;
     }
 }

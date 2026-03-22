@@ -15,7 +15,7 @@ class TicketRepository implements ITicketRepository
         $this->db = Database::getInstance();
     }
 
-    public function listByEventId(int $eventId): array
+    public function getTicketsByEventId(int $eventId): array
     {
         $stmt = $this->db->prepare(
             'SELECT t.id AS ticket_id,

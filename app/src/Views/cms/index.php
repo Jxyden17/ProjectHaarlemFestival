@@ -45,23 +45,7 @@
                 </div>
             </div>
         </div>
-
         <div class="col-12 col-md-6 col-xl-4">
-            <div class="card h-100 border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center gap-2 mb-3">
-                        <span class="badge rounded-pill text-bg-warning-subtle text-warning-emphasis">Scaffold</span>
-                        <h2 class="h5 mb-0">Ticket Management</h2>
-                    </div>
-                    <p class="text-muted mb-4">Monitor ticket setup and booking flows.</p>
-                    <a href="/cms/tickets" class="btn btn-outline-primary w-100">
-                        Open Tickets
-                    </a>
-                </div>
-            </div>
-        </div>
-
-                <div class="col-12 col-md-6 col-xl-4">
             <div class="card h-100 border-0 shadow-sm">
                 <div class="card-body p-4">
                     <div class="d-flex align-items-center gap-2 mb-3">

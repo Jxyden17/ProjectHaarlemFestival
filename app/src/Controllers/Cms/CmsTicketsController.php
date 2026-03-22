@@ -4,15 +4,15 @@ namespace App\Controllers\Cms;
 
 use App\Controllers\BaseController;
 use App\Models\Enums\Event;
-use App\Service\Cms\Interfaces\ICmsService;
+use App\Service\Interfaces\ITicketService;
 
 class CmsTicketsController extends BaseController
 {
-    private ICmsService $cmsService;
+    private ITicketService $ticketService;
 
-    public function __construct(ICmsService $cmsService)
+    public function __construct(ITicketService $ticketService)
     {
-        $this->cmsService = $cmsService;
+        $this->ticketService = $ticketService;
     }
 
     public function index(): void
@@ -23,6 +23,8 @@ class CmsTicketsController extends BaseController
         $this->renderCms('cms/tickets/index', [
             'title' => 'Ticket Management',
             'selectedEvent' => $selectedEvent,
+            'eventTypes' => Event::cases(),
+            'tickets' => $this->ticketService->getTicketsByEvent($selectedEvent)
         ]);
     }
 }

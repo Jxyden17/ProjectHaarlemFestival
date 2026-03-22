@@ -16,4 +16,7 @@ interface IScheduleService
     public function getScheduleRowsByPerformerId(string $eventName, int $performerId): array;
 
     public function getScheduleEditorData(string $eventName): ScheduleEditorViewModel;
+
+    public function getSessionById(int $id): ?ScheduleEditorViewModel;
+    public function editSchedule(int $id, int $eventId, int $venueId, string $date, string $startTime, int $availableSpots, ?string $label, ?float $price, ?int $language): bool;
 }

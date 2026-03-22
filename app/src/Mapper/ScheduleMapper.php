@@ -300,7 +300,8 @@ class ScheduleMapper
                 number_format($session->price, 2, '.', ''),
                 $session->availableSpots,
                 $session->amountSold,
-                array_values(array_map('intval', $sessionPerformerMap[$session->id] ?? []))
+                array_values(array_map('intval', $sessionPerformerMap[$session->id] ?? [])),
+                $session->language?->value
             );
         }
 
@@ -369,6 +370,7 @@ class ScheduleMapper
         $eventName = $this->checkEvent($session->event?->name ?? 'Other');
 
         return new ScheduleRowViewModel(
+            $session->id,
             $dt->format('M j, Y'),
             substr($session->startTime, 0, 5),
             $this->buildEventLabel($session),

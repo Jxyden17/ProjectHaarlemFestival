@@ -424,4 +424,35 @@ class ScheduleRepository implements IScheduleRepository
             throw $lastException;
         }
     }
+
+    public function findEventById(int $id): ?EventModel
+    {
+    $stmt = $this->db->prepare('SELECT id, name, description FROM events WHERE id = :id LIMIT 1');
+    $stmt->execute([':id' => $id]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $row ? $this->scheduleMapper->mapEventRow($row) : null;
+    }
+
+    public function editSchedule(int $id, int $eventId, int $venueId, string $date, string $startTime, int $availableSpots, $label, $price, $language): bool
+    {
+        $stmt = $this->db->prepare(
+            'UPDATE sessions
+            SET venue_id = :venue_id, event_id = :event_id, date = :date, start_time = :start_time, available_spots = :available_spots, label = :label, price = :price, language_id = :language
+            WHERE id = :id'
+        );
+
+        return $stmt->execute([
+            ':id' => $id,
+            ':event_id' => $eventId,
+            ':venue_id' => $venueId,
+            ':date' => $date,
+            ':start_time' => $startTime,
+            ':available_spots' => $availableSpots,
+            ':label' => $label ?? 'None',
+            ':language' => $language ?? 1,
+            ':price' => $price ?? -1,
+        ]);
+    }
+
+
 }

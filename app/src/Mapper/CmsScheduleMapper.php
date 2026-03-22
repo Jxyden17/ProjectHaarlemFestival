@@ -119,7 +119,8 @@ class CmsScheduleMapper
                 $row->price(),
                 $row->availableSpots(),
                 $row->amountSold(),
-                array_values(array_map('intval', $row->performerIds()))
+                array_values(array_map('intval', $row->performerIds())),
+                $row->languageId(),
             );
         }
 

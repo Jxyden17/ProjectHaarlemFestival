@@ -19,9 +19,12 @@
                         </div>
                         <div class="d-grid gap-2 d-md-flex flex-wrap">
                             <?php if (!empty($event['supportsArtists'])): ?>
-                                <a href="/cms/eventManagement/artists?event_id=<?= rawurlencode((int)($event['id'] ?? 0)) ?>" class="btn btn-outline-primary">Artists</a>
+                                <a href="/cms/eventManagement/artists?event_id=<?= $event['id'] ?? 0 ?>" class="btn btn-outline-primary">Artists</a>
                             <?php endif; ?>
-                            <a href="/cms/eventManagement/venues?event_id=<?= rawurlencode((int)($event['id'] ?? 0)) ?>" class="btn btn-outline-primary">Venues</a>
+                            <a href="/cms/eventManagement/venues?event_id=<?= $event['id'] ?? 0 ?>" class="btn btn-outline-primary">Venues</a>
+                            <?php if (!empty($event['supportsTickets'])): ?>
+                                <a href="/cms/eventManagement/schedules?event_id=<?= $event['id'] ?? 0 ?>" class="btn btn-outline-primary">Schedule</a>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
