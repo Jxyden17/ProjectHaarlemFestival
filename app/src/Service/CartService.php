@@ -61,21 +61,54 @@ class CartService implements ICartService
         $items = $this->cartRepository->findCartItemsByCartId((int) $cart['id']);
 
         $subtotal = 0.0;
+        $groups = [];
 
         foreach ($items as &$item) {
             $lineTotal = (float) $item['unit_price'] * (int) $item['quantity'];
             $item['line_total'] = $lineTotal;
             $subtotal += $lineTotal;
+
+            $dateKey = (string) ($item['date'] ?? '');
+            if ($dateKey === '') {
+                $dateKey = 'unknown';
+            }
+
+            if (!isset($groups[$dateKey])) {
+                $groups[$dateKey] = [
+                    'date' => $dateKey,
+                    'title' => $this->formatGroupDateLabel($dateKey),
+                    'items' => [],
+                    'total' => 0.0,
+                ];
+            }
+
+            $groups[$dateKey]['items'][] = $item;
+            $groups[$dateKey]['total'] += $lineTotal;
         }
 
         return [
             'cart' => $cart,
             'items' => $items,
+            'groups' => array_values($groups),
             'subtotal' => $subtotal,
         ];
     }
+    private function formatGroupDateLabel(string $date): string
+    {
+        if ($date === 'unknown' || trim($date) === '') {
+            return 'Unknown Date';
+        }
 
-    public function addSessionToCart(int $sessionId, int $quantity = 1): void
+        try {
+            $dateTime = new \DateTime($date);
+            return $dateTime->format('l - F j, Y');
+        } catch (\Throwable $e) {
+            return $date;
+        }
+    }
+
+
+    public function addSessionToCart(int $sessionId, int $quantity = 1, ?float $customPrice = null): void
     {
         if ($sessionId <= 0) {
             throw new \InvalidArgumentException('Invalid session.');
@@ -98,6 +131,23 @@ class CartService implements ICartService
             throw new \RuntimeException('This session is sold out.');
         }
 
+        $pricingType = (string) ($session['pricing_type'] ?? 'fixed');
+        $minimumPrice = isset($session['minimum_price']) ? (float) $session['minimum_price'] : null;
+
+        if ($pricingType === 'pay_as_you_like') {
+            if ($customPrice === null) {
+                throw new \RuntimeException('Please choose an amount for this session.');
+            }
+
+            if ($minimumPrice !== null && $customPrice < $minimumPrice) {
+                throw new \RuntimeException('Minimum amount is €' . number_format($minimumPrice, 2) . '.');
+            }
+
+            $unitPrice = $customPrice;
+        } else {
+            $unitPrice = (float) $session['price'];
+        }
+
         $cart = $this->getOrCreateActiveCart();
         $existingItem = $this->cartRepository->findCartItemByCartIdAndSessionId((int) $cart['id'], $sessionId);
 
@@ -106,6 +156,11 @@ class CartService implements ICartService
 
             if ($newQuantity > $remainingSpots) {
                 throw new \RuntimeException('Not enough spots available.');
+            }
+
+            if ($pricingType === 'pay_as_you_like') {
+                $this->cartRepository->updateCartItem((int) $existingItem['id'], $newQuantity, $unitPrice);
+                return;
             }
 
             $this->cartRepository->updateCartItemQuantity((int) $existingItem['id'], $newQuantity);
@@ -120,7 +175,7 @@ class CartService implements ICartService
             (int) $cart['id'],
             $sessionId,
             $quantity,
-            (float) $session['price']
+            $unitPrice
         );
     }
 
@@ -165,4 +220,14 @@ class CartService implements ICartService
 
         return (float) $cartData['subtotal'];
     }
+
+    public function getSessionForBooking(int $sessionId): ?array
+    {
+        if ($sessionId <= 0) {
+            return null;
+        }
+
+        return $this->cartRepository->findSessionById($sessionId);
+    }
+
 }

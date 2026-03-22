@@ -18,9 +18,10 @@ class CartController extends BaseController
         $cartData = $this->cartService->getCartWithItems();
 
         $this->render('cart/index', [
-            'title' => 'Shopping Cart',
+            'title' => 'Personal Program',
             'cart' => $cartData['cart'],
             'items' => $cartData['items'],
+            'groups' => $cartData['groups'],
             'subtotal' => $cartData['subtotal'],
         ]);
     }
@@ -29,8 +30,10 @@ class CartController extends BaseController
     {
         $sessionId = (int) ($_POST['session_id'] ?? 0);
         $quantity = (int) ($_POST['quantity'] ?? 1);
+        $customPriceInput = $_POST['custom_price'] ?? null;
+        $customPrice = $customPriceInput !== null && $customPriceInput !== '' ? (float) $customPriceInput : null;
 
-        $this->cartService->addSessionToCart($sessionId, $quantity);
+        $this->cartService->addSessionToCart($sessionId, $quantity, $customPrice);
 
         header('Location: /cart');
         exit;

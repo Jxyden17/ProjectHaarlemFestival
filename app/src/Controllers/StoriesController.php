@@ -74,19 +74,29 @@ class StoriesController extends BaseController
             
         }
         $bookingSessionId = null;
+        $bookingPricingType = 'fixed';
+        $bookingMinimumPrice = null;
         $scheduleRows = $this->scheduleService->getScheduleRowsByPerformerName('TellingStory', $page->title);
 
-    if ($scheduleRows !== []) {
-        $firstRow = $scheduleRows[0];
-        $bookUrl = (string) ($firstRow->bookUrl ?? '');
+        if ($scheduleRows !== []) {
+            $firstRow = $scheduleRows[0];
+            $bookUrl = (string) ($firstRow->bookUrl ?? '');
 
-        $query = parse_url($bookUrl, PHP_URL_QUERY);
-        if (is_string($query)) {
-            parse_str($query, $params);
-            $bookingSessionId = isset($params['session_id']) ? (int) $params['session_id'] : null;
+            $query = parse_url($bookUrl, PHP_URL_QUERY);
+            if (is_string($query)) {
+                parse_str($query, $params);
+                $bookingSessionId = isset($params['session_id']) ? (int) $params['session_id'] : null;
+            }
+
+            $priceText = trim((string) ($firstRow->price ?? ''));
+            $normalizedPrice = str_replace(',', '.', preg_replace('/[^0-9,.\-]/', '', $priceText) ?? '');
+            $numericPrice = (float) $normalizedPrice;
+
+            if ($numericPrice <= 0.0) {
+                $bookingPricingType = 'pay_as_you_like';
+                $bookingMinimumPrice = 5.0;
+            }
         }
-    }
-        
 
         $viewData = [
             'pageTitle' => $page->title,
@@ -96,6 +106,8 @@ class StoriesController extends BaseController
             'featured' => $page->getSection('featured'),
             'booking' => $page->getSection('booking'),
             'bookingSessionId' => $bookingSessionId,
+            'bookingPricingType' => $bookingPricingType,
+            'bookingMinimumPrice' => $bookingMinimumPrice,
         ];
 
         $this->render('Stories/details', $viewData);

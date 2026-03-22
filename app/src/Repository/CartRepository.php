@@ -83,17 +83,40 @@ class CartRepository implements ICartRepository
                 s.label,
                 s.price AS current_price,
                 s.available_spots,
-                s.amount_sold
-             FROM shopping_cart_items sci
-             INNER JOIN sessions s ON s.id = sci.session_id
-             WHERE sci.cart_id = :cart_id
-             ORDER BY sci.id ASC'
+                s.amount_sold,
+                e.name AS event_name,
+                v.venue_name,
+                GROUP_CONCAT(DISTINCT p.performer_name ORDER BY p.performer_name SEPARATOR \' B2B \') AS performer_names
+            FROM shopping_cart_items sci
+            INNER JOIN sessions s ON s.id = sci.session_id
+            LEFT JOIN events e ON e.id = s.event_id
+            LEFT JOIN venues v ON v.id = s.venue_id
+            LEFT JOIN session_performers sp ON sp.session_id = s.id
+            LEFT JOIN performers p ON p.id = sp.performer_id
+            WHERE sci.cart_id = :cart_id
+            GROUP BY
+                sci.id,
+                sci.cart_id,
+                sci.session_id,
+                sci.quantity,
+                sci.unit_price,
+                s.date,
+                s.start_time,
+                s.label,
+                s.price,
+                s.available_spots,
+                s.amount_sold,
+                e.name,
+                v.venue_name
+            ORDER BY s.date ASC, s.start_time ASC, sci.id ASC'
         );
 
         $stmt->execute([':cart_id' => $cartId]);
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+
 
     public function findCartItemByCartIdAndSessionId(int $cartId, int $sessionId): ?array
     {
@@ -143,6 +166,22 @@ class CartRepository implements ICartRepository
         ]);
     }
 
+    public function updateCartItem(int $cartItemId, int $quantity, float $unitPrice): void
+    {
+        $stmt = $this->db->prepare(
+            'UPDATE shopping_cart_items
+             SET quantity = :quantity,
+                 unit_price = :unit_price
+             WHERE id = :id'
+        );
+
+        $stmt->execute([
+            ':quantity' => $quantity,
+            ':unit_price' => $unitPrice,
+            ':id' => $cartItemId,
+        ]);
+    }
+
     public function removeCartItem(int $cartItemId): void
     {
         $stmt = $this->db->prepare(
@@ -166,10 +205,42 @@ class CartRepository implements ICartRepository
     public function findSessionById(int $sessionId): ?array
     {
         $stmt = $this->db->prepare(
-            'SELECT *
-             FROM sessions
-             WHERE id = :id
-             LIMIT 1'
+            'SELECT
+                s.id,
+                s.event_id,
+                s.venue_id,
+                s.date,
+                s.start_time,
+                s.label,
+                s.price,
+                s.pricing_type,
+                s.minimum_price,
+                s.available_spots,
+                s.amount_sold,
+                e.name AS event_name,
+                v.venue_name,
+                GROUP_CONCAT(DISTINCT p.performer_name ORDER BY p.performer_name SEPARATOR \' B2B \') AS performer_names
+            FROM sessions s
+            LEFT JOIN events e ON e.id = s.event_id
+            LEFT JOIN venues v ON v.id = s.venue_id
+            LEFT JOIN session_performers sp ON sp.session_id = s.id
+            LEFT JOIN performers p ON p.id = sp.performer_id
+            WHERE s.id = :id
+            GROUP BY
+                s.id,
+                s.event_id,
+                s.venue_id,
+                s.date,
+                s.start_time,
+                s.label,
+                s.price,
+                s.pricing_type,
+                s.minimum_price,
+                s.available_spots,
+                s.amount_sold,
+                e.name,
+                v.venue_name
+            LIMIT 1'
         );
 
         $stmt->execute([':id' => $sessionId]);
@@ -178,4 +249,6 @@ class CartRepository implements ICartRepository
 
         return $session ?: null;
     }
+
+
 }

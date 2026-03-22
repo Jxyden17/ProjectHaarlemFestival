@@ -96,6 +96,8 @@ try {
     $cartRepo = new App\Repository\CartRepository();
     $cartService = new App\Service\CartService($cartRepo);
     $cartController = new App\Controllers\CartController($cartService);
+    $bookController = new App\Controllers\BookController($cartService);
+
 
 
     $dispatcher = simpleDispatcher(function (RouteCollector $r) {
@@ -164,6 +166,8 @@ try {
         $r->addRoute('POST', '/cart/add', ['CartController', 'add']);
         $r->addRoute('POST', '/cart/update', ['CartController', 'update']);
         $r->addRoute('POST', '/cart/remove', ['CartController', 'remove']);
+        $r->addRoute('GET', '/book/{sessionId:\d+}', ['BookController', 'index']);
+
 
     });
 
@@ -201,6 +205,7 @@ try {
                 'CmsMediaController' => $cmsMediaController,
                 'CmsHomeContentController' => $cmsHomeContentController,
                 'CartController' => $cartController,
+                'BookController' => $bookController,
             ];
 
             if (!isset($controllerMap[$controllerName])) {

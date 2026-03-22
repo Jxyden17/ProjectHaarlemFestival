@@ -18,6 +18,8 @@ interface ICartRepository
     public function addCartItem(int $cartId, int $sessionId, int $quantity, float $unitPrice): void;
     //Update the quantity of a cart item
     public function updateCartItemQuantity(int $cartItemId, int $quantity): void;
+    //Update both quantity and unit price of a cart item
+    public function updateCartItem(int $cartItemId, int $quantity, float $unitPrice): void;
     //Remove a cart item from the cart
     public function removeCartItem(int $cartItemId): void;
     //Clear all items from the cart
