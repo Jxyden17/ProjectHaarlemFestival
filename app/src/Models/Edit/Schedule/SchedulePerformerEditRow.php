@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Models\Requests\Cms\Schedule;
+namespace App\Models\Edit\Schedule;
 
-class SchedulePerformerRowRequest
+class SchedulePerformerEditRow
 {
     private int $id;
     private string $name;

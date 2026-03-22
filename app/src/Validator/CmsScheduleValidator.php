@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Validator\Cms;
+namespace App\Validator;
 
 class CmsScheduleValidator
 {
@@ -33,17 +33,8 @@ class CmsScheduleValidator
         }
     }
 
-    public function validateSessionRow(
-        int $id,
-        int $venueId,
-        string $date,
-        string $startTime,
-        string $priceRaw,
-        int $spots,
-        int $amountSold,
-        array $allowedVenueIds,
-        array $allowedSessionIds
-    ): void {
+    public function validateSessionRow(int $id, int $venueId, string $date, string $startTime, string $priceRaw, int $spots, int $amountSold, array $allowedVenueIds, array $allowedSessionIds): void
+    {
         if ($id <= 0 || $venueId <= 0 || $date === '' || $startTime === '' || $priceRaw === '') {
             throw new \InvalidArgumentException('All schedule rows must include id, venue, date, time, and price.');
         }

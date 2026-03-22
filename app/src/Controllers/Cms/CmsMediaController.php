@@ -3,21 +3,24 @@
 namespace App\Controllers\Cms;
 
 use App\Controllers\BaseController;
-use App\Service\Interfaces\IMediaService;
+use App\Service\Interfaces\IAudioUploadService;
+use App\Service\Interfaces\IImageUploadService;
 
 class CmsMediaController extends BaseController
 {
-    private IMediaService $mediaService;
+    private IImageUploadService $imageUploadService;
+    private IAudioUploadService $audioUploadService;
 
-    public function __construct(IMediaService $mediaService)
+    public function __construct(IImageUploadService $imageUploadService, IAudioUploadService $audioUploadService)
     {
-        $this->mediaService = $mediaService;
+        $this->imageUploadService = $imageUploadService;
+        $this->audioUploadService = $audioUploadService;
     }
 
-    public function uploadReplace(): void
+    public function uploadImage(): void
     {
         $this->requireAdmin();
-        $result = $this->mediaService->uploadReplace($_SERVER, $_POST, $_FILES);
+        $result = $this->imageUploadService->uploadImage($_POST, $_FILES);
         $this->json(
             $result['body'] ?? ['success' => false, 'message' => 'Image upload failed'],
             (int)($result['status_code'] ?? 500)
@@ -27,7 +30,7 @@ class CmsMediaController extends BaseController
     public function uploadAudio(): void
     {
         $this->requireAdmin();
-        $result = $this->mediaService->uploadAudio($_SERVER, $_POST, $_FILES);
+        $result = $this->audioUploadService->uploadAudio($_POST, $_FILES);
         $this->json(
             $result['body'] ?? ['success' => false, 'message' => 'Audio upload failed'],
             (int)($result['status_code'] ?? 500)

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Models\Requests\Cms\Dance;
+namespace App\Models\Edit\Dance;
 
-class DanceDetailHeroImageRowRequest
+class DanceDetailHeroImageEditRow
 {
     private int $id;
     private string $image;

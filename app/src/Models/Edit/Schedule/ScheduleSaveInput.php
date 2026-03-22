@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Models\Commands\Cms\Schedule;
+namespace App\Models\Edit\Schedule;
 
-class ScheduleSaveCommand
+class ScheduleSaveInput
 {
     private array $venues;
     private array $performers;

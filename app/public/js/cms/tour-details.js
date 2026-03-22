@@ -25,7 +25,7 @@ async function uploadTourImage(row, button) {
     const path = await window.CmsMediaUpload.uploadFile({
         button,
         fileInput,
-        endpoint: '/cms/media/upload-replace',
+        endpoint: '/cms/media/upload-image',
         fileFieldName: 'image',
         moduleName: `tour_image:${pageSlug}:${sectionType}`,
         sectionItemId,

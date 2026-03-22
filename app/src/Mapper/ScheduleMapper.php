@@ -8,13 +8,6 @@ use App\Models\Event\PerformerModel;
 use App\Models\Event\SessionModel;
 use App\Models\Event\SessionPerformerModel;
 use App\Models\Event\VenueModel;
-use App\Models\ViewModels\Cms\Schedule\ScheduleEditorPerformerRowViewModel;
-use App\Models\ViewModels\Cms\Schedule\ScheduleEditorSessionRowViewModel;
-use App\Models\ViewModels\Cms\Schedule\ScheduleEditorVenueRowViewModel;
-use App\Models\ViewModels\Shared\ScheduleDayFilterViewModel;
-use App\Models\ViewModels\Shared\ScheduleGroupViewModel;
-use App\Models\ViewModels\Shared\ScheduleRowViewModel;
-use App\Models\ViewModels\Shared\ScheduleViewModel;
 
 class ScheduleMapper
 {
