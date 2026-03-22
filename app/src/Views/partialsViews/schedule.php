@@ -163,6 +163,7 @@ if ($scheduleSectionClass !== '') {
                         $isPayAsYouLike = $isStories && (
                             $normalizedPrice === 'pay as you like' ||
                             $normalizedPrice === '€ 0.00' ||
+                            $normalizedPrice === 'eur 0.00' ||
                             $normalizedPrice === '0' ||
                             $normalizedPrice === '0.00'
                         );

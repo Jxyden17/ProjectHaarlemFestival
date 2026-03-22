@@ -49,6 +49,10 @@ try {
     $yummyService = new App\Service\YummyService($yummyRepo);
     $jazzService = new App\Service\JazzService($jazzRepo, $scheduleRepo);
     $authService = new App\Service\AuthService($userRepo, $passwordResetRepo, $mailService);
+    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $host = (string) ($_SERVER['HTTP_HOST'] ?? 'localhost');
+    $baseUrl = $scheme . '://' . $host;
+    $mollieApiKey = trim((string) ($_ENV['MOLLIE_API_KEY'] ?? getenv('MOLLIE_API_KEY') ?? ''));
 
     $cmsScheduleMapper = new App\Mapper\CmsScheduleMapper();
     $cmsDanceMapper = new App\Mapper\CmsDanceMapper();
@@ -81,19 +85,12 @@ try {
     $cmsEventsController = new App\Controllers\Cms\CmsEventsController($cmsService, $danceService, $pageService);
     $cmsTicketsController = new App\Controllers\Cms\CmsTicketsController($cmsService);
     $cmsUsersController = new App\Controllers\Cms\CmsUsersController($cmsService);
-    $storiesController = new App\Controllers\StoriesController($pageService, $scheduleService);
+    $storiesController = new App\Controllers\StoriesController($pageService, $scheduleService, $scheduleViewModelMapper);
     $cmsEventEditorController = new App\Controllers\Cms\CmsEventEditorController($cmsScheduleService, $cmsEventEditorService);
-    $cmsMediaController = new App\Controllers\Cms\CmsMediaController($mediaService);
     $cmsTourContentController = new App\Controllers\Cms\CmsTourContentController($pageService, $cmsEventEditorService);
     $cmsStoriesContentController = new App\Controllers\Cms\CmsStoriesContentController($pageService, $cmsEventEditorService);
-    $jazzController = new App\Controllers\JazzController($scheduleService, $jazzService);
-    $storiesController = new App\Controllers\StoriesController($pageService, $scheduleService);
-    $cmsDanceController = new App\Controllers\Cms\CmsDanceController($cmsDanceService, $cmsDanceMapper);
-    $storiesController = new App\Controllers\StoriesController($pageService, $scheduleService, $scheduleViewModelMapper);
     $cmsDanceController = new App\Controllers\Cms\CmsDanceController($cmsDanceService, $cmsDanceViewModelMapper);
-    $cmsEventEditorController = new App\Controllers\Cms\CmsEventEditorController($cmsScheduleService, $cmsEventEditorService);
     $cmsMediaController = new App\Controllers\Cms\CmsMediaController($imageUploadService, $audioUploadService);
-    $cmsTourContentController = new App\Controllers\Cms\CmsTourContentController($pageService, $cmsEventEditorService);
     $cmsHomeContentController = new App\Controllers\Cms\CmsHomeContentController($pageService, $cmsEventEditorService);
 
     // Shopping Cart setup
@@ -103,7 +100,10 @@ try {
     $bookController = new App\Controllers\BookController($cartService);
     $checkoutRepo = new App\Repository\CheckoutRepository();
     $checkoutService = new App\Service\CheckoutService($cartService, $cartRepo, $checkoutRepo);
-    $checkoutController = new App\Controllers\CheckoutController($checkoutService);
+    $paymentRepo = new App\Repository\PaymentRepository();
+    $paymentService = new App\Service\PaymentService($paymentRepo, $mollieApiKey, $baseUrl);
+    $checkoutController = new App\Controllers\CheckoutController($checkoutService, $paymentService);
+    $paymentController = new App\Controllers\PaymentController($paymentService);
 
 
 
@@ -153,7 +153,6 @@ try {
         $r->addRoute('POST', '/cms/events/stories-home', ['CmsStoriesContentController', 'update']);
         $r->addRoute('GET', '/cms/events/stories-details', ['CmsStoriesContentController', 'details']);
         $r->addRoute('POST', '/cms/events/stories-details', ['CmsStoriesContentController', 'detailsUpdate']);
-        $r->addRoute('POST', '/cms/media/upload-replace', ['CmsMediaController', 'uploadReplace']);
         $r->addRoute('POST', '/cms/media/upload-image', ['CmsMediaController', 'uploadImage']);
         $r->addRoute('POST', '/cms/media/upload-audio', ['CmsMediaController', 'uploadAudio']);
         $r->addRoute('GET', '/cms/tickets', ['CmsTicketsController', 'index']);
@@ -177,6 +176,8 @@ try {
         $r->addRoute('GET', '/book/{sessionId:\d+}', ['BookController', 'index']);
         $r->addRoute('GET', '/checkout', ['CheckoutController', 'index']);
         $r->addRoute('POST', '/checkout/confirm', ['CheckoutController', 'confirm']);
+        $r->addRoute('GET', '/payment/return', ['PaymentController', 'return']);
+        $r->addRoute('POST', '/payment/webhook', ['PaymentController', 'webhook']);
 
 
     });
@@ -217,6 +218,7 @@ try {
                 'CartController' => $cartController,
                 'BookController' => $bookController,
                 'CheckoutController' => $checkoutController,
+                'PaymentController' => $paymentController,
             ];
 
             if (!isset($controllerMap[$controllerName])) {

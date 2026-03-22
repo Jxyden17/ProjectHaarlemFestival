@@ -30,7 +30,7 @@ class CmsEventsController extends BaseController
 
         $this->renderCms('cms/events/index', [
             'title' => 'Event Management',
-            'danceDetailPages' => $this->danceService->getPublishedDanceDetailPages(),
+            'danceDetailPages' => $this->danceService->getDanceDetailPages(),
             'storyDetailPages' => $storyDetailPages,
         ]);
     }

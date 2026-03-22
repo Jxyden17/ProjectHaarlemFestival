@@ -36,13 +36,9 @@ class StoriesController extends BaseController
             return;
         }
 
-<<<<<<< HEAD
-        $scheduleViewModel = $this->scheduleService->getScheduleDataForEvent('TellingStory', 'Stories Schedule');
-=======
         $scheduleViewModel = $this->scheduleViewModelMapper->mapScheduleData(
             $this->scheduleService->getScheduleDataForEvent('tellingstory', 'Stories Schedule')
         );
->>>>>>> 733aa2b04485df6c57712c16c83a9db4178c616b
 
         $viewData = [
             'pageTitle' => $page->title,
@@ -89,21 +85,15 @@ class StoriesController extends BaseController
         $bookingSessionId = null;
         $bookingPricingType = 'fixed';
         $bookingMinimumPrice = null;
-        $scheduleRows = $this->scheduleService->getScheduleRowsByPerformerName('TellingStory', $page->title);
 
-        if ($scheduleRows !== []) {
-            $firstRow = $scheduleRows[0];
-            $bookUrl = (string) ($firstRow->bookUrl ?? '');
+        $scheduleSessions = $this->scheduleService->getScheduleSessionsByPerformerName('tellingstory', $page->title);
 
-            $query = parse_url($bookUrl, PHP_URL_QUERY);
-            if (is_string($query)) {
-                parse_str($query, $params);
-                $bookingSessionId = isset($params['session_id']) ? (int) $params['session_id'] : null;
-            }
+        if ($scheduleSessions !== []) {
+            $firstSession = $scheduleSessions[0];
 
-            $priceText = trim((string) ($firstRow->price ?? ''));
-            $normalizedPrice = str_replace(',', '.', preg_replace('/[^0-9,.\-]/', '', $priceText) ?? '');
-            $numericPrice = (float) $normalizedPrice;
+            $bookingSessionId = (int) ($firstSession->id ?? 0);
+
+            $numericPrice = (float) ($firstSession->price ?? 0);
 
             if ($numericPrice <= 0.0) {
                 $bookingPricingType = 'pay_as_you_like';

@@ -3,14 +3,17 @@
 namespace App\Controllers;
 
 use App\Service\Interfaces\ICheckoutService;
+use App\Service\Interfaces\IPaymentService;
 
 class CheckoutController extends BaseController
 {
     private ICheckoutService $checkoutService;
+    private IPaymentService $paymentService;
 
-    public function __construct(ICheckoutService $checkoutService)
+    public function __construct(ICheckoutService $checkoutService, IPaymentService $paymentService)
     {
         $this->checkoutService = $checkoutService;
+        $this->paymentService = $paymentService;
     }
 
     public function index(): void
@@ -49,7 +52,8 @@ class CheckoutController extends BaseController
 
         try {
             $orderId = $this->checkoutService->confirmCheckout();
-        } catch (\RuntimeException $e) {
+            $checkoutUrl = $this->paymentService->createPayment($orderId);
+        } catch (\Throwable $e) {
             http_response_code(400);
             $this->render('shared/error', [
                 'errorTitle' => 'Checkout unavailable',
@@ -58,9 +62,7 @@ class CheckoutController extends BaseController
             return;
         }
 
-        $this->render('checkout/success', [
-            'title' => 'Order Confirmed',
-            'orderId' => $orderId,
-        ]);
+        header('Location: ' . $checkoutUrl);
+        exit;
     }
 }

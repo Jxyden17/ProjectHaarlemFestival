@@ -93,12 +93,12 @@
                     </div>
 
                     <p class="text-muted mb-4">
-                        This confirms the order and creates the first order record. Payment will be connected next.
+                        This confirms your order and continues to the Mollie iDEAL payment page.
                     </p>
 
                     <form method="POST" action="/checkout/confirm">
                         <button type="submit" class="btn btn-primary w-100">
-                            Confirm Order
+                            Continue to iDEAL
                         </button>
                     </form>
                 </div>
