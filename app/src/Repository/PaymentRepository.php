@@ -34,14 +34,15 @@ class PaymentRepository implements IPaymentRepository
     public function createPaymentRecord(int $orderId, string $method, string $status, ?string $providerPaymentId = null): int
     {
         $stmt = $this->db->prepare(
-            'INSERT INTO payments (order_id, method, status)
-             VALUES (:order_id, :method, :status)'
+            'INSERT INTO payments (order_id, method, status, provider_payment_id)
+             VALUES (:order_id, :method, :status, :provider_payment_id)'
         );
 
         $stmt->execute([
             ':order_id' => $orderId,
             ':method' => $method,
             ':status' => $status,
+            ':provider_payment_id' => $providerPaymentId,
         ]);
 
         return (int) $this->db->lastInsertId();
@@ -68,20 +69,39 @@ class PaymentRepository implements IPaymentRepository
 
     public function updatePaymentProviderId(int $paymentRecordId, string $providerPaymentId): void
     {
-        // Current schema does not have a dedicated provider_payment_id column.
-        // We keep the local record minimal and rely on Mollie metadata for correlation.
+        $stmt = $this->db->prepare(
+            'UPDATE payments
+             SET provider_payment_id = :provider_payment_id
+             WHERE id = :id'
+        );
+
+        $stmt->execute([
+            ':provider_payment_id' => $providerPaymentId,
+            ':id' => $paymentRecordId,
+        ]);
     }
 
     public function findPaymentByProviderPaymentId(string $providerPaymentId): ?array
     {
-        // Current schema does not persist provider_payment_id yet.
-        return null;
+        $stmt = $this->db->prepare(
+            'SELECT id, order_id, method, status, provider_payment_id
+             FROM payments
+             WHERE provider_payment_id = :provider_payment_id
+             ORDER BY id DESC
+             LIMIT 1'
+        );
+
+        $stmt->execute([':provider_payment_id' => $providerPaymentId]);
+
+        $payment = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $payment ?: null;
     }
 
     public function findPaymentByOrderId(int $orderId): ?array
     {
         $stmt = $this->db->prepare(
-            'SELECT id, order_id, method, status
+            'SELECT id, order_id, method, status, provider_payment_id
              FROM payments
              WHERE order_id = :order_id
              ORDER BY id DESC
@@ -97,8 +117,7 @@ class PaymentRepository implements IPaymentRepository
 
     public function markOrderAsPaid(int $orderId): void
     {
-        // Current orders schema does not have a status column yet.
-        // This method is intentionally a no-op until that column is added.
+        $this->updateOrderStatus($orderId, 'paid');
     }
 
     public function updatePaymentStatusByOrderId(int $orderId, string $status): void
@@ -112,6 +131,20 @@ class PaymentRepository implements IPaymentRepository
         $stmt->execute([
             ':status' => $status,
             ':order_id' => $orderId,
+        ]);
+    }
+
+    public function updateOrderStatus(int $orderId, string $status): void
+    {
+        $stmt = $this->db->prepare(
+            'UPDATE orders
+             SET status = :status
+             WHERE id = :id'
+        );
+
+        $stmt->execute([
+            ':status' => $status,
+            ':id' => $orderId,
         ]);
     }
 }

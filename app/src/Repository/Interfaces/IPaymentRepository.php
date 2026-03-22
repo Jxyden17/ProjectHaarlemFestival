@@ -18,5 +18,7 @@ interface IPaymentRepository
 
     public function updatePaymentStatusByOrderId(int $orderId, string $status): void;
 
+    public function updateOrderStatus(int $orderId, string $status): void;
+
     public function markOrderAsPaid(int $orderId): void;
 }
