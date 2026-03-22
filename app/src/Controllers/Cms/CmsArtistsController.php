@@ -3,8 +3,7 @@
 namespace App\Controllers\Cms;
 
 use App\Controllers\BaseController;
-use App\Models\Event\EventModel;
-use App\Service\Cms\Interfaces\IArtistesService;
+use App\Service\Interfaces\IArtistesService;
 use App\Models\Enums\Event;
 use App\Models\Event\PerformerModel;
 
@@ -27,6 +26,7 @@ class CmsArtistsController extends BaseController
             $this->renderCms('cms/artists/index', [
                 'title' => 'Artist Management',
                 'artistes' => $artistes,
+                'selectedEvent' => $selectedEvent,
             ]);
         } 
         catch (\InvalidArgumentException $e) 
@@ -40,21 +40,20 @@ class CmsArtistsController extends BaseController
     {
         $this->requireAdmin();
         $artiste = $this->artistesService->getArtisteById((int)($_GET['id'] ?? 0));
-        Event::cases();
+        $selectedEvent = $this->getSelectedEvent();
         $this->renderCms('cms/artists/edit', [
             'title' => 'Edit Artist',
             'artiste' => $artiste,
             'eventTypes' => Event::cases(),
+            'selectedEvent' => $selectedEvent,
         ]);
     }
 
     public function edit(): void
     {
         $this->requireAdmin();
-        (int)$selectedEvent = $this->getSelectedEvent();
-        try
-        {
-        $this->artistesService->updateArtiste(new PerformerModel(
+        $selectedEvent = $this->getSelectedEvent();
+        $edited = $this->artistesService->updateArtiste(new PerformerModel(
             id: (int)($_POST['id'] ?? 0),
             eventId: (int)($_POST['event_id'] ?? 0),
             performerName: $_POST['performer_name'] ?? '',
@@ -62,24 +61,22 @@ class CmsArtistsController extends BaseController
             description: $_POST['description'] ?? '',
             createdAt: $_POST['created_at'] ?? null,
         ));
-        header('Location: /cms/artists?event=' . rawurlencode(strtolower($selectedEvent->label())));
+         if($edited){
+            $_SESSION['success'] = 'Artist ' . ($_POST['performer_name'] ?? '') . ' edited successfully.';
+        } else {
+            $_SESSION['error'] = 'Artist ' . ($_POST['performer_name'] ?? '') . ' could not be edited.';
         }
-        catch (\Exception $e)
-        {
-            error_log($e->getMessage());
-            $this->renderCms('cms/artists', ['title' => 'Edit Artist', 'error' => 'Failed to update artist.']);
-            return;
-        }
+        header('Location: /cms/eventManagement/artists?event_id=' . $selectedEvent->value);
+        exit();
     }
 
     public function showCreateForm(): void
     {
         $this->requireAdmin();
-        (int)$selectedEvent = $this->getSelectedEvent();
-        $eventsTypes = Event::cases();
+        $selectedEvent = $this->getSelectedEvent();
         $this->renderCms('cms/artists/create', [
             'title' => 'Create Artist',
-            'eventTypes' => $eventsTypes,
+            'eventTypes' => Event::cases(),
             'selectedEvent' => $selectedEvent,
         ]);
     }
@@ -87,8 +84,8 @@ class CmsArtistsController extends BaseController
     public function create(): void
     {
         $this->requireAdmin();
-        (int)$selectedEvent = $this->getSelectedEvent();
-        $this->artistesService->addArtiste(new PerformerModel(
+        $selectedEvent = $this->getSelectedEvent();
+        $created = $this->artistesService->addArtiste(new PerformerModel(
             id: 0,
             eventId: (int)($_POST['event_id'] ?? 0),
             performerName: $_POST['performer_name'] ?? '',
@@ -96,14 +93,26 @@ class CmsArtistsController extends BaseController
             description: $_POST['description'] ?? '',
             createdAt: date('Y-m-d H:i:s'),
         ));
-        header('Location: /cms/artists?event=' . rawurlencode(strtolower($selectedEvent->label())));
+        if($created){
+            $_SESSION['success'] = 'Artist ' . ($_POST['performer_name'] ?? '') . ' created successfully.';
+        } else {
+            $_SESSION['error'] = 'Artist ' . ($_POST['performer_name'] ?? '') . ' could not be created.';
+        }
+        header('Location: /cms/eventManagement/artists?event_id=' . $selectedEvent->value);
+        exit();
     }
 
     public function delete(): void
     {
         $this->requireAdmin();
-        (int)$selectedEvent = $this->getSelectedEvent();
-        $this->artistesService->deleteArtisteById((int)($_GET['id'] ?? 0));
-        header('Location: /cms/artists?event=' . rawurlencode(strtolower($selectedEvent->label())));
+        $selectedEvent = $this->getSelectedEvent();
+        $deleted = $this->artistesService->deleteArtisteById((int)($_GET['id'] ?? 0));
+        if($deleted){
+            $_SESSION['success'] = 'Artist ' . ($_POST['performer_name'] ?? '') . ' deleted successfully.';
+        } else {
+            $_SESSION['error'] = 'Artist ' . $_POST['performer_name'] . ' could not be deleted.';
+        }
+        header('Location: /cms/eventManagement/artists?event_id=' . $selectedEvent->value);
+        exit();
     }
 }

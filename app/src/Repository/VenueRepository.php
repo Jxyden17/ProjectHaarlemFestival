@@ -16,7 +16,7 @@ class VenueRepository implements IVenueRepository
         $this->db = Database::getInstance();
     }
 
-    public function getByEventId(int $eventId): array
+    public function getAllForEvent(int $eventId): array
     {
         $stmt = $this->db->prepare(
             'SELECT id, event_id, venue_name, address, venue_type, created_at
@@ -51,16 +51,19 @@ class VenueRepository implements IVenueRepository
     public function update(VenueModel $venueModel): bool
     {
         $stmt = $this->db->prepare(
-            'UPDATE venues SET venue_name = :venue_name, address = :address, venue_type = :venue_type
+            'UPDATE venues
+             SET event_id = :event_id, venue_name = :venue_name, address = :address, venue_type = :venue_type
              WHERE id = :id'
         );
-        return $stmt->execute($this->mapStmt($venueModel));
+        $params = $this->mapStmt($venueModel);
+        $params[':id'] = $venueModel->id;
+        return $stmt->execute($params);
     }
-
     public function delete(int $id): bool
     {
         $stmt = $this->db->prepare('DELETE FROM venues WHERE id = :id');
-        return $stmt->execute([':id' => $id]);
+        $stmt->execute([':id' => $id]);
+        return $stmt->rowCount() > 0;
     }
 
     private function mapRow(array $row): VenueModel
@@ -75,15 +78,13 @@ class VenueRepository implements IVenueRepository
         );
     }
 
-    private function mapStmt(VenueModel $venue): array
+    private function mapStmt(VenueModel $venueModel): array
     {
-        $data = [
-            ':id' => $venue->id,
-            ':event_id' => $venue->eventId,
-            ':venue_name' => $venue->venueName,
-            ':address' => $venue->address,
-            ':venue_type' => $venue->venueType,
+        return [
+            ':event_id' => $venueModel->eventId,
+            ':venue_name' => $venueModel->venueName,
+            ':address' => $venueModel->address,
+            ':venue_type' => $venueModel->venueType,
         ];
-        return $data;
     }
 }

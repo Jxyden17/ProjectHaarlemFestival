@@ -1,7 +1,7 @@
 <div class="container py-4">
     <div class="mb-3">
         <h1 class="h3 mb-1">Event Management</h1>
-        <p class="text mb-0">Choose an event and open Artists, Venues, or Tickets.</p>
+        <p class="text mb-0">Choose an event and open Artists and Venues.</p>
     </div>
 
     <div class="mb-3">
@@ -22,9 +22,6 @@
                                 <a href="/cms/eventManagement/artists?event_id=<?= rawurlencode((int)($event['id'] ?? 0)) ?>" class="btn btn-outline-primary">Artists</a>
                             <?php endif; ?>
                             <a href="/cms/eventManagement/venues?event_id=<?= rawurlencode((int)($event['id'] ?? 0)) ?>" class="btn btn-outline-primary">Venues</a>
-                            <?php if (!empty($event['supportsTickets'])): ?>
-                                <a href="/cms/eventManagement/tickets?event_id=<?= rawurlencode((int)($event['id'] ?? 0)) ?>" class="btn btn-outline-primary">Tickets</a>
-                            <?php endif; ?>
                         </div>
                     </div>
                 </div>

@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Service\Cms;
+namespace App\Service;
 
 use App\Models\Event\PerformerModel;
 use App\Repository\Interfaces\IArtistesRepository;
-use App\Service\Cms\Interfaces\IArtistesService;
+use App\Service\Interfaces\IArtistesService;
+use App\Models\Enums\Event;
 
 class ArtistesService implements IArtistesService
 {
@@ -32,23 +33,17 @@ class ArtistesService implements IArtistesService
 
     public function updateArtiste(PerformerModel $artiste): bool
     {
-        try
-        {
-            return $this->artistesRepository->updateArtiste($artiste);
-        }
-        catch (\Exception $e)
-        {
-            error_log("Error updating artiste: " . $e->getMessage());
-            return false;
-        }
+        return $this->artistesRepository->updateArtiste($artiste);
     }
 
     public function addArtiste(PerformerModel $artiste): bool
     {
         return $this->artistesRepository->addArtiste($artiste);
     }
-    public function getEventNameById(int $eventId): ?string
+
+    //Delete Yummy van list voor artisten
+    public function supportsArtists(Event $event): bool
     {
-        return null;
+        return $event !== Event::Yummy;
     }
 }

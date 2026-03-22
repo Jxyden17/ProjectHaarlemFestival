@@ -2,13 +2,7 @@
 namespace App\Controllers\Cms;
 
 use App\Controllers\BaseController;
-use App\Models\Enums\Event;
-use App\Models\Event\EventModel;
-use App\Models\Event\PerformerModel;
 use App\Service\Cms\Interfaces\ICmsEventManagementService;
-use ErrorException;
-use Exception;
-use InvalidArgumentException;
 
 class CmsEventManagementController extends BaseController
 {

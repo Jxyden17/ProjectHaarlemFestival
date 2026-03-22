@@ -16,8 +16,23 @@ $isUsers = str_starts_with($currentPath, '/cms/users');
 $isEvents = str_starts_with($currentPath, '/cms/events');
 $isTickets = str_starts_with($currentPath, '/cms/tickets');
 $isEventManagement = str_starts_with($currentPath, '/cms/eventManagement');
+$success = $_SESSION['success'] ?? '';
+$error = $_SESSION['error'] ?? '';
+unset($_SESSION['success'], $_SESSION['error']);
 ?>
-
+<!-- Messages -->
+<?php if ($success): ?>
+    <div class="alert alert-success alert-dismissible fade show m-3" role="alert">
+        <?= htmlspecialchars($success) ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+<?php endif; ?>
+<?php if ($error): ?>
+    <div class="alert alert-danger alert-dismissible fade show m-3" role="alert">
+        <?= htmlspecialchars($error) ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+<?php endif; ?>
 <div class="container-fluid cms-shell">
     <div class="row">
         <aside class="col-12 col-md-3 col-lg-2 cms-sidebar">
@@ -72,7 +87,6 @@ $isEventManagement = str_starts_with($currentPath, '/cms/eventManagement');
         </main>
     </div>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 <script>

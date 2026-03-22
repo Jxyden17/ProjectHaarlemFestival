@@ -68,7 +68,7 @@ class BaseController
 
     protected function getSelectedEvent() :Event
     {
-        $id = $_GET['event_id'];
+        $id = (int)($_GET['event_id'] ?? 0);
 
         foreach (Event::cases() as $event) 
         {

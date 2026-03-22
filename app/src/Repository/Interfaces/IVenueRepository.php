@@ -6,7 +6,7 @@ use App\Models\Event\VenueModel;
 
 interface IVenueRepository
 {
-    public function getByEventId(int $eventId): array;
+    public function getAllForEvent(int $eventId): array;
     public function getById(int $id): ?VenueModel;
     public function create(VenueModel $venueModel): bool;
     public function update(VenueModel $venueModel): bool;

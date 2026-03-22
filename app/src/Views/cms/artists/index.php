@@ -1,19 +1,16 @@
 <?php
 use App\Models\Enums\Event;
-
-$selectedEvent = $selectedEvent ?? Event::Tour;
-$eventSlug = strtolower($selectedEvent->label());
+$eventid = $selectedEvent->value;
 ?>
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="h3 mb-0">Artist Management - <?= htmlspecialchars($selectedEvent->label()) ?></h1>
-        <a href="/cms/eventManagement/artists/create?event=<?= rawurlencode($eventSlug) ?>" class="btn btn-primary">Add Artist</a>
+        <a href="/cms/eventManagement/artists/create?event_id=<?= $eventid ?>" class="btn btn-primary">Add Artist</a>
     </div>
 
     <div class="mb-3">
-        <a href="/cms" class="btn btn-sm btn-outline-secondary">Back to CMS</a>
         <a href="/cms/eventManagement" class="btn btn-sm btn-outline-secondary">Events</a>
-        <a href="/cms/eventManagement/tickets?event=<?= rawurlencode($eventSlug) ?>" class="btn btn-sm btn-outline-secondary">Tickets</a>
+        <a href="/cms/eventManagement/tickets?event_id=<?= $eventid ?>" class="btn btn-sm btn-outline-secondary">Tickets</a>
     </div>
 
     <div class="table-responsive">
@@ -38,8 +35,8 @@ $eventSlug = strtolower($selectedEvent->label());
                         <td><?= htmlspecialchars(Event::from($artiste->eventId)->label() ?? 'Unknown') ?></td>
                         <td><?= htmlspecialchars($artiste->description ?? 'No description') ?></td>
                         <td>
-                            <a href="/cms/eventManagement/artists/edit?id=<?= (int)$artiste->id ?>&event=<?= rawurlencode($eventSlug) ?>" class="btn btn-sm btn-outline-primary">Edit</a>
-                            <a href="/cms/eventManagement/artists/delete?id=<?= (int)$artiste->id ?>&event=<?= rawurlencode($eventSlug) ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this artist? This cannot be undone.')">Delete</a>
+                            <a href="/cms/eventManagement/artists/edit?event_id=<?= $eventid ?>&id=<?= $artiste->id  ?>" class="btn btn-sm btn-outline-primary">Edit</a>
+                            <a href="/cms/eventManagement/artists/delete?event_id=<?= $eventid ?>&id=<?= $artiste->id  ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this artist? This cannot be undone.')">Delete</a>
                         </td>
                     </tr>
                 <?php endforeach; ?>

@@ -1,18 +1,10 @@
-<?php
-$selectedEvent = $selectedEvent ?? \App\Models\Enums\Event::Tour;
-$eventSlug = strtolower($selectedEvent->label());
-?>
 <div class="container py-4">
     <h1 class="h3 mb-3">Create Venue - <?= htmlspecialchars($selectedEvent->label()) ?></h1>
     <div class="mb-3">
-        <a href="/cms/eventManagement/venues?event=<?= rawurlencode($eventSlug) ?>" class="btn btn-sm btn-outline-secondary">Back to Venues</a>
+        <a href="/cms/eventManagement/venues?event_id=<?= $selectedEvent->value ?>" class="btn btn-sm btn-outline-secondary">Back to Venues</a>
     </div>
-
-    <?php if (!empty($error)): ?>
-        <div class="alert alert-danger"><?= htmlspecialchars((string) $error) ?></div>
-    <?php endif; ?>
-
-    <form action="/cms/eventManagement/venues/create?event=<?= rawurlencode($eventSlug) ?>" method="POST" class="card p-3">
+    <form action="/cms/eventManagement/venues/create?event_id=<?= $selectedEvent->value ?>" method="POST" class="card p-3">
+        <input type="hidden" name="event_id" value="<?= $selectedEvent->value ?>">
         <div class="mb-3">
             <label for="venue_name" class="form-label">Venue Name <span class="text-danger">*</span></label>
             <input type="text" id="venue_name" name="venue_name" class="form-control"
@@ -33,7 +25,7 @@ $eventSlug = strtolower($selectedEvent->label());
 
         <div class="d-flex gap-2">
             <button type="submit" class="btn btn-primary">Create Venue</button>
-            <a href="/cms/eventManagement/venues?event=<?= rawurlencode($eventSlug) ?>" class="btn btn-outline-secondary">Cancel</a>
+            <a href="/cms/eventManagement/venues?event_id=<?= $selectedEvent->value?>" class="btn btn-outline-secondary">Cancel</a>
         </div>
     </form>
 </div>

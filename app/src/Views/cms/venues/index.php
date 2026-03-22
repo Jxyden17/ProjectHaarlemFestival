@@ -1,20 +1,12 @@
-<?php
-$selectedEvent = $selectedEvent ?? \App\Models\Enums\Event::Tour;
-$eventSlug = strtolower($selectedEvent->label());
-$venues = is_array($venues ?? null) ? $venues : [];
-?>
-
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="h3 mb-0">Venue Management - <?= htmlspecialchars($selectedEvent->label()) ?></h1>
-        <a href="/cms/eventManagement/venues/create?event=<?= rawurlencode($eventSlug) ?>" class="btn btn-primary btn-sm">+ Add Venue</a>
+        <a href="/cms/eventManagement/venues/create?event_id=<?= $selectedEvent->value ?>" class="btn btn-primary btn-sm">+ Add Venue</a>
     </div>
 
     <div class="mb-3">
-        <a href="/cms" class="btn btn-sm btn-outline-secondary">Back to CMS</a>
-        <a href="/cms/eventManagement" class="btn btn-sm btn-outline-secondary">Events</a>
-        <a href="/cms/eventManagement/artists?event=<?= rawurlencode($eventSlug) ?>" class="btn btn-sm btn-outline-secondary">Artists</a>
-        <a href="/cms/eventManagement/tickets?event=<?= rawurlencode($eventSlug) ?>" class="btn btn-sm btn-outline-secondary">Tickets</a>
+        <a href="/cms/eventManagement" class="btn btn-sm btn-outline-secondary">Back to Events</a>
+        <a href="/cms/eventManagement/artists?event_id=<?= $selectedEvent->value ?>" class="btn btn-sm btn-outline-secondary">Artists</a>
     </div>
 
     <div class="table-responsive">
@@ -31,7 +23,7 @@ $venues = is_array($venues ?? null) ? $venues : [];
             <tbody>
                 <?php if ($venues === []): ?>
                     <tr>
-                        <td colspan="4" class="text-muted">No venues found for this event.</td>
+                        <td colspan="5" class="text-muted">No venues found for this event.</td>
                     </tr>
                 <?php else: ?>
                     <?php $counter = 1; ?>
@@ -42,8 +34,8 @@ $venues = is_array($venues ?? null) ? $venues : [];
                             <td><?= htmlspecialchars($venue->address ?? '') ?></td>
                             <td><?= htmlspecialchars($venue->venueType ?? 'Unknown') ?></td>
                             <td>
-                                <a href="/cms/eventManagement/venues/edit?event=<?= rawurlencode($eventSlug) ?>&venueId=<?= rawurlencode((string)($venue->id ?? '')) ?>" class="btn btn-sm btn-outline-primary">Edit</a>
-                                <a href="/cms/eventManagement/venues/delete?event=<?= rawurlencode($eventSlug) ?>&venueId=<?= rawurlencode((string)($venue->id ?? '')) ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this venue?');">Delete</a>
+                                <a href="/cms/eventManagement/venues/edit?event_id=<?= $selectedEvent->value ?>&id=<?= $venue->id ?>" class="btn btn-sm btn-outline-primary">Edit</a>
+                                <a href="/cms/eventManagement/venues/delete?event_id=<?= $selectedEvent->value ?>&id=<?= $venue->id  ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this venue?');">Delete</a>
                             </td>
                         </tr>
                     <?php endforeach; ?>

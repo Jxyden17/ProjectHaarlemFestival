@@ -19,22 +19,10 @@ class CmsTicketsController extends BaseController
     {
         $this->requireAdmin();
 
-        $selectedEvent = $this->resolveSelectedEvent();
+        $selectedEvent = $this->getSelectedEvent();
         $this->renderCms('cms/tickets/index', [
             'title' => 'Ticket Management',
             'selectedEvent' => $selectedEvent,
         ]);
-    }
-
-    private function resolveSelectedEvent(): Event
-    {
-        $slug = strtolower(trim((string)($_GET['event'] ?? '')));
-        foreach (Event::cases() as $event) {
-            if (strtolower($event->label()) === $slug) {
-                return $event;
-            }
-        }
-
-        return Event::Tour;
     }
 }

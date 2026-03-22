@@ -1,20 +1,11 @@
-<?php
-$selectedEvent = $selectedEvent ?? \App\Models\Enums\Event::Tour;
-$eventSlug = strtolower($selectedEvent->label());
-/** @var \App\Models\Event\VenueModel $venue */
-?>
 <div class="container py-4">
-    <h1 class="h3 mb-3">Edit Venue - <?= htmlspecialchars($selectedEvent->label()) ?></h1>
+    <h1 class="h3 mb-3">Edit Venue - <?= htmlspecialchars($venue->venueName) ?></h1>
     <div class="mb-3">
-        <a href="/cms/eventManagement/venues?event=<?= rawurlencode($eventSlug) ?>" class="btn btn-sm btn-outline-secondary">Back to Venues</a>
+        <a href="/cms/eventManagement/venues?event_id=<?= $selectedEvent->value ?>" class="btn btn-sm btn-outline-secondary">Back to Venues</a>
     </div>
 
-    <?php if (!empty($error)): ?>
-        <div class="alert alert-danger"><?= htmlspecialchars((string) $error) ?></div>
-    <?php endif; ?>
-
-    <form action="/cms/eventManagement/venues/edit?event=<?= rawurlencode($eventSlug) ?>" method="POST" class="card p-3">
-        <input type="hidden" name="venue_id" value="<?= (int) $venue->id ?>">
+    <form action="/cms/eventManagement/venues/edit?event_id=<?= $selectedEvent->value ?>" method="POST" class="card p-3">
+        <input type="hidden" name="id" value="<?= $venue->id ?>">
 
         <div class="mb-3">
             <label for="venue_name" class="form-label">Venue Name <span class="text-danger">*</span></label>
@@ -34,9 +25,20 @@ $eventSlug = strtolower($selectedEvent->label());
                    value="<?= htmlspecialchars($venue->venueType ?? '') ?>">
         </div>
 
+        <div class="mb-3">
+            <label for="event_id" class="form-label">Event</label>
+            <select id="event_id" name="event_id" class="form-select">
+                <?php foreach ($eventTypes as $event): ?>
+                    <option value="<?= $event->value ?>"<?= $venue->eventId === $event->value ? 'selected' : '' ?>>
+                    <?= htmlspecialchars($event->label()) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+
         <div class="d-flex gap-2">
             <button type="submit" class="btn btn-primary">Save Changes</button>
-            <a href="/cms/eventManagement/venues?event=<?= rawurlencode($eventSlug) ?>" class="btn btn-outline-secondary">Cancel</a>
+            <a href="/cms/eventManagement/venues?event_id=<?= $selectedEvent->value ?>&id=<?= $venue->id ?>" class="btn btn-outline-secondary">Cancel</a>
         </div>
     </form>
 </div>

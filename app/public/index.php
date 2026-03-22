@@ -50,7 +50,8 @@ try {
     $yummyService = new App\Service\YummyService($yummyRepo);
     $jazzService = new App\Service\JazzService($jazzRepo, $scheduleRepo);
     $authService = new App\Service\AuthService($userRepo, $passwordResetRepo, $mailService);
-    $artistesService = new App\Service\Cms\ArtistesService($artistesRepo);
+    $artistesService = new App\Service\ArtistesService($artistesRepo);
+    $venueService = new App\Service\VenueService($venueRepo);
     $cmsEventManagementService = new App\Service\Cms\CmsEventManagementService();
 
     $cmsScheduleMapper = new App\Mapper\CmsScheduleMapper($danceService);
@@ -89,7 +90,7 @@ try {
     $cmsTourContentController = new App\Controllers\Cms\CmsTourContentController($pageService, $cmsEventEditorService);
     $cmsHomeContentController = new App\Controllers\Cms\CmsHomeContentController($pageService, $cmsEventEditorService);
     $cmsArtistsController = new App\Controllers\Cms\CmsArtistsController($artistesService);
-    $cmsVenuesController = new App\Controllers\Cms\CmsVenuesController($scheduleRepo);
+    $cmsVenuesController = new App\Controllers\Cms\CmsVenuesController($venueService);
     $cmsEventManagementController = new App\Controllers\Cms\CmsEventManagementController($cmsEventManagementService);
 
     $dispatcher = simpleDispatcher(function (RouteCollector $r) {
@@ -146,24 +147,27 @@ try {
         $r->addRoute('POST', '/cms/events/home', ['CmsHomeContentController', 'update']);
         //event management routes
         $r->addRoute('GET', '/cms/eventManagement', ['CmsEventManagementController', 'index']);
+        
         $r->addRoute('GET', '/cms/eventManagement/artists', ['CmsArtistsController', 'index']);
         $r->addRoute('GET', '/cms/eventManagement/artists/create', ['CmsArtistsController', 'showCreateForm']);
         $r->addRoute('POST', '/cms/eventManagement/artists/create', ['CmsArtistsController', 'create']);
         $r->addRoute('GET', '/cms/eventManagement/artists/edit', ['CmsArtistsController', 'showEditForm']);
         $r->addRoute('POST', '/cms/eventManagement/artists/edit', ['CmsArtistsController', 'edit']);
         $r->addRoute('GET', '/cms/eventManagement/artists/delete', ['CmsArtistsController', 'delete']);
-        $r->addRoute('GET', '/cms/eventManagement/venues', ['CmsEventManagementController', 'indexVenues']);
-        $r->addRoute('GET', '/cms/eventManagement/venues/create', ['CmsEventManagementController', 'showCreateFormVenues']);
-        $r->addRoute('POST', '/cms/eventManagement/venues/create', ['CmsEventManagementController', 'createVenues']);
-        $r->addRoute('GET', '/cms/eventManagement/venues/edit', ['CmsEventManagementController', 'showEditFormVenues']);
-        $r->addRoute('POST', '/cms/eventManagement/venues/edit', ['CmsEventManagementController', 'editVenues']);
-        $r->addRoute('GET', '/cms/eventManagement/venues/delete', ['CmsEventManagementController', 'deleteVenues']);
-        $r->addRoute('GET', '/cms/eventManagement/tickets', ['CmsEventManagementController', 'indexTickets']);
-        $r->addRoute('GET', '/cms/eventManagement/tickets/create', ['CmsEventManagementController', 'showCreateFormTickets']);
-        $r->addRoute('POST', '/cms/eventManagement/tickets/create', ['CmsEventManagementController', 'createTickets']);
-        $r->addRoute('GET', '/cms/eventManagement/tickets/edit', ['CmsEventManagementController', 'showEditFormTickets']);
-        $r->addRoute('POST', '/cms/eventManagement/tickets/edit', ['CmsEventManagementController', 'editTickets']);
-        $r->addRoute('GET', '/cms/eventManagement/tickets/delete', ['CmsEventManagementController', 'deleteTickets']);
+
+        $r->addRoute('GET', '/cms/eventManagement/venues', ['CmsVenuesController', 'index']);
+        $r->addRoute('GET', '/cms/eventManagement/venues/create', ['CmsVenuesController', 'showCreateForm']);
+        $r->addRoute('POST', '/cms/eventManagement/venues/create', ['CmsVenuesController', 'create']);
+        $r->addRoute('GET', '/cms/eventManagement/venues/edit', ['CmsVenuesController', 'showEditForm']);
+        $r->addRoute('POST', '/cms/eventManagement/venues/edit', ['CmsVenuesController', 'edit']);
+        $r->addRoute('GET', '/cms/eventManagement/venues/delete', ['CmsVenuesController', 'delete']);
+
+        $r->addRoute('GET', '/cms/eventManagement/tickets', ['CmsTicketsController', 'index']);
+        $r->addRoute('GET', '/cms/eventManagement/tickets/create', ['CmsTicketsController', 'showCreateForm']);
+        $r->addRoute('POST', '/cms/eventManagement/tickets/create', ['CmsTicketsController', 'create']);
+        $r->addRoute('GET', '/cms/eventManagement/tickets/edit', ['CmsTicketsController', 'showEditForm']);
+        $r->addRoute('POST', '/cms/eventManagement/tickets/edit', ['CmsTicketsController', 'edit']);
+        $r->addRoute('GET', '/cms/eventManagement/tickets/delete', ['CmsTicketsController', 'delete']);
 
         $r->addRoute('GET', '/jazz', ['JazzController', 'index']);
     });
