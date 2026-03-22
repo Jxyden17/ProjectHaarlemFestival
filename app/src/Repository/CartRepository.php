@@ -137,6 +137,24 @@ class CartRepository implements ICartRepository
         return $item ?: null;
     }
 
+    public function findCartItemById(int $cartItemId): ?array
+    {
+        $stmt = $this->db->prepare(
+            'SELECT *
+             FROM shopping_cart_items
+             WHERE id = :id
+             LIMIT 1'
+        );
+
+        $stmt->execute([
+            ':id' => $cartItemId,
+        ]);
+
+        $item = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $item ?: null;
+    }
+
     public function addCartItem(int $cartId, int $sessionId, int $quantity, float $unitPrice): void
     {
         $stmt = $this->db->prepare(

@@ -66,6 +66,7 @@ class CartService implements ICartService
         foreach ($items as &$item) {
             $lineTotal = (float) $item['unit_price'] * (int) $item['quantity'];
             $item['line_total'] = $lineTotal;
+            $item['remaining_spots'] = max(0, (int) ($item['available_spots'] ?? 0) - (int) ($item['amount_sold'] ?? 0));
             $subtotal += $lineTotal;
 
             $dateKey = (string) ($item['date'] ?? '');
@@ -188,6 +189,22 @@ class CartService implements ICartService
         if ($quantity <= 0) {
             $this->cartRepository->removeCartItem($cartItemId);
             return;
+        }
+
+        $cartItem = $this->cartRepository->findCartItemById($cartItemId);
+        if (!$cartItem) {
+            throw new \RuntimeException('Cart item not found.');
+        }
+
+        $sessionId = (int) ($cartItem['session_id'] ?? 0);
+        $session = $this->cartRepository->findSessionById($sessionId);
+        if (!$session) {
+            throw new \RuntimeException('Session not found.');
+        }
+
+        $remainingSpots = (int) ($session['available_spots'] ?? 0) - (int) ($session['amount_sold'] ?? 0);
+        if ($quantity > $remainingSpots) {
+            throw new \RuntimeException('Not enough spots available.');
         }
 
         $this->cartRepository->updateCartItemQuantity($cartItemId, $quantity);

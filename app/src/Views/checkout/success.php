@@ -10,7 +10,6 @@
             </p>
             <div class="d-flex justify-content-center gap-3">
                 <a href="/" class="btn btn-primary">Back to Events</a>
-                <a href="/cart" class="btn btn-outline-secondary">Open New Cart</a>
             </div>
         </div>
     </section>

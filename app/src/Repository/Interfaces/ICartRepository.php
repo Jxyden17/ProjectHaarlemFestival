@@ -14,6 +14,8 @@ interface ICartRepository
     public function findCartItemsByCartId(int $cartId): array;
     //Check if the session is already in the cart
     public function findCartItemByCartIdAndSessionId(int $cartId, int $sessionId): ?array;
+    //Find a cart item by its id
+    public function findCartItemById(int $cartItemId): ?array;
     //Add a session to the cart with the specified quantity and unit price
     public function addCartItem(int $cartId, int $sessionId, int $quantity, float $unitPrice): void;
     //Update the quantity of a cart item
