@@ -97,7 +97,7 @@ For dance detail tracks:
 
 Main CMS controllers:
 
-- `App\Controllers\Cms\CmsDanceContentController`
+- `App\Controllers\Cms\CmsDanceController`
 - `App\Controllers\Cms\CmsEventEditorController`
 - `App\Controllers\Cms\CmsMediaController`
 

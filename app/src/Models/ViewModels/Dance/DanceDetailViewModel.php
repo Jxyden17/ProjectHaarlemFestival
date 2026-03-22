@@ -4,6 +4,7 @@ namespace App\Models\ViewModels\Dance;
 
 class DanceDetailViewModel
 {
+    public string $pageTitle;
     public string $performerName;
     public string $badge;
     public string $subtitle;
@@ -19,6 +20,7 @@ class DanceDetailViewModel
     public string $importantInfoHtml;
 
     public function __construct(
+        ?string $pageTitle = null,
         ?string $performerName = null,
         ?string $badge = null,
         ?string $subtitle = null,
@@ -33,6 +35,7 @@ class DanceDetailViewModel
         ?string $importantInfoTitle = null,
         ?string $importantInfoHtml = null
     ) {
+        $this->pageTitle = $this->normalizeText($pageTitle, 'Dance Detail');
         $this->performerName = trim((string)$performerName);
         $this->badge = trim((string)$badge);
         $this->subtitle = trim((string)$subtitle);
@@ -50,17 +53,11 @@ class DanceDetailViewModel
 
     private function normalizeHeroImages(array $heroImages): array
     {
-        $normalized = [];
-
-        for ($index = 0; $index < 3; $index++) {
-            $image = $heroImages[$index] ?? null;
-            $normalized[] = [
-                'image' => trim((string)($image['image'] ?? '')),
-                'alt' => trim((string)($image['alt'] ?? '')),
-            ];
-        }
-
-        return $normalized;
+        return [
+            'left' => $this->normalizeHeroImageSlot($heroImages['left'] ?? $heroImages[0] ?? null),
+            'center' => $this->normalizeHeroImageSlot($heroImages['center'] ?? $heroImages[1] ?? null),
+            'right' => $this->normalizeHeroImageSlot($heroImages['right'] ?? $heroImages[2] ?? null),
+        ];
     }
 
     private function normalizeText(?string $value, string $fallback): string
@@ -68,5 +65,13 @@ class DanceDetailViewModel
         $normalized = trim((string)$value);
 
         return $normalized === '' ? $fallback : $normalized;
+    }
+
+    private function normalizeHeroImageSlot(mixed $heroImage): array
+    {
+        return [
+            'image' => trim((string)($heroImage['image'] ?? '')),
+            'alt' => trim((string)($heroImage['alt'] ?? '')),
+        ];
     }
 }

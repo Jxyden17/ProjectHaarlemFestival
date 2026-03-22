@@ -7,6 +7,7 @@ use App\Models\Database;
 use App\Models\Event\EventModel;
 use App\Repository\Interfaces\IScheduleRepository;
 use PDO;
+use PDOException;
 
 class ScheduleRepository implements IScheduleRepository
 {
@@ -200,6 +201,7 @@ class ScheduleRepository implements IScheduleRepository
         try {
             $this->updateEventVenues($eventId, $venueRows);
             $this->updateEventPerformers($eventId, $performerRows);
+            $this->syncDetailPagePageSlugsToPerformers($eventId, $performerRows);
             $this->updateEventSessions($eventId, $sessionRows);
             $this->replaceEventSessionPerformers($eventId, $sessionPerformerRows);
             $this->db->commit();
@@ -277,6 +279,34 @@ class ScheduleRepository implements IScheduleRepository
                 ':available_spots' => $row['available_spots'],
                 ':id' => $row['id'],
                 ':event_id' => $eventId,
+            ]);
+        }
+    }
+
+    private function syncDetailPagePageSlugsToPerformers(int $eventId, array $performerRows): void
+    {
+        if ($performerRows === []) {
+            return;
+        }
+
+        $update = $this->db->prepare(
+            'UPDATE pages p
+             INNER JOIN event_detail_pages edp ON edp.page_id = p.id
+             SET p.slug = :page_slug
+             WHERE edp.event_id = :event_id
+               AND edp.performer_id = :performer_id'
+        );
+
+        foreach ($performerRows as $row) {
+            $pageSlug = trim((string)($row['page_slug'] ?? ''));
+            if ($pageSlug === '') {
+                continue;
+            }
+
+            $update->execute([
+                ':page_slug' => $pageSlug,
+                ':event_id' => $eventId,
+                ':performer_id' => (int)$row['id'],
             ]);
         }
     }

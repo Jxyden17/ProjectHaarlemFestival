@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Mapper\ScheduleViewModelMapper;
 use App\Models\ViewModels\Jazz\JazzIndexViewModel;
 use App\Service\Interfaces\IJazzService;
 use App\Service\Interfaces\IScheduleService;
@@ -11,15 +12,23 @@ class JazzController extends BaseController
 {
     private IJazzService $jazzService;
     private IScheduleService $scheduleService;
+    private ScheduleViewModelMapper $scheduleViewModelMapper;
 
-    public function __construct( IScheduleService $scheduleService, IJazzService $jazzService)
+    public function __construct(
+        IScheduleService $scheduleService,
+        IJazzService $jazzService,
+        ScheduleViewModelMapper $scheduleViewModelMapper
+    )
     {
         $this->jazzService = $jazzService;
         $this->scheduleService = $scheduleService;
+        $this->scheduleViewModelMapper = $scheduleViewModelMapper;
     }
    public function index()
     {
-        $schedule = $this->scheduleService->getScheduleDataForEvent('Jazz', 'Jazz Schedule');
+        $schedule = $this->scheduleViewModelMapper->mapScheduleData(
+            $this->scheduleService->getScheduleDataForEvent('Jazz', 'Jazz Schedule')
+        );
         $jazzPerformers=$this->jazzService->getAllJazzPerformers();
         $jazzViewModel=new JazzIndexViewModel($schedule,$jazzPerformers);
         $this->render("/Jazz/index",['jazzViewModel' => $jazzViewModel]);

@@ -1,0 +1,129 @@
+<?php
+
+namespace App\Controllers\Cms;
+
+use App\Mapper\CmsDanceViewModelMapper;
+use App\Controllers\BaseController;
+use App\Models\Requests\UpdateDanceDetailRequest;
+use App\Models\Requests\UpdateDanceHomeRequest;
+use App\Service\Cms\Interfaces\ICmsDanceService;
+
+class CmsDanceController extends BaseController
+{
+    private ICmsDanceService $danceService;
+    private CmsDanceViewModelMapper $cmsDanceViewModelMapper;
+
+    public function __construct(ICmsDanceService $danceService, CmsDanceViewModelMapper $cmsDanceViewModelMapper)
+    {
+        $this->danceService = $danceService;
+        $this->cmsDanceViewModelMapper = $cmsDanceViewModelMapper;
+    }
+
+    public function index(): void
+    {
+        $this->requireAdmin();
+        $contentViewModel = $this->cmsDanceViewModelMapper->mapHomePageToEditViewModel(
+            $this->danceService->getDanceHomePage()
+        );
+
+        $this->renderCms('cms/events/dance-home', [
+            'title' => 'Dance Home Content',
+            'contentViewModel' => $contentViewModel,
+            'success' => isset($_GET['saved']),
+        ]);
+    }
+
+    public function updateHome(): void
+    {
+        $this->requireAdmin();
+        $request = UpdateDanceHomeRequest::fromArray($_POST);
+
+        try {
+            $this->danceService->saveDanceHomePage($request);
+            header('Location: /cms/events/dance-home?saved=1');
+            exit;
+        } catch (\Throwable $e) {
+            $contentViewModel = $this->cmsDanceViewModelMapper->mapHomeRequestToEditViewModel($request);
+            $this->renderCms('cms/events/dance-home', [
+                'title' => 'Dance Home Content',
+                'contentViewModel' => $contentViewModel,
+                'error' => $e->getMessage(),
+                'success' => false,
+            ]);
+        }
+    }
+
+    public function updateHomeAPI(array $vars = []): void
+    {
+        $this->requireAdmin();
+        $request = UpdateDanceHomeRequest::fromArray($_POST);
+
+        try {
+            $this->danceService->saveDanceHomePage($request);
+            $this->json(['success' => true,'message' => 'Dance home content updated.',]);
+        } catch (\Throwable $e) {
+            $this->json(['success' => false, 'message' => $e->getMessage(),], 422);
+        }
+    }
+
+    public function detail(array $vars = []): void
+    {
+        $this->requireAdmin();
+
+        $pageSlug = trim((string)($vars['pageSlug'] ?? ''));
+        $detailData = $this->danceService->getDanceDetailEditorData($pageSlug);
+        $contentViewModel = $this->cmsDanceViewModelMapper->mapDetailDataToEditViewModel($detailData);
+
+        $this->renderCms('cms/events/dance-detail', [
+            'title' => $contentViewModel->editorTitle,
+            'contentViewModel' => $contentViewModel,
+            'success' => isset($_GET['saved']),
+        ]);
+    }
+
+    public function updateDetail(array $vars = []): void
+    {
+        $this->requireAdmin();
+
+        $pageSlug = trim((string)($vars['pageSlug'] ?? ''));
+        $request = UpdateDanceDetailRequest::fromArray($_POST);
+
+        try {
+            $this->danceService->saveDanceDetailPage($pageSlug, $request);
+            header('Location: /cms/events/dance-detail/' . rawurlencode($pageSlug) . '?saved=1');
+            exit;
+        } catch (\Throwable $e) {
+            $detailData = $this->danceService->getDanceDetailEditorData($pageSlug);
+            $baseViewModel = $this->cmsDanceViewModelMapper->mapDetailDataToEditViewModel($detailData);
+            $contentViewModel = $this->cmsDanceViewModelMapper->mapDetailRequestToEditViewModel($request, $baseViewModel);
+            $this->renderCms('cms/events/dance-detail', [
+                'title' => $contentViewModel->editorTitle,
+                'contentViewModel' => $contentViewModel,
+                'error' => $e->getMessage(),
+                'success' => false,
+            ]);
+        }
+    }
+
+    public function updateDetailAPI(array $vars = []): void
+    {
+        $this->requireAdmin();
+
+        $pageSlug = trim((string)($vars['pageSlug'] ?? ''));
+        $request = UpdateDanceDetailRequest::fromArray($_POST);
+
+        try {
+            $this->danceService->saveDanceDetailPage($pageSlug, $request);
+            $this->json([
+                'success' => true,
+                'message' => 'Dance detail content updated.',
+            ]);
+        } catch (\Throwable $e) {
+            $this->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 422);
+        }
+    }
+
+}

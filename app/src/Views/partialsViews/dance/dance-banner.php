@@ -1,6 +1,6 @@
 <?php
 $badge = trim((string)($danceIndexViewModel->bannerBadge ?? ''));
-$title = trim((string)($danceIndexViewModel->bannerTitle ?? ''));
+$bannerTitle = trim((string)($danceIndexViewModel->bannerTitle ?? ''));
 $description = (string)($danceIndexViewModel->bannerDescription ?? '');
 $totalEvents = (int)($danceIndexViewModel->totalEvents ?? 0);
 $totalLocations = (int)($danceIndexViewModel->totalLocations ?? 0);
@@ -13,7 +13,7 @@ $totalLocations = (int)($danceIndexViewModel->totalLocations ?? 0);
             <span><?= htmlspecialchars($badge) ?></span>
         </div>
 
-        <h1 class="dance-banner-title"><?= htmlspecialchars($title) ?></h1>
+        <h1 class="dance-banner-title"><?= htmlspecialchars($bannerTitle) ?></h1>
         <div class="dance-banner-description"><?= $description ?></div>
 
         <div class="dance-banner-stats">

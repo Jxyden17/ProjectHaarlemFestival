@@ -52,130 +52,138 @@ body {
    ======================================== */
 
 .stories-hero-section {
-    position: relative;
-    height: 420px; /* slightly shorter for a tighter layout */
-    overflow: hidden;
+    background: var(--primary-color);
+    border-bottom: 0.125rem solid var(--accent-color);
+    padding: 2.7rem 0 2.9rem;
     margin-bottom: 50px;
 }
 
-.stories-hero-images {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0;
+.stories-hero-inner {
+    max-width: 62rem;
+    margin: 0 auto;
+    padding: 0 1.5rem;
 }
 
-.stories-hero-img-item {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-}
-
-.stories-hero-img-item img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
+.stories-hero-images,
 .stories-hero-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(rgba(15, 32, 53, 0.7), rgba(15, 32, 53, 0.9));
+    display: none;
 }
 
 .stories-hero-text {
-    position: absolute;
-    top: 50%;
-    left: 60px;
-    right: 60px;
-    transform: translateY(-50%);
-    max-width: 600px; /* narrower to avoid excess whitespace */
-    z-index: 10;
+    max-width: 47rem;
 }
 
 /* Hero Badge */
 .hero-badge {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    background: rgba(199, 150, 54, 0.15);
-    border: 1px solid rgba(199, 150, 54, 0.3);
-    border-radius: 6px;
-    margin-bottom: 20px;
+    gap: 0.5rem;
+    background: rgba(214, 163, 60, 0.12);
+    border: 0.0625rem solid rgba(214, 163, 60, 0.35);
+    color: var(--accent-color);
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 0.45rem 0.75rem;
+    border-radius: 0.25rem;
+    margin-bottom: 1.25rem;
 }
 
 .hero-badge-icon {
-    font-size: 18px;
+    width: 0.9rem;
+    height: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .hero-badge-text {
-    font-size: 14px;
+    font-size: 0.85rem;
     color: var(--accent-color);
+    font-weight: 700;
+}
+
+.stories-hero-text h1,
+.stories-hero-text h2 {
+    color: rgba(245, 245, 245, 0.92);
+    font-size: 1.2rem;
+    line-height: 1.35;
+    margin: 0 0 0.55rem;
     font-weight: 600;
 }
 
-.stories-hero-text h1 {
-    font-size: 48px; /* smaller heading for better proportion */
-    font-weight: 700;
-    margin-bottom: 18px;
-    color: var(--text-light);
-    line-height: 1.2;
-}
-
 .stories-hero-text p {
-    font-size: 15px;
-    color: var(--text-muted);
-    line-height: 1.7;
-    margin-bottom: 6px;
+    color: var(--natural-light);
+    font-size: clamp(1.1rem, 1.15vw, 1.28rem);
+    line-height: 1.4;
+    margin: 0 0 1.4rem;
+    font-weight: 700;
 }
 
-.stories-hero-text p:last-of-type {
-    margin-bottom: 35px;
-}
-
-/* Hero Info Cards */
 .hero-info-cards {
     display: flex;
-    gap: 40px;
-    margin-bottom: 30px;
     flex-wrap: wrap;
+    gap: 0.9rem;
+    margin-bottom: 1.4rem;
+}
+
+.stories-schedule-wrapper .schedule-row-head > div:nth-child(5) {
+    color: transparent;
+    position: relative;
+    font-size: inherit;
+}
+
+.stories-schedule-wrapper .schedule-row-head > div:nth-child(5)::after {
+    content: "AGE";
+    color: rgba(245, 245, 245, 0.92);
+    font-size: inherit;
+    font-weight: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    line-height: inherit;
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
 }
 
 .hero-info-card {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 12px;
-    padding: 14px 18px;
-    background: rgba(45, 69, 99, 0.3);
-    border: 1px solid rgba(199, 150, 54, 0.2);
-    border-radius: 8px;
-    min-width: 180px;
+    gap: 0.75rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 0.0625rem solid rgba(255, 255, 255, 0.09);
+    border-radius: 0.55rem;
+    padding: 0.62rem 0.9rem;
+    min-width: 11rem;
 }
 
 .info-card-icon {
-    font-size: 32px;
-    flex-shrink: 0;
+    width: 1.55rem;
+    height: 1.55rem;
+    border-radius: 0.35rem;
+    background: rgba(214, 163, 60, 0.2);
+    color: var(--accent-color);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
 }
 
 .info-card-content h3 {
-    font-size: 14px;
-    color: var(--text-muted);
-    font-weight: 500;
-    margin: 0 0 5px 0;
+    color: rgba(217, 225, 245, 0.72);
+    font-family: "Source Sans 3", system-ui, sans-serif;
+    font-size: 0.74rem;
+    line-height: 1.1;
+    font-weight: 600;
+    margin-bottom: 0.12rem;
 }
 
 .info-card-content p {
-    font-size: 20px;
-    color: var(--accent-color);
+    color: var(--natural-light);
+    font-family: "Source Sans 3", system-ui, sans-serif;
     font-weight: 700;
+    font-size: 1.02rem;
+    line-height: 1.1;
     margin: 0;
 }
 
@@ -208,6 +216,122 @@ body {
 
 .view-program-btn-icon {
     font-size: 18px;
+}
+
+/* ========================================
+   Callout Section
+   ======================================== */
+
+.stories-callout {
+    background: var(--primary-color);
+    padding: 1.5rem 0 3.5rem;
+}
+
+.stories-callout .callout-inner {
+    max-width: 62rem;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+.callout-feature {
+    position: relative;
+    min-height: 16.75rem;
+    border-radius: 1rem;
+    overflow: hidden;
+    background:
+        linear-gradient(90deg, rgba(6, 13, 26, 0.88) 0%, rgba(6, 13, 26, 0.5) 36%, rgba(6, 13, 26, 0.82) 100%),
+        radial-gradient(circle at top right, rgba(42, 106, 196, 0.32), transparent 32%),
+        #13263f;
+    box-shadow: 0 1.5rem 3.75rem rgba(0, 0, 0, 0.28);
+}
+
+.callout-feature-image {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    inset: 0;
+    object-fit: cover;
+    opacity: 0.62;
+}
+
+.callout-feature-overlay {
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(90deg, rgba(8, 16, 30, 0.78) 0%, rgba(8, 16, 30, 0.2) 48%, rgba(8, 16, 30, 0.86) 100%),
+        linear-gradient(180deg, rgba(17, 35, 61, 0.08) 0%, rgba(17, 35, 61, 0.44) 100%);
+}
+
+.callout-copy {
+    position: absolute;
+    left: 2.2rem;
+    right: 2.2rem;
+    bottom: 2rem;
+    z-index: 1;
+    max-width: 28rem;
+}
+
+.callout-title {
+    color: #fff;
+    font-size: clamp(2rem, 3vw, 2.55rem);
+    line-height: 1.02;
+    margin: 0 0 0.5rem;
+    font-weight: 700;
+    text-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.35);
+}
+
+.callout-subtitle {
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 1rem;
+    line-height: 1.45;
+    margin: 0;
+    max-width: 25rem;
+}
+
+.callout-description {
+    color: rgba(232, 238, 247, 0.88);
+    font-size: 1.08rem;
+    margin: 1.5rem 0 0;
+    line-height: 1.7;
+    max-width: 100%;
+}
+
+.callout-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+}
+
+.callout-item {
+    background: rgba(255, 255, 255, 0.04);
+    border: 0.0625rem solid rgba(255, 255, 255, 0.08);
+    border-radius: 0.45rem;
+    padding: 1rem;
+}
+
+.callout-item-title {
+    color: var(--natural-light);
+    font-size: 1.05rem;
+    margin: 0 0 0.5rem;
+    font-weight: 600;
+}
+
+.callout-item-content {
+    color: rgba(217, 225, 245, 0.72);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin: 0 0 0.75rem;
+}
+
+.callout-item-link {
+    display: inline-block;
+    color: var(--accent-color);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.callout-item-link:hover {
+    text-decoration: underline;
 }
 
 /* ========================================
@@ -343,52 +467,66 @@ body {
 
 .venues-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 30px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
 }
 
 .venue-card {
-    background: var(--darker-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 30px;
-    transition: border-color 0.3s ease;
+    background: rgba(28, 59, 98, 0.92);
+    border: 1px solid rgba(118, 150, 198, 0.1);
+    border-radius: 14px;
+    padding: 22px 24px 20px;
+    min-height: 170px;
+    transition: border-color 0.3s ease, transform 0.3s ease;
 }
 
 .venue-card:hover {
-    border-color: var(--stories-accent);
+    border-color: rgba(199, 150, 54, 0.38);
+    transform: translateY(-2px);
+}
+
+.venue-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.venue-pin {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 18px;
+    margin-top: 2px;
+    background: url("/img/storiesIMG/Icon-for-the-hero-pointer.png") center/contain no-repeat;
+}
+
+.venue-heading-copy {
+    min-width: 0;
 }
 
 .venue-header h3 {
-    font-size: 18px;
+    font-size: 24px;
     font-weight: 700;
-    margin-bottom: 8px;
+    line-height: 1.2;
+    margin: 0 0 6px;
     color: var(--text-light);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.venue-header h3::before {
-    content: "📍";
-    font-size: 20px;
 }
 
 .venue-address {
-    font-size: 13px;
-    color: var(--text-muted);
-    margin-bottom: 15px;
+    font-size: 14px;
+    color: rgba(235, 241, 250, 0.82);
+    margin-bottom: 0;
     margin-top: 0;
 }
 
 .venue-description {
-    margin-bottom: 20px;
+    margin-bottom: 18px;
 }
 
 .venue-description p {
-    font-size: 14px;
-    color: var(--text-muted);
-    line-height: 1.7;
+    font-size: 16px;
+    color: rgba(235, 241, 250, 0.9);
+    line-height: 1.65;
     margin: 0;
 }
 
@@ -396,25 +534,23 @@ body {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin-top: 15px;
-    padding-top: 15px;
-    border-top: 1px solid var(--border-color);
+    margin-top: auto;
 }
 
 .tag {
     display: inline-block;
-    padding: 6px 12px;
-    background-color: var(--border-color);
-    color: var(--text-light);
+    padding: 4px 10px;
+    background-color: rgba(124, 96, 191, 0.5);
+    color: #f1e9ff;
     border-radius: 20px;
     font-size: 12px;
     font-weight: 500;
     white-space: nowrap;
 }
 
-.tag:nth-child(1) { background-color: rgba(106, 93, 175, 0.3); color: #9B8ED2; }
-.tag:nth-child(2) { background-color: rgba(82, 68, 138, 0.3); color: #9B8ED2; }
-.tag:nth-child(3) { background-color: rgba(106, 93, 175, 0.3); color: #9B8ED2; }
+.tag:nth-child(1) { background-color: rgba(121, 92, 184, 0.72); color: #f7efff; }
+.tag:nth-child(2) { background-color: rgba(110, 86, 175, 0.72); color: #f7efff; }
+.tag:nth-child(3) { background-color: rgba(121, 92, 184, 0.72); color: #f7efff; }
 
 /* ========================================
    Schedule Section
@@ -694,6 +830,28 @@ body {
         padding: 40px 20px;
     }
 
+    .stories-callout {
+        padding: 1rem 0 2.75rem;
+    }
+
+    .callout-feature {
+        min-height: 13.5rem;
+    }
+
+    .callout-copy {
+        left: 1.35rem;
+        right: 1.35rem;
+        bottom: 1.35rem;
+    }
+
+    .callout-title {
+        font-size: 1.75rem;
+    }
+
+    .callout-description {
+        font-size: 1rem;
+    }
+
     .section-wrapper .main-grid-title {
         font-size: 28px;
         margin-bottom: 30px;
@@ -718,6 +876,15 @@ body {
         font-size: 28px;
     }
 
+    .venues-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .venue-header h3 {
+        font-size: 21px;
+    }
+
     .explore-grid {
         grid-template-columns: 1fr;
     }
@@ -732,6 +899,29 @@ body {
     .stories-hero-text h1 {
         font-size: 24px;
         margin-bottom: 12px;
+    }
+
+    .stories-callout .callout-inner {
+        padding: 0 1rem;
+    }
+
+    .callout-feature {
+        min-height: 11.5rem;
+        border-radius: 0.8rem;
+    }
+
+    .callout-copy {
+        left: 1rem;
+        right: 1rem;
+        bottom: 1rem;
+    }
+
+    .callout-title {
+        font-size: 1.45rem;
+    }
+
+    .callout-subtitle {
+        font-size: 0.92rem;
     }
 
     .stories-hero-text p {
@@ -749,6 +939,14 @@ body {
     .venue-card,
     .schedule-item {
         padding: 15px;
+    }
+
+    .venue-header h3 {
+        font-size: 18px;
+    }
+
+    .venue-description p {
+        font-size: 14px;
     }
 
     .faq-question {

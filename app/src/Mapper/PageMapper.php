@@ -11,7 +11,11 @@ class PageMapper
     public function mapPageRows(array $rows): Page
     {
         $firstRow = $rows[0];
-        $page = new Page((string)($firstRow['page_name'] ?? ''), (string)($firstRow['slug'] ?? ''));
+        $page = new Page(
+            (string)($firstRow['page_name'] ?? ''),
+            (string)($firstRow['slug'] ?? ''),
+            (int)($firstRow['page_id'] ?? 0)
+        );
         $sectionsById = [];
 
         foreach ($rows as $row) {
