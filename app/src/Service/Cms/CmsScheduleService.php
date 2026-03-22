@@ -2,27 +2,56 @@
 
 namespace App\Service\Cms;
 
-use App\Models\Commands\Cms\Schedule\ScheduleSaveCommand;
+use App\Mapper\CmsScheduleMapper;
+use App\Models\Edit\Schedule\SchedulePerformerEditRow;
+use App\Models\Edit\Schedule\ScheduleSaveInput;
+use App\Models\Edit\Schedule\ScheduleSessionEditRow;
+use App\Models\Edit\Schedule\ScheduleVenueEditRow;
 use App\Models\Event\EventModel;
 use App\Models\Event\PerformerModel;
 use App\Models\Event\SessionModel;
 use App\Models\Event\VenueModel;
-use App\Models\Requests\Cms\Schedule\SchedulePerformerRowRequest;
-use App\Models\Requests\Cms\Schedule\ScheduleSessionRowRequest;
-use App\Models\Requests\Cms\Schedule\ScheduleVenueRowRequest;
+use App\Models\ViewModels\Cms\Schedule\ScheduleEditorViewModel;
 use App\Repository\Interfaces\IScheduleRepository;
 use App\Service\Cms\Interfaces\ICmsScheduleService;
+use App\Validator\CmsScheduleValidator;
 
 class CmsScheduleService implements ICmsScheduleService
 {
     private IScheduleRepository $scheduleRepo;
+    private CmsScheduleMapper $cmsScheduleMapper;
+    private CmsScheduleValidator $scheduleValidator;
 
-    public function __construct(IScheduleRepository $scheduleRepo)
+    public function __construct(
+        IScheduleRepository $scheduleRepo,
+        CmsScheduleMapper $cmsScheduleMapper,
+        CmsScheduleValidator $scheduleValidator
+    )
     {
         $this->scheduleRepo = $scheduleRepo;
+        $this->cmsScheduleMapper = $cmsScheduleMapper;
+        $this->scheduleValidator = $scheduleValidator;
     }
 
-    public function saveScheduleData(string $eventName, ScheduleSaveCommand $command): void
+    public function getScheduleEditorData(string $eventName): ScheduleEditorViewModel
+    {
+        $event = $this->findEventOrFail($eventName);
+        $venues = $this->scheduleRepo->getVenuesByEventId((int)$event->id);
+        $performers = $this->scheduleRepo->getPerformersByEventId((int)$event->id);
+        $sessions = $this->scheduleRepo->getSessionsByEventId((int)$event->id);
+        $sessionPerformers = $this->scheduleRepo->getSessionPerformersByEventId((int)$event->id);
+
+        $sessionPerformerMap = $this->cmsScheduleMapper->buildSessionPerformerMap($sessionPerformers);
+
+        return new ScheduleEditorViewModel(
+            $event->name,
+            $this->cmsScheduleMapper->mapVenueRows($venues),
+            $this->cmsScheduleMapper->mapPerformerRows($performers),
+            $this->cmsScheduleMapper->mapSessionRows($sessions, $sessionPerformerMap)
+        );
+    }
+
+    public function saveScheduleData(string $eventName, ScheduleSaveInput $input): void
     {
         $event = $this->findEventOrFail($eventName);
         $venues = $this->scheduleRepo->getVenuesByEventId((int)$event->id);
@@ -33,18 +62,16 @@ class CmsScheduleService implements ICmsScheduleService
         $allowedPerformerIds = $this->extractPerformerIds($performers);
         $allowedSessionIds = $this->extractSessionIds($sessions);
 
-        $venueRows = $this->normalizeVenueRows($command->venues());
-        $performerRows = $this->normalizePerformerRows($command->performers());
+        $venueRows = $this->normalizeVenueRows($input->venues());
+        $performerRows = $this->normalizePerformerRows($input->performers());
         [$sessionRows, $sessionPerformerRows] = $this->normalizeSessionRows(
-            $command->sessions(),
+            $input->sessions(),
             $allowedVenueIds,
             $allowedPerformerIds,
             $allowedSessionIds
         );
 
-        if (count($sessionRows) === 0) {
-            throw new \InvalidArgumentException('No schedule rows were provided.');
-        }
+        $this->scheduleValidator->validateSessionRowsNotEmpty($sessionRows);
 
         $this->scheduleRepo->saveEventScheduleData(
             (int)$event->id,
@@ -109,7 +136,7 @@ class CmsScheduleService implements ICmsScheduleService
         $normalizedRows = [];
 
         foreach ($rows as $row) {
-            if (!$row instanceof ScheduleVenueRowRequest) {
+            if (!$row instanceof ScheduleVenueEditRow) {
                 continue;
             }
 
@@ -118,9 +145,7 @@ class CmsScheduleService implements ICmsScheduleService
             $address = $row->address();
             $type = $row->type();
 
-            if ($id <= 0 || $name === '') {
-                throw new \InvalidArgumentException('Each venue row requires id and venue name.');
-            }
+            $this->scheduleValidator->validateVenueRow($id, $name);
 
             $normalizedRows[] = [
                 'id' => $id,
@@ -136,9 +161,10 @@ class CmsScheduleService implements ICmsScheduleService
     private function normalizePerformerRows(array $rows): array
     {
         $normalizedRows = [];
+        $seenSlugs = [];
 
         foreach ($rows as $row) {
-            if (!$row instanceof SchedulePerformerRowRequest) {
+            if (!$row instanceof SchedulePerformerEditRow) {
                 continue;
             }
 
@@ -147,13 +173,15 @@ class CmsScheduleService implements ICmsScheduleService
             $type = $row->type();
             $description = $row->description();
 
-            if ($id <= 0 || $name === '') {
-                throw new \InvalidArgumentException('Each performer row requires id and name.');
-            }
+            $slug = $this->normalizeSlug($name);
+            $this->scheduleValidator->validatePerformerRow($id, $name, $slug, $seenSlugs);
+
+            $seenSlugs[$slug] = true;
 
             $normalizedRows[] = [
                 'id' => $id,
                 'performer_name' => $name,
+                'page_slug' => $slug,
                 'performer_type' => $type !== '' ? $type : null,
                 'description' => $description !== '' ? $description : null,
             ];
@@ -162,18 +190,28 @@ class CmsScheduleService implements ICmsScheduleService
         return $normalizedRows;
     }
 
-    private function normalizeSessionRows(
-        array $rows,
-        array $allowedVenueIds,
-        array $allowedPerformerIds,
-        array $allowedSessionIds
-    ): array {
+    private function normalizeSlug(string $value): string
+    {
+        $slug = trim($value);
+        $transliterated = @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $slug);
+        if ($transliterated !== false) {
+            $slug = $transliterated;
+        }
+
+        $slug = strtolower($slug);
+        $slug = preg_replace('/[^a-z0-9]+/', '-', $slug) ?? '';
+
+        return trim($slug, '-');
+    }
+
+    private function normalizeSessionRows(array $rows, array $allowedVenueIds, array $allowedPerformerIds, array $allowedSessionIds): array
+    {
         $sessionRows = [];
         $sessionPerformerRows = [];
         $seenSessionPerformer = [];
 
         foreach ($rows as $row) {
-            if (!$row instanceof ScheduleSessionRowRequest) {
+            if (!$row instanceof ScheduleSessionEditRow) {
                 continue;
             }
 
@@ -195,11 +233,8 @@ class CmsScheduleService implements ICmsScheduleService
         return [$sessionRows, $sessionPerformerRows];
     }
 
-    private function normalizeSingleSessionRow(
-        ScheduleSessionRowRequest $row,
-        array $allowedVenueIds,
-        array $allowedSessionIds
-    ): array {
+    private function normalizeSingleSessionRow(ScheduleSessionEditRow $row, array $allowedVenueIds, array $allowedSessionIds): array
+    {
         $id = $row->id();
         $venueId = $row->venueId();
         $date = $row->date();
@@ -209,38 +244,19 @@ class CmsScheduleService implements ICmsScheduleService
         $spots = $row->availableSpots();
         $amountSold = $row->amountSold();
 
-        if ($id <= 0 || $venueId <= 0 || $date === '' || $startTime === '' || $priceRaw === '') {
-            throw new \InvalidArgumentException('All schedule rows must include id, venue, date, time, and price.');
-        }
-
-        if (!in_array($id, $allowedSessionIds, true)) {
-            throw new \InvalidArgumentException('One or more session ids are invalid for this event.');
-        }
-
-        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
-            throw new \InvalidArgumentException('Date must be in YYYY-MM-DD format.');
-        }
-
-        if (!preg_match('/^\d{2}:\d{2}$/', $startTime)) {
-            throw new \InvalidArgumentException('Start time must be in HH:MM format.');
-        }
-
-        if (!in_array($venueId, $allowedVenueIds, true)) {
-            throw new \InvalidArgumentException('Selected venue is not valid for this event.');
-        }
-
-        if (!is_numeric($priceRaw)) {
-            throw new \InvalidArgumentException('Price must be numeric.');
-        }
+        $this->scheduleValidator->validateSessionRow(
+            $id,
+            $venueId,
+            $date,
+            $startTime,
+            $priceRaw,
+            $spots,
+            $amountSold,
+            $allowedVenueIds,
+            $allowedSessionIds
+        );
 
         $price = (float)$priceRaw;
-        if ($price < 0) {
-            throw new \InvalidArgumentException('Price cannot be negative.');
-        }
-
-        if ($spots < $amountSold) {
-            throw new \InvalidArgumentException('Available spots cannot be lower than amount sold.');
-        }
 
         return [
             'id' => $id,
@@ -253,12 +269,8 @@ class CmsScheduleService implements ICmsScheduleService
         ];
     }
 
-    private function normalizeSessionPerformerRows(
-        int $sessionId,
-        array $performerIds,
-        array $allowedPerformerIds,
-        array &$seenSessionPerformer
-    ): array {
+    private function normalizeSessionPerformerRows(int $sessionId, array $performerIds, array $allowedPerformerIds, array &$seenSessionPerformer): array
+    {
         $normalizedRows = [];
 
         foreach ($performerIds as $performerIdRaw) {
@@ -267,9 +279,7 @@ class CmsScheduleService implements ICmsScheduleService
                 continue;
             }
 
-            if (!in_array($performerId, $allowedPerformerIds, true)) {
-                throw new \InvalidArgumentException('One or more selected performers are invalid for this event.');
-            }
+            $this->scheduleValidator->validatePerformerIdAllowed($performerId, $allowedPerformerIds);
 
             $key = $sessionId . '-' . $performerId;
             if (isset($seenSessionPerformer[$key])) {

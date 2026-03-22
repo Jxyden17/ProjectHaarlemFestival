@@ -34,13 +34,14 @@ class CmsTourContentController extends BaseController
 
         $viewData = [
         'pageTitle' => $page->title,
+        'pageSlug' => $page->slug,
         'hero'      => $page->getSection('hero'),
         'stops'     => $page->getSection('tour_overview'),
         'discover'  => $page->getSection('discover'),
         'schedule' => $page->getSection('schedule'),
         'guide'   => $page->getSection('guide')
     ];
-        $this->render('cms/events/tour-home', $viewData);
+        $this->renderCms('cms/events/tour-home', $viewData);
     }
 
      public function update(): void
@@ -48,9 +49,6 @@ class CmsTourContentController extends BaseController
         $this->requireAdmin();
         $sections = is_array($_POST['sections']) ? $_POST['sections'] : [];
         $items = is_array($_POST['items']) ? $_POST['items'] : [];
-
-        // $items = $this->applyUploadedImages($items, $_FILES['item_images'] ?? []);
-
         try {
             $this->cmsEventEditorService->savePageContent(1, $sections, $items);
             $_SESSION['cms_tour_success'] = 'Tour content opgeslagen.';
@@ -70,7 +68,7 @@ class CmsTourContentController extends BaseController
         $page = $this->pageService->buildPage($pageId);
         if (!$page) {
             http_response_code(404);
-            $this->render('shared/error', [
+            $this->renderCms('shared/error', [
                 'errorTitle' => 'Page not found',
                 'errorMessage' => 'The page you requested does not exist.',
             ]);
@@ -79,13 +77,14 @@ class CmsTourContentController extends BaseController
 
         $viewData = [
         'pageTitle' => $page->title,
+        'pageSlug' => $page->slug,
         'pageId' => $pageId,
         'header'      => $page->getSection('header'),
         'history'     => $page->getSection('history'),
         'didYouKnow'  => $page->getSection('did_you_know'),
         'openingTime' => $page->getSection('openings_time')
     ];
-        $this->render('cms/events/tour-details', $viewData);
+        $this->renderCms('cms/events/tour-details', $viewData);
     }
 
      public function detailsUpdate(): void

@@ -21,66 +21,74 @@ $renderErrorPage = static function (int $statusCode, string $title, string $mess
 
 try {
     $eventMapper = new App\Mapper\EventMapper();
-    $danceMapper = new App\Mapper\DanceMapper($eventMapper);
     $pageMapper = new App\Mapper\PageMapper();
     $scheduleMapper = new App\Mapper\ScheduleMapper($eventMapper);
+    $scheduleViewModelMapper = new App\Mapper\ScheduleViewModelMapper();
 
     $userRepo = new App\Repository\UserRepository();
     $passwordResetRepo = new App\Repository\PasswordResetRepository();
     $scheduleRepo = new App\Repository\ScheduleRepository($scheduleMapper);
-    $danceRepo = new App\Repository\DanceRepository($danceMapper);
+    $danceRepo = new App\Repository\DanceRepository($eventMapper);
     $mediaRepo = new App\Repository\MediaRepository();
-    $pageRepo = new App\Repository\PageRepository();
+    $pageRepo = new App\Repository\PageRepository($pageMapper);
     $jazzRepo = new App\Repository\JazzRepository();
     $yummyRepo = new App\Repository\YummyRepository();
 
     $mailConfig = App\Models\MailConfig::fromEnvironment();
-    $pageService = new App\Service\PageService($pageRepo, $pageMapper);
+    $pageService = new App\Service\PageService($pageRepo);
+    $cmsPageSaveService = new App\Service\Cms\CmsPageSaveService($pageRepo);
     $mailService = new App\Service\MailService($mailConfig);
     $htmlSanitizerService = new App\Service\HtmlSanitizerService();
+    $cmsDanceValidator = new App\Validator\CmsDanceValidator();
+    $cmsScheduleValidator = new App\Validator\CmsScheduleValidator();
     $scheduleService = new App\Service\ScheduleService($scheduleRepo, $scheduleMapper);
-    $danceService = new App\Service\DanceService($danceRepo, $pageService);
-    $danceViewModelMapper = new App\Mapper\DanceViewModelMapper($danceService, $scheduleService);
-    $mediaService = new App\Service\MediaService($mediaRepo, $danceRepo);
+    $danceService = new App\Service\DanceService($danceRepo, $pageService, $scheduleService);
+    $danceViewModelMapper = new App\Mapper\DanceViewModelMapper();
+    $imageUploadService = new App\Service\ImageUploadService($mediaRepo, $danceService);
+    $audioUploadService = new App\Service\AudioUploadService($mediaRepo, $danceService);
     $yummyService = new App\Service\YummyService($yummyRepo);
     $jazzService = new App\Service\JazzService($jazzRepo, $scheduleRepo);
     $authService = new App\Service\AuthService($userRepo, $passwordResetRepo, $mailService);
 
-    $cmsScheduleMapper = new App\Mapper\CmsScheduleMapper($danceService);
+    $cmsScheduleMapper = new App\Mapper\CmsScheduleMapper();
     $cmsDanceMapper = new App\Mapper\CmsDanceMapper();
-    $cmsScheduleService = new App\Service\Cms\CmsScheduleService($scheduleRepo);
+    $cmsDanceViewModelMapper = new App\Mapper\CmsDanceViewModelMapper();
+    $cmsScheduleService = new App\Service\Cms\CmsScheduleService($scheduleRepo, $cmsScheduleMapper, $cmsScheduleValidator);
     $cmsDanceService = new App\Service\Cms\CmsDanceService(
         $danceRepo,
-        $pageRepo,
+        $cmsPageSaveService,
         $pageService,
         $htmlSanitizerService,
         $cmsDanceMapper,
-
+        $cmsDanceValidator
     );
     $cmsService = new App\Service\Cms\CmsService($userRepo);
     $cmsEventEditorService = new App\Service\Cms\CmsEventEditorService(
-        $scheduleService,
+        $cmsScheduleService,
         $cmsScheduleMapper,
-        $pageRepo
+        $cmsPageSaveService,
+        $danceService
     );
     $cmsYummyService = new App\Service\Cms\CmsYummyService($cmsEventEditorService, $pageRepo);
 
     $authController = new App\Controllers\AuthController($authService);
-    $homeController = new App\Controllers\HomeController($pageService, $scheduleService);
-    $danceController = new App\Controllers\DanceController($danceService, $danceViewModelMapper);
-    $tourController = new App\Controllers\TourController($pageService, $scheduleService);
-    $jazzController = new App\Controllers\JazzController($scheduleService, $jazzService);
+    $homeController = new App\Controllers\HomeController($pageService, $scheduleService, $scheduleViewModelMapper);
+    $danceController = new App\Controllers\DanceController($danceService, $danceViewModelMapper, $scheduleViewModelMapper);
+    $tourController = new App\Controllers\TourController($pageService, $scheduleService, $scheduleViewModelMapper);
+    $jazzController = new App\Controllers\JazzController($scheduleService, $jazzService, $scheduleViewModelMapper);
     $yummyController = new App\Controllers\YummyController($yummyService);
 
     $cmsController = new App\Controllers\Cms\CmsController($cmsService);
-    $cmsEventsController = new App\Controllers\Cms\CmsEventsController($cmsService);
+    $cmsEventsController = new App\Controllers\Cms\CmsEventsController($cmsService, $danceService);
     $cmsTicketsController = new App\Controllers\Cms\CmsTicketsController($cmsService);
     $cmsUsersController = new App\Controllers\Cms\CmsUsersController($cmsService);
-    $cmsDanceContentController = new App\Controllers\Cms\CmsDanceContentController($cmsDanceService);
+    $storiesController = new App\Controllers\StoriesController($pageService, $scheduleService, $scheduleViewModelMapper);
+    $cmsDanceController = new App\Controllers\Cms\CmsDanceController($cmsDanceService, $cmsDanceViewModelMapper);
     $cmsEventEditorController = new App\Controllers\Cms\CmsEventEditorController($cmsScheduleService, $cmsEventEditorService);
-    $cmsMediaController = new App\Controllers\Cms\CmsMediaController($mediaService);
+    $cmsMediaController = new App\Controllers\Cms\CmsMediaController($imageUploadService, $audioUploadService);
     $cmsTourContentController = new App\Controllers\Cms\CmsTourContentController($pageService, $cmsEventEditorService);
     $cmsYummyContentController = new App\Controllers\Cms\CmsYummyContentController($pageService, $cmsYummyService);
+    $cmsHomeContentController = new App\Controllers\Cms\CmsHomeContentController($pageService, $cmsEventEditorService);
 
     $dispatcher = simpleDispatcher(function (RouteCollector $r) {
         $r->addRoute('GET', '/', ['HomeController', 'index']);
@@ -99,19 +107,27 @@ try {
         $r->addRoute('GET', '/tour/details', ['TourController', 'details']);
 
         $r->addRoute('GET', '/dance', ['DanceController', 'index']);
-        $r->addRoute('GET', '/dance/{detailSlug}', ['DanceController', 'detail']);
+        $r->addRoute('GET', '/dance/{pageSlug}', ['DanceController', 'detail']);
 
         $r->addRoute('GET', '/yummy', ['YummyController', 'index']);
         $r->addRoute('GET', '/yummy/{slug}', ['YummyController', 'restaurant']);
 
+        //Stories Routes
+        $r->addRoute('GET', '/stories', ['StoriesController', 'index']);
+        $r->addRoute('GET', '/stories/details', ['StoriesController', 'details']);
+        $r->addRoute('GET', '/stories/{slug}', ['StoriesController', 'details']);
+
+        // CMS routes
         $r->addRoute('GET', '/cms', ['CmsController', 'index']);
         $r->addRoute('GET', '/cms/events', ['CmsEventsController', 'index']);
         $r->addRoute('GET', '/cms/events/{eventSlug}/schedule', ['CmsEventEditorController', 'index']);
         $r->addRoute('POST', '/cms/events/{eventSlug}/schedule', ['CmsEventEditorController', 'update']);
-        $r->addRoute('GET', '/cms/events/dance-home', ['CmsDanceContentController', 'index']);
-        $r->addRoute('POST', '/cms/events/dance-home', ['CmsDanceContentController', 'update']);
-        $r->addRoute('GET', '/cms/events/dance-detail/{detailSlug}', ['CmsDanceContentController', 'detail']);
-        $r->addRoute('POST', '/cms/events/dance-detail/{detailSlug}', ['CmsDanceContentController', 'updateDetail']);
+        $r->addRoute('GET', '/cms/events/dance-home', ['CmsDanceController', 'index']);
+        $r->addRoute('POST', '/cms/events/dance-home', ['CmsDanceController', 'updateHome']);
+        $r->addRoute('POST', '/cms/events/dance-homeAPI', ['CmsDanceController', 'updateHomeAPI']);
+        $r->addRoute('GET', '/cms/events/dance-detail/{pageSlug}', ['CmsDanceController', 'detail']);
+        $r->addRoute('POST', '/cms/events/dance-detail/{pageSlug}', ['CmsDanceController', 'updateDetail']);
+        $r->addRoute('POST', '/cms/events/dance-detail/{pageSlug}/updateAPI', ['CmsDanceController', 'updateDetailAPI']);
         $r->addRoute('GET', '/cms/events/tour-home', ['CmsTourContentController', 'index']);
         $r->addRoute('POST', '/cms/events/tour-home', ['CmsTourContentController', 'update']);
         $r->addRoute('GET', '/cms/events/tour-details', ['CmsTourContentController', 'details']);
@@ -120,7 +136,7 @@ try {
         $r->addRoute('POST', '/cms/events/yummy-home', ['CmsYummyContentController', 'update']);
         $r->addRoute('GET', '/cms/events/yummy-details/{slug}', ['CmsYummyContentController', 'detail']);
         $r->addRoute('POST', '/cms/events/yummy-details/{slug}', ['CmsYummyContentController', 'detailUpdate']);
-        $r->addRoute('POST', '/cms/media/upload-replace', ['CmsMediaController', 'uploadReplace']);
+        $r->addRoute('POST', '/cms/media/upload-image', ['CmsMediaController', 'uploadImage']);
         $r->addRoute('POST', '/cms/media/upload-audio', ['CmsMediaController', 'uploadAudio']);
         $r->addRoute('GET', '/cms/tickets', ['CmsTicketsController', 'index']);
         $r->addRoute('GET', '/cms/users', ['CmsUsersController', 'index']);
@@ -130,6 +146,8 @@ try {
         $r->addRoute('POST', '/cms/users/edit', ['CmsUsersController', 'editUser']);
         $r->addRoute('GET', '/cms/users/delete', ['CmsUsersController', 'showDeleteConfirmation']);
         $r->addRoute('POST', '/cms/users/delete', ['CmsUsersController', 'deleteUser']);
+        $r->addRoute('GET', '/cms/events/home', ['CmsHomeContentController', 'index']);
+        $r->addRoute('POST', '/cms/events/home', ['CmsHomeContentController', 'update']);
 
         $r->addRoute('GET', '/jazz', ['JazzController', 'index']);
     });
@@ -157,14 +175,16 @@ try {
                 'YummyController' => $yummyController,
                 'CmsController' => $cmsController,
                 'JazzController' => $jazzController,
+                'StoriesController' => $storiesController,
                 'CmsEventsController' => $cmsEventsController,
                 'CmsTicketsController' => $cmsTicketsController,
                 'CmsUsersController' => $cmsUsersController,
                 'CmsEventEditorController' => $cmsEventEditorController,
-                'CmsDanceContentController' => $cmsDanceContentController,
+                'CmsDanceController' => $cmsDanceController,
                 'CmsTourContentController' => $cmsTourContentController,
                 'CmsYummyContentController' => $cmsYummyContentController,
                 'CmsMediaController' => $cmsMediaController,
+                'CmsHomeContentController' => $cmsHomeContentController,
             ];
 
             if (!isset($controllerMap[$controllerName])) {
@@ -182,6 +202,9 @@ try {
             break;
     }
 } catch (\Throwable $e) {
+    if ($showDebug) {
+        var_dump($e);
+    }
     $debugError = $e->getMessage();
     $renderErrorPage(
         503,

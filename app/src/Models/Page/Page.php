@@ -6,12 +6,14 @@ use App\Models\Page\Section;
 
 class Page
 {
+    public int $id;
     public string $title;
     public string $slug;
     public array $sections = [];
 
-    public function __construct(string $title, string $slug)
+    public function __construct(string $title, string $slug, int $id = 0)
     {
+        $this->id = $id;
         $this->title = $title;
         $this->slug = $slug;
     }

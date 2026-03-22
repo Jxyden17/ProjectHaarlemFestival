@@ -12,7 +12,7 @@ $contactItems = $contactSection?->items ?? [];
         <a href="/cms/events" class="btn btn-outline-secondary"><- Back to Events</a>
     </div>
 
-    <form method="POST" action="/cms/events/yummy-details/<?= htmlspecialchars($page->slug) ?>" class="card">
+    <form method="POST" action="/cms/events/yummy-details/<?= htmlspecialchars($page->slug ?? '', ENT_QUOTES, 'UTF-8') ?>" class="card">
         
         <section class="mb-5">
             <h2>Hero Banner</h2>
@@ -21,7 +21,7 @@ $contactItems = $contactSection?->items ?? [];
                 name="sections[restaurant_hero][title]"
                 data-quill="1"
                 class="form-control"
-            ><?= htmlspecialchars($heroSection?->title) ?></textarea>
+            ><?= htmlspecialchars($heroSection?->title ?? '', ENT_QUOTES, 'UTF-8') ?></textarea>
 
             <?php foreach ($heroItems as $i => $item): ?>
                 <input type="hidden"
@@ -53,13 +53,13 @@ $contactItems = $contactSection?->items ?? [];
                 name="sections[restaurant_concept][title]"
                 data-quill="1"
                 class="form-control"
-            ><?= htmlspecialchars($introSection?->title) ?></textarea>
+            ><?= htmlspecialchars($introSection?->title ?? '', ENT_QUOTES, 'UTF-8') ?></textarea>
 
             <textarea
                 name="sections[restaurant_concept][description]"
                 data-quill="1"
                 class="form-control mt-3"
-            ><?= htmlspecialchars($introSection?->description) ?></textarea>
+            ><?= htmlspecialchars($introSection?->description ?? '', ENT_QUOTES, 'UTF-8') ?></textarea>
 
             <?php foreach ($introItems as $i => $item): ?>
 
@@ -76,7 +76,7 @@ $contactItems = $contactSection?->items ?? [];
                         name="items[restaurant_concept][<?= $i ?>][title]"
                         data-quill="1"
                         class="form-control"
-                    ><?= htmlspecialchars($item->title) ?></textarea>
+                    ><?= htmlspecialchars($item->title ?? '', ENT_QUOTES, 'UTF-8') ?></textarea>
 
                     <label class="mt-2">Menu Item Description</label>
 
@@ -84,7 +84,7 @@ $contactItems = $contactSection?->items ?? [];
                         name="items[restaurant_concept][<?= $i ?>][content]"
                         data-quill="1"
                         class="form-control"
-                    ><?= htmlspecialchars($item->content) ?></textarea>
+                    ><?= htmlspecialchars($item->content ?? '', ENT_QUOTES, 'UTF-8') ?></textarea>
 
                     <input type="hidden"
                         name="items[restaurant_concept][<?= $i ?>][order_index]"
@@ -107,7 +107,7 @@ $contactItems = $contactSection?->items ?? [];
                 name="sections[restaurant_contact][title]"
                 data-quill="1"
                 class="form-control mb-4"
-            ><?= htmlspecialchars($contactSection?->title) ?></textarea>
+            ><?= htmlspecialchars($contactSection?->title ?? '', ENT_QUOTES, 'UTF-8') ?></textarea>
 
             <?php foreach ($contactItems as $i => $item): ?>
                 <?php if (!empty($item->title) || !empty($item->content)): ?>
@@ -125,7 +125,7 @@ $contactItems = $contactSection?->items ?? [];
                             name="items[restaurant_contact][<?= $i ?>][title]"
                             data-quill="1"
                             class="form-control"
-                        ><?= htmlspecialchars($item->title) ?></textarea>
+                        ><?= htmlspecialchars($item->title ?? '', ENT_QUOTES, 'UTF-8') ?></textarea>
 
                         <label class="mt-2">Details</label>
 
@@ -133,7 +133,7 @@ $contactItems = $contactSection?->items ?? [];
                             name="items[restaurant_contact][<?= $i ?>][content]"
                             data-quill="1"
                             class="form-control"
-                        ><?= htmlspecialchars($item->content ?? '') ?></textarea>
+                        ><?= htmlspecialchars($item->content ?? '', ENT_QUOTES, 'UTF-8') ?></textarea>
                         
                         <input type="hidden"
                             name="items[restaurant_contact][<?= $i ?>][order_index]"

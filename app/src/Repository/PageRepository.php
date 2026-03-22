@@ -2,23 +2,27 @@
 
 namespace App\Repository;
 
+use App\Mapper\PageMapper;
 use App\Models\Database;
+use App\Models\Page\Page;
 use App\Repository\Interfaces\IPageRepository;
 use PDO;
 
 class PageRepository implements IPageRepository
 {
     private PDO $db;
+    private PageMapper $pageMapper;
 
-    public function __construct()
+    public function __construct(PageMapper $pageMapper)
     {
         $this->db = Database::getInstance();
+        $this->pageMapper = $pageMapper;
     }
 
-    public function findPageRowsById(int $pageId): array
+    public function findPageById(int $pageId): ?Page
     {
         if ($pageId <= 0) {
-            return [];
+            return null;
         }
 
         $stmt = $this->db->prepare(
@@ -48,11 +52,15 @@ class PageRepository implements IPageRepository
              ORDER BY ps.order_index ASC, si.order_index ASC'
         );
         $stmt->execute([':id' => $pageId]);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        if ($rows === []) {
+            return null;
+        }
 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $this->pageMapper->mapPageRows($rows);
     }
 
-    public function findPageRowsBySlug(string $slug): array
+    public function findPageBySlug(string $slug): ?Page
     {
         $stmt = $this->db->prepare(
             'SELECT p.id AS page_id,
@@ -81,8 +89,12 @@ class PageRepository implements IPageRepository
              ORDER BY ps.order_index ASC, si.order_index ASC'
         );
         $stmt->execute([':slug' => $slug]);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        if ($rows === []) {
+            return null;
+        }
 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $this->pageMapper->mapPageRows($rows);
     }
 
     public function saveOrUpdateSection(
@@ -118,18 +130,7 @@ class PageRepository implements IPageRepository
         }
 
         $sectionId = (int) $row['id'];
-        $update = $this->db->prepare(
-            'UPDATE page_sections
-             SET title = :title, subtitle = :subtitle, description = :description, order_index = :order_index
-             WHERE id = :id'
-        );
-        $update->execute([
-            ':title' => $title,
-            ':subtitle' => $subtitle,
-            ':description' => $description,
-            ':order_index' => $orderIndex,
-            ':id' => $sectionId,
-        ]);
+        $this->updateSectionById($sectionId, $title, $subtitle, $description, $orderIndex);
 
         return $sectionId;
     }
@@ -154,9 +155,7 @@ class PageRepository implements IPageRepository
              WHERE id = :id AND section_id = :section_id'
         );
 
-        $existsStmt = $this->db->prepare(
-            'SELECT 1 FROM section_items WHERE id = :id AND section_id = :section_id LIMIT 1'
-        );
+        $existingItemIds = $this->findSectionItemIds($sectionId);
 
         foreach ($items as $item) {
             $params = [
@@ -177,22 +176,13 @@ class PageRepository implements IPageRepository
                 throw new \RuntimeException('Missing section item id for update.');
             }
 
+            if (!isset($existingItemIds[$itemId])) {
+                throw new \RuntimeException('Missing section item for update: ' . $itemId);
+            }
+
             $updateParams = $params;
             $updateParams[':id'] = $itemId;
             $updateStmt->execute($updateParams);
-
-            if ($updateStmt->rowCount() > 0) {
-                continue;
-            }
-
-            $existsStmt->execute([
-                ':id' => $itemId,
-                ':section_id' => $sectionId,
-            ]);
-
-            if ($existsStmt->fetchColumn() === false) {
-                throw new \RuntimeException('Missing section item for update: ' . $itemId);
-            }
         }
     }
 
@@ -207,5 +197,82 @@ class PageRepository implements IPageRepository
         }
 
         return (int) $row['id'];
+    }
+
+    public function findSectionIdsByPageId(int $pageId): array
+    {
+        if ($pageId <= 0) {
+            return [];
+        }
+
+        $stmt = $this->db->prepare(
+            'SELECT id, section_type
+             FROM page_sections
+             WHERE page_id = :page_id'
+        );
+        $stmt->execute([':page_id' => $pageId]);
+
+        $sectionIdsByType = [];
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+            $sectionIdsByType[(string) $row['section_type']] = (int) $row['id'];
+        }
+
+        return $sectionIdsByType;
+    }
+
+    public function updatePageName(int $pageId, string $pageName): void
+    {
+        $stmt = $this->db->prepare(
+            'UPDATE pages
+             SET page_name = :page_name
+             WHERE id = :id'
+        );
+        $stmt->execute([
+            ':page_name' => $pageName,
+            ':id' => $pageId,
+        ]);
+    }
+
+    public function updateSectionById(
+        int $sectionId,
+        ?string $title,
+        ?string $subtitle,
+        ?string $description,
+        int $orderIndex
+    ): void
+    {
+        $update = $this->db->prepare(
+            'UPDATE page_sections
+             SET title = :title, subtitle = :subtitle, description = :description, order_index = :order_index
+             WHERE id = :id'
+        );
+        $update->execute([
+            ':title' => $title,
+            ':subtitle' => $subtitle,
+            ':description' => $description,
+            ':order_index' => $orderIndex,
+            ':id' => $sectionId,
+        ]);
+    }
+
+    private function findSectionItemIds(int $sectionId): array
+    {
+        if ($sectionId <= 0) {
+            return [];
+        }
+
+        $stmt = $this->db->prepare(
+            'SELECT id
+             FROM section_items
+             WHERE section_id = :section_id'
+        );
+        $stmt->execute([':section_id' => $sectionId]);
+
+        $itemIds = [];
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+            $itemIds[(int) $row['id']] = true;
+        }
+
+        return $itemIds;
     }
 }

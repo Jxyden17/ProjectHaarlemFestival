@@ -2,53 +2,37 @@
 
 namespace App\Mapper;
 
-use App\Models\Page\SectionItem;
-use App\Models\Requests\Cms\Schedule\SchedulePerformerRowRequest;
-use App\Models\Requests\Cms\Schedule\ScheduleSessionRowRequest;
-use App\Models\Requests\Cms\Schedule\ScheduleVenueRowRequest;
+use App\Models\Edit\Schedule\SchedulePerformerEditRow;
+use App\Models\Edit\Schedule\ScheduleSessionEditRow;
+use App\Models\Edit\Schedule\ScheduleVenueEditRow;
+use App\Models\Event\PerformerModel;
+use App\Models\Event\SessionModel;
+use App\Models\Event\SessionPerformerModel;
+use App\Models\Event\VenueModel;
 use App\Models\ViewModels\Cms\Schedule\ScheduleEditorPerformerRowViewModel;
 use App\Models\ViewModels\Cms\Schedule\ScheduleEditorSessionRowViewModel;
 use App\Models\ViewModels\Cms\Schedule\ScheduleEditorVenueRowViewModel;
-use App\Service\Interfaces\IDanceService;
 
 class CmsScheduleMapper
 {
-    private IDanceService $danceService;
-
-    public function __construct(IDanceService $danceService)
+    public function mapVenueRows(array $venues): array
     {
-        $this->danceService = $danceService;
-    }
+        $rows = [];
 
-    public function applyDanceArtistImageMetadata(string $eventName, array $performers): array
-    {
-        if (strtolower($eventName) !== 'dance') {
-            return $performers;
-        }
-
-        $artistImageRows = $this->getDanceArtistImageRows();
-        $result = [];
-
-        foreach ($performers as $index => $performer) {
-            if (!$performer instanceof ScheduleEditorPerformerRowViewModel) {
+        foreach ($venues as $venue) {
+            if (!$venue instanceof VenueModel) {
                 continue;
             }
 
-            $imageRow = $artistImageRows[$index] ?? null;
-            $artistSectionItemId = $imageRow instanceof SectionItem ? $imageRow->id : 0;
-            $artistImagePath = $imageRow instanceof SectionItem ? (string) ($imageRow->image ?? '') : '';
-
-            $result[] = new ScheduleEditorPerformerRowViewModel(
-                $performer->id,
-                $performer->name,
-                $performer->type,
-                $performer->description,
-                $artistSectionItemId,
-                $artistImagePath
+            $rows[] = new ScheduleEditorVenueRowViewModel(
+                $venue->id,
+                $venue->venueName,
+                (string) ($venue->address ?? ''),
+                (string) ($venue->venueType ?? '')
             );
         }
 
-        return $result;
+        return $rows;
     }
 
     public function mapVenueViewModels(array $rows): array
@@ -56,7 +40,7 @@ class CmsScheduleMapper
         $venues = [];
 
         foreach ($rows as $row) {
-            if (!$row instanceof ScheduleVenueRowRequest) {
+            if (!$row instanceof ScheduleVenueEditRow) {
                 continue;
             }
 
@@ -76,7 +60,7 @@ class CmsScheduleMapper
         $performers = [];
 
         foreach ($rows as $index => $row) {
-            if (!$row instanceof SchedulePerformerRowRequest) {
+            if (!$row instanceof SchedulePerformerEditRow) {
                 continue;
             }
 
@@ -101,12 +85,50 @@ class CmsScheduleMapper
         return $performers;
     }
 
+    public function mapPerformerRows(array $performers): array
+    {
+        $rows = [];
+
+        foreach ($performers as $performer) {
+            if (!$performer instanceof PerformerModel) {
+                continue;
+            }
+
+            $rows[] = new ScheduleEditorPerformerRowViewModel(
+                $performer->id,
+                $performer->performerName,
+                (string) ($performer->performerType ?? ''),
+                (string) ($performer->description ?? ''),
+                0,
+                ''
+            );
+        }
+
+        return $rows;
+    }
+
+    public function buildSessionPerformerMap(array $sessionPerformers): array
+    {
+        $sessionPerformerMap = [];
+
+        foreach ($sessionPerformers as $sessionPerformer) {
+            if (!$sessionPerformer instanceof SessionPerformerModel) {
+                continue;
+            }
+
+            $sessionPerformerMap[$sessionPerformer->sessionId] ??= [];
+            $sessionPerformerMap[$sessionPerformer->sessionId][] = $sessionPerformer->performerId;
+        }
+
+        return $sessionPerformerMap;
+    }
+
     public function mapSessionViewModels(array $rows): array
     {
         $sessions = [];
 
         foreach ($rows as $row) {
-            if (!$row instanceof ScheduleSessionRowRequest) {
+            if (!$row instanceof ScheduleSessionEditRow) {
                 continue;
             }
 
@@ -126,22 +148,28 @@ class CmsScheduleMapper
         return $sessions;
     }
 
-    private function getDanceArtistImageRows(): array
+    public function mapSessionRows(array $sessions, array $sessionPerformerMap): array
     {
-        $danceHome = $this->danceService->getDanceHomePage();
-        $artistsSection = $danceHome->getSection('dance_artists');
-        $artistImageRows = [];
+        $rows = [];
 
-        if ($artistsSection === null) {
-            return $artistImageRows;
-        }
-
-        foreach ($artistsSection->getItemsByCategorie('artist') as $item) {
-            if ($item instanceof SectionItem) {
-                $artistImageRows[] = $item;
+        foreach ($sessions as $session) {
+            if (!$session instanceof SessionModel) {
+                continue;
             }
+
+            $rows[] = new ScheduleEditorSessionRowViewModel(
+                $session->id,
+                $session->date,
+                substr($session->startTime, 0, 5),
+                $session->venueId,
+                (string) ($session->label ?? ''),
+                number_format($session->price, 2, '.', ''),
+                $session->availableSpots,
+                $session->amountSold,
+                array_values(array_map('intval', $sessionPerformerMap[$session->id] ?? []))
+            );
         }
 
-        return $artistImageRows;
+        return $rows;
     }
 }

@@ -6,14 +6,15 @@ use App\Models\ViewModels\Shared\ScheduleViewModel;
 
 class DanceIndexViewModel
 {
+    public string $pageTitle;
     public ScheduleViewModel $schedule;
     public string $bannerBadge;
     public string $bannerTitle;
     public string $bannerDescription;
     public int $totalEvents;
     public int $totalLocations;
-    public string $artistsTitle;
-    public array $artistCards;
+    public string $featuredArtistsTitle;
+    public array $featuredArtistCards;
     public string $importantInfoTitle;
     public string $importantInfoHtml;
     public string $passesTitle;
@@ -25,14 +26,15 @@ class DanceIndexViewModel
     public array $venues;
 
     public function __construct(
+        ?string $pageTitle,
         ScheduleViewModel $schedule,
         ?string $bannerBadge = null,
         ?string $bannerTitle = null,
         ?string $bannerDescription = null,
         int $totalEvents = 0,
         int $totalLocations = 0,
-        ?string $artistsTitle = null,
-        ?array $artistCards = null,
+        ?string $featuredArtistsTitle = null,
+        ?array $featuredArtistCards = null,
         ?string $importantInfoTitle = null,
         ?string $importantInfoHtml = null,
         ?string $passesTitle = null,
@@ -43,14 +45,15 @@ class DanceIndexViewModel
         ?string $specialHtml = null,
         ?array $venues = null
     ) {
+        $this->pageTitle = $this->normalizeText($pageTitle, 'Dance');
         $this->schedule = $schedule;
         $this->bannerBadge = trim((string)$bannerBadge);
         $this->bannerTitle = trim((string)$bannerTitle);
         $this->bannerDescription = (string)$bannerDescription;
         $this->totalEvents = $totalEvents;
         $this->totalLocations = $totalLocations;
-        $this->artistsTitle = trim((string)$artistsTitle);
-        $this->artistCards = $artistCards ?? [];
+        $this->featuredArtistsTitle = trim((string)$featuredArtistsTitle);
+        $this->featuredArtistCards = $featuredArtistCards ?? [];
         $this->importantInfoTitle = $this->normalizeText($importantInfoTitle, 'Important Information');
         $this->importantInfoHtml = (string)$importantInfoHtml;
         $this->passesTitle = $this->normalizeText($passesTitle, 'Passes');

@@ -1,3 +1,9 @@
+<?php
+use App\Models\Event\EventDetailPageModel;
+
+$danceDetailPages = is_array($danceDetailPages ?? null) ? $danceDetailPages : [];
+?>
+
 <div class="container py-4">
     <div class="mb-3">
         <h1 class="h3 mb-1">Event Management</h1>
@@ -10,6 +16,21 @@
         <a href="/cms/tickets" class="btn btn-sm btn-outline-secondary">Tickets</a>
     </div>
 
+    
+    <div class="row g-3">
+        <div class="col-12 col-lg-8">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2 class="h5 mb-0">Home</h2>
+                        <span class="badge text-bg-success">Live</span>
+                    </div>
+                    <div class="d-grid gap-2 d-md-flex flex-wrap">
+                        <a href="/cms/events/home" class="btn btn-outline-primary">Edit HomePage</a>
+                    </div>
+                </div>
+            </div>
+        </div>
     <div class="row g-3">
         <div class="col-12 col-lg-8">
             <div class="card">
@@ -18,11 +39,18 @@
                         <h2 class="h5 mb-0">Dance</h2>
                         <span class="badge text-bg-success">Live</span>
                     </div>
-                    <div class="d-grid gap-2 d-md-flex flex-wrap">
+                    <div class="mb-3">
                         <a href="/cms/events/dance/schedule" class="btn btn-outline-primary">Edit Schedule</a>
                         <a href="/cms/events/dance-home" class="btn btn-primary">Edit Home Content</a>
-                        <a href="/cms/events/dance-detail/martingarrix" class="btn btn-outline-primary">Edit Martin Garrix</a>
-                        <a href="/cms/events/dance-detail/tiesto" class="btn btn-outline-primary">Edit Tiesto</a>
+                    </div>
+                    <p class="mb-1">Sub Pages:</p>
+                    <div class="d-grid gap-2 d-md-flex flex-wrap">
+                        <?php foreach ($danceDetailPages as $detailPage): ?>
+                            <?php if (!$detailPage instanceof EventDetailPageModel || trim((string)$detailPage->pageSlug) === '') { continue; } ?>
+                            <a href="/cms/events/dance-detail/<?= rawurlencode($detailPage->pageSlug) ?>" class="btn btn-outline-primary">
+                                Edit <?= htmlspecialchars(trim((string)($detailPage->performerName ?? '')) !== '' ? (string)$detailPage->performerName : $detailPage->pageSlug) ?>
+                            </a>
+                        <?php endforeach; ?>
                     </div>
                 </div>
             </div>
@@ -95,7 +123,7 @@
                             Edit Ratatouille
                         </a>
 
-                        <a href="/cms/events/yummy-details/cafederoemer"
+                        <a href="/cms/events/yummy-details/cafe-de-roemer"
                             class="btn btn-outline-primary">
                             Edit Cafe De Roemer
                         </a>

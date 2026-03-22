@@ -33,4 +33,13 @@ interface IMediaRepository
         string $sectionType,
         string $itemCategory
     ): ?int;
+
+    public function updateSectionItemImagePathBySection(
+        int $sectionItemId,
+        string $imagePath,
+        string $pageSlug,
+        string $sectionType
+    ): bool;
+
+    public function findSectionItemImagePathById(int $sectionItemId): ?string;
 }

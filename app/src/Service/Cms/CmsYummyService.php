@@ -2,18 +2,18 @@
 
 namespace App\Service\Cms;
 
+use App\Repository\Interfaces\IPageRepository;
 use App\Service\Cms\Interfaces\ICmsYummyService;
 use App\Service\Cms\Interfaces\ICmsEventEditorService;
-use App\Repository\PageRepository;
 
 class CmsYummyService implements ICmsYummyService
 {
     private ICmsEventEditorService $eventEditor;
-    private PageRepository $pageRepository;
+    private IPageRepository $pageRepository;
 
     public function __construct(
         ICmsEventEditorService $eventEditor,
-        PageRepository $pageRepository
+        IPageRepository $pageRepository
     ) {
         $this->eventEditor = $eventEditor;
         $this->pageRepository = $pageRepository;
