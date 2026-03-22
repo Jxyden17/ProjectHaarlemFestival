@@ -18,7 +18,7 @@ if ($normalizedEventName === 'a stroll through history') {
     $eventType = 'tour';
 } elseif ($normalizedEventName === 'tellingstory') {
     $eventType = 'stories';
-} elseif ($normalizedEventName === 'dance'){//||$normalizedEventName === 'jazz') {
+} elseif ($normalizedEventName === 'dance'){
     $eventType = 'dance';
 }elseif ($normalizedEventName === 'jazz') {
     $eventType = 'jazz';

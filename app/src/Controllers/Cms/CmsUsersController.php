@@ -4,6 +4,7 @@ namespace App\Controllers\Cms;
 
 use App\Controllers\BaseController;
 use App\Service\Cms\Interfaces\ICmsService;
+use App\Models\UserModel;
 
 class CmsUsersController extends BaseController
 {
@@ -40,7 +41,9 @@ class CmsUsersController extends BaseController
     {
         $this->requireAdmin();
         try {
-            $this->cmsService->addUser($_POST['email'] ?? '', $_POST['password'] ?? '', $_POST['role_id'] ?? 3);
+           $user=new UserModel(null,null,$_POST['email'] ?? '',  $_POST['password'] ?? '',null,null,null,null, null, $_POST['role_id'] ?? 3, null);
+   
+            $this->cmsService->addUser($user);
             header('Location: /cms/users');
         } catch (\Exception $e) {
             error_log($e->getMessage());
@@ -51,13 +54,15 @@ class CmsUsersController extends BaseController
     public function showAdminEditForm(): void
     {
         $this->requireAdmin();
-        $this->showEditForm('cms/users/edit');
+        $user= $this->showEditFormLogic();
+        $this->renderCms('cms/users/edit', ['title' => 'Edit User', 'user' => $user]);
     }
     public function showSelfEditForm(): void
     {
         if ( $_SESSION['user_id'] == $_GET['id'])
         {
-            $this->showEditForm('cms/users/editSelf');
+           $user= $this->showEditFormLogic();
+            $this->render('cms/users/editSelf', ['title' => 'Edit User', 'user' => $user]);
         }
         else
         {
@@ -68,7 +73,7 @@ class CmsUsersController extends BaseController
 
     }
 
-    private function showEditForm($path): void
+    private function showEditFormLogic()
     {
       
         $user = $this->cmsService->getUserById((int)($_GET['id'] ?? 0));
@@ -77,7 +82,7 @@ class CmsUsersController extends BaseController
             $this->render('shared/error', ['errorTitle' => 'User not found', 'errorMessage' => 'The requested user does not exist.']);
             return;
         }
-        $this->renderCms($path, ['title' => 'Edit User', 'user' => $user]);
+        return $user;
  
     }
     public function editUserAsAdmin(): void
@@ -101,7 +106,9 @@ class CmsUsersController extends BaseController
     private function editUser(): void
     {
         try {
-            $this->cmsService->updateUser((int)($_POST['id'] ?? 0), (string)($_POST['email'] ?? ''), (string)($_POST['password'] ?? ''), (int)($_POST['role_id'] ?? 0));
+            $user=new UserModel((int)($_POST['id'] ?? 0), $_POST['name'],$_POST['email'] ?? '',  $_POST['password'] ?? '',$_POST['phoneNumber'], $_POST['country'],$_POST['city'],$_POST['addres'],$_POST['postcode'],  $_POST['role_id'] ?? 3, "");
+   
+            $this->cmsService->updateUser($user);
             header('Location: /cms/users');
         } catch (\Exception $e) {
             error_log($e->getMessage());

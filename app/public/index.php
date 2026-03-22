@@ -134,9 +134,10 @@ try {
         $r->addRoute('POST', '/cms/users/editSelf', ['CmsUsersController', 'editUserAsUser']);
         $r->addRoute('GET', '/cms/users/delete', ['CmsUsersController', 'showDeleteConfirmation']);
         $r->addRoute('POST', '/cms/users/delete', ['CmsUsersController', 'deleteUser']);
-        // Jazz routes
 
+        // Jazz routes
         $r->addRoute('GET', '/jazz', ['JazzController', 'index']);
+        
         // User routes
         $r->addRoute('GET', '/user', ['UserController', 'index']);
 
@@ -190,13 +191,19 @@ try {
             $controller->$method($vars);
             break;
     }
-} catch (\Throwable $e) {
-    $debugError = $e->getMessage();
-    $renderErrorPage(
-        503,
-        'Service temporarily unavailable',
-        'We cannot connect to the database right now. Please try again in a moment.',
-        $showDebug,
-        $debugError
-    );
+} //catch (\Throwable $e) {
+   // $debugError = $e->getMessage();
+   // $renderErrorPage(
+    //    503,
+    //    'Service temporarily unavailable',
+    //    'We cannot connect to the database right now. Please try again in a moment.',
+    //    $showDebug,
+    //    $debugError
+    //);
+//}
+catch (\Throwable $e) {
+    echo '<pre>';
+    echo $e;
+    echo '</pre>';
+    exit;
 }

@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 use App\Controllers\CmsUsersController;
-use App\Service\Interfaces\ICmsService;
+use App\Service\Cms\Interfaces\ICmsService;
 
 class UserController extends BaseController
 {
@@ -14,8 +14,9 @@ class UserController extends BaseController
     }
    public function index()
     {
+        $this->requireAuth();
         $user = $this->cmsService->getUserById((int)($_GET['id'] ?? 0));
-        $this->render("/User/index",['User' => $user]);
+        $this->render("/User/index",['user' => $user]);
     }
 }
 ?>

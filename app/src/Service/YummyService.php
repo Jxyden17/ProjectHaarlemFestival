@@ -42,7 +42,7 @@ class YummyService
             return [];
         }
 
-        return $this->yummyRepository->getVenuesByEventId($event->id);
+        return $this->repository->getVenuesByEventId($event->id);
     }
 
     public function getRestaurantPage(string $slug)
