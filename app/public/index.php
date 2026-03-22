@@ -67,7 +67,7 @@ try {
         $pageRepo,
         $cmsPageSaveService
     );
-
+    // Controllers setup
     $authController = new App\Controllers\AuthController($authService);
     $homeController = new App\Controllers\HomeController($pageService, $scheduleService);
     $danceController = new App\Controllers\DanceController($danceService, $danceViewModelMapper);
@@ -91,6 +91,12 @@ try {
     $cmsMediaController = new App\Controllers\Cms\CmsMediaController($mediaService);
     $cmsTourContentController = new App\Controllers\Cms\CmsTourContentController($pageService, $cmsEventEditorService);
     $cmsHomeContentController = new App\Controllers\Cms\CmsHomeContentController($pageService, $cmsEventEditorService);
+
+    // Shopping Cart setup
+    $cartRepo = new App\Repository\CartRepository();
+    $cartService = new App\Service\CartService($cartRepo);
+    $cartController = new App\Controllers\CartController($cartService);
+
 
     $dispatcher = simpleDispatcher(function (RouteCollector $r) {
         $r->addRoute('GET', '/', ['HomeController', 'index']);
@@ -152,6 +158,13 @@ try {
         $r->addRoute('POST', '/cms/events/home', ['CmsHomeContentController', 'update']);
 
         $r->addRoute('GET', '/jazz', ['JazzController', 'index']);
+
+        // Shopping Cart routes
+        $r->addRoute('GET', '/cart', ['CartController', 'index']);
+        $r->addRoute('POST', '/cart/add', ['CartController', 'add']);
+        $r->addRoute('POST', '/cart/update', ['CartController', 'update']);
+        $r->addRoute('POST', '/cart/remove', ['CartController', 'remove']);
+
     });
 
     $httpMethod = $_SERVER['REQUEST_METHOD'];
@@ -187,6 +200,7 @@ try {
                 'CmsStoriesContentController' => $cmsStoriesContentController,
                 'CmsMediaController' => $cmsMediaController,
                 'CmsHomeContentController' => $cmsHomeContentController,
+                'CartController' => $cartController,
             ];
 
             if (!isset($controllerMap[$controllerName])) {

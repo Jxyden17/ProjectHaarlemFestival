@@ -54,9 +54,14 @@ foreach ($bookingItems as $item) {
             <?php endif; ?>
 
             <?php if ($bookingButton): ?>
-                <a class="story-booking-button" href="<?= htmlspecialchars((string) ($bookingButton->url ?? '#')) ?>">
-                    <?= htmlspecialchars((string) ($bookingButton->title ?? 'Book Now')) ?>
-                </a>
+                <form method="POST" action="/cart/add">
+                    <input type="hidden" name="session_id" value="<?= $bookingSessionId ?>">
+                    <input type="hidden" name="quantity" value="1">
+
+                    <button type="submit" class="story-booking-button">
+                        <?= htmlspecialchars((string) ($bookingButton->title ?? 'Add to cart')) ?>
+                    </button>
+                </form>
             <?php endif; ?>
         </article>
     </section>

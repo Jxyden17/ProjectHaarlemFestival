@@ -71,7 +71,22 @@ class StoriesController extends BaseController
                 'errorMessage' => 'The page you requested does not exist.',
             ]);
             return;
+            
         }
+        $bookingSessionId = null;
+        $scheduleRows = $this->scheduleService->getScheduleRowsByPerformerName('TellingStory', $page->title);
+
+    if ($scheduleRows !== []) {
+        $firstRow = $scheduleRows[0];
+        $bookUrl = (string) ($firstRow->bookUrl ?? '');
+
+        $query = parse_url($bookUrl, PHP_URL_QUERY);
+        if (is_string($query)) {
+            parse_str($query, $params);
+            $bookingSessionId = isset($params['session_id']) ? (int) $params['session_id'] : null;
+        }
+    }
+        
 
         $viewData = [
             'pageTitle' => $page->title,
@@ -80,6 +95,7 @@ class StoriesController extends BaseController
             'gallery' => $page->getSection('gallery'),
             'featured' => $page->getSection('featured'),
             'booking' => $page->getSection('booking'),
+            'bookingSessionId' => $bookingSessionId,
         ];
 
         $this->render('Stories/details', $viewData);

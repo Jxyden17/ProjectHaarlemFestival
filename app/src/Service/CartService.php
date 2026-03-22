@@ -1,0 +1,168 @@
+<?php
+
+namespace App\Service;
+
+use App\Repository\Interfaces\ICartRepository;
+use App\Service\Interfaces\ICartService;
+
+class CartService implements ICartService
+{
+    private ICartRepository $cartRepository;
+
+    public function __construct(ICartRepository $cartRepository)
+    {
+        $this->cartRepository = $cartRepository;
+    }
+
+    public function getOrCreateActiveCart(): array
+    {
+        $userId = isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : null;
+
+        if ($userId) {
+            $cart = $this->cartRepository->findActiveCartByUserId($userId);
+            if ($cart) {
+                return $cart;
+            }
+
+            $cartId = $this->cartRepository->createCart($userId, null);
+
+            return [
+                'id' => $cartId,
+                'user_id' => $userId,
+                'guest_token' => null,
+                'status' => 'active',
+            ];
+        }
+
+        $guestToken = $_SESSION['guest_token'] ?? null;
+        if (!$guestToken) {
+            $guestToken = bin2hex(random_bytes(16));
+            $_SESSION['guest_token'] = $guestToken;
+        }
+
+        $cart = $this->cartRepository->findActiveCartByGuestToken($guestToken);
+        if ($cart) {
+            return $cart;
+        }
+
+        $cartId = $this->cartRepository->createCart(null, $guestToken);
+
+        return [
+            'id' => $cartId,
+            'user_id' => null,
+            'guest_token' => $guestToken,
+            'status' => 'active',
+        ];
+    }
+
+    public function getCartWithItems(): array
+    {
+        $cart = $this->getOrCreateActiveCart();
+        $items = $this->cartRepository->findCartItemsByCartId((int) $cart['id']);
+
+        $subtotal = 0.0;
+
+        foreach ($items as &$item) {
+            $lineTotal = (float) $item['unit_price'] * (int) $item['quantity'];
+            $item['line_total'] = $lineTotal;
+            $subtotal += $lineTotal;
+        }
+
+        return [
+            'cart' => $cart,
+            'items' => $items,
+            'subtotal' => $subtotal,
+        ];
+    }
+
+    public function addSessionToCart(int $sessionId, int $quantity = 1): void
+    {
+        if ($sessionId <= 0) {
+            throw new \InvalidArgumentException('Invalid session.');
+        }
+
+        if ($quantity <= 0) {
+            throw new \InvalidArgumentException('Quantity must be at least 1.');
+        }
+
+        $session = $this->cartRepository->findSessionById($sessionId);
+        if (!$session) {
+            throw new \RuntimeException('Session not found.');
+        }
+
+        $availableSpots = (int) $session['available_spots'];
+        $amountSold = (int) $session['amount_sold'];
+        $remainingSpots = $availableSpots - $amountSold;
+
+        if ($remainingSpots <= 0) {
+            throw new \RuntimeException('This session is sold out.');
+        }
+
+        $cart = $this->getOrCreateActiveCart();
+        $existingItem = $this->cartRepository->findCartItemByCartIdAndSessionId((int) $cart['id'], $sessionId);
+
+        if ($existingItem) {
+            $newQuantity = (int) $existingItem['quantity'] + $quantity;
+
+            if ($newQuantity > $remainingSpots) {
+                throw new \RuntimeException('Not enough spots available.');
+            }
+
+            $this->cartRepository->updateCartItemQuantity((int) $existingItem['id'], $newQuantity);
+            return;
+        }
+
+        if ($quantity > $remainingSpots) {
+            throw new \RuntimeException('Not enough spots available.');
+        }
+
+        $this->cartRepository->addCartItem(
+            (int) $cart['id'],
+            $sessionId,
+            $quantity,
+            (float) $session['price']
+        );
+    }
+
+    public function updateCartItemQuantity(int $cartItemId, int $quantity): void
+    {
+        if ($cartItemId <= 0) {
+            throw new \InvalidArgumentException('Invalid cart item.');
+        }
+
+        if ($quantity <= 0) {
+            $this->cartRepository->removeCartItem($cartItemId);
+            return;
+        }
+
+        $this->cartRepository->updateCartItemQuantity($cartItemId, $quantity);
+    }
+
+    public function removeCartItem(int $cartItemId): void
+    {
+        if ($cartItemId <= 0) {
+            throw new \InvalidArgumentException('Invalid cart item.');
+        }
+
+        $this->cartRepository->removeCartItem($cartItemId);
+    }
+
+    public function getCartItemCount(): int
+    {
+        $cartData = $this->getCartWithItems();
+        $count = 0;
+
+        foreach ($cartData['items'] as $item) {
+            $count += (int) $item['quantity'];
+        }
+
+        return $count;
+    }
+
+    public function getCartSubtotal(): float
+    {
+        $cartData = $this->getCartWithItems();
+
+        return (float) $cartData['subtotal'];
+    }
+}
