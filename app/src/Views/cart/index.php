@@ -10,8 +10,8 @@ $subtotal = (float) ($subtotal ?? 0);
             <a href="/" class="btn btn-sm mb-3" style="background-color: #d6a436; color: #11233d; border-radius: 999px; padding-inline: 1rem; font-weight: 600;">
                 Back to Home
             </a>
-            <h1 class="display-3 fw-bold mb-2" style="color: #d6a436;">Personal Program</h1>
-            <p class="fs-3 mb-0 text-white">All tickets that you are interested in are here</p>
+            <h1 class="display-3 fw-bold mb-2" style="color: #d6a436;">Shopping Cart</h1>
+            <p class="fs-3 mb-0 text-white">All selected tickets are shown here</p>
         </div>
     </section>
 
@@ -20,7 +20,7 @@ $subtotal = (float) ($subtotal ?? 0);
             <section class="mx-auto" style="max-width: 980px;">
                 <div class="card border-0 shadow-sm" style="border-radius: 1.5rem;">
                     <div class="card-body text-center py-5 px-4">
-                        <h2 class="display-6 mb-3">Your personal program is empty</h2>
+                        <h2 class="display-6 mb-3">Your shopping cart is empty</h2>
                         <p class="lead text-muted mb-4">You have not added any tickets yet.</p>
                         <a href="/" class="btn btn-primary px-4">View Events</a>
                     </div>
@@ -35,9 +35,9 @@ $subtotal = (float) ($subtotal ?? 0);
                                 <span class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 2rem; height: 2rem; background-color: rgba(214, 164, 54, 0.15); color: #d6a436; border: 1px solid #d6a436;">
                                     <span aria-hidden="true">□</span>
                                 </span>
-                                <h2 class="h2 mb-0 text-white">Your Personal Schedule</h2>
+                                <h2 class="h2 mb-0 text-white">Your Shopping Cart</h2>
                             </div>
-                            <p class="mb-0" style="color: rgba(255, 255, 255, 0.7);">Review all selected tickets before continuing to payment.</p>
+                            <p class="mb-0" style="color: rgba(255, 255, 255, 0.7);">Review all selected tickets before continuing to checkout.</p>
                         </div>
 
                         <div class="text-lg-end">
@@ -61,7 +61,7 @@ $subtotal = (float) ($subtotal ?? 0);
                             <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 px-3 py-3" style="background: linear-gradient(90deg, rgba(167, 126, 34, 0.92), rgba(214, 164, 54, 0.98)); color: #10213c;">
                                 <div>
                                     <h3 class="h5 mb-1"><?= htmlspecialchars((string) ($group['title'] ?? 'Unknown Date')) ?></h3>
-                                    <div class="small"><?= count($group['items'] ?? []) ?> events scheduled</div>
+                                    <div class="small"><?= count($group['items'] ?? []) ?> items in cart</div>
                                 </div>
 
                                 <div class="fw-semibold">Total: &euro;<?= number_format((float) ($group['total'] ?? 0), 2) ?></div>

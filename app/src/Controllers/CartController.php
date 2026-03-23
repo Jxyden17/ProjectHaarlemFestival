@@ -18,7 +18,7 @@ class CartController extends BaseController
         $cartData = $this->cartService->getCartWithItems();
 
         $this->render('cart/index', [
-            'title' => 'Personal Program',
+            'title' => 'Shopping Cart',
             'cart' => $cartData['cart'],
             'items' => $cartData['items'],
             'groups' => $cartData['groups'],
