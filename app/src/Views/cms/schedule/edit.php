@@ -45,7 +45,7 @@ $session = $schedule->sessions[0] ?? null;
             <div class="mb-3">
                 <label for="label" class="form-label">Age</label>
                 <input type="text" id="label" name="label" class="form-control"
-                    value="<?= htmlspecialchars((string)($session->label ?? '')) ?>">
+                    value="<?= htmlspecialchars($session->label ?? '') ?>">
             </div>
 
             <div class="mb-3">
@@ -58,7 +58,7 @@ $session = $schedule->sessions[0] ?? null;
                 <label for="language_id" class="form-label">Language</label>
                 <select id="language_id" name="language_id" class="form-select">
                     <?php foreach ($language as $lang): ?>
-                        <option value="<?= $lang->value ?>"<?= (($session->languageId ?? null) === $lang->value) ? ' selected' : '' ?>>
+                        <option value="<?= $lang->value ?>"<?= ($session->languageId === $lang->value) ? ' selected' : '' ?>>
                             <?= htmlspecialchars($lang->label()) ?>
                         </option>
                     <?php endforeach; ?>
@@ -67,10 +67,10 @@ $session = $schedule->sessions[0] ?? null;
 
             <div class="mb-3">
                 <label for="available_spots" class="form-label">Aantal tickets</label>
-                <input type="number" id="available_spots" name="available_spots" class="form-control" min="-1" max="1000"
-                       value="<?= (int)$session->availableSpots ?>" required>
+                <input type="number" id="available_spots" name="available_spots" class="form-control" min="-1" max="5000"
+                       value="<?= $session->availableSpots ?>" required>
                 <div class="form-text">
-                    Verkocht Tickets: <?= (int)$session->amountSold ?>.
+                    Verkocht Tickets: <?= $session->amountSold ?>.
                     Gebruik `-1` voor unlimited.
                 </div>
             </div>

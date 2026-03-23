@@ -214,4 +214,14 @@ class ScheduleService implements IScheduleService
     {
         return $this->scheduleRepo->editSchedule($id, $eventId, $venueId, $date, $startTime, $availableSpots, $label, $price, $language);
     }
+
+    public function createSchedule(int $eventId, int $venueId, string $date, string $startTime, int $availableSpots, ?string $label, ?float $price, ?int $language, array $performerIds = []): bool
+    {
+        return $this->scheduleRepo->createSchedule($eventId, $venueId, $date, $startTime, $availableSpots, $label, $price, $language, $performerIds);
+    }
+
+    public function deleteSchedule(int $id): bool
+    {
+        return $this->scheduleRepo->deleteSchedule($id);
+    }
 }

@@ -93,7 +93,7 @@ try {
     $cmsHomeContentController = new App\Controllers\Cms\CmsHomeContentController($pageService, $cmsEventEditorService);
     $cmsArtistsController = new App\Controllers\Cms\CmsArtistsController($artistesService);
     $cmsVenuesController = new App\Controllers\Cms\CmsVenuesController($venueService);
-    $cmsScheduleController = new App\Controllers\Cms\CmsScheduleController($scheduleService);
+    $cmsScheduleController = new App\Controllers\Cms\CmsScheduleController($scheduleService, $venueService, $artistesService);
     $cmsEventManagementController = new App\Controllers\Cms\CmsEventManagementController($cmsEventManagementService);
 
     $dispatcher = simpleDispatcher(function (RouteCollector $r) {

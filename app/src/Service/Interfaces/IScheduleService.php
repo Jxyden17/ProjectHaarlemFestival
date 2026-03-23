@@ -19,4 +19,6 @@ interface IScheduleService
 
     public function getSessionById(int $id): ?ScheduleEditorViewModel;
     public function editSchedule(int $id, int $eventId, int $venueId, string $date, string $startTime, int $availableSpots, ?string $label, ?float $price, ?int $language): bool;
+    public function createSchedule(int $eventId, int $venueId, string $date, string $startTime, int $availableSpots, ?string $label, ?float $price, ?int $language, array $performerIds = []): bool;
+    public function deleteSchedule(int $id): bool;
 }

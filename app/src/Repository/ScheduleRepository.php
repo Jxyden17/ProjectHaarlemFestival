@@ -433,7 +433,7 @@ class ScheduleRepository implements IScheduleRepository
     return $row ? $this->scheduleMapper->mapEventRow($row) : null;
     }
 
-    public function editSchedule(int $id, int $eventId, int $venueId, string $date, string $startTime, int $availableSpots, $label, $price, $language): bool
+    public function editSchedule(int $id, int $eventId, int $venueId, string $date, string $startTime, int $availableSpots, $label, $price, $language, array $performerIds = []): bool
     {
         $stmt = $this->db->prepare(
             'UPDATE sessions
@@ -454,5 +454,54 @@ class ScheduleRepository implements IScheduleRepository
         ]);
     }
 
+    public function createSchedule(int $eventId, int $venueId, string $date, string $startTime, int $availableSpots, ?string $label, ?float $price, ?int $language, array $performerIds = []): bool
+    {
+        $stmt = $this->db->prepare(
+            'INSERT INTO sessions (event_id, venue_id, date, start_time, available_spots, label, price, language_id)
+             VALUES (:event_id, :venue_id, :date, :start_time, :available_spots, :label, :price, :language)'
+        );
 
+        $success = $stmt->execute([
+        ':event_id' => $eventId,
+        ':venue_id' => $venueId,
+        ':date' => $date,
+        ':start_time' => $startTime,
+        ':available_spots' => $availableSpots,
+        ':label' => $label ?? 'None',
+        ':price' => $price ?? -1,
+        ':language' => $language ?? 1,
+    ]);
+
+    if (!$success) {
+        return false;
+    }
+
+    $sessionId = (int)$this->db->lastInsertId();
+
+    // Koppel performers aan de sessie
+    if (!empty($performerIds)) {
+        $insert = $this->db->prepare(
+            'INSERT INTO session_performers (session_id, performer_id) VALUES (:session_id, :performer_id)'
+        );
+        foreach ($performerIds as $performerId) {
+            $insert->execute([
+                ':session_id' => $sessionId,
+                ':performer_id' => $performerId,
+            ]);
+        }
+    }
+
+    return true;
+    }
+    // later tickets eerst nakijken dan pas verwijderen, anders kunnen er issues ontstaan met boekingen die nog gekoppeld zijn aan een sessie die verwijderd wordt
+    public function deleteSchedule(int $id): bool
+    {
+        $stmt = $this->db->prepare('DELETE FROM session_performers WHERE session_id = :session_id');
+        $stmt->execute([':session_id' => $id]);
+
+        $stmt = $this->db->prepare('DELETE FROM sessions WHERE id = :id');
+        return $stmt->execute([
+            ':id' => $id,
+        ]);
+    }
 }
