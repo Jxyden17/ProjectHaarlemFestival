@@ -6,6 +6,8 @@ interface ICmsPageSaveService
 {
     public function savePageContent(int $pageId, ?string $pageTitle, array $sections): void;
 
+    public function saveEditorPageContent(int $pageId, array $sections, array $items): void;
+
     public function savePageContentBySlug(
         string $pageSlug,
         ?string $pageTitle,

@@ -1,42 +1,66 @@
 const tourHomeForm = document.querySelector('form[action="/cms/events/tour-home"]');
-const quillEditors = [];
 
-function initializeQuillEditors() {
-    if (!tourHomeForm || typeof Quill === 'undefined') {
+async function uploadTourImage(row, button) {
+    if (!tourHomeForm || !window.CmsMediaUpload) {
         return;
     }
 
-    const toolbarOptions = [
-        [{ header: [2, 3, 4, false] }],
-        ['bold', 'italic', 'underline'],
-        [{ list: 'ordered' }, { list: 'bullet' }],
-        ['link', 'blockquote'],
-        ['clean']
-    ];
+    const fileInput = row.querySelector('.performer-upload-input');
+    const sectionItemIdInput = row.querySelector('.tour-item-id');
+    const currentPathInput = row.querySelector('.performer-artist-image');
+    const pageSlug = tourHomeForm.dataset.tourPageSlug || '';
+    const sectionType = row.dataset.tourSectionType || '';
 
-    const richTextAreas = tourHomeForm.querySelectorAll('textarea[data-quill="1"]');
-    richTextAreas.forEach((textarea) => {
-        const editorContainer = document.createElement('div');
-        editorContainer.className = 'mb-2';
-        textarea.insertAdjacentElement('afterend', editorContainer);
+    if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+        window.CmsMediaUpload.getUploadFeedback().showUploadFeedback('Upload failed', 'Please choose an image first.', 'danger');
+        return;
+    }
 
-        const quill = new Quill(editorContainer, {
-            theme: 'snow',
-            modules: { toolbar: toolbarOptions }
-        });
+    const sectionItemId = sectionItemIdInput ? Number(sectionItemIdInput.value || 0) : 0;
+    if (sectionItemId <= 0 || pageSlug === '' || sectionType === '') {
+        window.CmsMediaUpload.getUploadFeedback().showUploadFeedback('Upload failed', 'Image upload failed.', 'danger');
+        return;
+    }
 
-        const initialHtml = textarea.value.trim();
-        quill.root.innerHTML = initialHtml === '' ? '<p><br></p>' : initialHtml;
-        textarea.required = false;
-        textarea.classList.add('d-none');
-        quillEditors.push({ textarea, quill });
+    const path = await window.CmsMediaUpload.uploadFile({
+        button,
+        fileInput,
+        endpoint: '/cms/media/upload-image',
+        fileFieldName: 'image',
+        moduleName: `tour_image:${pageSlug}:${sectionType}`,
+        sectionItemId,
+        currentPath: currentPathInput ? currentPathInput.value : '',
+        missingMetadataMessage: 'Missing tour upload metadata for this image row.',
+        missingFileMessage: 'Please choose an image first.',
+        failureMessage: 'Image upload failed.',
+        successTitle: 'Upload complete',
+        successMessage: 'Image uploaded successfully.',
     });
 
-    tourHomeForm.addEventListener('submit', () => {
-        quillEditors.forEach(({ textarea, quill }) => {
-            const isEmpty = quill.getText().trim() === '';
-            textarea.value = isEmpty ? '' : quill.root.innerHTML;
-        });
+    if (path) {
+        window.CmsMediaUpload.applyUploadedPath(row, {
+            pathInputSelector: '.performer-artist-image',
+            downloadLinkSelector: '.performer-download-link',
+        }, path);
+    }
+}
+
+if (tourHomeForm) {
+    tourHomeForm.addEventListener('click', (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLElement) || !target.classList.contains('upload-performer-image')) {
+            return;
+        }
+
+        const row = target.closest('[data-tour-upload-row]');
+        if (!row) {
+            return;
+        }
+
+        uploadTourImage(row, target);
     });
 }
-initializeQuillEditors();
+
+if (tourHomeForm && window.CmsPageEditor) {
+    window.CmsPageEditor.initializeQuillEditors(tourHomeForm);
+}

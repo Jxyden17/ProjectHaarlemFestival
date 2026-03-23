@@ -25,7 +25,7 @@ class CmsEventsController extends BaseController
         $this->requireAdmin();
         $this->renderCms('cms/events/index', [
             'title' => 'Event Management',
-            'danceDetailPages' => $this->danceService->getPublishedDanceDetailPages(),
+            'danceDetailPages' => $this->danceService->getDanceDetailPages(),
             'tourDetailPages' => $this->cmsEventEditorService->getTourDetailPages(),
         ]);
     }

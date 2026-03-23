@@ -1,6 +1,6 @@
 <?php
-$artistsTitle = trim((string)($danceIndexViewModel->artistsTitle ?? ''));
-$artistCards = is_array($danceIndexViewModel->artistCards ?? null) ? $danceIndexViewModel->artistCards : [];
+$featuredArtistsTitle = trim((string)($danceIndexViewModel->featuredArtistsTitle ?? ''));
+$featuredArtistCards = is_array($danceIndexViewModel->featuredArtistCards ?? null) ? $danceIndexViewModel->featuredArtistCards : [];
 ?>
 
 <section class="dance-artists" id="dance-featured-artists">
@@ -9,11 +9,11 @@ $artistCards = is_array($danceIndexViewModel->artistCards ?? null) ? $danceIndex
             <span class="dance-artists-title-icon">
                 <i data-lucide="music-4" aria-hidden="true"></i>
             </span>
-            <?= htmlspecialchars($artistsTitle) ?>
+            <?= htmlspecialchars($featuredArtistsTitle) ?>
         </h2>
 
         <div class="dance-artists-grid">
-            <?php foreach ($artistCards as $artistCard): ?>
+            <?php foreach ($featuredArtistCards as $artistCard): ?>
                 <?php
                 $name = trim((string)($artistCard['name'] ?? ''));
                 $genre = trim((string)($artistCard['genre'] ?? ''));

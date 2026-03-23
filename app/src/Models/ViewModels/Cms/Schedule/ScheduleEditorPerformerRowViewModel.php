@@ -11,14 +11,8 @@ class ScheduleEditorPerformerRowViewModel
     public int $artistSectionItemId;
     public string $artistImagePath;
 
-    public function __construct(
-        int $id,
-        string $name,
-        string $type,
-        string $description,
-        int $artistSectionItemId,
-        string $artistImagePath
-    ) {
+    public function __construct(int $id, string $name, string $type, string $description, int $artistSectionItemId, string $artistImagePath)
+    {
         $this->id = $id;
         $this->name = $name;
         $this->type = $type;

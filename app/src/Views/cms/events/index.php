@@ -48,9 +48,9 @@ $tourDetailPages = is_array($tourDetailPages ?? null) ? $tourDetailPages : [];
                     <p class="mb-1">Sub Pages:</p>
                     <div class="d-grid gap-2 d-md-flex flex-wrap">
                         <?php foreach ($danceDetailPages as $detailPage): ?>
-                            <?php if (!$detailPage instanceof EventDetailPageModel || trim((string)$detailPage->detailSlug) === '') { continue; } ?>
-                            <a href="/cms/events/dance-detail/<?= rawurlencode($detailPage->detailSlug) ?>" class="btn btn-outline-primary">
-                                Edit <?= htmlspecialchars(trim((string)($detailPage->performerName ?? '')) !== '' ? (string)$detailPage->performerName : $detailPage->detailSlug) ?>
+                            <?php if (!$detailPage instanceof EventDetailPageModel || trim((string)$detailPage->pageSlug) === '') { continue; } ?>
+                            <a href="/cms/events/dance-detail/<?= rawurlencode($detailPage->pageSlug) ?>" class="btn btn-outline-primary">
+                                Edit <?= htmlspecialchars(trim((string)($detailPage->performerName ?? '')) !== '' ? (string)$detailPage->performerName : $detailPage->pageSlug) ?>
                             </a>
                         <?php endforeach; ?>
                     </div>
