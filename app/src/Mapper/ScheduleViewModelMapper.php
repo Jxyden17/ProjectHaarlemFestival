@@ -100,6 +100,7 @@ class ScheduleViewModelMapper
         $eventName = $this->checkEvent($session->event?->name ?? 'Other');
 
         return new ScheduleRowViewModel(
+            $session->id,
             $dt->format('M j, Y'),
             substr($session->startTime, 0, 5),
             $this->buildEventLabel($session),

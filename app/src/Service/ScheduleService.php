@@ -10,6 +10,7 @@ use App\Models\Event\PerformerModel;
 use App\Models\Schedule\ScheduleData;
 use App\Repository\Interfaces\IScheduleRepository;
 use App\Service\Interfaces\IScheduleService;
+use App\Models\ViewModels\Cms\Schedule\ScheduleEditorViewModel;
 
 class ScheduleService implements IScheduleService
 {
@@ -172,5 +173,57 @@ class ScheduleService implements IScheduleService
             $performers,
             $sessionPerformers
         );
+    }
+
+    public function getSessionById(int $id): ?ScheduleEditorViewModel
+    {
+        if ($id <= 0) {
+        return null;
+        }
+
+        $session = $this->scheduleRepo->getSessionById($id);
+        if ($session === null) {
+            return null;
+        }
+
+        $eventId = (int)($session->eventId ?? 0);
+        if ($eventId <= 0) {
+            return null;
+        }
+
+        $event = $this->scheduleRepo->findEventById($eventId);
+        if ($event === null) {
+            return null;
+        }
+
+        $venues = $this->scheduleRepo->getVenuesByEventId($eventId);
+        $performers = $this->scheduleRepo->getPerformersByEventId($eventId);
+        $sessionPerformers = $this->scheduleRepo->getSessionPerformersByEventId($eventId);
+
+        $sessionPerformerMap = $this->scheduleMapper->buildSessionPerformerMap($sessionPerformers);
+
+        return new ScheduleEditorViewModel(
+            $event->name,
+            $this->scheduleMapper->mapVenueRows($venues),
+            $this->scheduleMapper->mapPerformerRows($performers),
+            $this->scheduleMapper->mapSessionRows([$session], $sessionPerformerMap)
+        );
+    }
+
+
+
+    public function editSchedule(int $id, int $eventId, int $venueId, string $date, string $startTime, int $availableSpots, ?string $label, ?float $price, ?int $language): bool
+    {
+        return $this->scheduleRepo->editSchedule($id, $eventId, $venueId, $date, $startTime, $availableSpots, $label, $price, $language);
+    }
+
+    public function createSchedule(int $eventId, int $venueId, string $date, string $startTime, int $availableSpots, ?string $label, ?float $price, ?int $language, array $performerIds = []): bool
+    {
+        return $this->scheduleRepo->createSchedule($eventId, $venueId, $date, $startTime, $availableSpots, $label, $price, $language, $performerIds);
+    }
+
+    public function deleteSchedule(int $id): bool
+    {
+        return $this->scheduleRepo->deleteSchedule($id);
     }
 }

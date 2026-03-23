@@ -4,6 +4,7 @@ namespace App\Controllers\Cms;
 
 use App\Controllers\BaseController;
 use App\Service\Cms\Interfaces\ICmsService;
+use App\Service\Cms\Interfaces\ICmsEventEditorService;
 use App\Service\Interfaces\IDanceService;
 use App\Service\Interfaces\IPageService;
 
@@ -12,12 +13,19 @@ class CmsEventsController extends BaseController
     private ICmsService $cmsService;
     private IDanceService $danceService;
     private IPageService $pageService;
+    private ICmsEventEditorService $cmsEventEditorService;
 
-    public function __construct(ICmsService $cmsService, IDanceService $danceService, IPageService $pageService)
+    public function __construct(
+        ICmsService $cmsService,
+        IDanceService $danceService,
+        IPageService $pageService,
+        ICmsEventEditorService $cmsEventEditorService
+    )
     {
         $this->cmsService = $cmsService;
         $this->danceService = $danceService;
         $this->pageService = $pageService;
+        $this->cmsEventEditorService = $cmsEventEditorService;
     }
 
     public function index(): void
@@ -29,9 +37,10 @@ class CmsEventsController extends BaseController
         ));
 
         $this->renderCms('cms/events/index', [
-            'title' => 'Event Management',
+            'title' => 'Page Management',
             'danceDetailPages' => $this->danceService->getDanceDetailPages(),
             'storyDetailPages' => $storyDetailPages,
+            'tourDetailPages' => $this->cmsEventEditorService->getTourDetailPages(),
         ]);
     }
 }

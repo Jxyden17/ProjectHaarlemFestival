@@ -278,4 +278,15 @@ class PageRepository implements IPageRepository
 
         return $itemIds;
     }
+
+    public function getTourDetailPages(): array
+    {
+        $stmt = $this->db->query(
+            'SELECT id, page_name
+             FROM pages
+             WHERE event_id = 1 AND id != 1'
+        );
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
