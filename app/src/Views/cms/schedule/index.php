@@ -41,29 +41,27 @@
                 </tr>
             </thead>
             <tbody>
-                <?php if (empty($schedules)): ?>
+                <?php if (empty($schedules) || empty($schedules->sessions)): ?>
                     <tr>
                         <td colspan="6" class="text-muted">No ticket moments found for this event.</td>
                     </tr>
                 <?php else: ?>
                     <?php $counter = 1; ?>
-                    <?php foreach ($schedules->groups as $group): ?>
-                        <?php foreach ($group->rows as $row): ?>
+                    <?php foreach ($schedules->sessions as $row): ?>
                         <tr>
                             <input type="hidden" name="id" value="<?= $row->id ?>">
                             <td><?= $counter++ ?></td>
-                            <td><?= htmlspecialchars($row->event ?? 'Unknown Event') ?></td>
+                            <td><?= htmlspecialchars($row->event->name) ?></td>
                             <td><?= htmlspecialchars($row->date ?? 'Unknown') ?></td>
-                            <td><?= htmlspecialchars($row->time ?? 'Unknown') ?></td>
-                            <td><?= ($row->totalTickets ?? 0) ?></td>
-                            <td><?= ($row->bookedTickets ?? 0) ?></td>
+                            <td><?= htmlspecialchars($row->startTime ?? 'Unknown') ?></td>
+                            <td><?= ($row->availableSpots ?? 0) ?></td>
+                            <td><?= ($row->amountSold ?? 0) ?></td>
                             <td>
                                 <a href="/cms/eventManagement/schedules/edit?event_id=<?= $selectedEvent->value ?>&id=<?= $row->id ?>" class="btn btn-sm btn-outline-primary">Edit</a>
                                 <a href="/cms/eventManagement/schedules/view?event_id=<?= $selectedEvent->value ?>&id=<?= $row->id ?>" class="btn btn-sm btn-outline-primary">View Tickets</a>
                                 <a href="/cms/eventManagement/schedules/delete?event_id=<?= $selectedEvent->value ?>&id=<?= $row->id ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete ticket slot #<?= $counter ?>?');">Delete</a>
                             </td>
                         </tr>
-                        <?php endforeach; ?>
                     <?php endforeach; ?>
                 <?php endif; ?>
             </tbody>

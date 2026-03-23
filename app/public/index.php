@@ -74,7 +74,8 @@ try {
         $cmsScheduleService,
         $cmsScheduleMapper,
         $cmsPageSaveService,
-        $danceService
+        $danceService,
+        $pageRepo
     );
     $authController = new App\Controllers\AuthController($authService);
     $homeController = new App\Controllers\HomeController($pageService, $scheduleService, $scheduleViewModelMapper);

@@ -36,7 +36,7 @@ $session = $schedule->sessions[0] ?? null;
                 <select id="venue_id" name="venue_id" class="form-select" required>
                     <?php foreach (($schedule->venues ?? []) as $venue): ?>
                         <option value="<?= (int)$venue->id ?>"<?= $venue->id === $session->venueId ? ' selected' : '' ?>>
-                            <?= htmlspecialchars($venue->name) ?>
+                            <?= htmlspecialchars($venue->venueName) ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -58,7 +58,7 @@ $session = $schedule->sessions[0] ?? null;
                 <label for="language_id" class="form-label">Language</label>
                 <select id="language_id" name="language_id" class="form-select">
                     <?php foreach ($language as $lang): ?>
-                        <option value="<?= $lang->value ?>"<?= ($session->languageId === $lang->value) ? ' selected' : '' ?>>
+                        <option value="<?= $lang->value ?>"<?= (($session->language?->value ?? null) === $lang->value) ? ' selected' : '' ?>>
                             <?= htmlspecialchars($lang->label()) ?>
                         </option>
                     <?php endforeach; ?>

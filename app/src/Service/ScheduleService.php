@@ -10,6 +10,7 @@ use App\Models\Event\PerformerModel;
 use App\Models\Schedule\ScheduleData;
 use App\Repository\Interfaces\IScheduleRepository;
 use App\Service\Interfaces\IScheduleService;
+use App\Models\ViewModels\Cms\Schedule\ScheduleEditorViewModel;
 
 class ScheduleService implements IScheduleService
 {
@@ -208,6 +209,8 @@ class ScheduleService implements IScheduleService
             $this->scheduleMapper->mapSessionRows([$session], $sessionPerformerMap)
         );
     }
+
+
 
     public function editSchedule(int $id, int $eventId, int $venueId, string $date, string $startTime, int $availableSpots, ?string $label, ?float $price, ?int $language): bool
     {

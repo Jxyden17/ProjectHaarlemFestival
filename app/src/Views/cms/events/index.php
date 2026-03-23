@@ -8,7 +8,7 @@ $tourDetailPages = is_array($tourDetailPages ?? null) ? $tourDetailPages : [];
 <div class="container py-4">
     <div class="mb-3">
         <h1 class="h3 mb-1">Page Management</h1>
-        <p class="text-muted mb-0">Choose what you want to edit.</p>
+        <p class="text mb-0">Choose what you want to edit.</p>
     </div>
 
     <div class="mb-3">
@@ -64,9 +64,7 @@ $tourDetailPages = is_array($tourDetailPages ?? null) ? $tourDetailPages : [];
                     <h2 class="h5 mb-2">Roadmap</h2>
                     <p class="text-muted mb-3">Next steps for event administration.</p>
                     <ul class="mb-0">
-                        <li>Create and edit festival events</li>
-                        <li>Manage sessions and performers per event</li>
-                        <li>Configure event visibility and publication</li>
+                        <li>Edit festival events</li>
                     </ul>
                 </div>
             </div>

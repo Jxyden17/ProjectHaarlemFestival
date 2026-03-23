@@ -17,17 +17,20 @@ class CmsEventEditorService implements ICmsEventEditorService
     private CmsScheduleMapper $cmsScheduleMapper;
     private ICmsPageSaveService $pageSaveService;
     private IDanceService $danceService;
+    private $pageRepository;
 
     public function __construct(
         ICmsScheduleService $cmsScheduleService,
         CmsScheduleMapper $cmsScheduleMapper,
         ICmsPageSaveService $pageSaveService,
-        IDanceService $danceService
+        IDanceService $danceService,
+        $pageRepository
     ) {
         $this->cmsScheduleService = $cmsScheduleService;
         $this->cmsScheduleMapper = $cmsScheduleMapper;
         $this->pageSaveService = $pageSaveService;
         $this->danceService = $danceService;
+        $this->pageRepository = $pageRepository;
     }
 
     public function getEditorData(string $eventName): ScheduleEditorViewModel

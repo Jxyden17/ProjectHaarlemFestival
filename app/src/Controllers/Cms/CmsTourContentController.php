@@ -50,11 +50,12 @@ class CmsTourContentController extends BaseController
         $items = is_array($_POST['items']) ? $_POST['items'] : [];
         try {
             $this->cmsEventEditorService->savePageContent(1, $sections, $items);
-            $_SESSION['cms_tour_success'] = 'Tour content opgeslagen.';
+            $_SESSION['success'] = 'Tour content opgeslagen.';
             header('Location: /cms/events/tour-home?saved=1');
+             $_SESSION['success'] = 'Tour content opgeslagen.';
             exit;
         } catch (\Throwable $e) {
-             $_SESSION['cms_tour_error'] = 'Opslaan mislukt.' . $e->getMessage();
+             $_SESSION['error'] = 'Opslaan mislukt.' . $e->getMessage();
         }
         header('Location: /cms/events/tour-home');
     }
@@ -95,11 +96,11 @@ class CmsTourContentController extends BaseController
 
         try {
             $this->cmsEventEditorService->savePageContent($pageId, $sections, $items);
-            $_SESSION['cms_tour_success'] = 'Tour content opgeslagen.';
+            $_SESSION['success'] = 'Tour content opgeslagen.';
             header('Location: /cms/events');
             exit;
         } catch (\Throwable $e) {
-             $_SESSION['cms_tour_error'] = 'Opslaan mislukt.' . $e->getMessage();
+             $_SESSION['error'] = 'Opslaan mislukt.' . $e->getMessage();
         }
         header('Location: /cms/events');
     }

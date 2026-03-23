@@ -167,7 +167,8 @@ class CmsScheduleMapper
                 number_format($session->price, 2, '.', ''),
                 $session->availableSpots,
                 $session->amountSold,
-                array_values(array_map('intval', $sessionPerformerMap[$session->id] ?? []))
+                array_values(array_map('intval', $sessionPerformerMap[$session->id] ?? [])),
+                $session->languageId ?? 1
             );
         }
 
