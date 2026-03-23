@@ -23,7 +23,11 @@
                             <?php endif; ?>
                             <a href="/cms/eventManagement/venues?event_id=<?= $event['id'] ?? 0 ?>" class="btn btn-outline-primary">Venues</a>
                             <?php if (!empty($event['supportsTickets'])): ?>
-                                <a href="/cms/eventManagement/schedules?event_id=<?= $event['id'] ?? 0 ?>" class="btn btn-outline-primary">Schedule</a>
+                                <?php if (($event['slug'] ?? '') === 'dance'): ?>
+                                    <a href="/cms/eventManagement/dance/schedule-editor" class="btn btn-outline-primary">Schedule Editor</a>
+                                <?php else: ?>
+                                    <a href="/cms/eventManagement/schedules?event_id=<?= $event['id'] ?? 0 ?>" class="btn btn-outline-primary">Schedule</a>
+                                <?php endif; ?>
                             <?php endif; ?>
                         </div>
                     </div>

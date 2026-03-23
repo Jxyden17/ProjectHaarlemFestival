@@ -5,6 +5,7 @@ $danceDetailPages = is_array($danceDetailPages ?? null) ? $danceDetailPages : []
 $tourDetailPages = is_array($tourDetailPages ?? null) ? $tourDetailPages : [];
 ?>
 
+
 <div class="container py-4">
     <div class="mb-3">
         <h1 class="h3 mb-1">Page Management</h1>
@@ -42,7 +43,6 @@ $tourDetailPages = is_array($tourDetailPages ?? null) ? $tourDetailPages : [];
                         <span class="badge text-bg-success">Live</span>
                     </div>
                     <div class="mb-3">
-                        <a href="/cms/events/dance/schedule" class="btn btn-outline-primary">Edit Schedule</a>
                         <a href="/cms/events/dance-home" class="btn btn-primary">Edit Home Content</a>
                     </div>
                     <p class="mb-1">Sub Pages:</p>

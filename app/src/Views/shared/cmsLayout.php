@@ -11,6 +11,7 @@
 <body>
 <?php
 $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+$isDashboard = $currentPath === '/cms';
 $isCms = str_starts_with($currentPath, '/cms');
 $isUsers = str_starts_with($currentPath, '/cms/users');
 $isEvents = str_starts_with($currentPath, '/cms/events');
@@ -41,7 +42,7 @@ unset($_SESSION['success'], $_SESSION['error']);
             </div>
 
             <nav class="mt-3">
-                <a href="/cms" class="cms-nav-link<?= $isCms && !$isUsers && !$isEvents && !$isTickets && !$isArtists && !$isSchedules ? ' is-active' : '' ?>">
+                <a href="/cms" class="cms-nav-link<?= $isDashboard ? ' is-active' : '' ?>">
                     <i data-lucide="layout-dashboard"></i>
                     Dashboard
                 </a>

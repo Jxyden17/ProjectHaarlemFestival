@@ -90,7 +90,7 @@ try {
     $cmsUsersController = new App\Controllers\Cms\CmsUsersController($cmsService);
     $jazzController = new App\Controllers\JazzController($scheduleService, $jazzService, $scheduleViewModelMapper);
     $storiesController = new App\Controllers\StoriesController($pageService, $scheduleService, $scheduleViewModelMapper);
-    // $cmsDanceContentController = new App\Controllers\Cms\CmsDanceContentController($cmsDanceService, $cmsDanceMapper);
+    $cmsDanceController = new App\Controllers\Cms\CmsDanceController($cmsDanceService, $cmsDanceViewModelMapper);
     $cmsEventEditorController = new App\Controllers\Cms\CmsEventEditorController($cmsScheduleService, $cmsEventEditorService);
     $cmsMediaController = new App\Controllers\Cms\CmsMediaController($imageUploadService, $audioUploadService);
     $cmsTourContentController = new App\Controllers\Cms\CmsTourContentController($pageService, $cmsEventEditorService);
@@ -132,6 +132,8 @@ try {
         $r->addRoute('GET', '/cms/events', ['CmsEventsController', 'index']);
         $r->addRoute('GET', '/cms/events/{eventSlug}/schedule', ['CmsEventEditorController', 'index']);
         $r->addRoute('POST', '/cms/events/{eventSlug}/schedule', ['CmsEventEditorController', 'update']);
+        $r->addRoute('GET', '/cms/eventManagement/{eventSlug}/schedule-editor', ['CmsEventEditorController', 'index']);
+        $r->addRoute('POST', '/cms/eventManagement/{eventSlug}/schedule-editor', ['CmsEventEditorController', 'update']);
         $r->addRoute('GET', '/cms/events/dance-home', ['CmsDanceController', 'index']);
         $r->addRoute('POST', '/cms/events/dance-home', ['CmsDanceController', 'updateHome']);
         $r->addRoute('POST', '/cms/events/dance-homeAPI', ['CmsDanceController', 'updateHomeAPI']);
@@ -216,6 +218,7 @@ try {
                 'CmsTicketsController' => $cmsTicketsController,
                 'CmsUsersController' => $cmsUsersController,
                 'CmsEventEditorController' => $cmsEventEditorController,
+                'CmsDanceController' => $cmsDanceController,
                 'CmsTourContentController' => $cmsTourContentController,
                 'CmsMediaController' => $cmsMediaController,
                 'CmsHomeContentController' => $cmsHomeContentController,
