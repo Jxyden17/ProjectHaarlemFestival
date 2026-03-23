@@ -37,6 +37,9 @@ $initialUnitPrice = $pricingType === 'pay_as_you_like' ? $minimumPrice : $fixedP
 <div class="container-fluid px-0">
     <section class="py-4 py-lg-5" style="background: linear-gradient(rgba(7, 16, 38, 0.72), rgba(7, 16, 38, 0.92)), url('/img/home/home-banner.png') center/cover no-repeat;">
         <div class="container">
+            <a href="/cart" class="btn btn-sm mb-3" style="background-color: #d6a436; color: #11233d; border-radius: 999px; padding-inline: 1rem; font-weight: 600;">
+                Back to Personal Program
+            </a>
             <h1 class="display-3 fw-bold mb-2" style="color: #d6a436;">Book tickets</h1>
             <p class="fs-3 mb-0 text-white">You can first add tickets to the list then buy it all in one go</p>
         </div>
@@ -45,7 +48,6 @@ $initialUnitPrice = $pricingType === 'pay_as_you_like' ? $minimumPrice : $fixedP
     <div class="container py-5">
         <div class="mx-auto" style="max-width: 640px;">
             <div class="text-center mb-4">
-                <a href="/cart" class="btn btn-outline-light btn-sm mb-3">Back to Personal Program</a>
                 <h2 class="h1 text-white mb-0">
                     <?= $pricingType === 'pay_as_you_like' ? 'Pay-as-you-Like' : 'Book tickets' ?>
                 </h2>

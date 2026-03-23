@@ -52,8 +52,7 @@ try {
     $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
     $host = (string) ($_SERVER['HTTP_HOST'] ?? 'localhost');
     $baseUrl = $scheme . '://' . $host;
-    $mollieApiKey = trim((string) ($_ENV['MOLLIE_API_KEY'] ?? getenv('MOLLIE_API_KEY') ?? ''));
-    $paymentDriver = trim((string) ($_ENV['PAYMENT_DRIVER'] ?? getenv('PAYMENT_DRIVER') ?? 'mock'));
+    $paymentDriver = trim((string) ($_ENV['PAYMENT_DRIVER'] ?? getenv('PAYMENT_DRIVER') ?? 'stripe'));
 
     $cmsScheduleMapper = new App\Mapper\CmsScheduleMapper();
     $cmsDanceMapper = new App\Mapper\CmsDanceMapper();
@@ -102,7 +101,7 @@ try {
     $checkoutRepo = new App\Repository\CheckoutRepository();
     $checkoutService = new App\Service\CheckoutService($cartService, $cartRepo, $checkoutRepo);
     $paymentRepo = new App\Repository\PaymentRepository();
-    $paymentService = new App\Service\PaymentService($paymentRepo, $mollieApiKey, $baseUrl, $paymentDriver);
+    $paymentService = new App\Service\PaymentService($paymentRepo, $baseUrl, $paymentDriver);
     $checkoutController = new App\Controllers\CheckoutController($checkoutService, $paymentService);
     $paymentController = new App\Controllers\PaymentController($paymentService);
 
@@ -177,8 +176,6 @@ try {
         $r->addRoute('GET', '/book/{sessionId:\d+}', ['BookController', 'index']);
         $r->addRoute('GET', '/checkout', ['CheckoutController', 'index']);
         $r->addRoute('POST', '/checkout/confirm', ['CheckoutController', 'confirm']);
-        $r->addRoute('GET', '/payment/mock/{orderId:\d+}', ['PaymentController', 'mock']);
-        $r->addRoute('POST', '/payment/mock/{orderId:\d+}', ['PaymentController', 'mockComplete']);
         $r->addRoute('GET', '/payment/return', ['PaymentController', 'return']);
         $r->addRoute('POST', '/payment/webhook', ['PaymentController', 'webhook']);
 
