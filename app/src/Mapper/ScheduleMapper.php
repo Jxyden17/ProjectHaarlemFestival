@@ -8,6 +8,9 @@ use App\Models\Event\PerformerModel;
 use App\Models\Event\SessionModel;
 use App\Models\Event\SessionPerformerModel;
 use App\Models\Event\VenueModel;
+use App\Models\ViewModels\Cms\Schedule\ScheduleEditorPerformerRowViewModel;
+use App\Models\ViewModels\Cms\Schedule\ScheduleEditorSessionRowViewModel;
+use App\Models\ViewModels\Cms\Schedule\ScheduleEditorVenueRowViewModel;
 
 class ScheduleMapper
 {
@@ -16,75 +19,6 @@ class ScheduleMapper
     public function __construct(EventMapper $eventMapper)
     {
         $this->eventMapper = $eventMapper;
-    }
-
-    /**
-     * Build a map of sessionId => array of performerIds
-     */
-    public function buildSessionPerformerMap(array $sessionPerformers): array
-    {
-        $map = [];
-        foreach ($sessionPerformers as $sp) {
-            if (!isset($sp->sessionId) || !isset($sp->performerId)) continue;
-            $map[$sp->sessionId][] = $sp->performerId;
-        }
-        return $map;
-    }
-
-    /**
-     * Map an array of venue rows to VenueModel objects
-     */
-    public function mapVenueRows(array $venues): array
-    {
-        $result = [];
-        foreach ($venues as $venue) {
-            if ($venue instanceof VenueModel) {
-                $result[] = $venue;
-            } elseif (is_array($venue)) {
-                $result[] = $this->mapVenueModelRow($venue);
-            }
-        }
-        return $result;
-    }
-
-    /**
-     * Map an array of performer rows to PerformerModel objects
-     */
-    public function mapPerformerRows(array $performers): array
-    {
-        $result = [];
-        foreach ($performers as $performer) {
-            if ($performer instanceof PerformerModel) {
-                $result[] = $performer;
-            } elseif (is_array($performer)) {
-                $result[] = $this->mapPerformerModelRow($performer);
-            }
-        }
-        return $result;
-    }
-
-    /**
-     * Map an array of session rows to SessionModel objects, attaching performerIds from the map
-     */
-    public function mapSessionRows(array $sessions, array $sessionPerformerMap = []): array
-    {
-        $result = [];
-        foreach ($sessions as $session) {
-            if ($session instanceof SessionModel) {
-                // Attach sessionPerformers if available
-                if (isset($sessionPerformerMap[$session->id])) {
-                    $session->sessionPerformers = $sessionPerformerMap[$session->id];
-                }
-                $result[] = $session;
-            } elseif (is_array($session)) {
-                $model = $this->mapSessionRow($session);
-                if (isset($sessionPerformerMap[$model->id])) {
-                    $model->sessionPerformers = $sessionPerformerMap[$model->id];
-                }
-                $result[] = $model;
-            }
-        }
-        return $result;
     }
 
     public function mapEventRow(array $row): EventModel
@@ -284,5 +218,89 @@ class ScheduleMapper
         }
 
         return $event;
+    }
+
+    public function mapVenueRows(array $venues): array
+    {
+        $rows = [];
+
+        foreach ($venues as $venue) {
+            if (!$venue instanceof VenueModel) {
+                continue;
+            }
+
+            $rows[] = new ScheduleEditorVenueRowViewModel(
+                $venue->id,
+                $venue->venueName,
+                (string) ($venue->address ?? ''),
+                (string) ($venue->venueType ?? '')
+            );
+        }
+
+        return $rows;
+    }
+
+    public function mapPerformerRows(array $performers): array
+    {
+        $rows = [];
+
+        foreach ($performers as $performer) {
+            if (!$performer instanceof PerformerModel) {
+                continue;
+            }
+
+            $rows[] = new ScheduleEditorPerformerRowViewModel(
+                $performer->id,
+                $performer->performerName,
+                (string) ($performer->performerType ?? ''),
+                (string) ($performer->description ?? ''),
+                0,
+                ''
+            );
+        }
+
+        return $rows;
+    }
+
+    public function buildSessionPerformerMap(array $sessionPerformers): array
+    {
+        $sessionPerformerMap = [];
+
+        foreach ($sessionPerformers as $sessionPerformer) {
+            if (!$sessionPerformer instanceof SessionPerformerModel) {
+                continue;
+            }
+
+            $sessionPerformerMap[$sessionPerformer->sessionId] ??= [];
+            $sessionPerformerMap[$sessionPerformer->sessionId][] = $sessionPerformer->performerId;
+        }
+
+        return $sessionPerformerMap;
+    }
+
+    public function mapSessionRows(array $sessions, array $sessionPerformerMap): array
+    {
+        $rows = [];
+
+        foreach ($sessions as $session) {
+            if (!$session instanceof SessionModel) {
+                continue;
+            }
+
+            $rows[] = new ScheduleEditorSessionRowViewModel(
+                $session->id,
+                $session->date,
+                substr($session->startTime, 0, 5),
+                $session->venueId,
+                (string) ($session->label ?? ''),
+                number_format($session->price, 2, '.', ''),
+                $session->availableSpots,
+                $session->amountSold,
+                array_values(array_map('intval', $sessionPerformerMap[$session->id] ?? [])),
+                $session->language?->value
+            );
+        }
+
+        return $rows;
     }
 }

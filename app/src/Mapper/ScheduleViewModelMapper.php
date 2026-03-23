@@ -106,7 +106,7 @@ class ScheduleViewModelMapper
             $this->buildEventLabel($session),
             $session->venue !== null ? ($session->venue->venueName ?? 'Unknown venue') : 'Unknown venue',
             'EUR ' . number_format($session->price, 2, '.', ''),
-            '/book?session_id=' . $session->id,
+            '/book/' . $session->id,
             $language['label'] ?? 'Unknown',
             $session->availableSpots,
             $session->amountSold,

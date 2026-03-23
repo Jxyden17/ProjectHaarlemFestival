@@ -2,6 +2,7 @@
 use App\Models\Event\EventDetailPageModel;
 
 $danceDetailPages = is_array($danceDetailPages ?? null) ? $danceDetailPages : [];
+$storyDetailPages = is_array($storyDetailPages ?? null) ? $storyDetailPages : [];
 $tourDetailPages = is_array($tourDetailPages ?? null) ? $tourDetailPages : [];
 ?>
 
@@ -94,6 +95,31 @@ $tourDetailPages = is_array($tourDetailPages ?? null) ? $tourDetailPages : [];
                             <?php endforeach; ?>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h2 class="h5 mb-0">Stories</h2>
+                        <span class="badge text-bg-success">Live</span>
+                    </div>
+                    <div class="mb-3">
+                        <a href="/cms/events/stories/schedule" class="btn btn-outline-primary">Edit Schedule</a>
+                        <a href="/cms/events/stories-home" class="btn btn-primary">Edit Stories Home</a>
+                    </div>
+                    <p class="mb-1">Sub Pages:</p>
+                    <div class="d-grid gap-2 d-md-flex flex-wrap mb-3">
+                        <?php foreach ($storyDetailPages as $storyDetailPage): ?>
+                            <?php if ((int)($storyDetailPage['id'] ?? 0) <= 0) { continue; } ?>
+                            <a href="/cms/events/stories-details?id=<?= (int)$storyDetailPage['id'] ?>" class="btn btn-outline-primary">
+                                Edit <?= htmlspecialchars((string)($storyDetailPage['page_name'] ?? $storyDetailPage['slug'] ?? 'Story detail')) ?>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+                    <p class="mb-0 text-muted">Edit hero, grid, venues, schedule, FAQ, and each Stories detail page.</p>
                 </div>
             </div>
         </div>

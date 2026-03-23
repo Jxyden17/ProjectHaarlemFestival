@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Controllers;
 
 use App\Mapper\ScheduleViewModelMapper;
@@ -47,7 +46,7 @@ class StoriesController extends BaseController
             'callout'   => $page->getSection('callout'),
             'grid'      => $page->getSection('grid'),
             'venues'    => $page->getSection('venues'),
-            'schedule'  => $scheduleViewModel,
+            'schedule'  => $page->getSection('schedule'),
             'scheduleData' => $scheduleViewModel,
             'explore'   => $page->getSection('explore'),
             'faq'       => $page->getSection('faq')
@@ -57,11 +56,14 @@ class StoriesController extends BaseController
 
     public function details($slug = null): void
     {
-        if (!$slug) {
-            $slug = isset($_GET['slug']) ? $_GET['slug'] : null;
+        if (is_array($slug)) {
+            $slug = $slug['slug'] ?? $_GET['slug'] ?? null;
+        } elseif (!$slug) {
+            $slug = $_GET['slug'] ?? null;
         }
 
-        if (!$slug) {
+        $slug = trim((string)$slug);
+        if ($slug === '') {
             http_response_code(404);
             $this->render('shared/error', [
                 'errorTitle' => 'Page not found',
@@ -70,24 +72,45 @@ class StoriesController extends BaseController
             return;
         }
 
-        $page = $this->pageService->getPageBySlug($slug);
-        if (trim((string) ($page->title ?? '')) === '') {
+        $page = $this->pageService->getPageBySlug($slug, ucfirst(str_replace('-', ' ', $slug)));
+        if ((int)($page->id ?? 0) <= 0) {
             http_response_code(404);
             $this->render('shared/error', [
-                'errorTitle' => 'Story not found',
-                'errorMessage' => 'The story page you requested does not exist.',
+                'errorTitle' => 'Page not found',
+                'errorMessage' => 'The page you requested does not exist.',
             ]);
             return;
+            
+        }
+        $bookingSessionId = null;
+        $bookingPricingType = 'fixed';
+        $bookingMinimumPrice = null;
+
+        $scheduleSessions = $this->scheduleService->getScheduleSessionsByPerformerName('tellingstory', $page->title);
+
+        if ($scheduleSessions !== []) {
+            $firstSession = $scheduleSessions[0];
+
+            $bookingSessionId = (int) ($firstSession->id ?? 0);
+
+            $numericPrice = (float) ($firstSession->price ?? 0);
+
+            if ($numericPrice <= 0.0) {
+                $bookingPricingType = 'pay_as_you_like';
+                $bookingMinimumPrice = 5.0;
+            }
         }
 
         $viewData = [
             'pageTitle' => $page->title,
-            'slug' => $slug,
             'hero' => $page->getSection('hero'),
-            'gallery' => $page->getSection('gallery'),
             'about' => $page->getSection('about'),
+            'gallery' => $page->getSection('gallery'),
             'featured' => $page->getSection('featured'),
             'booking' => $page->getSection('booking'),
+            'bookingSessionId' => $bookingSessionId,
+            'bookingPricingType' => $bookingPricingType,
+            'bookingMinimumPrice' => $bookingMinimumPrice,
         ];
 
         $this->render('Stories/details', $viewData);
