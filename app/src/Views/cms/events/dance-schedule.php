@@ -11,12 +11,13 @@ $sessions = $editorViewModel->sessions;
 $venues = $editorViewModel->venues;
 $performers = $editorViewModel->performers;
 $formAction = (string)($formAction ?? '/cms/events/dance-schedule');
+$backUrl = (string)($backUrl ?? '/cms/eventManagement');
 ?>
 
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="h3 mb-0"><?= htmlspecialchars((string)($title ?? 'Event Schedule')) ?></h1>
-        <a href="/cms/events" class="btn btn-outline-secondary">Back to Events</a>
+        <a href="<?= htmlspecialchars($backUrl) ?>" class="btn btn-outline-secondary">Back to Event Management</a>
     </div>
 
     <?php

@@ -2,7 +2,7 @@
 
 namespace App\Models\Enums;
 
-enum Language: int
+enum Event: int
 {
     case Tour = 1;
     case Dance = 2;

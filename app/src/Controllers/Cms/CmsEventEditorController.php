@@ -23,13 +23,15 @@ class CmsEventEditorController extends BaseController
         $this->requireAdmin();
 
         $eventName = $this->resolveEventName($vars);
-        $eventSlug = $this->toEventSlug($eventName);
         $editorViewModel = $this->cmsEventEditorService->getEditorData($eventName);
+        $tourDetailPages = $this->cmsEventEditorService->getTourDetailPages();
         $this->renderCms('cms/events/dance-schedule', [
             'title' => $eventName . ' Schedule',
             'editorViewModel' => $editorViewModel,
-            'formAction' => '/cms/events/' . $eventSlug . '/schedule',
+            'formAction' => $this->buildEventManagementScheduleEditorPath($eventName),
             'success' => isset($_GET['saved']),
+            'tourDetailPages' => $tourDetailPages,
+            'backUrl' => '/cms/eventManagement',
         ]);
     }
 
@@ -38,12 +40,11 @@ class CmsEventEditorController extends BaseController
         $this->requireAdmin();
 
         $eventName = $this->resolveEventName($vars);
-        $eventSlug = $this->toEventSlug($eventName);
         $request = ScheduleEditorRequest::fromArray($_POST);
 
         try {
             $this->cmsScheduleService->saveScheduleData($eventName, $request->toSaveInput());
-            header('Location: /cms/events/' . $eventSlug . '/schedule?saved=1');
+            header('Location: ' . $this->buildEventManagementScheduleEditorPath($eventName) . '?saved=1');
             exit;
         } catch (\Throwable $e) {
             $editorViewModel = $this->cmsEventEditorService->getEditorData($eventName);
@@ -58,9 +59,10 @@ class CmsEventEditorController extends BaseController
             $this->renderCms('cms/events/dance-schedule', [
                 'title' => $eventName . ' Schedule',
                 'editorViewModel' => $editorViewModel,
-                'formAction' => '/cms/events/' . $eventSlug . '/schedule',
+                'formAction' => $this->buildEventManagementScheduleEditorPath($eventName),
                 'error' => $e->getMessage(),
                 'success' => false,
+                'backUrl' => '/cms/eventManagement',
             ]);
         }
     }
@@ -79,5 +81,10 @@ class CmsEventEditorController extends BaseController
     private function toEventSlug(string $eventName): string
     {
         return str_replace(' ', '-', strtolower(trim($eventName)));
+    }
+
+    private function buildEventManagementScheduleEditorPath(string $eventName): string
+    {
+        return '/cms/eventManagement/' . $this->toEventSlug($eventName) . '/schedule-editor';
     }
 }

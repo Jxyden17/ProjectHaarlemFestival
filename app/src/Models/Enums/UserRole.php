@@ -12,8 +12,8 @@ enum UserRole: int
     {
         return match ($this) {
             self::Administrator => 'Administrator',
-            self::Customer => 'Employee',
-            self::Employee => 'Customer',
+            self::Employee => 'Employee',
+            self::Customer => 'Customer',
         };
     }   
 }

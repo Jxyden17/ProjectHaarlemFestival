@@ -18,6 +18,75 @@ class ScheduleMapper
         $this->eventMapper = $eventMapper;
     }
 
+    /**
+     * Build a map of sessionId => array of performerIds
+     */
+    public function buildSessionPerformerMap(array $sessionPerformers): array
+    {
+        $map = [];
+        foreach ($sessionPerformers as $sp) {
+            if (!isset($sp->sessionId) || !isset($sp->performerId)) continue;
+            $map[$sp->sessionId][] = $sp->performerId;
+        }
+        return $map;
+    }
+
+    /**
+     * Map an array of venue rows to VenueModel objects
+     */
+    public function mapVenueRows(array $venues): array
+    {
+        $result = [];
+        foreach ($venues as $venue) {
+            if ($venue instanceof VenueModel) {
+                $result[] = $venue;
+            } elseif (is_array($venue)) {
+                $result[] = $this->mapVenueModelRow($venue);
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * Map an array of performer rows to PerformerModel objects
+     */
+    public function mapPerformerRows(array $performers): array
+    {
+        $result = [];
+        foreach ($performers as $performer) {
+            if ($performer instanceof PerformerModel) {
+                $result[] = $performer;
+            } elseif (is_array($performer)) {
+                $result[] = $this->mapPerformerModelRow($performer);
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * Map an array of session rows to SessionModel objects, attaching performerIds from the map
+     */
+    public function mapSessionRows(array $sessions, array $sessionPerformerMap = []): array
+    {
+        $result = [];
+        foreach ($sessions as $session) {
+            if ($session instanceof SessionModel) {
+                // Attach sessionPerformers if available
+                if (isset($sessionPerformerMap[$session->id])) {
+                    $session->sessionPerformers = $sessionPerformerMap[$session->id];
+                }
+                $result[] = $session;
+            } elseif (is_array($session)) {
+                $model = $this->mapSessionRow($session);
+                if (isset($sessionPerformerMap[$model->id])) {
+                    $model->sessionPerformers = $sessionPerformerMap[$model->id];
+                }
+                $result[] = $model;
+            }
+        }
+        return $result;
+    }
+
     public function mapEventRow(array $row): EventModel
     {
         return $this->eventMapper->mapEventRow($row);

@@ -38,6 +38,7 @@ $pageSlug = (string)($pageSlug ?? '');
                 <?php foreach ($heroItems as $index => $item): ?>
                     <div class="d-flex flex-wrap gap-2 align-items-center performer-image-row mb-2" data-tour-upload-row="1" data-tour-section-type="header" data-tour-item-category="<?= htmlspecialchars((string)($item->category ?? '')) ?>">
                         <input type="hidden" name="items[header][<?= (int)$index ?>][id]" class="tour-item-id" value="<?= $item->id ?>">
+                        <input type="hidden" name="items[header][<?= (int)$index ?>][item_category]" value="<?= htmlspecialchars($item->category ?? '') ?>">
                         <input type="hidden" name="items[header][<?= (int)$index ?>][image_path]" class="performer-artist-image" value="<?= htmlspecialchars($item->image ?? '') ?>">
                         <input type="file" class="form-control form-control-sm performer-upload-input" accept="image/jpeg,image/png,image/webp">
                         <button type="button" class="btn btn-sm btn-outline-primary upload-performer-image">Upload</button>
@@ -60,6 +61,7 @@ $pageSlug = (string)($pageSlug ?? '');
             <?php foreach ($historyItems as $index => $item): ?>
                 <div class="mb-3" data-tour-upload-row="1" data-tour-section-type="history" data-tour-item-category="<?= htmlspecialchars((string)($item->category ?? '')) ?>">
                     <input type="hidden" name="items[history][<?= $index ?>][id]" class="tour-item-id" value="<?= (int)$item->id ?>">
+                    <input type="hidden" name="items[history][<?= $index ?>][item_category]" value="<?= htmlspecialchars($item->category ?? '') ?>">
                     <label class="form-label">Title</label>
                     <input type="text" name="items[history][<?= $index ?>][title]" class="form-control mb-2" value="<?= htmlspecialchars($item->title) ?>">
                     <label class="form-label">Foto</label>
@@ -83,6 +85,7 @@ $pageSlug = (string)($pageSlug ?? '');
             <?php foreach ($didYouKnowItems as $index => $item): ?>
                 <div class="mb-3" data-tour-upload-row="1" data-tour-section-type="did_you_know" data-tour-item-category="<?= htmlspecialchars((string)($item->category ?? '')) ?>">
                     <input type="hidden" name="items[did_you_know][<?= (int)$index ?>][id]" class="tour-item-id" value="<?= (int)$item->id ?>">
+                    <input type="hidden" name="items[did_you_know][<?= (int)$index ?>][item_category]" value="<?= htmlspecialchars($item->category ?? '') ?>">
                     <label class="form-label">Title</label>
                     <input type="text" name="items[did_you_know][<?= (int)$index ?>][title]" class="form-control mb-2" value="<?= htmlspecialchars($item->title) ?>">
                     <label class="form-label">Foto</label>
@@ -112,6 +115,7 @@ $pageSlug = (string)($pageSlug ?? '');
                 <?php $rowIndex = $index; ?>
                 <div class="d-flex gap-2 mb-2">
                     <input type="hidden" name="items[openings_time][<?= (int)$rowIndex ?>][id]" value="<?= (int)$item->id ?>">
+                    <input type="hidden" name="items[openings_time][<?= (int)$rowIndex ?>][item_category]" value="<?= htmlspecialchars($item->category ?? '') ?>">
                     <label class="form-label">Title</label>
                     <input type="text" name="items[openings_time][<?= (int)$rowIndex ?>][title]" class="form-control mb-2" value="<?= htmlspecialchars($item->title) ?>">
                     <label class="form-label">Content</label>
@@ -127,6 +131,7 @@ $pageSlug = (string)($pageSlug ?? '');
                 <?php $rowIndex = $index + 100; ?>
                 <div class="d-flex gap-2 mb-2">
                     <input type="hidden" name="items[openings_time][<?= (int)$rowIndex ?>][id]" value="<?= (int)$item->id ?>">
+                    <input type="hidden" name="items[openings_time][<?= (int)$rowIndex ?>][item_category]" value="<?= htmlspecialchars($item->category ?? '') ?>">
                     <label class="form-label">Dag</label>
                     <input type="text" name="items[openings_time][<?= (int)$rowIndex ?>][title]" class="form-control mb-2" value="<?= htmlspecialchars($item->title) ?>">
                     <label class="form-label">Tijd</label>

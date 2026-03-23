@@ -2,12 +2,14 @@
 use App\Models\Event\EventDetailPageModel;
 
 $danceDetailPages = is_array($danceDetailPages ?? null) ? $danceDetailPages : [];
+$tourDetailPages = is_array($tourDetailPages ?? null) ? $tourDetailPages : [];
 ?>
+
 
 <div class="container py-4">
     <div class="mb-3">
-        <h1 class="h3 mb-1">Event Management</h1>
-        <p class="text-muted mb-0">Choose what you want to edit.</p>
+        <h1 class="h3 mb-1">Page Management</h1>
+        <p class="text mb-0">Choose what you want to edit.</p>
     </div>
 
     <div class="mb-3">
@@ -31,6 +33,7 @@ $danceDetailPages = is_array($danceDetailPages ?? null) ? $danceDetailPages : []
                 </div>
             </div>
         </div>
+    </div>
     <div class="row g-3">
         <div class="col-12 col-lg-8">
             <div class="card">
@@ -40,7 +43,6 @@ $danceDetailPages = is_array($danceDetailPages ?? null) ? $danceDetailPages : []
                         <span class="badge text-bg-success">Live</span>
                     </div>
                     <div class="mb-3">
-                        <a href="/cms/events/dance/schedule" class="btn btn-outline-primary">Edit Schedule</a>
                         <a href="/cms/events/dance-home" class="btn btn-primary">Edit Home Content</a>
                     </div>
                     <p class="mb-1">Sub Pages:</p>
@@ -62,9 +64,7 @@ $danceDetailPages = is_array($danceDetailPages ?? null) ? $danceDetailPages : []
                     <h2 class="h5 mb-2">Roadmap</h2>
                     <p class="text-muted mb-3">Next steps for event administration.</p>
                     <ul class="mb-0">
-                        <li>Create and edit festival events</li>
-                        <li>Manage sessions and performers per event</li>
-                        <li>Configure event visibility and publication</li>
+                        <li>Edit festival events</li>
                     </ul>
                 </div>
             </div>
@@ -82,20 +82,16 @@ $danceDetailPages = is_array($danceDetailPages ?? null) ? $danceDetailPages : []
                             <a href="/cms/events/tour-home" class="btn btn-primary">Edit Tour Home</a>
                         </div>
                         <p class="mb-1">Sub Pages:</p>
-                        <div class="mb-1">
-                            <a href="/cms/events/tour-details?id=2" class="btn btn-primary">Edit St.-Bavokerk</a>
-                            <a href="/cms/events/tour-details?id=7" class="btn btn-primary">Edit Grote Markt</a>
-                            <a href="/cms/events/tour-details?id=8" class="btn btn-primary">Edit De Hallen</a>
-                        </div>
-                        <div class="mb-1">
-                            <a href="/cms/events/tour-details?id=9" class="btn btn-primary">Edit Proveniershof</a>
-                            <a href="/cms/events/tour-details?id=10" class="btn btn-primary">Edit Jopenkerk</a>
-                            <a href="/cms/events/tour-details?id=11" class="btn btn-primary">Edit Waalse Kerk</a>
-                        </div>
-                        <div class="mb-1">
-                            <a href="/cms/events/tour-details?id=12" class="btn btn-primary">Edit Molen de Adriaan</a>
-                            <a href="/cms/events/tour-details?id=13" class="btn btn-primary">Edit Amsterdamse Poort</a>
-                            <a href="/cms/events/tour-details?id=14" class="btn btn-primary">Edit Hof van Bakenes</a>
+                        <div class="mb-3">
+                            <?php foreach (array_chunk($tourDetailPages, 3) as $chunk): ?>
+                                <div class="d-flex mb-2">
+                                    <?php foreach ($chunk as $detailPage): ?>
+                                        <a href="/cms/events/tour-details?id=<?= htmlspecialchars($detailPage['id']) ?>" class="btn btn-primary me-2">
+                                            Edit <?= htmlspecialchars($detailPage['name']) ?>
+                                        </a>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endforeach; ?>
                         </div>
                     </div>
                 </div>

@@ -33,6 +33,9 @@ try {
     $pageRepo = new App\Repository\PageRepository($pageMapper);
     $jazzRepo = new App\Repository\JazzRepository();
     $yummyRepo = new App\Repository\YummyRepository();
+    $artistesRepo = new App\Repository\ArtistesRepository();
+    $venueRepo = new App\Repository\VenueRepository();
+    $ticketRepo = new App\Repository\TicketRepository();
 
     $mailConfig = App\Models\MailConfig::fromEnvironment();
     $pageService = new App\Service\PageService($pageRepo);
@@ -49,6 +52,10 @@ try {
     $yummyService = new App\Service\YummyService($yummyRepo);
     $jazzService = new App\Service\JazzService($jazzRepo, $scheduleRepo);
     $authService = new App\Service\AuthService($userRepo, $passwordResetRepo, $mailService);
+    $artistesService = new App\Service\ArtistesService($artistesRepo);
+    $venueService = new App\Service\VenueService($venueRepo);
+    $ticketService = new App\Service\TicketService($ticketRepo);
+    $cmsEventManagementService = new App\Service\Cms\CmsEventManagementService();
 
     $cmsScheduleMapper = new App\Mapper\CmsScheduleMapper();
     $cmsDanceMapper = new App\Mapper\CmsDanceMapper();
@@ -67,9 +74,9 @@ try {
         $cmsScheduleService,
         $cmsScheduleMapper,
         $cmsPageSaveService,
-        $danceService
+        $danceService,
+        $pageRepo
     );
-
     $authController = new App\Controllers\AuthController($authService);
     $homeController = new App\Controllers\HomeController($pageService, $scheduleService, $scheduleViewModelMapper);
     $danceController = new App\Controllers\DanceController($danceService, $danceViewModelMapper, $scheduleViewModelMapper);
@@ -78,15 +85,20 @@ try {
     $yummyController = new App\Controllers\YummyController($yummyService);
 
     $cmsController = new App\Controllers\Cms\CmsController($cmsService);
-    $cmsEventsController = new App\Controllers\Cms\CmsEventsController($cmsService, $danceService);
-    $cmsTicketsController = new App\Controllers\Cms\CmsTicketsController($cmsService);
+    $cmsEventsController = new App\Controllers\Cms\CmsEventsController($cmsService, $danceService, $cmsEventEditorService);
+    $cmsTicketsController = new App\Controllers\Cms\CmsTicketsController($ticketService);
     $cmsUsersController = new App\Controllers\Cms\CmsUsersController($cmsService);
+    $jazzController = new App\Controllers\JazzController($scheduleService, $jazzService, $scheduleViewModelMapper);
     $storiesController = new App\Controllers\StoriesController($pageService, $scheduleService, $scheduleViewModelMapper);
     $cmsDanceController = new App\Controllers\Cms\CmsDanceController($cmsDanceService, $cmsDanceViewModelMapper);
     $cmsEventEditorController = new App\Controllers\Cms\CmsEventEditorController($cmsScheduleService, $cmsEventEditorService);
     $cmsMediaController = new App\Controllers\Cms\CmsMediaController($imageUploadService, $audioUploadService);
     $cmsTourContentController = new App\Controllers\Cms\CmsTourContentController($pageService, $cmsEventEditorService);
     $cmsHomeContentController = new App\Controllers\Cms\CmsHomeContentController($pageService, $cmsEventEditorService);
+    $cmsArtistsController = new App\Controllers\Cms\CmsArtistsController($artistesService);
+    $cmsVenuesController = new App\Controllers\Cms\CmsVenuesController($venueService);
+    $cmsScheduleController = new App\Controllers\Cms\CmsScheduleController($scheduleService, $venueService, $artistesService);
+    $cmsEventManagementController = new App\Controllers\Cms\CmsEventManagementController($cmsEventManagementService);
 
     $dispatcher = simpleDispatcher(function (RouteCollector $r) {
         $r->addRoute('GET', '/', ['HomeController', 'index']);
@@ -120,6 +132,8 @@ try {
         $r->addRoute('GET', '/cms/events', ['CmsEventsController', 'index']);
         $r->addRoute('GET', '/cms/events/{eventSlug}/schedule', ['CmsEventEditorController', 'index']);
         $r->addRoute('POST', '/cms/events/{eventSlug}/schedule', ['CmsEventEditorController', 'update']);
+        $r->addRoute('GET', '/cms/eventManagement/{eventSlug}/schedule-editor', ['CmsEventEditorController', 'index']);
+        $r->addRoute('POST', '/cms/eventManagement/{eventSlug}/schedule-editor', ['CmsEventEditorController', 'update']);
         $r->addRoute('GET', '/cms/events/dance-home', ['CmsDanceController', 'index']);
         $r->addRoute('POST', '/cms/events/dance-home', ['CmsDanceController', 'updateHome']);
         $r->addRoute('POST', '/cms/events/dance-homeAPI', ['CmsDanceController', 'updateHomeAPI']);
@@ -142,6 +156,36 @@ try {
         $r->addRoute('POST', '/cms/users/delete', ['CmsUsersController', 'deleteUser']);
         $r->addRoute('GET', '/cms/events/home', ['CmsHomeContentController', 'index']);
         $r->addRoute('POST', '/cms/events/home', ['CmsHomeContentController', 'update']);
+        //event management routes
+        $r->addRoute('GET', '/cms/eventManagement', ['CmsEventManagementController', 'index']);
+        
+        $r->addRoute('GET', '/cms/eventManagement/artists', ['CmsArtistsController', 'index']);
+        $r->addRoute('GET', '/cms/eventManagement/artists/create', ['CmsArtistsController', 'showCreateForm']);
+        $r->addRoute('POST', '/cms/eventManagement/artists/create', ['CmsArtistsController', 'create']);
+        $r->addRoute('GET', '/cms/eventManagement/artists/edit', ['CmsArtistsController', 'showEditForm']);
+        $r->addRoute('POST', '/cms/eventManagement/artists/edit', ['CmsArtistsController', 'edit']);
+        $r->addRoute('GET', '/cms/eventManagement/artists/delete', ['CmsArtistsController', 'delete']);
+
+        $r->addRoute('GET', '/cms/eventManagement/venues', ['CmsVenuesController', 'index']);
+        $r->addRoute('GET', '/cms/eventManagement/venues/create', ['CmsVenuesController', 'showCreateForm']);
+        $r->addRoute('POST', '/cms/eventManagement/venues/create', ['CmsVenuesController', 'create']);
+        $r->addRoute('GET', '/cms/eventManagement/venues/edit', ['CmsVenuesController', 'showEditForm']);
+        $r->addRoute('POST', '/cms/eventManagement/venues/edit', ['CmsVenuesController', 'edit']);
+        $r->addRoute('GET', '/cms/eventManagement/venues/delete', ['CmsVenuesController', 'delete']);
+
+        $r->addRoute('GET', '/cms/eventManagement/schedules', ['CmsScheduleController', 'index']);
+        $r->addRoute('GET', '/cms/eventManagement/schedules/edit', ['CmsScheduleController', 'showEditForm']);
+        $r->addRoute('POST', '/cms/eventManagement/schedules/edit', ['CmsScheduleController', 'edit']);
+        $r->addRoute('GET', '/cms/eventManagement/schedules/create', ['CmsScheduleController', 'showCreateForm']);
+        $r->addRoute('POST', '/cms/eventManagement/schedules/create', ['CmsScheduleController', 'create']);
+        $r->addRoute('GET', '/cms/eventManagement/schedules/delete', ['CmsScheduleController', 'delete']);
+
+        $r->addRoute('GET', '/cms/eventManagement/schedules/{sessionId:\d+}/tickets', ['CmsTicketsController', 'index']);
+        $r->addRoute('GET', '/cms/eventManagement/schedules/{sessionId:\d+}/tickets/create', ['CmsTicketsController', 'showCreateForm']);
+        $r->addRoute('POST', '/cms/eventManagement/schedules/{sessionId:\d+}/tickets/create', ['CmsTicketsController', 'create']);
+        $r->addRoute('GET', '/cms/eventManagement/schedules/{sessionId:\d+}/tickets/edit', ['CmsTicketsController', 'showEditForm']);
+        $r->addRoute('POST', '/cms/eventManagement/schedules/{sessionId:\d+}/tickets/edit', ['CmsTicketsController', 'edit']);
+        $r->addRoute('GET', '/cms/eventManagement/schedules/{sessionId:\d+}/tickets/delete', ['CmsTicketsController', 'delete']);
 
         $r->addRoute('GET', '/jazz', ['JazzController', 'index']);
     });
@@ -178,6 +222,10 @@ try {
                 'CmsTourContentController' => $cmsTourContentController,
                 'CmsMediaController' => $cmsMediaController,
                 'CmsHomeContentController' => $cmsHomeContentController,
+                'CmsArtistsController' => $cmsArtistsController,
+                'CmsVenuesController' => $cmsVenuesController,
+                'CmsEventManagementController' => $cmsEventManagementController,
+                'CmsScheduleController' => $cmsScheduleController
             ];
 
             if (!isset($controllerMap[$controllerName])) {
