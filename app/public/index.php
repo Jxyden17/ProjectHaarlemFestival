@@ -87,6 +87,7 @@ try {
     $tourController = new App\Controllers\TourController($pageService, $scheduleService, $scheduleViewModelMapper);
     $jazzController = new App\Controllers\JazzController($scheduleService, $jazzService, $scheduleViewModelMapper);
     $yummyController = new App\Controllers\YummyController($yummyService);
+    $userController= new App\Controllers\UserController($cmsService);
 
     $cmsController = new App\Controllers\Cms\CmsController($cmsService);
     $cmsEventsController = new App\Controllers\Cms\CmsEventsController($cmsService, $danceService, $pageService, $cmsEventEditorService);
@@ -104,6 +105,7 @@ try {
     $cmsVenuesController = new App\Controllers\Cms\CmsVenuesController($venueService);
     $cmsScheduleController = new App\Controllers\Cms\CmsScheduleController($scheduleService, $venueService, $artistesService);
     $cmsEventManagementController = new App\Controllers\Cms\CmsEventManagementController($cmsEventManagementService);
+   
 
     // Shopping Cart setup
     $cartRepo = new App\Repository\CartRepository();
@@ -256,6 +258,7 @@ try {
                 'CmsController' => $cmsController,
                 'JazzController' => $jazzController,
                 'StoriesController' => $storiesController,
+                'UserController' => $userController,
                 'CmsEventsController' => $cmsEventsController,
                 'CmsTicketsController' => $cmsTicketsController,
                 'CmsUsersController' => $cmsUsersController,
