@@ -13,9 +13,20 @@ class ScheduleSessionEditRow
     private int $availableSpots;
     private int $amountSold;
     private array $performerIds;
+    private int $languageId;
 
-    public function __construct(int $id, string $date, string $startTime, int $venueId, string $label, string $price, int $availableSpots, int $amountSold, array $performerIds)
-    {
+    public function __construct(
+        int $id,
+        string $date,
+        string $startTime,
+        int $venueId,
+        string $label,
+        string $price,
+        int $availableSpots,
+        int $amountSold,
+        array $performerIds,
+        int $languageId
+    ) {
         $this->id = $id;
         $this->date = $date;
         $this->startTime = $startTime;
@@ -25,6 +36,7 @@ class ScheduleSessionEditRow
         $this->availableSpots = $availableSpots;
         $this->amountSold = $amountSold;
         $this->performerIds = $performerIds;
+        $this->languageId = $languageId;
     }
 
     public static function fromArray(array $input): self
@@ -41,7 +53,8 @@ class ScheduleSessionEditRow
             trim((string)($input['price'] ?? '')),
             (int)($input['available_spots'] ?? 0),
             (int)($input['amount_sold'] ?? 0),
-            $performerIds
+            $performerIds,
+            (int)($input['language_id'] ?? 1)
         );
     }
 
@@ -54,4 +67,5 @@ class ScheduleSessionEditRow
     public function availableSpots(): int { return $this->availableSpots; }
     public function amountSold(): int { return $this->amountSold; }
     public function performerIds(): array { return $this->performerIds; }
+    public function languageId(): int { return $this->languageId; }
 }

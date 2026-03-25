@@ -11,12 +11,29 @@
 <body>
 <?php
 $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+$isDashboard = $currentPath === '/cms';
 $isCms = str_starts_with($currentPath, '/cms');
 $isUsers = str_starts_with($currentPath, '/cms/users');
 $isEvents = str_starts_with($currentPath, '/cms/events');
 $isTickets = str_starts_with($currentPath, '/cms/tickets');
+$isEventManagement = str_starts_with($currentPath, '/cms/eventManagement');
+$success = $_SESSION['success'] ?? '';
+$error = $_SESSION['error'] ?? '';
+unset($_SESSION['success'], $_SESSION['error']);
 ?>
-
+<!-- Messages -->
+<?php if ($success): ?>
+    <div class="alert alert-success alert-dismissible fade show m-3" role="alert">
+        <?= htmlspecialchars($success) ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+<?php endif; ?>
+<?php if ($error): ?>
+    <div class="alert alert-danger alert-dismissible fade show m-3" role="alert">
+        <?= htmlspecialchars($error) ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+<?php endif; ?>
 <div class="container-fluid cms-shell">
     <div class="row">
         <aside class="col-12 col-md-3 col-lg-2 cms-sidebar">
@@ -25,7 +42,7 @@ $isTickets = str_starts_with($currentPath, '/cms/tickets');
             </div>
 
             <nav class="mt-3">
-                <a href="/cms" class="cms-nav-link<?= $isCms && !$isUsers && !$isEvents && !$isTickets ? ' is-active' : '' ?>">
+                <a href="/cms" class="cms-nav-link<?= $isDashboard ? ' is-active' : '' ?>">
                     <i data-lucide="layout-dashboard"></i>
                     Dashboard
                 </a>
@@ -35,11 +52,15 @@ $isTickets = str_starts_with($currentPath, '/cms/tickets');
                 </a>
                 <a href="/cms/events" class="cms-nav-link<?= $isEvents ? ' is-active' : '' ?>">
                     <i data-lucide="calendar-days"></i>
-                    Event Management
+                    Page Management
                 </a>
                 <a href="/cms/tickets" class="cms-nav-link<?= $isTickets ? ' is-active' : '' ?>">
                     <i data-lucide="ticket"></i>
                     Ticket Management
+                </a>
+                <a href="/cms/eventManagement" class="cms-nav-link<?= $isEventManagement ? ' is-active' : '' ?>">
+                    <i data-lucide="clapperboard"></i>
+                    Event Management
                 </a>
             </nav>
 
@@ -67,7 +88,6 @@ $isTickets = str_starts_with($currentPath, '/cms/tickets');
         </main>
     </div>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 <script>
