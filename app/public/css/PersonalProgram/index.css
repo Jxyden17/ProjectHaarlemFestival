@@ -26,7 +26,6 @@ body {
 .hero-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(0,0,0,0.6);
 }
 
 .hero-content {
@@ -39,13 +38,11 @@ body {
     text-align: center;
     padding: 20px;
     gap: 10px;
-    background: rgba(0, 0, 0, 0.4);
 }
 
 .hero-title {
     color: #ffdf10;
-    font-size: 46px;
-    margin: 0; 
+    font-size: 46px; 
     font-family: var(--font-main);
 
     text-shadow: 
@@ -81,6 +78,7 @@ body {
     padding: 8px 14px;
     border-radius: 20px;
     margin-right: 8px;
+    margin-bottom: 10px;
     cursor: pointer;
 }
 
@@ -90,9 +88,8 @@ body {
 }
 
 .program-header {
-    display: grid;
-    grid-template-columns: 140px 140px 180px 1fr 100px 120px 100px;
-    padding: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
     font-size: 12px;
     text-transform: uppercase;
     opacity: 0.7;
@@ -110,12 +107,18 @@ body {
 }
 
 .program-row {
-    display: grid;
-    grid-template-columns: 140px 140px 180px 1fr 100px 120px 100px;
-    align-items: center;
-    padding: 12px 10px;
+    padding-top: 12px;
+    padding-bottom: 12px;
     border-bottom: 1px solid rgba(255,255,255,0.05);
-    gap: 10px;
+}
+
+.program-header,
+.program-row {
+    display: grid;
+    grid-template-columns: 180px 140px 180px 1fr 100px 120px 100px;
+    align-items: center;
+    gap: 20px;
+    padding-left: 20px;
 }
 
 .badge {
@@ -124,10 +127,12 @@ body {
     font-size: 12px;
 }
 
+
 .badge-dance { background: #4fc3f7; }
 .badge-jazz { background: #ffb74d; }
-.badge-tour { background: #81c784; }
+.badge-astrolltroughhistory { background: #ddc495; }
 .badge-yummy { background: #e57373; }
+.badge-tellingstory { background: #7832db; }
 
 .price {
     color: #e6b85c;

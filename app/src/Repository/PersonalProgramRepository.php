@@ -24,6 +24,7 @@ class PersonalProgramRepository implements IPersonalProgramRepository
                 s.id as session_id,
                 s.date,
                 s.start_time,
+                v.address,
                 s.price,
                 COALESCE(e.name, s.label, "No event") as event_name,
                 COALESCE(v.venue_name, "Unknown venue") as venue_name
@@ -39,6 +40,7 @@ class PersonalProgramRepository implements IPersonalProgramRepository
                 s.id,
                 s.date,
                 s.start_time,
+                v.address,
                 s.price,
                 e.name,
                 v.venue_name
@@ -50,5 +52,23 @@ class PersonalProgramRepository implements IPersonalProgramRepository
         $stmt->execute([':user_id' => $userId]);
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function deleteUserTicket(int $userId, int $sessionId): bool
+    {
+        $stmt = $this->db->prepare(
+            "DELETE FROM tickets 
+            WHERE id = (
+                SELECT id FROM tickets 
+                WHERE user_id = :user_id 
+                AND session_id = :session_id 
+                LIMIT 1
+            )"
+        );
+
+        return $stmt->execute([
+            ':user_id' => $userId,
+            ':session_id' => $sessionId
+        ]);
     }
 }

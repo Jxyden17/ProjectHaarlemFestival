@@ -14,8 +14,10 @@ class PersonalProgramMapper
 
             if (!isset($grouped[$date][$sessionId])) {
                 $grouped[$date][$sessionId] = [
+                    'session_id' => $sessionId,
                     'event'   => $row['event_name'],
                     'time'    => $row['start_time'],
+                    'address' => $row['address'],
                     'venue'   => $row['venue_name'],
                     'price'   => $row['price'],
                     'qr'      => $row['qr_code'],

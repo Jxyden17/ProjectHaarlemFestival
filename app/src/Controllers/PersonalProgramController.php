@@ -34,6 +34,7 @@ class PersonalProgramController extends BaseController
             $viewData = [
                 'pageTitle' => $page->title,
                 'hero'      => $page->getSection('hero'),
+                'schedule' => $page->getSection('schedule'),
                 'program'   => $program
             ];
 
@@ -44,5 +45,24 @@ class PersonalProgramController extends BaseController
             var_dump($e->getMessage());
             die();
         }
+    }
+
+    public function delete(): void
+    {
+        header('Content-Type: application/json');
+
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        if (!isset($_SESSION['user_id'], $data['session_id'])) {
+            echo json_encode(['success' => false]);
+            return;
+        }
+
+        $success = $this->personalProgramService->deleteTicket(
+            $_SESSION['user_id'],
+            (int)$data['session_id']
+        );
+
+        echo json_encode(['success' => $success]);
     }
 }
