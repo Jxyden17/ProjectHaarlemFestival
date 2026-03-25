@@ -10,31 +10,17 @@ async function uploadTourImage(row, button) {
     const currentPathInput = row.querySelector('.performer-artist-image');
     const pageSlug = tourHomeForm.dataset.tourPageSlug || '';
     const sectionType = row.dataset.tourSectionType || '';
-
-    if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
-        window.CmsMediaUpload.getUploadFeedback().showUploadFeedback('Upload failed', 'Please choose an image first.', 'danger');
-        return;
-    }
+    const moduleName = pageSlug !== '' && sectionType !== '' ? `tour_image:${pageSlug}:${sectionType}` : '';
 
     const sectionItemId = sectionItemIdInput ? Number(sectionItemIdInput.value || 0) : 0;
-    if (sectionItemId <= 0 || pageSlug === '' || sectionType === '') {
-        window.CmsMediaUpload.getUploadFeedback().showUploadFeedback('Upload failed', 'Image upload failed.', 'danger');
-        return;
-    }
-
-    const path = await window.CmsMediaUpload.uploadFile({
+    const path = await window.CmsMediaUpload.uploadImage({
         button,
         fileInput,
-        endpoint: '/cms/media/upload-image',
-        fileFieldName: 'image',
-        moduleName: `tour_image:${pageSlug}:${sectionType}`,
+        moduleName,
         sectionItemId,
         currentPath: currentPathInput ? currentPathInput.value : '',
-        missingMetadataMessage: 'Missing tour upload metadata for this image row.',
-        missingFileMessage: 'Please choose an image first.',
-        failureMessage: 'Image upload failed.',
-        successTitle: 'Upload complete',
-        successMessage: 'Image uploaded successfully.',
+        missingSectionItemMessage: 'Missing tour upload metadata for this image row.',
+        missingModuleMessage: 'Missing tour upload metadata for this image row.',
     });
 
     if (path) {
