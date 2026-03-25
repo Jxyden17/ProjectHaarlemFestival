@@ -136,8 +136,10 @@ try {
         $r->addRoute('GET', '/cms/users', ['CmsUsersController', 'index']);
         $r->addRoute('GET', '/cms/users/create', ['CmsUsersController', 'showCreateForm']);
         $r->addRoute('POST', '/cms/users/create', ['CmsUsersController', 'addUser']);
-        $r->addRoute('GET', '/cms/users/edit', ['CmsUsersController', 'showEditForm']);
-        $r->addRoute('POST', '/cms/users/edit', ['CmsUsersController', 'editUser']);
+        $r->addRoute('GET', '/cms/users/edit', ['CmsUsersController', 'showAdminEditForm']);
+        $r->addRoute('GET', '/cms/users/editSelf', ['CmsUsersController', 'showSelfEditForm']);
+        $r->addRoute('POST', '/cms/users/edit', ['CmsUsersController', 'editUserAsAdmin']);
+        $r->addRoute('POST', '/cms/users/editSelf', ['CmsUsersController', 'editUserAsUser']);
         $r->addRoute('GET', '/cms/users/delete', ['CmsUsersController', 'showDeleteConfirmation']);
         $r->addRoute('POST', '/cms/users/delete', ['CmsUsersController', 'deleteUser']);
         $r->addRoute('GET', '/cms/events/home', ['CmsHomeContentController', 'index']);
