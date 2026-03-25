@@ -19,10 +19,7 @@
         <div class="col-12 col-md-6 col-xl-4">
             <div class="card h-100 border-0 shadow-sm">
                 <div class="card-body p-4">
-                    <div class="d-flex align-items-center gap-2 mb-3">
-                        <span class="badge rounded-pill text-bg-primary-subtle text-primary-emphasis">Core</span>
-                        <h2 class="h5 mb-0">User Management</h2>
-                    </div>
+                    <h2 class="h5 mb-3">User Management</h2>
                     <p class="text-muted mb-4">Create, edit, and remove user accounts and roles.</p>
                     <a href="/cms/users" class="btn btn-primary w-100">
                         Open Users
@@ -34,10 +31,7 @@
         <div class="col-12 col-md-6 col-xl-4">
             <div class="card h-100 border-0 shadow-sm">
                 <div class="card-body p-4">
-                    <div class="d-flex align-items-center gap-2 mb-3">
-                        <span class="badge rounded-pill text-bg-warning-subtle text-warning-emphasis">Scaffold</span>
-                        <h2 class="h5 mb-0">Page Management</h2>
-                    </div>
+                    <h2 class="h5 mb-3">Page Management</h2>
                     <p class="text-muted mb-4">Manage event Pages and content.</p>
                     <a href="/cms/events" class="btn btn-outline-primary w-100">
                         Open Pages
@@ -48,10 +42,7 @@
         <div class="col-12 col-md-6 col-xl-4">
             <div class="card h-100 border-0 shadow-sm">
                 <div class="card-body p-4">
-                    <div class="d-flex align-items-center gap-2 mb-3">
-                        <span class="badge rounded-pill text-bg-warning-subtle text-warning-emphasis">Scaffold</span>
-                        <h2 class="h5 mb-0">Event Management</h2>
-                    </div>
+                    <h2 class="h5 mb-3">Event Management</h2>
                     <p class="text-muted mb-4">Manage event content and schedule settings.</p>
                     <a href="/cms/eventManagement" class="btn btn-outline-primary w-100">
                         Open Events
