@@ -10,19 +10,13 @@ async function uploadPerformerImage(row, button) {
     const currentPathInput = row.querySelector('.performer-artist-image');
 
     const sectionItemId = sectionItemIdInput ? Number(sectionItemIdInput.value || 0) : 0;
-    const path = await window.CmsMediaUpload.uploadFile({
+    const path = await window.CmsMediaUpload.uploadImage({
         button,
         fileInput,
-        endpoint: '/cms/media/upload-image',
-        fileFieldName: 'image',
         moduleName: 'dance_artist',
         sectionItemId,
         currentPath: currentPathInput ? currentPathInput.value : '',
-        missingMetadataMessage: 'Missing artist image row. Please configure artist images in dance content first.',
-        missingFileMessage: 'Please choose an image first.',
-        failureMessage: 'Image upload failed.',
-        successTitle: 'Upload complete',
-        successMessage: 'Image uploaded successfully.',
+        missingSectionItemMessage: 'Missing artist image row. Please configure artist images in dance content first.',
     });
 
     if (path) {
