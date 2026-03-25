@@ -224,6 +224,10 @@ try {
         $r->addRoute('POST', '/checkout/confirm', ['CheckoutController', 'confirm']);
         $r->addRoute('GET', '/payment/return', ['PaymentController', 'return']);
         $r->addRoute('POST', '/payment/webhook', ['PaymentController', 'webhook']);
+         
+        // User routes
+        $r->addRoute('GET', '/user', ['UserController', 'index']);
+
 
 
     });
