@@ -19,7 +19,7 @@
             </div>
 
             <div class="filter-group">
-                <button class="filter-event active" data-day="all">All Events</button>
+                <button class="filter-event active" data-event="all">All Events</button>
                 <button class="filter-event" data-event="Dance">Dance</button>
                 <button class="filter-event" data-event="Jazz">Jazz</button>
                 <button class="filter-event" data-event="A Stroll Trough History">Tour</button>
@@ -58,7 +58,7 @@
             <?php foreach ($sessions as $session): ?>
 
                 <div class="program-row"
-                    data-event="<?= strtolower(htmlspecialchars($session['event'])) ?>"
+                    data-event="<?= (htmlspecialchars($session['event'])) ?>"
                     data-session-id="<?= $session['session_id'] ?>">
 
 

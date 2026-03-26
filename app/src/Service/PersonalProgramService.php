@@ -28,6 +28,6 @@ class PersonalProgramService
 
     public function deleteTicket(int $userId, int $sessionId): void
     {
-        $this->personalProgramRepo->deleteUserTicket($userId, $sessionId);
+        $this->personalProgramRepo->deleteSession($userId, $sessionId);
     }
 }

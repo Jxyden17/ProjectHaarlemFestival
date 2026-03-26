@@ -54,19 +54,18 @@ class PersonalProgramRepository implements IPersonalProgramRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function deleteUserTicket(int $userId, int $sessionId): bool
+    public function deleteSession(int $userId, int $sessionId): void
     {
-        $stmt = $this->db->prepare(
-            "DELETE FROM tickets 
-            WHERE id = (
-                SELECT id FROM tickets 
-                WHERE user_id = :user_id 
-                AND session_id = :session_id 
-                LIMIT 1
-            )"
-        );
+        $sql = "
+            DELETE FROM tickets
+            WHERE user_id = :user_id
+            AND session_id = :session_id
+            LIMIT 1
+        ";
 
-        return $stmt->execute([
+        $stmt = $this->db->prepare($sql);
+
+        $stmt->execute([
             ':user_id' => $userId,
             ':session_id' => $sessionId
         ]);

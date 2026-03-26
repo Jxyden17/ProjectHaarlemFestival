@@ -51,18 +51,35 @@ class PersonalProgramController extends BaseController
     {
         header('Content-Type: application/json');
 
-        $data = json_decode(file_get_contents("php://input"), true);
+        try {
 
-        if (!isset($_SESSION['user_id'], $data['session_id'])) {
-            echo json_encode(['success' => false]);
-            return;
+            if (!isset($_SESSION['user_id'])) {
+                echo json_encode(['success' => false]);
+                return;
+            }
+
+            $data = json_decode(file_get_contents('php://input'), true);
+
+            $sessionId = $data['session_id'] ?? null;
+
+            if (!$sessionId) {
+                echo json_encode(['success' => false]);
+                return;
+            }
+
+            $this->personalProgramService->deleteTicket(
+                (int)$_SESSION['user_id'],
+                (int)$sessionId
+            );
+
+            echo json_encode(['success' => true]);
+
+        } catch (\Throwable $e) {
+            http_response_code(500);
+            echo json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
         }
-
-        $success = $this->personalProgramService->deleteTicket(
-            $_SESSION['user_id'],
-            (int)$data['session_id']
-        );
-
-        echo json_encode(['success' => $success]);
     }
 }

@@ -105,6 +105,8 @@ try {
         $r->addRoute('POST', '/reset-password', ['AuthController', 'resetPassword']);
         $r->addRoute('GET', '/logout', ['AuthController', 'logout']);
         $r->addRoute('GET', '/personal-program', ['PersonalProgramController', 'index']);
+        $r->addRoute('POST', '/personal-program/delete', ['PersonalProgramController', 'delete']);
+
 
         $r->addRoute('GET', '/tour', ['TourController', 'index']);
         $r->addRoute('GET', '/tour/details', ['TourController', 'details']);

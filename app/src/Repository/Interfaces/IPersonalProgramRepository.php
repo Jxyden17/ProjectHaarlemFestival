@@ -7,5 +7,5 @@ interface IPersonalProgramRepository
 {
     public function getUserTicketsWithSessions(int $userId): array;
 
-    public function deleteUserTicket(int $userId, int $sessionId): bool;
+    public function deleteSession(int $userId, int $sessionId): void;
 }

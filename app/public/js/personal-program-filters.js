@@ -82,6 +82,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         ticketEl.textContent = count - 1;
                     } else {
                         row.remove();
+
+                        filterRows();
                     }
 
                 } else {
