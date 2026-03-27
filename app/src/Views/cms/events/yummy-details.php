@@ -24,14 +24,36 @@ $contactItems = $contactSection?->items ?? [];
             ><?= htmlspecialchars($heroSection?->title ?? '', ENT_QUOTES, 'UTF-8') ?></textarea>
 
             <?php foreach ($heroItems as $i => $item): ?>
-                <input type="hidden"
-                    name="items[restaurant_hero][<?= $i ?>][id]"
-                    value="<?= $item->id ?>"
-                >
+                <div class="border rounded p-3 mb-2"
+                    data-image-upload-module="yummy_hero:<?= htmlspecialchars($page->slug ?? '') ?>">
 
-                <div class="mt-3">
+                    <input type="hidden"
+                        class="yummy-item-id"
+                        name="items[restaurant_hero][<?= $i ?>][id]"
+                        value="<?= $item->id ?>">
+
+                    <input type="hidden"
+                        class="yummy-image-path"
+                        name="items[restaurant_hero][<?= $i ?>][image]"
+                        value="<?= htmlspecialchars($item->image ?? '') ?>">
+
                     <label>Banner image</label>
-                    <input type="file" class="form-control">
+
+                    <div class="d-flex gap-2 align-items-center">
+                        <input type="file"
+                            class="form-control yummy-image-input">
+
+                        <button type="button"
+                            class="btn btn-primary upload-yummy-image">
+                            Upload
+                        </button>
+
+                        <a href="<?= htmlspecialchars($item->image ?? '') ?>"
+                        class="btn btn-secondary yummy-image-download-link <?= empty($item->image) ? 'd-none' : '' ?>"
+                        download>
+                        Download
+                        </a>
+                    </div>
                 </div>
 
                 <input type="hidden"
@@ -158,6 +180,8 @@ $contactItems = $contactSection?->items ?? [];
 
 </div>
 
+<script src="/js/cms/upload-feedback.js"></script>
+<script src="/js/cms/media-upload.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
 <script src="/js/cms/page-editor.js"></script>
 <script src="/js/cms/yummy-details.js"></script>

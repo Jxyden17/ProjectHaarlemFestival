@@ -88,12 +88,24 @@ class ImageUploadService extends MediaService implements IImageUploadService
         }
 
         if (preg_match('/^tour_image:([a-z0-9-]+):([a-z_]+)$/', $module, $matches) === 1) {
+
             return new MediaModuleConfig(
                 ['/img/historyIMG/'],
                 $matches[1],
                 $matches[2],
                 null,
                 MediaModuleConfig::MATCH_BY_SECTION
+            );
+        }
+
+        if (preg_match('/^yummy_hero:([a-z0-9-]+)$/', $module, $matches) === 1) {
+            
+            return new MediaModuleConfig(
+                ['/img/yummyIMG/'],
+                $matches[1],
+                'restaurant_hero',
+                'hero',
+                MediaModuleConfig::MATCH_BY_SECTION_AND_CATEGORY
             );
         }
 
@@ -117,18 +129,24 @@ class ImageUploadService extends MediaService implements IImageUploadService
                 'tour',
                 MediaModuleConfig::MATCH_BY_SECTION_AND_CATEGORY
             ),
+            'yummy' => new MediaModuleConfig(
+                ['/img/yummyIMG/'],
+                'yummy-home',
+                'yummy_header',
+                null,
+                MediaModuleConfig::MATCH_BY_SECTION
+            ),
             default => null,
         };
     }
 
     private function requireCurrentImagePath(array $post): string
     {
-        $currentPath = trim((string)($post['current_path'] ?? ''));
-        if ($currentPath === '') {
-            throw new \RuntimeException('No target image path provided', 400);
+        if (!isset($post['current_path'])) {
+            return '';
         }
 
-        return $currentPath;
+        return trim((string)$post['current_path']);
     }
 
     private function buildDanceDetailImageModuleConfig(string $pageSlug, string $sectionType, string $itemCategory): ?MediaModuleConfig
