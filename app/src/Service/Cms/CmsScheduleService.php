@@ -2,30 +2,56 @@
 
 namespace App\Service\Cms;
 
-use App\Models\Commands\Cms\Schedule\ScheduleSaveCommand;
+use App\Mapper\CmsScheduleMapper;
+use App\Models\Edit\Schedule\SchedulePerformerEditRow;
+use App\Models\Edit\Schedule\ScheduleSaveInput;
+use App\Models\Edit\Schedule\ScheduleSessionEditRow;
+use App\Models\Edit\Schedule\ScheduleVenueEditRow;
 use App\Models\Event\EventModel;
 use App\Models\Event\PerformerModel;
 use App\Models\Event\SessionModel;
 use App\Models\Event\VenueModel;
-use App\Models\Requests\Cms\Schedule\SchedulePerformerRowRequest;
-use App\Models\Requests\Cms\Schedule\ScheduleSessionRowRequest;
-use App\Models\Requests\Cms\Schedule\ScheduleVenueRowRequest;
+use App\Models\ViewModels\Cms\Schedule\ScheduleEditorViewModel;
 use App\Repository\Interfaces\IScheduleRepository;
 use App\Service\Cms\Interfaces\ICmsScheduleService;
-use App\Validator\Cms\CmsScheduleValidator;
+use App\Validator\CmsScheduleValidator;
 
 class CmsScheduleService implements ICmsScheduleService
 {
     private IScheduleRepository $scheduleRepo;
+    private CmsScheduleMapper $cmsScheduleMapper;
     private CmsScheduleValidator $scheduleValidator;
 
-    public function __construct(IScheduleRepository $scheduleRepo, CmsScheduleValidator $scheduleValidator)
+    public function __construct(
+        IScheduleRepository $scheduleRepo,
+        CmsScheduleMapper $cmsScheduleMapper,
+        CmsScheduleValidator $scheduleValidator
+    )
     {
         $this->scheduleRepo = $scheduleRepo;
+        $this->cmsScheduleMapper = $cmsScheduleMapper;
         $this->scheduleValidator = $scheduleValidator;
     }
 
-    public function saveScheduleData(string $eventName, ScheduleSaveCommand $command): void
+    public function getScheduleEditorData(string $eventName): ScheduleEditorViewModel
+    {
+        $event = $this->findEventOrFail($eventName);
+        $venues = $this->scheduleRepo->getVenuesByEventId((int)$event->id);
+        $performers = $this->scheduleRepo->getPerformersByEventId((int)$event->id);
+        $sessions = $this->scheduleRepo->getSessionsByEventId((int)$event->id);
+        $sessionPerformers = $this->scheduleRepo->getSessionPerformersByEventId((int)$event->id);
+
+        $sessionPerformerMap = $this->cmsScheduleMapper->buildSessionPerformerMap($sessionPerformers);
+
+        return new ScheduleEditorViewModel(
+            $event->name,
+            $this->cmsScheduleMapper->mapVenueRows($venues),
+            $this->cmsScheduleMapper->mapPerformerRows($performers),
+            $this->cmsScheduleMapper->mapSessionRows($sessions, $sessionPerformerMap)
+        );
+    }
+
+    public function saveScheduleData(string $eventName, ScheduleSaveInput $input): void
     {
         $event = $this->findEventOrFail($eventName);
         $venues = $this->scheduleRepo->getVenuesByEventId((int)$event->id);
@@ -36,10 +62,10 @@ class CmsScheduleService implements ICmsScheduleService
         $allowedPerformerIds = $this->extractPerformerIds($performers);
         $allowedSessionIds = $this->extractSessionIds($sessions);
 
-        $venueRows = $this->normalizeVenueRows($command->venues());
-        $performerRows = $this->normalizePerformerRows($command->performers());
+        $venueRows = $this->normalizeVenueRows($input->venues());
+        $performerRows = $this->normalizePerformerRows($input->performers());
         [$sessionRows, $sessionPerformerRows] = $this->normalizeSessionRows(
-            $command->sessions(),
+            $input->sessions(),
             $allowedVenueIds,
             $allowedPerformerIds,
             $allowedSessionIds
@@ -110,7 +136,7 @@ class CmsScheduleService implements ICmsScheduleService
         $normalizedRows = [];
 
         foreach ($rows as $row) {
-            if (!$row instanceof ScheduleVenueRowRequest) {
+            if (!$row instanceof ScheduleVenueEditRow) {
                 continue;
             }
 
@@ -138,7 +164,7 @@ class CmsScheduleService implements ICmsScheduleService
         $seenSlugs = [];
 
         foreach ($rows as $row) {
-            if (!$row instanceof SchedulePerformerRowRequest) {
+            if (!$row instanceof SchedulePerformerEditRow) {
                 continue;
             }
 
@@ -155,7 +181,7 @@ class CmsScheduleService implements ICmsScheduleService
             $normalizedRows[] = [
                 'id' => $id,
                 'performer_name' => $name,
-                'detail_slug' => $slug,
+                'page_slug' => $slug,
                 'performer_type' => $type !== '' ? $type : null,
                 'description' => $description !== '' ? $description : null,
             ];
@@ -178,18 +204,14 @@ class CmsScheduleService implements ICmsScheduleService
         return trim($slug, '-');
     }
 
-    private function normalizeSessionRows(
-        array $rows,
-        array $allowedVenueIds,
-        array $allowedPerformerIds,
-        array $allowedSessionIds
-    ): array {
+    private function normalizeSessionRows(array $rows, array $allowedVenueIds, array $allowedPerformerIds, array $allowedSessionIds): array
+    {
         $sessionRows = [];
         $sessionPerformerRows = [];
         $seenSessionPerformer = [];
 
         foreach ($rows as $row) {
-            if (!$row instanceof ScheduleSessionRowRequest) {
+            if (!$row instanceof ScheduleSessionEditRow) {
                 continue;
             }
 
@@ -211,11 +233,8 @@ class CmsScheduleService implements ICmsScheduleService
         return [$sessionRows, $sessionPerformerRows];
     }
 
-    private function normalizeSingleSessionRow(
-        ScheduleSessionRowRequest $row,
-        array $allowedVenueIds,
-        array $allowedSessionIds
-    ): array {
+    private function normalizeSingleSessionRow(ScheduleSessionEditRow $row, array $allowedVenueIds, array $allowedSessionIds): array
+    {
         $id = $row->id();
         $venueId = $row->venueId();
         $date = $row->date();
@@ -250,12 +269,8 @@ class CmsScheduleService implements ICmsScheduleService
         ];
     }
 
-    private function normalizeSessionPerformerRows(
-        int $sessionId,
-        array $performerIds,
-        array $allowedPerformerIds,
-        array &$seenSessionPerformer
-    ): array {
+    private function normalizeSessionPerformerRows(int $sessionId, array $performerIds, array $allowedPerformerIds, array &$seenSessionPerformer): array
+    {
         $normalizedRows = [];
 
         foreach ($performerIds as $performerIdRaw) {

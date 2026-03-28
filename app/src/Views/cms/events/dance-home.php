@@ -1,8 +1,8 @@
 <?php 
-use App\Models\ViewModels\Cms\Dance\DanceHomeContentViewModel;
-$contentViewModel = (isset($contentViewModel) && $contentViewModel instanceof DanceHomeContentViewModel)
+use App\Models\ViewModels\Cms\Dance\DanceHomeEditViewModel;
+$contentViewModel = (isset($contentViewModel) && $contentViewModel instanceof DanceHomeEditViewModel)
     ? $contentViewModel
-    : new DanceHomeContentViewModel('', '', '', '', '', '', [], '', '', '', [], '', '', '', '');
+    : new DanceHomeEditViewModel('', '', '', '', '', '', '', '', '', [], '', '', '', '');
 $passes = $contentViewModel->passes;
 ?>
 <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
@@ -16,12 +16,7 @@ $passes = $contentViewModel->passes;
         <a href="/cms/events" class="btn btn-outline-secondary">Back to Events</a>
     </div>
 
-    <?php
-    $successMessage = 'Dance home content updated.';
-    include __DIR__ . '/../../partialsViews/cms/form-feedback.php';
-    ?>
-
-    <form method="POST" action="/cms/events/dance-home" class="card border-0 shadow-sm" data-quill-form="1">
+    <form method="POST" action="/cms/events/dance-home" class="card border-0 shadow-sm" data-quill-form="1" data-save-api="/cms/events/dance-homeAPI">
         <div class="card-body p-4">
             <h2 class="h5">Page</h2>
             <div class="mb-3">
@@ -35,23 +30,6 @@ $passes = $contentViewModel->passes;
                     required
                 >
             </div>
-
-            <hr>
-
-            <h2 class="h5">Schedule</h2>
-            <div class="mb-3">
-                <label for="schedule_title" class="form-label">Schedule Title</label>
-                <input
-                    type="text"
-                    id="schedule_title"
-                    name="schedule_title"
-                    class="form-control"
-                    value="<?= htmlspecialchars($contentViewModel->scheduleTitle) ?>"
-                    required
-                >
-            </div>
-
-            <hr>
 
             <h2 class="h5">Banner</h2>
             <div class="mb-3">
@@ -88,6 +66,36 @@ $passes = $contentViewModel->passes;
                     required
                 ><?= htmlspecialchars($contentViewModel->bannerDescription) ?></textarea>
             </div>
+            <hr>
+
+            <h2 class="h5">Featured Artists & Schedule</h2>
+            <div class="alert alert-info" role="alert">
+                This section controls the featured artists title and the schedule title. Performer names, types, descriptions, schedule sessions, and artist images are managed in the
+                <a href="/cms/events/dance-schedule" class="alert-link">Dance Schedule editor</a>.
+            </div>
+            <div class="mb-3">
+                <label for="featured_artists_title" class="form-label">Featured Artists Title</label>
+                <input
+                    type="text"
+                    id="featured_artists_title"
+                    name="featured_artists_title"
+                    class="form-control"
+                    value="<?= htmlspecialchars($contentViewModel->featuredArtistsTitle) ?>"
+                    required
+                >
+            </div>
+            <div class="mb-3">
+                <label for="schedule_title" class="form-label">Schedule Title</label>
+                <input
+                    type="text"
+                    id="schedule_title"
+                    name="schedule_title"
+                    class="form-control"
+                    value="<?= htmlspecialchars($contentViewModel->scheduleTitle) ?>"
+                    required
+                >
+            </div>
+
             <hr>
 
             <h2 class="h5">Important Information</h2>
@@ -208,11 +216,15 @@ $passes = $contentViewModel->passes;
             </div>
         </div>
         <div class="card-footer d-flex justify-content-end">
-            <button type="submit" class="btn btn-primary">Save Content</button>
+            <button type="submit" class="btn btn-primary save-btn">Save Content</button>
         </div>
     </form>
 </div>
 
+<?php include __DIR__ . '/../../partialsViews/cms/upload-feedback-modal.php'; ?>
+
+<script src="/js/cms/upload-feedback.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
-<?php $danceHomeJsVersion = @filemtime(__DIR__ . '/../../../../public/js/cms/dance-home.js') ?: time(); ?>
-<script src="/js/cms/dance-home.js?v=<?= (int)$danceHomeJsVersion ?>"></script>
+<script src="/js/cms/page-editor.js"></script>
+<script src="/js/cms/form-save-api.js"></script>
+<script src="/js/cms/dance-home.js"></script>

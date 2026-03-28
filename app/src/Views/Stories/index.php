@@ -4,12 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Haarlem Festival</title>
-    <link href="/css/Stories/index.css" rel="stylesheet">
+    <?php $storiesCssVersion = @filemtime(__DIR__ . '/../../../public/css/Stories/index.css') ?: time(); ?>
+    <link href="/css/Stories/index.css?v=<?= (int)$storiesCssVersion ?>" rel="stylesheet">
 </head>
 <body>
 
     <?php if ($hero): ?>
         <?php $section = $hero; include __DIR__ . '/../partialsViews/Stories/hero.php'; ?>
+    <?php endif; ?>
+
+    <?php if ($callout): ?>
+        <?php $section = $callout; include __DIR__ . '/../partialsViews/Stories/callout.php'; ?>
     <?php endif; ?>
 
     <?php if ($grid): ?>
@@ -20,9 +25,9 @@
         <?php $section = $venues; include __DIR__ . '/../partialsViews/Stories/venues.php'; ?>
     <?php endif; ?>
 
-    <?php if ($schedule): ?>
-        <?php $section = $schedule; include __DIR__ . '../partialsViews/schedule.php'; ?>
-    <?php endif; ?>
+    <section class="stories-schedule-wrapper">
+     <?php $section = $schedule; include __DIR__ . '/../partialsViews/schedule.php'; ?>
+    </section>
 
     <?php if ($explore): ?>
         <?php $section = $explore; include __DIR__ . '/../partialsViews/Stories/explore.php'; ?>

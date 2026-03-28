@@ -48,6 +48,31 @@ class CmsPageSaveService implements ICmsPageSaveService
         }
     }
 
+    public function saveEditorPageContent(int $pageId, array $sections, array $items): void
+    {
+        $existingItems = $this->loadExistingItemMetadata($pageId);
+        $normalizedSections = [];
+        $sectionOrder = 0;
+
+        foreach ($sections as $sectionType => $sectionData) {
+            if (!is_array($sectionData)) {
+                continue;
+            }
+
+            $sectionItems = is_array($items[$sectionType] ?? null) ? $items[$sectionType] : [];
+            $normalizedSections[] = [
+                'type' => (string) $sectionType,
+                'title' => $this->normalizeOptionalString($sectionData['title'] ?? null),
+                'subtitle' => $this->normalizeOptionalString($sectionData['subtitle'] ?? $sectionData['subTitle'] ?? null),
+                'description' => $this->normalizeOptionalString($sectionData['description'] ?? null),
+                'order_index' => $sectionOrder++,
+                'items' => $this->normalizeSectionItems($sectionItems, $existingItems),
+            ];
+        }
+
+        $this->savePageContent($pageId, null, $normalizedSections);
+    }
+
     public function savePageContentBySlug(
         string $pageSlug,
         ?string $pageTitle,
@@ -60,5 +85,89 @@ class CmsPageSaveService implements ICmsPageSaveService
         }
 
         $this->savePageContent($pageId, $pageTitle, $sections);
+    }
+
+    private function loadExistingItemMetadata(int $pageId): array
+    {
+        $metadata = [];
+        $page = $this->pageRepository->findPageById($pageId);
+        if ($page === null) {
+            return $metadata;
+        }
+
+        foreach ($page->sections as $section) {
+            foreach ($section->items as $item) {
+                $itemId = (int) ($item->id ?? 0);
+                if ($itemId <= 0) {
+                    continue;
+                }
+
+                $metadata[$itemId] = [
+                    'item_category' => (string) ($item->category ?? ''),
+                    'image_path' => isset($item->image) ? (string) $item->image : null,
+                ];
+            }
+        }
+
+        return $metadata;
+    }
+
+    private function normalizeSectionItems(array $sectionItems, array $existingItems): array
+    {
+        $normalizedItems = [];
+        $orderIndex = 0;
+
+        foreach ($sectionItems as $itemData) {
+            if (!is_array($itemData)) {
+                continue;
+            }
+
+            $itemId = (int) ($itemData['id'] ?? 0);
+            if ($itemId <= 0) {
+                continue;
+            }
+
+            $existingItem = $existingItems[$itemId] ?? null;
+            $itemCategory = trim((string) ($itemData['item_category'] ?? ($existingItem['item_category'] ?? '')));
+            if ($itemCategory === '') {
+                continue;
+            }
+
+            $normalizedItems[] = [
+                'id' => $itemId,
+                'title' => $this->normalizeOptionalString($itemData['title'] ?? null) ?? '',
+                'item_subtitle' => $this->normalizeOptionalString($itemData['item_subtitle'] ?? null),
+                'content' => $this->normalizeOptionalString($itemData['content'] ?? null),
+                'image_path' => $this->resolveOptionalField($itemData, 'image_path', $existingItem['image_path'] ?? null),
+                'link_url' => $this->normalizeOptionalString($itemData['link_url'] ?? null),
+                'duration' => $this->normalizeOptionalString($itemData['duration'] ?? null),
+                'icon_class' => $this->normalizeOptionalString($itemData['icon_class'] ?? null),
+                'order_index' => array_key_exists('order_index', $itemData)
+                    ? (int) $itemData['order_index']
+                    : $orderIndex++,
+                'item_category' => $itemCategory,
+            ];
+        }
+
+        return $normalizedItems;
+    }
+
+    private function resolveOptionalField(array $itemData, string $key, ?string $fallback): ?string
+    {
+        if (!array_key_exists($key, $itemData)) {
+            return $fallback;
+        }
+
+        return $this->normalizeOptionalString($itemData[$key]);
+    }
+
+    private function normalizeOptionalString(mixed $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $normalized = trim((string) $value);
+        return $normalized === '' ? null : $normalized;
     }
 }

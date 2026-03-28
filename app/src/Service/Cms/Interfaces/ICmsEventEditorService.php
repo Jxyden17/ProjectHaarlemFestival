@@ -17,4 +17,5 @@ interface ICmsEventEditorService
     ): ScheduleEditorViewModel;
 
     public function savePageContent(int $pageId, array $sections, array $items): void;
+    public function getTourDetailPages(): array;
 }

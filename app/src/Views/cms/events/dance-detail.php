@@ -1,19 +1,26 @@
 <?php
-use App\Models\ViewModels\Cms\Dance\DanceDetailContentViewModel;
+use App\Models\ViewModels\Cms\Dance\DanceDetailEditViewModel;
 use App\Models\ViewModels\Cms\Dance\DanceDetailHeroImageRowViewModel;
 use App\Models\ViewModels\Cms\Dance\DanceDetailHighlightRowViewModel;
 use App\Models\ViewModels\Cms\Dance\DanceDetailTrackRowViewModel;
 
-$contentViewModel = (isset($contentViewModel) && $contentViewModel instanceof DanceDetailContentViewModel)
+$contentViewModel = (isset($contentViewModel) && $contentViewModel instanceof DanceDetailEditViewModel)
     ? $contentViewModel
-    : new DanceDetailContentViewModel('', 'Dance Detail Content', '', '', '', '', '', '', [], '', [], '', '', [], '', '');
+    : new DanceDetailEditViewModel('', 'Dance Detail Content', '', '', '', '', '', '', [], '', [], '', '', [], '', '');
+$pageSlug = trim((string)$contentViewModel->pageSlug);
+$encodedPageSlug = rawurlencode($pageSlug);
 $heroImages = $contentViewModel->heroImages;
 $highlights = $contentViewModel->highlights;
 $tracks = $contentViewModel->tracks;
-$formAction = (string)($formAction ?? '/cms/events/dance-detail');
-$detailMediaModule = $contentViewModel->detailSlug === '' ? '' : 'dance_detail_hero:' . $contentViewModel->detailSlug;
-$detailTrackMediaModule = $contentViewModel->detailSlug === '' ? '' : 'dance_detail_track:' . $contentViewModel->detailSlug;
-$detailTrackAudioModule = $contentViewModel->detailSlug === '' ? '' : 'dance_detail_track_audio:' . $contentViewModel->detailSlug;
+$formAction = $pageSlug === '' ? '/cms/events/dance-detail' : '/cms/events/dance-detail/' . $encodedPageSlug;
+
+// Builds upload module names for this page slug, or returns an empty string when no slug is available.
+$buildModuleName = static function (string $prefix) use ($pageSlug): string {
+    return $pageSlug === '' ? '' : $prefix . ':' . $pageSlug;
+};
+$detailMediaModule = $buildModuleName('dance_detail_hero');
+$detailTrackMediaModule = $buildModuleName('dance_detail_track');
+$detailTrackAudioModule = $buildModuleName('dance_detail_track_audio');
 ?>
 <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
 
@@ -21,17 +28,12 @@ $detailTrackAudioModule = $contentViewModel->detailSlug === '' ? '' : 'dance_det
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
             <h1 class="h3 mb-1"><?= htmlspecialchars($contentViewModel->editorTitle) ?></h1>
-            <p class="text-muted mb-0">Public page: <a href="<?= htmlspecialchars($contentViewModel->publicPath) ?>" target="_blank" rel="noreferrer"><?= htmlspecialchars($contentViewModel->publicPath) ?></a></p>
+            <p class="mb-0">Public page: <a href="<?= htmlspecialchars($contentViewModel->publicPath) ?>" target="_blank" rel="noreferrer"><?= htmlspecialchars($contentViewModel->publicPath) ?></a></p>
         </div>
         <a href="/cms/events" class="btn btn-outline-secondary">Back to Events</a>
     </div>
 
-    <?php
-    $successMessage = 'Dance detail content updated.';
-    include __DIR__ . '/../../partialsViews/cms/form-feedback.php';
-    ?>
-
-    <form method="POST" action="<?= htmlspecialchars($formAction) ?>" class="card border-0 shadow-sm" data-quill-form="1" data-image-upload-module="<?= htmlspecialchars($detailMediaModule) ?>">
+    <form method="POST" action="<?= htmlspecialchars($formAction) ?>" class="card border-0 shadow-sm" data-quill-form="1" data-image-upload-module="<?= htmlspecialchars($detailMediaModule) ?>" data-debug-enabled="<?= $isDebugMode ? '1' : '0' ?>" data-save-api="/cms/events/dance-detail/<?= $encodedPageSlug ?>/updateAPI">
         <div class="card-body p-4">
             <h2 class="h5">Page</h2>
             <div class="mb-3">
@@ -189,11 +191,16 @@ $detailTrackAudioModule = $contentViewModel->detailSlug === '' ? '' : 'dance_det
             </div>
         </div>
         <div class="card-footer d-flex justify-content-end">
-            <button type="submit" class="btn btn-primary">Save Content</button>
+            <button type="submit" class="btn btn-primary save-btn">Save Content</button>
         </div>
     </form>
 </div>
 
+<?php include __DIR__ . '/../../partialsViews/cms/upload-feedback-modal.php'; ?>
+
+<script src="/js/cms/upload-feedback.js"></script>
+<script src="/js/cms/media-upload.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
-<?php $danceDetailJsVersion = @filemtime(__DIR__ . '/../../../../public/js/cms/dance-detail.js') ?: time(); ?>
-<script src="/js/cms/dance-detail.js?v=<?= (int)$danceDetailJsVersion ?>"></script>
+<script src="/js/cms/page-editor.js"></script>
+<script src="/js/cms/form-save-api.js"></script>
+<script src="/js/cms/dance-detail.js"></script>

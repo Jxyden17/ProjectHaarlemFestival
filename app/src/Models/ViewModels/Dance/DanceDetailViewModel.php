@@ -53,17 +53,11 @@ class DanceDetailViewModel
 
     private function normalizeHeroImages(array $heroImages): array
     {
-        $normalized = [];
-
-        for ($index = 0; $index < 3; $index++) {
-            $image = $heroImages[$index] ?? null;
-            $normalized[] = [
-                'image' => trim((string)($image['image'] ?? '')),
-                'alt' => trim((string)($image['alt'] ?? '')),
-            ];
-        }
-
-        return $normalized;
+        return [
+            'left' => $this->normalizeHeroImageSlot($heroImages['left'] ?? $heroImages[0] ?? null),
+            'center' => $this->normalizeHeroImageSlot($heroImages['center'] ?? $heroImages[1] ?? null),
+            'right' => $this->normalizeHeroImageSlot($heroImages['right'] ?? $heroImages[2] ?? null),
+        ];
     }
 
     private function normalizeText(?string $value, string $fallback): string
@@ -71,5 +65,13 @@ class DanceDetailViewModel
         $normalized = trim((string)$value);
 
         return $normalized === '' ? $fallback : $normalized;
+    }
+
+    private function normalizeHeroImageSlot(mixed $heroImage): array
+    {
+        return [
+            'image' => trim((string)($heroImage['image'] ?? '')),
+            'alt' => trim((string)($heroImage['alt'] ?? '')),
+        ];
     }
 }

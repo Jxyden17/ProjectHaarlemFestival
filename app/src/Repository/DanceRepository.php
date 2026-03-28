@@ -2,7 +2,7 @@
 
 namespace App\Repository;
 
-use App\Mapper\DanceMapper;
+use App\Mapper\EventMapper;
 use App\Models\Database;
 use App\Models\Event\EventDetailPageModel;
 use App\Repository\Interfaces\IDanceRepository;
@@ -11,12 +11,12 @@ use PDO;
 class DanceRepository implements IDanceRepository
 {
     private PDO $db;
-    private DanceMapper $danceMapper;
+    private EventMapper $eventMapper;
 
-    public function __construct(DanceMapper $danceMapper)
+    public function __construct(EventMapper $eventMapper)
     {
         $this->db = Database::getInstance();
-        $this->danceMapper = $danceMapper
+        $this->eventMapper = $eventMapper;
     }
 
     public function getDetailPagesByEventId(int $eventId): array
@@ -26,7 +26,6 @@ class DanceRepository implements IDanceRepository
                     edp.event_id,
                     edp.performer_id,
                     edp.page_id,
-                    edp.detail_slug,
                     edp.entity_type,
                     edp.display_order,
                     p.slug AS page_slug,
@@ -41,12 +40,12 @@ class DanceRepository implements IDanceRepository
         $stmt->execute([':event_id' => $eventId]);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        return array_map(fn(array $row): EventDetailPageModel => $this->danceMapper->mapDetailPageRow($row), $rows);
+        return array_map(fn(array $row): EventDetailPageModel => $this->eventMapper->mapDetailPageRow($row), $rows);
     }
 
-    public function findDetailPageBySlug(string $detailSlug): ?EventDetailPageModel
+    public function findDetailPageByPageSlug(string $pageSlug): ?EventDetailPageModel
     {
-        if (trim($detailSlug) === '') {
+        if (trim($pageSlug) === '') {
             return null;
         }
 
@@ -55,7 +54,6 @@ class DanceRepository implements IDanceRepository
                     edp.event_id,
                     edp.performer_id,
                     edp.page_id,
-                    edp.detail_slug,
                     edp.entity_type,
                     edp.display_order,
                     p.slug AS page_slug,
@@ -64,13 +62,12 @@ class DanceRepository implements IDanceRepository
              FROM event_detail_pages edp
              INNER JOIN pages p ON p.id = edp.page_id
              LEFT JOIN performers pf ON pf.id = edp.performer_id
-             WHERE edp.detail_slug = :detail_slug
+             WHERE p.slug = :page_slug
              LIMIT 1'
         );
-        $stmt->execute([':detail_slug' => trim($detailSlug)]);
+        $stmt->execute([':page_slug' => trim($pageSlug)]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return $row ? $this->danceMapper->mapDetailPageRow($row) : null;
+        return $row ? $this->eventMapper->mapDetailPageRow($row) : null;
     }
-
 }

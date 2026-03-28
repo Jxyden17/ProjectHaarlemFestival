@@ -192,4 +192,77 @@ class MediaRepository implements IMediaRepository
 
         return (int)$row['id'];
     }
+
+    public function updateSectionItemImagePathBySection(
+        int $sectionItemId,
+        string $imagePath,
+        string $pageSlug,
+        string $sectionType
+    ): bool
+    {
+        $stmt = $this->db->prepare(
+            'UPDATE section_items si
+             INNER JOIN page_sections ps ON ps.id = si.section_id
+             INNER JOIN pages p ON p.id = ps.page_id
+             SET si.image_path = :image_path
+             WHERE si.id = :section_item_id
+               AND ps.section_type = :section_type
+               AND p.slug = :page_slug'
+        );
+
+        $stmt->execute([
+            ':image_path' => $imagePath,
+            ':section_item_id' => $sectionItemId,
+            ':section_type' => $sectionType,
+            ':page_slug' => $pageSlug,
+        ]);
+
+        if ($stmt->rowCount() > 0) {
+            return true;
+        }
+
+        $existsStmt = $this->db->prepare(
+            'SELECT si.id
+             FROM section_items si
+             INNER JOIN page_sections ps ON ps.id = si.section_id
+             INNER JOIN pages p ON p.id = ps.page_id
+             WHERE si.id = :section_item_id
+               AND ps.section_type = :section_type
+               AND p.slug = :page_slug
+               AND si.image_path = :image_path
+             LIMIT 1'
+        );
+
+        $existsStmt->execute([
+            ':section_item_id' => $sectionItemId,
+            ':section_type' => $sectionType,
+            ':page_slug' => $pageSlug,
+            ':image_path' => $imagePath,
+        ]);
+
+        return $existsStmt->fetch(PDO::FETCH_ASSOC) !== false;
+    }
+
+    public function findSectionItemImagePathById(int $sectionItemId): ?string
+    {
+        if ($sectionItemId <= 0) {
+            return null;
+        }
+
+        $stmt = $this->db->prepare(
+            'SELECT image_path
+             FROM section_items
+             WHERE id = :id
+             LIMIT 1'
+        );
+        $stmt->execute([':id' => $sectionItemId]);
+
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$row || !array_key_exists('image_path', $row)) {
+            return null;
+        }
+
+        $imagePath = trim((string)($row['image_path'] ?? ''));
+        return $imagePath === '' ? null : $imagePath;
+    }
 }

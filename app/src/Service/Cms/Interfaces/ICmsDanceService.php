@@ -2,15 +2,15 @@
 
 namespace App\Service\Cms\Interfaces;
 
-use App\Models\Requests\Cms\DanceDetailContentRequest;
-use App\Models\Requests\Cms\DanceHomeContentRequest;
-use App\Models\ViewModels\Cms\Dance\DanceDetailContentViewModel;
-use App\Models\ViewModels\Cms\Dance\DanceHomeContentViewModel;
+use App\Models\Dance\DanceDetailEditorData;
+use App\Models\Page\Page;
+use App\Models\Requests\UpdateDanceDetailRequest;
+use App\Models\Requests\UpdateDanceHomeRequest;
 
 interface ICmsDanceService
 {
-    public function getDanceHomeFormData(): DanceHomeContentViewModel;
-    public function saveDanceHomePage(DanceHomeContentRequest $request): void;
-    public function getDanceDetailFormData(string $detailSlug): DanceDetailContentViewModel;
-    public function saveDanceDetailPage(string $detailSlug, DanceDetailContentRequest $request): void;
+    public function getDanceHomePage(): Page;
+    public function saveDanceHomePage(UpdateDanceHomeRequest $request): void;
+    public function getDanceDetailEditorData(string $pageSlug): DanceDetailEditorData;
+    public function saveDanceDetailPage(string $pageSlug, UpdateDanceDetailRequest $request): void;
 }

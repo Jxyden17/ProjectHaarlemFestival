@@ -7,6 +7,7 @@ use App\Models\Database;
 use App\Models\Event\EventModel;
 use App\Repository\Interfaces\IScheduleRepository;
 use PDO;
+use PDOException;
 
 class ScheduleRepository implements IScheduleRepository
 {
@@ -145,6 +146,64 @@ class ScheduleRepository implements IScheduleRepository
         return array_map(fn(array $row) => $this->scheduleMapper->mapSessionRow($row), $rows);
     }
 
+    public function getSessionById(int $id): ?\App\Models\Event\SessionModel
+    {
+        $stmt = $this->db->prepare(
+            'SELECT id, event_id, venue_id, date, start_time, language_id, label, price, available_spots, amount_sold
+             FROM sessions
+             WHERE id = :id
+             LIMIT 1'
+        );
+        $stmt->execute([':id' => $id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $row ? $this->scheduleMapper->mapSessionRow($row) : null;
+    }
+
+    public function createSessionForTicketing(int $eventId, int $venueId, string $date, string $startTime, int $availableSpots): int
+    {
+        $stmt = $this->db->prepare(
+            'INSERT INTO sessions (event_id, venue_id, date, start_time, label, price, available_spots, amount_sold)
+             VALUES (:event_id, :venue_id, :date, :start_time, NULL, 0, :available_spots, 0)'
+        );
+        $stmt->execute([
+            ':event_id' => $eventId,
+            ':venue_id' => $venueId,
+            ':date' => $date,
+            ':start_time' => $startTime,
+            ':available_spots' => $availableSpots,
+        ]);
+
+        return (int) $this->db->lastInsertId();
+    }
+
+    public function updateSessionForTicketing(int $id, int $eventId, string $date, string $startTime, int $availableSpots): bool
+    {
+        $stmt = $this->db->prepare(
+            'UPDATE sessions
+             SET date = :date, start_time = :start_time, available_spots = :available_spots
+             WHERE id = :id AND event_id = :event_id'
+        );
+
+        return $stmt->execute([
+            ':id' => $id,
+            ':event_id' => $eventId,
+            ':date' => $date,
+            ':start_time' => $startTime,
+            ':available_spots' => $availableSpots,
+        ]);
+    }
+
+    public function deleteSessionById(int $id, int $eventId): bool
+    {
+        $stmt = $this->db->prepare('DELETE FROM sessions WHERE id = :id AND event_id = :event_id');
+
+        return $stmt->execute([
+            ':id' => $id,
+            ':event_id' => $eventId,
+        ]);
+    }
+
     public function getVenuesByEventId(int $eventId): array
     {
         $stmt = $this->db->prepare(
@@ -200,7 +259,7 @@ class ScheduleRepository implements IScheduleRepository
         try {
             $this->updateEventVenues($eventId, $venueRows);
             $this->updateEventPerformers($eventId, $performerRows);
-            $this->syncDetailPageSlugsToPerformers($eventId, $performerRows);
+            $this->syncDetailPagePageSlugsToPerformers($eventId, $performerRows);
             $this->updateEventSessions($eventId, $sessionRows);
             $this->replaceEventSessionPerformers($eventId, $sessionPerformerRows);
             $this->db->commit();
@@ -282,6 +341,34 @@ class ScheduleRepository implements IScheduleRepository
         }
     }
 
+    private function syncDetailPagePageSlugsToPerformers(int $eventId, array $performerRows): void
+    {
+        if ($performerRows === []) {
+            return;
+        }
+
+        $update = $this->db->prepare(
+            'UPDATE pages p
+             INNER JOIN event_detail_pages edp ON edp.page_id = p.id
+             SET p.slug = :page_slug
+             WHERE edp.event_id = :event_id
+               AND edp.performer_id = :performer_id'
+        );
+
+        foreach ($performerRows as $row) {
+            $pageSlug = trim((string)($row['page_slug'] ?? ''));
+            if ($pageSlug === '') {
+                continue;
+            }
+
+            $update->execute([
+                ':page_slug' => $pageSlug,
+                ':event_id' => $eventId,
+                ':performer_id' => (int)$row['id'],
+            ]);
+        }
+    }
+
     private function replaceEventSessionPerformers(int $eventId, array $rows): void
     {
         $delete = $this->db->prepare(
@@ -314,24 +401,135 @@ class ScheduleRepository implements IScheduleRepository
             return;
         }
 
-        $update = $this->db->prepare(
-            'UPDATE event_detail_pages
-             SET detail_slug = :detail_slug
-             WHERE event_id = :event_id
-               AND performer_id = :performer_id'
-        );
-
         foreach ($performerRows as $row) {
             $slug = trim((string)($row['detail_slug'] ?? ''));
             if ($slug === '') {
                 continue;
             }
 
-            $update->execute([
+            $params = [
                 ':detail_slug' => $slug,
                 ':event_id' => $eventId,
                 ':performer_id' => (int)$row['id'],
+            ];
+
+            $this->executeSlugUpdateWithFallback($params);
+        }
+    }
+
+    private function executeSlugUpdateWithFallback(array $params): void
+    {
+        $queries = [
+            'UPDATE event_detail_pages
+             SET detail_slug = :detail_slug
+             WHERE event_id = :event_id
+               AND performer_id = :performer_id',
+            'UPDATE event_detail_pages
+             SET public_slug = :detail_slug,
+                 cms_slug = :detail_slug
+             WHERE event_id = :event_id
+               AND performer_id = :performer_id',
+            'UPDATE pages p
+             INNER JOIN event_detail_pages edp ON edp.page_id = p.id
+             SET p.slug = :detail_slug
+             WHERE edp.event_id = :event_id
+               AND edp.performer_id = :performer_id',
+        ];
+
+        $lastException = null;
+
+        foreach ($queries as $query) {
+            try {
+                $stmt = $this->db->prepare($query);
+                $stmt->execute($params);
+                return;
+            } catch (PDOException $exception) {
+                $lastException = $exception;
+            }
+        }
+
+        if ($lastException instanceof PDOException) {
+            throw $lastException;
+        }
+    }
+
+    public function findEventById(int $id): ?EventModel
+    {
+    $stmt = $this->db->prepare('SELECT id, name, description FROM events WHERE id = :id LIMIT 1');
+    $stmt->execute([':id' => $id]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $row ? $this->scheduleMapper->mapEventRow($row) : null;
+    }
+
+    public function editSchedule(int $id, int $eventId, int $venueId, string $date, string $startTime, int $availableSpots, $label, $price, $language, array $performerIds = []): bool
+    {
+        $stmt = $this->db->prepare(
+            'UPDATE sessions
+            SET venue_id = :venue_id, event_id = :event_id, date = :date, start_time = :start_time, available_spots = :available_spots, label = :label, price = :price, language_id = :language
+            WHERE id = :id'
+        );
+
+        return $stmt->execute([
+            ':id' => $id,
+            ':event_id' => $eventId,
+            ':venue_id' => $venueId,
+            ':date' => $date,
+            ':start_time' => $startTime,
+            ':available_spots' => $availableSpots,
+            ':label' => $label ?? 'None',
+            ':language' => $language ?? 1,
+            ':price' => $price ?? -1,
+        ]);
+    }
+
+    public function createSchedule(int $eventId, int $venueId, string $date, string $startTime, int $availableSpots, ?string $label, ?float $price, ?int $language, array $performerIds = []): bool
+    {
+        $stmt = $this->db->prepare(
+            'INSERT INTO sessions (event_id, venue_id, date, start_time, available_spots, label, price, language_id)
+             VALUES (:event_id, :venue_id, :date, :start_time, :available_spots, :label, :price, :language)'
+        );
+
+        $success = $stmt->execute([
+        ':event_id' => $eventId,
+        ':venue_id' => $venueId,
+        ':date' => $date,
+        ':start_time' => $startTime,
+        ':available_spots' => $availableSpots,
+        ':label' => $label ?? 'None',
+        ':price' => $price ?? -1,
+        ':language' => $language ?? 1,
+    ]);
+
+    if (!$success) {
+        return false;
+    }
+
+    $sessionId = (int)$this->db->lastInsertId();
+
+    // Koppel performers aan de sessie
+    if (!empty($performerIds)) {
+        $insert = $this->db->prepare(
+            'INSERT INTO session_performers (session_id, performer_id) VALUES (:session_id, :performer_id)'
+        );
+        foreach ($performerIds as $performerId) {
+            $insert->execute([
+                ':session_id' => $sessionId,
+                ':performer_id' => $performerId,
             ]);
         }
+    }
+
+    return true;
+    }
+    // later tickets eerst nakijken dan pas verwijderen, anders kunnen er issues ontstaan met boekingen die nog gekoppeld zijn aan een sessie die verwijderd wordt
+    public function deleteSchedule(int $id): bool
+    {
+        $stmt = $this->db->prepare('DELETE FROM session_performers WHERE session_id = :session_id');
+        $stmt->execute([':session_id' => $id]);
+
+        $stmt = $this->db->prepare('DELETE FROM sessions WHERE id = :id');
+        return $stmt->execute([
+            ':id' => $id,
+        ]);
     }
 }

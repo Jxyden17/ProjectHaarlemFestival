@@ -13,8 +13,8 @@ class DanceIndexViewModel
     public string $bannerDescription;
     public int $totalEvents;
     public int $totalLocations;
-    public string $artistsTitle;
-    public array $artistCards;
+    public string $featuredArtistsTitle;
+    public array $featuredArtistCards;
     public string $importantInfoTitle;
     public string $importantInfoHtml;
     public string $passesTitle;
@@ -33,8 +33,8 @@ class DanceIndexViewModel
         ?string $bannerDescription = null,
         int $totalEvents = 0,
         int $totalLocations = 0,
-        ?string $artistsTitle = null,
-        ?array $artistCards = null,
+        ?string $featuredArtistsTitle = null,
+        ?array $featuredArtistCards = null,
         ?string $importantInfoTitle = null,
         ?string $importantInfoHtml = null,
         ?string $passesTitle = null,
@@ -52,8 +52,8 @@ class DanceIndexViewModel
         $this->bannerDescription = (string)$bannerDescription;
         $this->totalEvents = $totalEvents;
         $this->totalLocations = $totalLocations;
-        $this->artistsTitle = trim((string)$artistsTitle);
-        $this->artistCards = $artistCards ?? [];
+        $this->featuredArtistsTitle = trim((string)$featuredArtistsTitle);
+        $this->featuredArtistCards = $featuredArtistCards ?? [];
         $this->importantInfoTitle = $this->normalizeText($importantInfoTitle, 'Important Information');
         $this->importantInfoHtml = (string)$importantInfoHtml;
         $this->passesTitle = $this->normalizeText($passesTitle, 'Passes');

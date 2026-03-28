@@ -6,9 +6,9 @@ if (!$danceDetailViewModel instanceof DanceDetailViewModel) {
     return;
 }
 
-$leftHeroImage = $danceDetailViewModel->heroImages[0] ?? ['image' => '', 'alt' => ''];
-$mainHeroImage = $danceDetailViewModel->heroImages[1] ?? ['image' => '', 'alt' => ''];
-$rightHeroImage = $danceDetailViewModel->heroImages[2] ?? ['image' => '', 'alt' => ''];
+$leftHeroImage = $danceDetailViewModel->heroImages['left'] ?? ['image' => '', 'alt' => ''];
+$mainHeroImage = $danceDetailViewModel->heroImages['center'] ?? ['image' => '', 'alt' => ''];
+$rightHeroImage = $danceDetailViewModel->heroImages['right'] ?? ['image' => '', 'alt' => ''];
 ?>
 
 <link href="/css/Dance/dance-detail.css" rel="stylesheet">

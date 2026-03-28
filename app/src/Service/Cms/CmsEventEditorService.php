@@ -3,34 +3,39 @@
 namespace App\Service\Cms;
 
 use App\Mapper\CmsScheduleMapper;
+use App\Models\Page\SectionItem;
+use App\Models\ViewModels\Cms\Schedule\ScheduleEditorPerformerRowViewModel;
 use App\Models\ViewModels\Cms\Schedule\ScheduleEditorViewModel;
-use App\Repository\Interfaces\IPageRepository;
 use App\Service\Cms\Interfaces\ICmsEventEditorService;
+use App\Service\Cms\Interfaces\ICmsScheduleService;
 use App\Service\Cms\Interfaces\ICmsPageSaveService;
-use App\Service\Interfaces\IScheduleService;
+use App\Service\Interfaces\IDanceService;
 
 class CmsEventEditorService implements ICmsEventEditorService
 {
-    private IScheduleService $scheduleService;
+    private ICmsScheduleService $cmsScheduleService;
     private CmsScheduleMapper $cmsScheduleMapper;
-    private IPageRepository $pageRepository;
     private ICmsPageSaveService $pageSaveService;
+    private IDanceService $danceService;
+    private $pageRepository;
 
     public function __construct(
-        IScheduleService $scheduleService,
+        ICmsScheduleService $cmsScheduleService,
         CmsScheduleMapper $cmsScheduleMapper,
-        IPageRepository $pageRepository,
-        ICmsPageSaveService $pageSaveService
+        ICmsPageSaveService $pageSaveService,
+        IDanceService $danceService,
+        $pageRepository
     ) {
-        $this->scheduleService = $scheduleService;
+        $this->cmsScheduleService = $cmsScheduleService;
         $this->cmsScheduleMapper = $cmsScheduleMapper;
-        $this->pageRepository = $pageRepository;
         $this->pageSaveService = $pageSaveService;
+        $this->danceService = $danceService;
+        $this->pageRepository = $pageRepository;
     }
 
     public function getEditorData(string $eventName): ScheduleEditorViewModel
     {
-        $editorViewModel = $this->scheduleService->getScheduleEditorData($eventName);
+        $editorViewModel = $this->cmsScheduleService->getScheduleEditorData($eventName);
         if (strtolower($eventName) !== 'dance') {
             return $editorViewModel;
         }
@@ -38,7 +43,7 @@ class CmsEventEditorService implements ICmsEventEditorService
         return new ScheduleEditorViewModel(
             $editorViewModel->eventName,
             $editorViewModel->venues,
-            $this->cmsScheduleMapper->applyDanceArtistImageMetadata($eventName, $editorViewModel->performers),
+            $this->enrichDancePerformers($editorViewModel->performers),
             $editorViewModel->sessions
         );
     }
@@ -71,107 +76,64 @@ class CmsEventEditorService implements ICmsEventEditorService
 
     public function savePageContent(int $pageId, array $sections, array $items): void
     {
-        $existingItems = $this->loadExistingItemMetadata($pageId);
-        $normalizedSections = [];
-        $sectionOrder = 0;
+        $this->pageSaveService->saveEditorPageContent($pageId, $sections, $items);
+    }
 
-        foreach ($sections as $sectionType => $sectionData) {
-            if (!is_array($sectionData)) {
+    private function enrichDancePerformers(array $performers): array
+    {
+        $artistItems = $this->getDanceFeaturedArtistImageRows();
+        $result = [];
+
+        foreach ($performers as $index => $performer) {
+            if (!$performer instanceof ScheduleEditorPerformerRowViewModel) {
                 continue;
             }
 
-            $sectionItems = is_array($items[$sectionType] ?? null) ? $items[$sectionType] : [];
-            $normalizedItems = $this->normalizeSectionItems($sectionItems, $existingItems);
+            $artistItem = $artistItems[$index] ?? null;
+            $artistSectionItemId = $artistItem instanceof SectionItem ? $artistItem->id : 0;
+            $artistImagePath = $artistItem instanceof SectionItem ? (string) ($artistItem->image ?? '') : '';
 
-            $normalizedSections[] = [
-                'type' => (string) $sectionType,
-                'title' => $this->normalizeOptionalString($sectionData['title'] ?? null),
-                'subtitle' => $this->normalizeOptionalString($sectionData['subtitle'] ?? $sectionData['subTitle'] ?? null),
-                'description' => $this->normalizeOptionalString($sectionData['description'] ?? null),
-                'order_index' => $sectionOrder++,
-                'items' => $normalizedItems,
+            $result[] = new ScheduleEditorPerformerRowViewModel(
+                $performer->id,
+                $performer->name,
+                $performer->type,
+                $performer->description,
+                $artistSectionItemId,
+                $artistImagePath
+            );
+        }
+
+        return $result;
+    }
+
+    private function getDanceFeaturedArtistImageRows(): array
+    {
+        $danceHome = $this->danceService->getDanceHomePage();
+        $artistsSection = $danceHome->getSection('dance_artists');
+        $featuredArtistImageRows = [];
+
+        if ($artistsSection === null) {
+            return $featuredArtistImageRows;
+        }
+
+        foreach ($artistsSection->getItemsByCategorie('artist') as $item) {
+            if ($item instanceof SectionItem) {
+                $featuredArtistImageRows[] = $item;
+            }
+        }
+
+        return $featuredArtistImageRows;
+    }
+
+    public function getTourDetailPages(): array
+    {
+        $pages = [];
+        foreach ($this->pageRepository->getTourDetailPages() as $row) {
+            $pages[] = [
+                'id' => (int) ($row['id'] ?? 0),
+                'name' => (string) ($row['page_name'] ?? ''),
             ];
         }
-
-        $this->pageSaveService->savePageContent($pageId, null, $normalizedSections);
-    }
-
-    private function loadExistingItemMetadata(int $pageId): array
-    {
-        $metadata = [];
-
-        foreach ($this->pageRepository->findPageRowsById($pageId) as $row) {
-            $itemId = (int) ($row['item_id'] ?? 0);
-            if ($itemId <= 0) {
-                continue;
-            }
-
-            $metadata[$itemId] = [
-                'item_category' => (string) ($row['item_category'] ?? ''),
-                'image_path' => isset($row['image_path']) ? (string) $row['image_path'] : null,
-                'order_index' => (int) ($row['item_order_index'] ?? 0),
-            ];
-        }
-
-        return $metadata;
-    }
-
-    private function normalizeSectionItems(array $sectionItems, array $existingItems): array
-    {
-        $normalizedItems = [];
-        $orderIndex = 0;
-
-        foreach ($sectionItems as $itemData) {
-            if (!is_array($itemData)) {
-                continue;
-            }
-
-            $itemId = (int) ($itemData['id'] ?? 0);
-            if ($itemId <= 0) {
-                continue;
-            }
-
-            $existingItem = $existingItems[$itemId] ?? null;
-            $itemCategory = trim((string) ($itemData['item_category'] ?? ($existingItem['item_category'] ?? '')));
-            if ($itemCategory === '') {
-                continue;
-            }
-
-            $normalizedItems[] = [
-                'id' => $itemId,
-                'title' => $this->normalizeOptionalString($itemData['title'] ?? null) ?? '',
-                'item_subtitle' => $this->normalizeOptionalString($itemData['item_subtitle'] ?? null),
-                'content' => $this->normalizeOptionalString($itemData['content'] ?? null),
-                'image_path' => $this->resolveOptionalField($itemData, 'image_path', $existingItem['image_path'] ?? null),
-                'link_url' => $this->normalizeOptionalString($itemData['link_url'] ?? null),
-                'duration' => $this->normalizeOptionalString($itemData['duration'] ?? null),
-                'icon_class' => $this->normalizeOptionalString($itemData['icon_class'] ?? null),
-                'order_index' => array_key_exists('order_index', $itemData)
-                    ? (int) $itemData['order_index']
-                    : $orderIndex++,
-                'item_category' => $itemCategory,
-            ];
-        }
-
-        return $normalizedItems;
-    }
-
-    private function resolveOptionalField(array $itemData, string $key, ?string $fallback): ?string
-    {
-        if (!array_key_exists($key, $itemData)) {
-            return $fallback;
-        }
-
-        return $this->normalizeOptionalString($itemData[$key]);
-    }
-
-    private function normalizeOptionalString(mixed $value): ?string
-    {
-        if ($value === null) {
-            return null;
-        }
-
-        $normalized = trim((string) $value);
-        return $normalized === '' ? null : $normalized;
+        return $pages;
     }
 }
