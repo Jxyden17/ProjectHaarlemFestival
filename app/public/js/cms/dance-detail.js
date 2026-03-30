@@ -11,21 +11,14 @@ async function uploadImage(row, button) {
     const currentPathInput = row.querySelector('.performer-artist-image');
 
     const sectionItemId = sectionItemIdInput ? Number(sectionItemIdInput.value || 0) : 0;
-    const path = await window.CmsMediaUpload.uploadFile({
+    const path = await window.CmsMediaUpload.uploadImage({
         button,
         fileInput,
-        endpoint: '/cms/media/upload-image',
-        fileFieldName: 'image',
         moduleName,
         sectionItemId,
         currentPath: currentPathInput ? currentPathInput.value : '',
-        missingMetadataMessage: sectionItemId <= 0
-            ? 'Missing hero image row. Please refresh the page and try again.'
-            : 'Missing media upload module for this page.',
-        missingFileMessage: 'Please choose an image first.',
-        failureMessage: 'Image upload failed.',
-        successTitle: 'Upload complete',
-        successMessage: 'Image uploaded successfully.',
+        missingSectionItemMessage: 'Missing hero image row. Please refresh the page and try again.',
+        missingModuleMessage: 'Missing media upload module for this page.',
     });
 
     if (path) {
@@ -47,21 +40,14 @@ async function uploadAudio(row, button) {
     const currentPathInput = row.querySelector('.performer-track-audio');
 
     const sectionItemId = sectionItemIdInput ? Number(sectionItemIdInput.value || 0) : 0;
-    const path = await window.CmsMediaUpload.uploadFile({
+    const path = await window.CmsMediaUpload.uploadAudio({
         button,
         fileInput,
-        endpoint: '/cms/media/upload-audio',
-        fileFieldName: 'audio',
         moduleName,
         sectionItemId,
         currentPath: currentPathInput ? currentPathInput.value : '',
-        missingMetadataMessage: sectionItemId <= 0
-            ? 'Missing track row. Please refresh the page and try again.'
-            : 'Missing media upload module for this track.',
-        missingFileMessage: 'Please choose an audio file first.',
-        failureMessage: 'Audio upload failed.',
-        successTitle: 'Upload complete',
-        successMessage: 'Audio uploaded successfully.',
+        missingSectionItemMessage: 'Missing track row. Please refresh the page and try again.',
+        missingModuleMessage: 'Missing media upload module for this track.',
     });
 
     if (path) {

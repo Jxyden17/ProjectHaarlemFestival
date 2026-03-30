@@ -1,4 +1,23 @@
 (function () {
+    const MEDIA_TYPES = {
+        image: {
+            endpoint: '/cms/media/upload-image',
+            fileFieldName: 'image',
+            missingFileMessage: 'Please choose an image first.',
+            failureMessage: 'Image upload failed.',
+            successTitle: 'Upload complete',
+            successMessage: 'Image uploaded successfully.',
+        },
+        audio: {
+            endpoint: '/cms/media/upload-audio',
+            fileFieldName: 'audio',
+            missingFileMessage: 'Please choose an audio file first.',
+            failureMessage: 'Audio upload failed.',
+            successTitle: 'Upload complete',
+            successMessage: 'Audio uploaded successfully.',
+        },
+    };
+
     function getUploadFeedback() {
         return window.CmsUploadFeedback || {
             showUploadFeedback() {},
@@ -27,28 +46,33 @@
         }
     }
 
-    async function uploadFile(options) {
+    async function uploadMedia(type, options) {
         const uploadFeedback = getUploadFeedback();
+        const typeConfig = MEDIA_TYPES[type];
+
+        if (!typeConfig) {
+            throw new Error(`Unsupported upload type: ${type}`);
+        }
+
         const {
             button,
             fileInput,
-            endpoint,
-            fileFieldName,
-            moduleName,
-            sectionItemId,
-            currentPath,
-            extraFields,
-            missingMetadataMessage,
-            missingFileMessage,
-            failureMessage,
-            successTitle,
-            successMessage,
+            moduleName = '',
+            sectionItemId = 0,
+            currentPath = '',
+            extraFields = null,
+            missingSectionItemMessage = 'Missing media row. Please refresh the page and try again.',
+            missingModuleMessage = 'Missing media upload module.',
         } = options;
 
-        if (moduleName === '' || sectionItemId <= 0) {
+        if (sectionItemId <= 0 || moduleName === '') {
+            const metadataMessage = sectionItemId <= 0
+                ? missingSectionItemMessage
+                : missingModuleMessage;
+
             uploadFeedback.showUploadFeedback(
                 'Upload failed',
-                uploadFeedback.resolveUploadErrorMessage(new Error(missingMetadataMessage), failureMessage),
+                uploadFeedback.resolveUploadErrorMessage(new Error(metadataMessage), typeConfig.failureMessage),
                 'danger'
             );
             return null;
@@ -60,7 +84,7 @@
         }
 
         const formData = new FormData();
-        formData.append(fileFieldName, fileInput.files[0]);
+        formData.append(typeConfig.fileFieldName, fileInput.files[0]);
         formData.append('module', moduleName);
         formData.append('section_item_id', String(sectionItemId));
         formData.append('current_path', currentPath);
@@ -74,7 +98,7 @@
         uploadFeedback.setUploadingState(button, true);
 
         try {
-            const response = await fetch(endpoint, {
+            const response = await fetch(typeConfig.endpoint, {
                 method: 'POST',
                 body: formData
             });
@@ -84,12 +108,12 @@
                 throw new Error(payload && payload.message ? payload.message : 'Upload failed');
             }
 
-            uploadFeedback.showUploadFeedback(successTitle, successMessage, 'success');
+            uploadFeedback.showUploadFeedback(typeConfig.successTitle, typeConfig.successMessage, 'success');
             return payload.path;
         } catch (error) {
             uploadFeedback.showUploadFeedback(
                 'Upload failed',
-                uploadFeedback.resolveUploadErrorMessage(error, failureMessage),
+                uploadFeedback.resolveUploadErrorMessage(error, typeConfig.failureMessage),
                 'danger'
             );
             return null;
@@ -99,9 +123,18 @@
         }
     }
 
+    async function uploadImage(options) {
+        return uploadMedia('image', options);
+    }
+
+    async function uploadAudio(options) {
+        return uploadMedia('audio', options);
+    }
+
     window.CmsMediaUpload = {
         getUploadFeedback,
         applyUploadedPath,
-        uploadFile,
+        uploadImage,
+        uploadAudio,
     };
 })();
