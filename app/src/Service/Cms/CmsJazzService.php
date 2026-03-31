@@ -12,28 +12,40 @@ use App\Service\Cms\Interfaces\ICmsJazzService;
 use App\Service\Cms\Interfaces\ICmsPageSaveService;
 use App\Service\Interfaces\IHtmlSanitizerService;
 use App\Service\Interfaces\IPageService;
+<<<<<<< Updated upstream
 use App\Mapper\CmsJazzMapper;
 use App\Models\Requests\UpdateJazzHomeRequest;
+=======
+>>>>>>> Stashed changes
 
 class CmsJazzService implements ICmsJazzService
 {
     private ICmsPageSaveService $pageSaveService;
     private IPageService $pageService;
     private IHtmlSanitizerService $htmlSanitizer;
+<<<<<<< Updated upstream
     private CmsJazzMapper $cmsJazzMapper;
 
     public function __construct(ICmsPageSaveService $pageSaveService, IPageService $pageService, IHtmlSanitizerService $htmlSanitizer, CmsJazzMapper $cmsJazzMapper)
+=======
+
+    public function __construct(ICmsPageSaveService $pageSaveService, IPageService $pageService, IHtmlSanitizerService $htmlSanitizer)
+>>>>>>> Stashed changes
     {
         $this->pageSaveService = $pageSaveService;
         $this->pageService = $pageService;
         $this->htmlSanitizer = $htmlSanitizer;
+<<<<<<< Updated upstream
         $this->cmsJazzMapper = $cmsJazzMapper;
+=======
+>>>>>>> Stashed changes
     }
 
     public function getJazzHomePage(): Page
     {
         return $this->pageService->buildPage(28);
     }
+<<<<<<< Updated upstream
     public function saveJazzHomePage($request)
     {
         $bannerDescription = $this->sanitizeWysiwygField($request->bannerDescription());
@@ -96,5 +108,7 @@ class CmsJazzService implements ICmsJazzService
         }
     }
 
+=======
+>>>>>>> Stashed changes
 
 }
