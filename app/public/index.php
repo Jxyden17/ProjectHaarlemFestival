@@ -75,11 +75,7 @@ try {
         $cmsDanceMapper,
         $cmsDanceValidator
     );
-<<<<<<< Updated upstream
     $cmsJazzService = new App\Service\Cms\CmsJazzService($cmsPageSaveService,$pageService,$htmlSanitizerService,$cmsJazzMapper);
-=======
-    $cmsJazzService = new App\Service\Cms\CmsJazzService( $cmsPageSaveService,$pageService,$htmlSanitizerService);
->>>>>>> Stashed changes
     $cmsService = new App\Service\Cms\CmsService($userRepo);
     $cmsEventEditorService = new App\Service\Cms\CmsEventEditorService(
         $cmsScheduleService,
@@ -113,7 +109,7 @@ try {
     $cmsVenuesController = new App\Controllers\Cms\CmsVenuesController($venueService);
     $cmsScheduleController = new App\Controllers\Cms\CmsScheduleController($scheduleService, $venueService, $artistesService);
     $cmsEventManagementController = new App\Controllers\Cms\CmsEventManagementController($cmsEventManagementService);
-    $cmsJazzController = new App\Controllers\Cms\CmsJazzController($cmsJazzService);
+    
    
    
 
@@ -195,8 +191,7 @@ try {
         $r->addRoute('POST', '/cms/users/delete', ['CmsUsersController', 'deleteUser']);
         $r->addRoute('GET', '/cms/events/home', ['CmsHomeContentController', 'index']);
         $r->addRoute('POST', '/cms/events/home', ['CmsHomeContentController', 'update']);
-        $r->addRoute('GET', '/cms/events/jazz-home', ['CmsJazzController', 'index']);
-        $r->addRoute('POST', '/cms/events/jazz-home', ['CmsJazzController', 'updateHome']);
+        
         //event management routes
         $r->addRoute('GET', '/cms/eventManagement', ['CmsEventManagementController', 'index']);
         
