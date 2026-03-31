@@ -63,7 +63,9 @@ try {
 
     $cmsScheduleMapper = new App\Mapper\CmsScheduleMapper();
     $cmsDanceMapper = new App\Mapper\CmsDanceMapper();
+    $cmsJazzMapper = new App\Mapper\CmsJazzMapper();
     $cmsDanceViewModelMapper = new App\Mapper\CmsDanceViewModelMapper();
+    $cmsJazzViewModelMapper = new App\Mapper\CmsJazzViewModelMapper();
     $cmsScheduleService = new App\Service\Cms\CmsScheduleService($scheduleRepo, $cmsScheduleMapper, $cmsScheduleValidator);
     $cmsDanceService = new App\Service\Cms\CmsDanceService(
         $danceRepo,
@@ -73,6 +75,7 @@ try {
         $cmsDanceMapper,
         $cmsDanceValidator
     );
+    $cmsJazzService = new App\Service\Cms\CmsJazzService($cmsPageSaveService,$pageService,$htmlSanitizerService,$cmsJazzMapper);
     $cmsService = new App\Service\Cms\CmsService($userRepo);
     $cmsEventEditorService = new App\Service\Cms\CmsEventEditorService(
         $cmsScheduleService,
@@ -99,6 +102,7 @@ try {
     $cmsTourContentController = new App\Controllers\Cms\CmsTourContentController($pageService, $cmsEventEditorService);
     $cmsStoriesContentController = new App\Controllers\Cms\CmsStoriesContentController($pageService, $cmsEventEditorService);
     $cmsDanceController = new App\Controllers\Cms\CmsDanceController($cmsDanceService, $cmsDanceViewModelMapper);
+    $cmsJazzController = new App\Controllers\Cms\CmsJazzController($cmsJazzService,$cmsJazzViewModelMapper);
     $cmsMediaController = new App\Controllers\Cms\CmsMediaController($imageUploadService, $audioUploadService);
     $cmsHomeContentController = new App\Controllers\Cms\CmsHomeContentController($pageService, $cmsEventEditorService);
     $cmsArtistsController = new App\Controllers\Cms\CmsArtistsController($artistesService);
@@ -157,6 +161,8 @@ try {
         $r->addRoute('POST', '/cms/eventManagement/{eventSlug}/schedule-editor', ['CmsEventEditorController', 'update']);
         $r->addRoute('GET', '/cms/events/dance-home', ['CmsDanceController', 'index']);
         $r->addRoute('POST', '/cms/events/dance-home', ['CmsDanceController', 'updateHome']);
+         $r->addRoute('GET', '/cms/events/jazz-home', ['CmsJazzController', 'index']);
+        $r->addRoute('POST', '/cms/events/jazz-home', ['CmsJazzController', 'updateHome']);
         $r->addRoute('POST', '/cms/events/dance-homeAPI', ['CmsDanceController', 'updateHomeAPI']);
         $r->addRoute('GET', '/cms/events/dance-detail/{pageSlug}', ['CmsDanceController', 'detail']);
         $r->addRoute('POST', '/cms/events/dance-detail/{pageSlug}', ['CmsDanceController', 'updateDetail']);
@@ -264,6 +270,7 @@ try {
                 'CmsUsersController' => $cmsUsersController,
                 'CmsEventEditorController' => $cmsEventEditorController,
                 'CmsDanceController' => $cmsDanceController,
+                'CmsJazzController' => $cmsJazzController,
                 'CmsTourContentController' => $cmsTourContentController,
                 'CmsStoriesContentController' => $cmsStoriesContentController,
                 'CmsMediaController' => $cmsMediaController,

@@ -59,6 +59,17 @@ $tourDetailPages = is_array($tourDetailPages ?? null) ? $tourDetailPages : [];
                 </div>
             </div>
         </div>
+         <div class="col-12 col-xl-6">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="h5 mb-3">Jazz</h2>
+                    <p class="text-muted mb-4">Manage the Jazz home page </p>
+                    <div class="d-grid gap-2 d-sm-flex flex-wrap mb-4">
+                        <a href="/cms/events/jazz-home" class="btn btn-primary">Edit Home Content</a>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div class="col-12 col-xl-6">
             <div class="card h-100 border-0 shadow-sm">

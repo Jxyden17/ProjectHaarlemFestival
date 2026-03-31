@@ -1,8 +1,8 @@
 <?php 
-use App\Models\ViewModels\Cms\Dance\DanceHomeEditViewModel;
-$contentViewModel = (isset($contentViewModel) && $contentViewModel instanceof DanceHomeEditViewModel)
+use App\Models\ViewModels\Cms\Jazz\JazzHomeEditViewModel;
+$contentViewModel = (isset($contentViewModel) && $contentViewModel instanceof JazzHomeEditViewModel)
     ? $contentViewModel
-    : new DanceHomeEditViewModel('', '', '', '', '', '', '', '', '', [], '', '', '', '');
+    : new JazzHomeEditViewModel('', '', '', '', '', '', '', '', '', [], '', '', '', '');
 $passes = $contentViewModel->passes;
 ?>
 <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
@@ -11,12 +11,12 @@ $passes = $contentViewModel->passes;
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
             <h1 class="h3 mb-1">Jazz Home Content</h1>
-            <p class="text-muted mb-0">Update the public Jazz landing page content and rich-text sections.</p>
+            <p class="text-muted mb-0">Update the Jazz home page content.</p>
         </div>
         <a href="/cms/events" class="btn btn-outline-secondary">Back to Events</a>
     </div>
 
-    <form method="POST" action="/cms/events/Jazz-home" class="card border-0 shadow-sm" data-quill-form="1" data-save-api="/cms/events/Jazz-homeAPI">
+    <form method="POST" action="/cms/events/jazz-home" class="card border-0 shadow-sm" data-quill-form="1" data-save-api="/cms/events/Jazz-homeAPI">
         <div class="card-body p-4">
             <h2 class="h5">Page</h2>
             <div class="mb-3">
@@ -69,10 +69,6 @@ $passes = $contentViewModel->passes;
             <hr>
 
             <h2 class="h5">Featured Artists & Schedule</h2>
-            <div class="alert alert-info" role="alert">
-                This section controls the featured artists title and the schedule title. Performer names, types, descriptions, schedule sessions, and artist images are managed in the
-                <a href="/cms/events/dance-schedule" class="alert-link">Dance Schedule editor</a>.
-            </div>
             <div class="mb-3">
                 <label for="featured_artists_title" class="form-label">Featured Artists Title</label>
                 <input
