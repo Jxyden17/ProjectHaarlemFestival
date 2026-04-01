@@ -18,11 +18,7 @@ class CmsJazzViewModelMapper
 {
     private const SECTION_SCHEDULE = 'jazz_schedule';
     private const SECTION_ARTISTS = 'jazz_artists';
-    private const SECTION_BANNER = 'jazz_banner';
-    private const SECTION_INFO = 'jazz_info';
     private const SECTION_PASSES = 'jazz_passes';
-    private const SECTION_CAPACITY = 'jazz_capacity';
-    private const SECTION_SPECIAL = 'jazz_special_session';
     private const SECTION_DETAIL_HERO = 'jazz_detail_hero';
     private const SECTION_DETAIL_HIGHLIGHTS = 'jazz_detail_highlights';
     private const SECTION_DETAIL_TRACKS = 'jazz_detail_tracks';
@@ -36,27 +32,14 @@ class CmsJazzViewModelMapper
     {
         $schedule = $page->getSection(self::SECTION_SCHEDULE);
         $artists = $page->getSection(self::SECTION_ARTISTS);
-        $banner = $page->getSection(self::SECTION_BANNER);
-        $info = $page->getSection(self::SECTION_INFO);
         $passes = $page->getSection(self::SECTION_PASSES);
-        $capacity = $page->getSection(self::SECTION_CAPACITY);
-        $special = $page->getSection(self::SECTION_SPECIAL);
 
         return new JazzHomeEditViewModel(
             $page->title,
             $schedule !== null ? $schedule->title : '',
             $artists !== null ? $artists->title : '',
-            $banner !== null ? (string)$banner->subTitle : '',
-            $banner !== null ? $banner->title : '',
-            $banner !== null ? (string)$banner->description : '',
-            $info !== null ? $info->title : '',
-            $info !== null ? (string)$info->description : '',
             $passes !== null ? $passes->title : '',
-            $this->mapPassViewModels($passes),
-            $capacity !== null ? $capacity->title : '',
-            $capacity !== null ? (string)$capacity->description : '',
-            $special !== null ? $special->title : '',
-            $special !== null ? (string)$special->description : ''
+            $this->mapPassViewModels($passes)
         );
     }
 
@@ -66,17 +49,8 @@ class CmsJazzViewModelMapper
             $request->pageTitle(),
             $request->scheduleTitle(),
             $request->featuredArtistsTitle(),
-            $request->bannerBadge(),
-            $request->bannerTitle(),
-            $request->bannerDescription(),
-            $request->importantInformationTitle(),
-            $request->importantInformationHtml(),
             $request->passesTitle(),
             $this->mapPassRequestViewModels($request->passes()),
-            $request->capacityTitle(),
-            $request->capacityHtml(),
-            $request->specialTitle(),
-            $request->specialHtml()
         );
     }
 

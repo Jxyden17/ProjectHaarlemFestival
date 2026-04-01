@@ -54,7 +54,7 @@ if ($scheduleSectionClass !== '') {
                 <?php if ($scheduleTitleIcon !== ''): ?>
                     <i data-lucide="<?= htmlspecialchars($scheduleTitleIcon) ?>" aria-hidden="true"></i>
                 <?php endif; ?>
-                <?= htmlspecialchars($title) ?>
+                <?= htmlspecialchars($section->title) ?>
             </h2>
         </div>
 

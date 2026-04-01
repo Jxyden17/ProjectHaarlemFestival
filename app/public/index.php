@@ -88,7 +88,7 @@ try {
     $homeController = new App\Controllers\HomeController($pageService, $scheduleService, $scheduleViewModelMapper);
     $danceController = new App\Controllers\DanceController($danceService, $danceViewModelMapper, $scheduleViewModelMapper);
     $tourController = new App\Controllers\TourController($pageService, $scheduleService, $scheduleViewModelMapper);
-    $jazzController = new App\Controllers\JazzController($scheduleService, $jazzService, $scheduleViewModelMapper);
+    $jazzController = new App\Controllers\JazzController($scheduleService, $jazzService, $scheduleViewModelMapper, $pageService);
     $yummyController = new App\Controllers\YummyController($yummyService);
     $userController= new App\Controllers\UserController($cmsService);
 
@@ -96,7 +96,6 @@ try {
     $cmsEventsController = new App\Controllers\Cms\CmsEventsController($cmsService, $danceService, $pageService, $cmsEventEditorService);
     $cmsTicketsController = new App\Controllers\Cms\CmsTicketsController($ticketService);
     $cmsUsersController = new App\Controllers\Cms\CmsUsersController($cmsService);
-    $jazzController = new App\Controllers\JazzController($scheduleService, $jazzService, $scheduleViewModelMapper);
     $storiesController = new App\Controllers\StoriesController($pageService, $scheduleService, $scheduleViewModelMapper);
     $cmsEventEditorController = new App\Controllers\Cms\CmsEventEditorController($cmsScheduleService, $cmsEventEditorService);
     $cmsTourContentController = new App\Controllers\Cms\CmsTourContentController($pageService, $cmsEventEditorService);
@@ -305,7 +304,7 @@ try {
     }
 } catch (\Throwable $e) {
     if ($showDebug) {
-        var_dump($e);
+       // var_dump($e);
     }
     $debugError = $e->getMessage();
     $renderErrorPage(

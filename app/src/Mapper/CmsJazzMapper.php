@@ -14,11 +14,7 @@ class CmsJazzMapper
 {
     private const SECTION_SCHEDULE = 'jazz_schedule';
     private const SECTION_ARTISTS = 'jazz_artists';
-    private const SECTION_BANNER = 'jazz_banner';
-    private const SECTION_INFO = 'jazz_info';
     private const SECTION_PASSES = 'jazz_passes';
-    private const SECTION_CAPACITY = 'jazz_capacity';
-    private const SECTION_SPECIAL = 'jazz_special_session';
     private const SECTION_DETAIL_HERO = 'jazz_detail_hero';
     private const SECTION_DETAIL_HIGHLIGHTS = 'jazz_detail_highlights';
     private const SECTION_DETAIL_TRACKS = 'jazz_detail_tracks';
@@ -35,24 +31,16 @@ class CmsJazzMapper
     {
         $schedule = $page->getSection(self::SECTION_SCHEDULE);
         $artists = $page->getSection(self::SECTION_ARTISTS);
-        $banner = $page->getSection(self::SECTION_BANNER);
-        $info = $page->getSection(self::SECTION_INFO);
         $passes = $page->getSection(self::SECTION_PASSES);
-        $capacity = $page->getSection(self::SECTION_CAPACITY);
-        $special = $page->getSection(self::SECTION_SPECIAL);
         
-        if ($schedule === null || $artists === null || $banner === null || $info === null || $passes === null || $capacity === null || $special === null) {
+        if ($schedule === null || $artists === null ||  $passes === null) {
             throw new \RuntimeException('Required jazz sections are missing.');
         }
 
         return [
             $this->mapSectionForSave(self::SECTION_SCHEDULE, $schedule, 5),
-            $this->mapSectionForSave(self::SECTION_BANNER, $banner, 10),
             $this->mapSectionForSave(self::SECTION_ARTISTS, $artists, 15),
-            $this->mapSectionForSave(self::SECTION_INFO, $info, 20),
-            $this->mapSectionForSave(self::SECTION_PASSES, $passes, 40, $this->mapPassRows($passes->items)),
-            $this->mapSectionForSave(self::SECTION_CAPACITY, $capacity, 50),
-            $this->mapSectionForSave(self::SECTION_SPECIAL, $special, 60),
+            $this->mapSectionForSave(self::SECTION_PASSES, $passes, 10, $this->mapPassRows($passes->items)),
         ];
     }
 
@@ -331,10 +319,7 @@ class CmsJazzMapper
     {
         return $sectionType !== self::SECTION_SCHEDULE
             && $sectionType !== self::SECTION_ARTISTS
-            && $sectionType !== self::SECTION_INFO
             && $sectionType !== self::SECTION_PASSES
-            && $sectionType !== self::SECTION_CAPACITY
-            && $sectionType !== self::SECTION_SPECIAL
             && $sectionType !== self::SECTION_DETAIL_HIGHLIGHTS
             && $sectionType !== self::SECTION_DETAIL_INFO;
     }

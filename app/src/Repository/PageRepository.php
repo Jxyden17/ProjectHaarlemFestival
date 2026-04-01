@@ -56,6 +56,7 @@ class PageRepository implements IPageRepository
         if ($rows === []) {
             return null;
         }
+       
 
         return $this->pageMapper->mapPageRows($rows);
     }

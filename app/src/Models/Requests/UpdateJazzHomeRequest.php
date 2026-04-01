@@ -2,40 +2,21 @@
 
 namespace App\Models\Requests;
 
-use App\Models\Edit\Dance\DanceHomePassEditRow;
+use App\Models\Edit\Jazz\JazzHomePassEditRow;
 
 class UpdateJazzHomeRequest
 {
     private string $pageTitle;
     private string $scheduleTitle;
     private string $featuredArtistsTitle;
-    private string $bannerBadge;
-    private string $bannerTitle;
-    private string $bannerDescription;
-    private string $importantInformationTitle;
-    private string $importantInformationHtml;
     private string $passesTitle;
     private array $passes;
-    private string $capacityTitle;
-    private string $capacityHtml;
-    private string $specialTitle;
-    private string $specialHtml;
-
-    private function __construct(string $pageTitle, string $scheduleTitle, string $featuredArtistsTitle, string $bannerBadge, string $bannerTitle, string $bannerDescription, string $importantInformationTitle, string $importantInformationHtml, string $passesTitle, array $passes, string $capacityTitle, string $capacityHtml, string $specialTitle, string $specialHtml) {
+    private function __construct(string $pageTitle, string $scheduleTitle, string $featuredArtistsTitle, string $passesTitle, array $passes) {
         $this->pageTitle = $pageTitle;
         $this->scheduleTitle = $scheduleTitle;
         $this->featuredArtistsTitle = $featuredArtistsTitle;
-        $this->bannerBadge = $bannerBadge;
-        $this->bannerTitle = $bannerTitle;
-        $this->bannerDescription = $bannerDescription;
-        $this->importantInformationTitle = $importantInformationTitle;
-        $this->importantInformationHtml = $importantInformationHtml;
         $this->passesTitle = $passesTitle;
         $this->passes = $passes;
-        $this->capacityTitle = $capacityTitle;
-        $this->capacityHtml = $capacityHtml;
-        $this->specialTitle = $specialTitle;
-        $this->specialHtml = $specialHtml;
     }
 
     public static function fromArray(array $input): self
@@ -44,17 +25,8 @@ class UpdateJazzHomeRequest
             trim((string)($input['page_title'] ?? '')),
             trim((string)($input['schedule_title'] ?? '')),
             trim((string)($input['featured_artists_title'] ?? '')),
-            trim((string)($input['banner_badge'] ?? '')),
-            trim((string)($input['banner_title'] ?? '')),
-            trim((string)($input['banner_description'] ?? '')),
-            trim((string)($input['important_information_title'] ?? '')),
-            trim((string)($input['important_information_html'] ?? '')),
             trim((string)($input['passes_title'] ?? '')),
             self::mapPasses(is_array($input['passes'] ?? null) ? $input['passes'] : []),
-            trim((string)($input['capacity_title'] ?? '')),
-            trim((string)($input['capacity_html'] ?? '')),
-            trim((string)($input['special_title'] ?? '')),
-            trim((string)($input['special_html'] ?? ''))
         );
     }
 
@@ -71,7 +43,7 @@ class UpdateJazzHomeRequest
                 continue;
             }
 
-            $rows[] = DanceHomePassEditRow::fromArray($row);
+            $rows[] = JazzHomePassEditRow::fromArray($row);
         }
 
         return $rows;
@@ -87,31 +59,6 @@ class UpdateJazzHomeRequest
         return $this->featuredArtistsTitle;
     }
 
-    public function bannerTitle(): string
-    {
-        return $this->bannerTitle;
-    }
-
-    public function bannerBadge(): string
-    {
-        return $this->bannerBadge;
-    }
-
-    public function bannerDescription(): string
-    {
-        return $this->bannerDescription;
-    }
-
-    public function importantInformationTitle(): string
-    {
-        return $this->importantInformationTitle;
-    }
-
-    public function importantInformationHtml(): string
-    {
-        return $this->importantInformationHtml;
-    }
-
     public function passesTitle(): string
     {
         return $this->passesTitle;
@@ -120,25 +67,5 @@ class UpdateJazzHomeRequest
     public function passes(): array
     {
         return $this->passes;
-    }
-
-    public function capacityTitle(): string
-    {
-        return $this->capacityTitle;
-    }
-
-    public function capacityHtml(): string
-    {
-        return $this->capacityHtml;
-    }
-
-    public function specialTitle(): string
-    {
-        return $this->specialTitle;
-    }
-
-    public function specialHtml(): string
-    {
-        return $this->specialHtml;
     }
 }

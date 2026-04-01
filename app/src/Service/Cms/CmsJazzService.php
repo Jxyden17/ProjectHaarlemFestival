@@ -36,19 +36,11 @@ class CmsJazzService implements ICmsJazzService
     }
     public function saveJazzHomePage($request)
     {
-        $bannerDescription = $this->sanitizeWysiwygField($request->bannerDescription());
-        $importantInformationHtml = $this->sanitizeWysiwygField($request->importantInformationHtml());
+       
         $passItems = $this->cmsJazzMapper->normalizePasses($request->passes());
-        $capacityHtml = $this->sanitizeWysiwygField($request->capacityHtml());
-        $specialHtml = $this->sanitizeWysiwygField($request->specialHtml());
-
         $page = $this->buildJazzHomePage(
             $request,
             $passItems,
-            $bannerDescription,
-            $importantInformationHtml,
-            $capacityHtml,
-            $specialHtml
         );
         $this->persistJazzHomePage($page);
     }
@@ -56,19 +48,14 @@ class CmsJazzService implements ICmsJazzService
     {
         return $this->htmlSanitizer->sanitizeWysiwygHtml($value);
     }
-    private function buildJazzHomePage(UpdateJazzHomeRequest $request, array $passItems, string $bannerDescription, string $importantInformationHtml, string $capacityHtml, string $specialHtml): Page
+    private function buildJazzHomePage(UpdateJazzHomeRequest $request, array $passItems): Page
     {
         $page = new Page($request->pageTitle(), 'Jazz-home');
         $page->sections = [
-            new Section(0, 'jazz_schedule', $request->scheduleTitle(), '', ''),
-            new Section(0, 'jazz_banner', $request->bannerTitle(), $request->bannerBadge(), $bannerDescription),
-            new Section(0, 'jazz_artists', $request->featuredArtistsTitle(), '', ''),
-            new Section(0, 'jazz_info', $request->importantInformationTitle(), '', $importantInformationHtml),
-            new Section(0, 'jazz_passes', $request->passesTitle(), '', ''),
-            new Section(0, 'jazz_capacity', $request->capacityTitle(), '', $capacityHtml),
-            new Section(0, 'jazz_special_session', $request->specialTitle(), '', $specialHtml),
+            new Section(0, 'jazz_schedule', $request->scheduleTitle(),5, '', ''),
+            new Section(0, 'jazz_artists', $request->featuredArtistsTitle(),15, '', ''),
+            new Section(0, 'jazz_passes', $request->passesTitle(),10, '', ''),
         ];
-
         $this->appendSectionItems($page, 'Jazz_passes', $passItems);
 
         return $page;

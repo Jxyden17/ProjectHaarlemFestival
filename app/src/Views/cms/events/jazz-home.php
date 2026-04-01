@@ -1,16 +1,10 @@
 <?php 
-<<<<<<< Updated upstream
 use App\Models\ViewModels\Cms\Jazz\JazzHomeEditViewModel;
 $contentViewModel = (isset($contentViewModel) && $contentViewModel instanceof JazzHomeEditViewModel)
     ? $contentViewModel
-    : new JazzHomeEditViewModel('', '', '', '', '', '', '', '', '', [], '', '', '', '');
-=======
-use App\Models\ViewModels\Cms\Dance\DanceHomeEditViewModel;
-$contentViewModel = (isset($contentViewModel) && $contentViewModel instanceof DanceHomeEditViewModel)
-    ? $contentViewModel
-    : new DanceHomeEditViewModel('', '', '', '', '', '', '', '', '', [], '', '', '', '');
->>>>>>> Stashed changes
+    : new JazzHomeEditViewModel('', '', '', '', []);
 $passes = $contentViewModel->passes;
+
 ?>
 <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
 
@@ -18,20 +12,12 @@ $passes = $contentViewModel->passes;
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
             <h1 class="h3 mb-1">Jazz Home Content</h1>
-<<<<<<< Updated upstream
             <p class="text-muted mb-0">Update the Jazz home page content.</p>
-=======
-            <p class="text-muted mb-0">Update the public Jazz landing page content and rich-text sections.</p>
->>>>>>> Stashed changes
         </div>
         <a href="/cms/events" class="btn btn-outline-secondary">Back to Events</a>
     </div>
 
-<<<<<<< Updated upstream
     <form method="POST" action="/cms/events/jazz-home" class="card border-0 shadow-sm" data-quill-form="1" data-save-api="/cms/events/Jazz-homeAPI">
-=======
-    <form method="POST" action="/cms/events/Jazz-home" class="card border-0 shadow-sm" data-quill-form="1" data-save-api="/cms/events/Jazz-homeAPI">
->>>>>>> Stashed changes
         <div class="card-body p-4">
             <h2 class="h5">Page</h2>
             <div class="mb-3">
@@ -46,51 +32,7 @@ $passes = $contentViewModel->passes;
                 >
             </div>
 
-            <h2 class="h5">Banner</h2>
-            <div class="mb-3">
-                <label for="banner_badge" class="form-label">Banner Badge</label>
-                <input
-                    type="text"
-                    id="banner_badge"
-                    name="banner_badge"
-                    class="form-control"
-                    value="<?= htmlspecialchars($contentViewModel->bannerBadge) ?>"
-                >
-            </div>
-
-            <div class="mb-3">
-                <label for="banner_title" class="form-label">Banner Title</label>
-                <input
-                    type="text"
-                    id="banner_title"
-                    name="banner_title"
-                    class="form-control"
-                    value="<?= htmlspecialchars($contentViewModel->bannerTitle) ?>"
-                    required
-                >
-            </div>
-
-            <div class="mb-3">
-                <label for="banner_description" class="form-label">Banner Description</label>
-                <textarea
-                    id="banner_description"
-                    name="banner_description"
-                    class="form-control"
-                    data-quill="1"
-                    rows="4"
-                    required
-                ><?= htmlspecialchars($contentViewModel->bannerDescription) ?></textarea>
-            </div>
-            <hr>
-
             <h2 class="h5">Featured Artists & Schedule</h2>
-<<<<<<< Updated upstream
-=======
-            <div class="alert alert-info" role="alert">
-                This section controls the featured artists title and the schedule title. Performer names, types, descriptions, schedule sessions, and artist images are managed in the
-                <a href="/cms/events/dance-schedule" class="alert-link">Dance Schedule editor</a>.
-            </div>
->>>>>>> Stashed changes
             <div class="mb-3">
                 <label for="featured_artists_title" class="form-label">Featured Artists Title</label>
                 <input
@@ -115,33 +57,6 @@ $passes = $contentViewModel->passes;
             </div>
 
             <hr>
-
-            <h2 class="h5">Important Information</h2>
-            <div class="mb-3">
-                <label for="important_information_title" class="form-label">Title</label>
-                <input
-                    type="text"
-                    id="important_information_title"
-                    name="important_information_title"
-                    class="form-control"
-                    value="<?= htmlspecialchars($contentViewModel->importantInformationTitle) ?>"
-                    required
-                >
-            </div>
-            <div class="mb-3">
-                <label for="important_information_html" class="form-label">Content (HTML/Text)</label>
-                <textarea
-                    id="important_information_html"
-                    name="important_information_html"
-                    class="form-control"
-                    data-quill="1"
-                    rows="6"
-                    required
-                ><?= htmlspecialchars($contentViewModel->importantInformationHtml) ?></textarea>
-            </div>
-
-            <hr>
-
             <h2 class="h5 mb-2">All-Access Passes</h2>
             <div class="mb-3">
                 <label for="passes_title" class="form-label">Passes Section Title</label>
@@ -155,23 +70,23 @@ $passes = $contentViewModel->passes;
                 >
             </div>
             <div id="passes-container">
-                <?php foreach ($passes as $index => $pass): ?>
-                    <?php if (!$pass instanceof \App\Models\ViewModels\Cms\Dance\DanceHomePassRowViewModel) { continue; } ?>
+                <?php foreach ($passes as $pass): ?>
+                    <?php if (!$pass instanceof App\Models\ViewModels\Cms\Jazz\JazzHomePassRowViewModel) { continue; } ?>
                     <div class="border rounded p-3 mb-2 pass-row">
                         <div class="mb-2">
                             <label class="form-label">Label</label>
-                            <input type="text" name="passes[<?= (int)$index ?>][label]" class="form-control pass-label" value="<?= htmlspecialchars($pass->label) ?>">
+                            <input type="text" name="passes[<?= (int)$pass->label ?>][label]" class="form-control pass-label" value="<?= htmlspecialchars($pass->label) ?>">
                         </div>
                         <div class="mb-2">
                             <label class="form-label">Price</label>
-                            <input type="text" name="passes[<?= (int)$index ?>][price]" class="form-control pass-price" value="<?= htmlspecialchars($pass->price) ?>">
+                            <input type="text" name="passes[<?= (int)$pass->price ?>][price]" class="form-control pass-price" value="<?= htmlspecialchars($pass->price) ?>">
                         </div>
-                        <input type="hidden" name="passes[<?= (int)$index ?>][id]" value="<?= (int)$pass->id ?>">
+                        <input type="hidden" name="passes[<?= (int)$pass->id ?>][id]" value="<?= (int)$pass->id ?>">
                         <div class="form-check mb-2">
                             <input
                                 type="checkbox"
                                 class="form-check-input pass-highlight"
-                                name="passes[<?= (int)$index ?>][highlight]"
+                                name="passes[<?= (int)$pass->highligh ?>][highlight]"
                                 value="1"
                                 <?= $pass->highlight ? 'checked' : '' ?>
                             >
@@ -179,58 +94,6 @@ $passes = $contentViewModel->passes;
                         </div>
                     </div>
                 <?php endforeach; ?>
-            </div>
-
-            <hr>
-
-            <h2 class="h5">Capacity & Entry</h2>
-            <div class="mb-3">
-                <label for="capacity_title" class="form-label">Title</label>
-                <input
-                    type="text"
-                    id="capacity_title"
-                    name="capacity_title"
-                    class="form-control"
-                    value="<?= htmlspecialchars($contentViewModel->capacityTitle) ?>"
-                    required
-                >
-            </div>
-            <div class="mb-3">
-                <label for="capacity_html" class="form-label">Content (HTML/Text)</label>
-                <textarea
-                    id="capacity_html"
-                    name="capacity_html"
-                    class="form-control"
-                    data-quill="1"
-                    rows="6"
-                    required
-                ><?= htmlspecialchars($contentViewModel->capacityHtml) ?></textarea>
-            </div>
-
-            <hr>
-
-            <h2 class="h5">Special Session</h2>
-            <div class="mb-3">
-                <label for="special_title" class="form-label">Title</label>
-                <input
-                    type="text"
-                    id="special_title"
-                    name="special_title"
-                    class="form-control"
-                    value="<?= htmlspecialchars($contentViewModel->specialTitle) ?>"
-                    required
-                >
-            </div>
-            <div class="mb-3">
-                <label for="special_html" class="form-label">Content (HTML/Text)</label>
-                <textarea
-                    id="special_html"
-                    name="special_html"
-                    class="form-control"
-                    data-quill="1"
-                    rows="6"
-                    required
-                ><?= htmlspecialchars($contentViewModel->specialHtml) ?></textarea>
             </div>
         </div>
         <div class="card-footer d-flex justify-content-end">

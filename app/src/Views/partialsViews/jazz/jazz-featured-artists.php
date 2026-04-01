@@ -2,7 +2,7 @@
   
 <div >
     <h2 class="jazz-artists-title">          
-        Featured Artists
+       <?php echo $section->title?>
     </h2>
 </div>
 <?php

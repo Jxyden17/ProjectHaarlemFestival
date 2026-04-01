@@ -45,6 +45,7 @@ class PageMapper
             (int)($row['section_id'] ?? 0),
             (string)($row['section_type'] ?? ''),
             (string)($row['section_title'] ?? ''),
+            (int)($row['section_order'] ?? 0),
             (string)($row['section_subtitle'] ?? ''),
             (string)($row['section_description'] ?? '')
         );
