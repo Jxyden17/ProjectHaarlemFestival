@@ -24,7 +24,7 @@
             <input type="text" id="city" name="city" class="form-control" value="<?= htmlspecialchars($user->city) ?>" required>
         </div>
          <div class="mb-3">
-            <label for="addres" class="form-label">addres</label>
+            <label for="addres" class="form-label">address</label>
             <input type="text" id="addres" name="addres" class="form-control" value="<?= htmlspecialchars($user->addres) ?>" required>
         </div>
          <div class="mb-3">
@@ -39,7 +39,7 @@
 
         <div class="d-flex gap-2">
             <button type="submit" class="btn btn-primary">Save Changes</button>
-            <a href="" class="btn btn-outline-secondary">Cancel</a>
+            <a href="/user?id=<?= $_SESSION['user_id']?>" class="btn btn-outline-secondary">Cancel</a>
         </div>
     </form>
 </div>

@@ -28,7 +28,7 @@
             <input type="text" id="city" name="city" class="form-control" value="<?= htmlspecialchars($user->city) ?>" required>
         </div>
          <div class="mb-3">
-            <label for="addres" class="form-label">addres</label>
+            <label for="addres" class="form-label">address</label>
             <input type="text" id="addres" name="addres" class="form-control" value="<?= htmlspecialchars($user->addres) ?>" required>
         </div>
          <div class="mb-3">
