@@ -26,6 +26,7 @@ class CmsDanceService implements ICmsDanceService
     private CmsDanceMapper $cmsDanceMapper;
     private CmsDanceValidator $danceValidator;
 
+    // Stores CMS dance dependencies so sanitizing, validation, mapping, and persistence stay coordinated in one service.
     public function __construct(IDanceRepository $danceRepository, ICmsPageSaveService $pageSaveService, IPageService $pageService, IHtmlSanitizerService $htmlSanitizer, CmsDanceMapper $cmsDanceMapper, CmsDanceValidator $danceValidator)
     {
         $this->danceRepository = $danceRepository;
@@ -36,11 +37,13 @@ class CmsDanceService implements ICmsDanceService
         $this->danceValidator = $danceValidator;
     }
 
+    // Returns the CMS dance home page so the home editor can preload the current content. Example: slug 'dance-home' -> Page.
     public function getDanceHomePage(): Page
     {
         return $this->pageService->getPageBySlug('dance-home', 'Dance Home');
     }
 
+    // Saves the dance home CMS form so HTML is sanitized, rows are normalized, and only valid content reaches storage.
     public function saveDanceHomePage(UpdateDanceHomeRequest $request): void
     {
         $bannerDescription = $this->sanitizeWysiwygField($request->bannerDescription());
@@ -58,21 +61,26 @@ class CmsDanceService implements ICmsDanceService
             $specialHtml
         );
 
-        $page = $this->buildDanceHomePage(
-            $request,
-            $passItems,
-            $bannerDescription,
-            $importantInformationHtml,
-            $capacityHtml,
-            $specialHtml
+        $this->pageSaveService->savePageContentBySlug(
+            'dance-home',
+            $request->pageTitle(),
+            $this->cmsDanceMapper->mapHomeRequestSectionsForSave(
+                $request,
+                $passItems,
+                $bannerDescription,
+                $importantInformationHtml,
+                $capacityHtml,
+                $specialHtml
+            ),
+            'Dance home page not found.'
         );
-        $this->persistDanceHomePage($page);
     }
 
+    // Builds the CMS editor payload for one dance detail slug so the edit screen gets page content and display metadata together. Example: slug 'urban-echo' -> DanceDetailEditorData.
     public function getDanceDetailEditorData(string $pageSlug): DanceDetailEditorData
     {
         $meta = $this->resolveDetailPageMeta($pageSlug);
-        $page = $this->pageService->getPageBySlug($meta->pageSlug, $this->buildEditorTitle($meta));
+        $page = $this->pageService->requirePageBySlug($meta->pageSlug, 'Dance detail content page not found.');
         $performerName = $this->resolveDetailPerformerName($meta, $page->getSection('dance_detail_hero'));
 
         return new DanceDetailEditorData(
@@ -83,11 +91,13 @@ class CmsDanceService implements ICmsDanceService
         );
     }
 
+    // Saves one dance detail CMS form so mapped sections update the correct page and existing track audio is preserved.
     public function saveDanceDetailPage(string $pageSlug, UpdateDanceDetailRequest $request): void
     {
         $meta = $this->resolveDetailPageMeta($pageSlug);
-        $existingPage = $this->pageService->getPageBySlug($meta->pageSlug, $this->buildEditorTitle($meta));
-        $existingTrackAudioUrls = $this->getExistingTrackAudioUrlsByItemId($existingPage);
+        $existingTrackAudioUrls = $this->getExistingTrackAudioUrlsByItemId(
+            $this->pageService->requirePageBySlug($meta->pageSlug, 'Dance detail content page not found.')
+        );
         $heroImages = $this->cmsDanceMapper->normalizeHeroImages($request->heroImages());
         $highlights = $this->cmsDanceMapper->normalizeHighlights($request->highlights());
         $tracks = $this->cmsDanceMapper->normalizeTracks($request->tracks(), $existingTrackAudioUrls);
@@ -101,18 +111,20 @@ class CmsDanceService implements ICmsDanceService
             $importantInformationHtml
         );
 
-        $page = $this->buildDanceDetailPage(
-            $meta->pageSlug,
-            $request,
-            $heroImages,
-            $highlights,
-            $tracks,
-            $importantInformationHtml
+        $this->pageSaveService->savePageContent(
+            $meta->pageId,
+            $request->pageTitle(),
+            $this->cmsDanceMapper->mapDetailRequestSectionsForSave(
+                $request,
+                $heroImages,
+                $highlights,
+                $tracks,
+                $importantInformationHtml
+            )
         );
-        $page->id = $existingPage->id;
-        $this->persistDanceDetailPage($page);
     }
 
+    // Resolves required detail metadata so CMS flows fail fast when a slug does not match a known dance page.
     private function resolveDetailPageMeta(string $pageSlug): EventDetailPageModel
     {
         $meta = $this->danceRepository->findDetailPageByPageSlug($pageSlug);
@@ -123,6 +135,7 @@ class CmsDanceService implements ICmsDanceService
         return $meta;
     }
 
+    // Builds the CMS editor title so unnamed performers still get a stable fallback heading. Example: performer 'Mina' -> 'Mina Detail Content'.
     private function buildEditorTitle(EventDetailPageModel $meta): string
     {
         $performerName = trim((string)($meta->performerName ?? ''));
@@ -133,6 +146,7 @@ class CmsDanceService implements ICmsDanceService
         return $performerName . ' Detail Content';
     }
 
+    // Resolves the performer label so the editor can fall back to the hero title when metadata is empty.
      private function resolveDetailPerformerName(EventDetailPageModel $meta, ?Section $hero): string
     {
         $performerName = trim((string)($meta->performerName ?? ''));
@@ -143,60 +157,13 @@ class CmsDanceService implements ICmsDanceService
         return $hero === null ? '' : trim((string)$hero->title);
     }
 
+    // Sanitizes one WYSIWYG value so stored HTML keeps allowed markup and strips unsafe content.
     private function sanitizeWysiwygField(string $value): string
     {
         return $this->htmlSanitizer->sanitizeWysiwygHtml($value);
     }
 
-    private function buildDanceHomePage(UpdateDanceHomeRequest $request, array $passItems, string $bannerDescription, string $importantInformationHtml, string $capacityHtml, string $specialHtml): Page
-    {
-        $page = new Page($request->pageTitle(), 'dance-home');
-        $page->sections = [
-            new Section(0, 'dance_schedule', $request->scheduleTitle(), '', ''),
-            new Section(0, 'dance_banner', $request->bannerTitle(), $request->bannerBadge(), $bannerDescription),
-            new Section(0, 'dance_artists', $request->featuredArtistsTitle(), '', ''),
-            new Section(0, 'dance_info', $request->importantInformationTitle(), '', $importantInformationHtml),
-            new Section(0, 'dance_passes', $request->passesTitle(), '', ''),
-            new Section(0, 'dance_capacity', $request->capacityTitle(), '', $capacityHtml),
-            new Section(0, 'dance_special_session', $request->specialTitle(), '', $specialHtml),
-        ];
-
-        $this->appendSectionItems($page, 'dance_passes', $passItems);
-
-        return $page;
-    }
-
-    private function buildDanceDetailPage(string $pageSlug, UpdateDanceDetailRequest $request, array $heroImages, array $highlights, array $tracks, string $importantInformationHtml): Page
-    {
-        $page = new Page($request->pageTitle(), $pageSlug);
-        $page->sections = [
-            new Section(0, 'dance_detail_hero', $request->heroTitle(), $request->heroBadge(), $request->heroSubtitle()),
-            new Section(0, 'dance_detail_highlights', $request->highlightsTitle(), '', ''),
-            new Section(0, 'dance_detail_tracks', $request->tracksTitle(), '', $request->tracksNote()),
-            new Section(0, 'dance_detail_info', $request->importantInformationTitle(), '', $importantInformationHtml),
-        ];
-
-        $this->appendSectionItems($page, 'dance_detail_hero', $heroImages);
-        $this->appendSectionItems($page, 'dance_detail_highlights', $highlights);
-        $this->appendSectionItems($page, 'dance_detail_tracks', $tracks);
-
-        return $page;
-    }
-
-    private function appendSectionItems(Page $page, string $sectionType, array $items): void
-    {
-        $section = $page->getSection($sectionType);
-        if ($section === null) {
-            return;
-        }
-
-        foreach ($items as $item) {
-            if ($item instanceof SectionItem) {
-                $section->addItem($item);
-            }
-        }
-    }
-
+    // Reads current track audio URLs by item id so detail saves do not blank audio when the form omits unchanged files.
     private function getExistingTrackAudioUrlsByItemId(Page $page): array
     {
         $tracksSection = $page->getSection('dance_detail_tracks');
@@ -214,28 +181,5 @@ class CmsDanceService implements ICmsDanceService
         }
 
         return $urlsByItemId;
-    }
-
-    private function persistDanceHomePage(Page $page): void
-    {
-        $this->pageSaveService->savePageContentBySlug(
-            'dance-home',
-            $page->title,
-            $this->cmsDanceMapper->mapHomeSectionsForSave($page),
-            'Dance home page not found.'
-        );
-    }
-
-    private function persistDanceDetailPage(Page $page): void
-    {
-        if ($page->id <= 0) {
-            throw new \RuntimeException('Dance detail page not found.');
-        }
-
-        $this->pageSaveService->savePageContent(
-            $page->id,
-            $page->title,
-            $this->cmsDanceMapper->mapDetailSectionsForSave($page)
-        );
     }
 }

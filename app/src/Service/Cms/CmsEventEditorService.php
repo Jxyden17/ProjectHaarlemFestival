@@ -19,6 +19,7 @@ class CmsEventEditorService implements ICmsEventEditorService
     private IDanceService $danceService;
     private $pageRepository;
 
+    // Stores CMS event editor dependencies so schedule data, page saves, and dance-specific enrichment stay coordinated.
     public function __construct(
         ICmsScheduleService $cmsScheduleService,
         CmsScheduleMapper $cmsScheduleMapper,
@@ -33,6 +34,7 @@ class CmsEventEditorService implements ICmsEventEditorService
         $this->pageRepository = $pageRepository;
     }
 
+    // Returns the CMS editor payload for one event and enriches Dance performers with artist image metadata when needed.
     public function getEditorData(string $eventName): ScheduleEditorViewModel
     {
         $editorViewModel = $this->cmsScheduleService->getScheduleEditorData($eventName);
@@ -48,6 +50,7 @@ class CmsEventEditorService implements ICmsEventEditorService
         );
     }
 
+    // Merges posted schedule rows into the editor payload so failed CMS saves preserve user-entered values.
     public function mergePostedEditorData(
         string $eventName,
         ScheduleEditorViewModel $editorData,
@@ -74,11 +77,13 @@ class CmsEventEditorService implements ICmsEventEditorService
         return new ScheduleEditorViewModel($editorData->eventName, $venues, $performers, $sessions);
     }
 
+    // Saves linked page content so the event editor can persist page sections through the shared CMS page save service.
     public function savePageContent(int $pageId, array $sections, array $items): void
     {
         $this->pageSaveService->saveEditorPageContent($pageId, $sections, $items);
     }
 
+    // Adds dance artist image metadata to performer rows so the Dance event editor can manage linked artist cards.
     private function enrichDancePerformers(array $performers): array
     {
         $artistItems = $this->getDanceFeaturedArtistImageRows();
@@ -106,6 +111,7 @@ class CmsEventEditorService implements ICmsEventEditorService
         return $result;
     }
 
+    // Returns the featured dance artist image items so schedule performer rows can align with the dance home artist section.
     private function getDanceFeaturedArtistImageRows(): array
     {
         $danceHome = $this->danceService->getDanceHomePage();

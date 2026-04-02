@@ -17,12 +17,14 @@ class ScheduleService implements IScheduleService
     private IScheduleRepository $scheduleRepo;
     private ScheduleMapper $scheduleMapper;
 
+    // Stores schedule dependencies so event loading and row mapping stay centralized in one public service.
     public function __construct(IScheduleRepository $scheduleRepo, ScheduleMapper $scheduleMapper)
     {
         $this->scheduleRepo = $scheduleRepo;
         $this->scheduleMapper = $scheduleMapper;
     }
 
+    // Builds one event schedule payload so public pages receive grouped sessions with the requested title. Example: event 'Dance' -> ScheduleData.
     public function getScheduleDataForEvent(string $eventName, string $title): ScheduleData
     {
         $event = $this->getEventRowsOrFail($eventName);
@@ -30,6 +32,7 @@ class ScheduleService implements IScheduleService
         return new ScheduleData($title, $event->name, $event->sessions, false);
     }
 
+    // Builds one combined schedule payload so pages can render sessions from every event in a single schedule view.
     public function getScheduleDataForAllEvents(string $title): ScheduleData
     {
         $events = $this->scheduleRepo->getAllEvents();
@@ -55,6 +58,7 @@ class ScheduleService implements IScheduleService
         return new ScheduleData($title, 'All Events', $allSessions, true);
     }
 
+    // Loads the core resources for one event so callers can reuse the event, sessions, performers, and venues together.
     public function getEventResources(string $eventName, string $title): ?array
     {
         $event = $this->scheduleRepo->findEventByName($eventName);
@@ -74,6 +78,7 @@ class ScheduleService implements IScheduleService
         ];
     }
 
+    // Finds sessions by performer name so search-like schedule views can match performers without knowing their ids.
     public function getScheduleSessionsByPerformerName(string $eventName, string $performerName): array
     {
         $performer = trim((string) $performerName);
@@ -111,6 +116,7 @@ class ScheduleService implements IScheduleService
         return $matchingSessions;
     }
 
+    // Finds sessions by performer id so detail pages can render exact schedule entries for one performer.
     public function getScheduleSessionsByPerformerId(string $eventName, int $performerId): array
     {
         if ($performerId <= 0) {
@@ -147,11 +153,13 @@ class ScheduleService implements IScheduleService
         return $matchingSessions;
     }
 
+    // Finds one event record by name so other services can branch on a missing event without throwing.
     public function findEventByName(string $eventName): ?EventModel
     {
         return $this->scheduleRepo->findEventByName($eventName);
     }
 
+    // Loads and maps the full row set for one event so missing events fail immediately instead of producing partial schedule data.
     private function getEventRowsOrFail(string $eventName): EventModel
     {
         $rows = $this->scheduleRepo->getScheduleRowsByEventName($eventName);
@@ -159,6 +167,7 @@ class ScheduleService implements IScheduleService
         return $this->scheduleMapper->mapEventRowsToEvent($rows, $eventName);
     }
 
+    // Rebuilds one event from repository collections so venues, sessions, and performers are linked into one graph.
     private function mapEventRows(EventModel $event): EventModel
     {
         $venues = $this->scheduleRepo->getVenuesByEventId((int) $event->id);

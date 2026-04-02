@@ -13,12 +13,14 @@ class DanceRepository implements IDanceRepository
     private PDO $db;
     private EventMapper $eventMapper;
 
+    // Opens the dance repository with the row mapper so SQL results become typed page metadata objects.
     public function __construct(EventMapper $eventMapper)
     {
         $this->db = Database::getInstance();
         $this->eventMapper = $eventMapper;
     }
 
+    // Returns all detail page rows for one event so services can build ordered dance page lists.
     public function getDetailPagesByEventId(int $eventId): array
     {
         $stmt = $this->db->prepare(
@@ -43,6 +45,7 @@ class DanceRepository implements IDanceRepository
         return array_map(fn(array $row): EventDetailPageModel => $this->eventMapper->mapDetailPageRow($row), $rows);
     }
 
+    // Finds one detail page row by slug so services can resolve dance pages without loading full page content. Example: slug 'urban-echo' -> EventDetailPageModel.
     public function findDetailPageByPageSlug(string $pageSlug): ?EventDetailPageModel
     {
         if (trim($pageSlug) === '') {

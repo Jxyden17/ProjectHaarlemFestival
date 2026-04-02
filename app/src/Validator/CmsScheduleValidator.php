@@ -4,6 +4,7 @@ namespace App\Validator;
 
 class CmsScheduleValidator
 {
+    // Ensures at least one session row exists so CMS schedule saves cannot wipe an event into an empty schedule.
     public function validateSessionRowsNotEmpty(array $sessionRows): void
     {
         if (count($sessionRows) === 0) {
@@ -11,6 +12,7 @@ class CmsScheduleValidator
         }
     }
 
+    // Validates a venue row so CMS venue edits always include a real id and display name.
     public function validateVenueRow(int $id, string $name): void
     {
         if ($id <= 0 || $name === '') {
@@ -18,6 +20,7 @@ class CmsScheduleValidator
         }
     }
 
+    // Validates a performer row and slug uniqueness so detail page links stay valid after CMS edits.
     public function validatePerformerRow(int $id, string $name, string $slug, array $seenSlugs): void
     {
         if ($id <= 0 || $name === '') {
@@ -33,6 +36,7 @@ class CmsScheduleValidator
         }
     }
 
+    // Validates one session row so CMS saves only persist rows with valid ids, date/time format, venue, and price data.
     public function validateSessionRow(int $id, int $venueId, string $date, string $startTime, string $priceRaw, int $spots, int $amountSold, array $allowedVenueIds, array $allowedSessionIds): void
     {
         if ($id <= 0 || $venueId <= 0 || $date === '' || $startTime === '' || $priceRaw === '') {
@@ -68,6 +72,7 @@ class CmsScheduleValidator
         }
     }
 
+    // Validates one performer id against the allowed list so session assignments cannot target performers from another event.
     public function validatePerformerIdAllowed(int $performerId, array $allowedPerformerIds): void
     {
         if (!in_array($performerId, $allowedPerformerIds, true)) {
