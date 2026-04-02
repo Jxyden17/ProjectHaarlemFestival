@@ -72,7 +72,6 @@ class CmsScheduleService implements ICmsScheduleService
         );
 
         $this->scheduleValidator->validateSessionRowsNotEmpty($sessionRows);
-
         $this->scheduleRepo->saveEventScheduleData(
             (int)$event->id,
             $venueRows,

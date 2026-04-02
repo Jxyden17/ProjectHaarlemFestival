@@ -20,58 +20,67 @@ class UserRepository implements IUserRepository
     // Find a user by their email.
     public function findByEmail(string $email): ?UserModel
     {
-        $stmt = $this->db->prepare("SELECT id, email, password, role_id, created_at FROM users WHERE email = :email");
+        $stmt = $this->db->prepare("SELECT id, name, email,phone_number,country,city,addres,postcode, password, role_id, created_at FROM users WHERE email = :email");
         $stmt->execute([':email' => $email]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$row) return null;
 
+        return $this->makeUser($row);
+    }
+
+    private function makeUser($row)
+    {
         return new UserModel(
-            (int)$row['id'],
-            $row['email'],
-            $row['password'],
-            (int)$row['role_id'],
-            $row['created_at']
-        );
+    (int)($row['id'] ?? 0),
+    $row['name'] ?? '',
+    $row['email'] ?? '',
+    $row['password'] ?? '',          
+    $row['phone_number'] ?? '',      
+    $row['country'] ?? '',
+    $row['city'] ?? '',
+    $row['addres'] ?? '',
+    $row['postcode'] ?? '',
+    (int)($row['role_id'] ?? 3),
+    $row['created_at'] ?? ''
+);
     }
 
     // Find a user by their ID.
     public function findById(int $id): ?UserModel
     {
-        $stmt = $this->db->prepare("SELECT id, email, password, role_id, created_at FROM users WHERE id = :id");
+        $stmt = $this->db->prepare("SELECT id, name, email,phone_number,country,city,addres,postcode, password, role_id, created_at FROM users WHERE id = :id");
         $stmt->execute([':id' => $id]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$row) return null;
 
-        return new UserModel(
-            (int)$row['id'],
-            $row['email'],
-            $row['password'],
-            (int)$row['role_id'],
-            $row['created_at']
-        );
+       return $this->makeUser($row);
     }
 
     // Create a new user.
-    public function create(string $email, string $password): UserModel
+    public function create(UserModel $user): UserModel
     {
         $stmt = $this->db->prepare(
-            "INSERT INTO users (email, password, role_id) VALUES (:email, :password, :role_id)"
+            "INSERT INTO users (name, email,phone_number,country,city,addres,postcode, password, role_id) VALUES (:name, :email, :phone_number, :country, :city, :addres, :postcode, :password, :role_id)"
         );
-         
-        $roleId = UserRole::Customer->value; // Standaard rol is Customer (ID 1)
 
         $stmt->execute([
-            ':email' => $email,
-            ':password' => password_hash($password, PASSWORD_DEFAULT),
-            ':role_id' => $roleId
+            ':name'=> $user->name,
+            ':email' => $user->email,
+            ':phone_number' => $user->phoneNumber,
+            ':country' => $user->country,
+            ':city' => $user->city,
+            ':addres' => $user->addres,
+            ':postcode' => $user->postcode,
+            ':password' => password_hash($user->password, PASSWORD_DEFAULT),
+            ':role_id' => $user->userRole->value
         ]);
 
         $id = (int)$this->db->lastInsertId();
         $createdAt = date('Y-m-d H:i:s');
 
-        return new UserModel($id, $email, '', $roleId, $createdAt);
+        return new UserModel( $id, $user->name, $user->email," ", $user->phoneNumber, $user->country, $user->city, $user->addres, $user->postcode, $user->userRole->value, $user->createdAt);
     }
 
     // Update the user's password.
@@ -86,78 +95,54 @@ class UserRepository implements IUserRepository
 
     public function getAllUsers(): array
     {
-        $stmt = $this->db->query("SELECT id, email, password, role_id, created_at FROM users");
+        $stmt = $this->db->query("SELECT id, name, email,phone_number,country,city,addres,postcode, password, role_id, created_at  FROM users");
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         $users = [];
         foreach($rows as $row) {
-            $users[] = new UserModel(
-                (int)$row['id'],
-                $row['email'],
-                $row['password'],
-                (int)$row['role_id'],
-                $row['created_at']
-            );
+          return $this->makeUser($row);
         }
         return $users;
     }
 
-    public function addUsers(string $email, string $password, int $roleId): UserModel
-    {
-        $stmt = $this->db->prepare(
-            "INSERT INTO users (email, password, role_id) VALUES (:email, :password, :role_id)"
-        );
-
-        $stmt->execute([
-            ':email' => $email,
-            ':password' => password_hash($password, PASSWORD_DEFAULT),
-            ':role_id' => $roleId
-        ]);
-
-        $id = (int)$this->db->lastInsertId();
-        $createdAt = date('Y-m-d H:i:s');
-
-        return new UserModel($id, $email, '', $roleId, $createdAt);
-    }
-
-     public function deleteUser(int $id): void
+    public function deleteUser(int $id): void
     {
         $stmt = $this->db->prepare("DELETE FROM users WHERE id = :id");
         $stmt->execute([':id' => $id]);
     }
 
-    public function updateUser(int $id, string $email, string $password, int $roleId): UserModel
+    public function updateUser(UserModel $user): UserModel
     {
         $stmt = $this->db->prepare(
-            "UPDATE users SET email = :email, password = :password, role_id = :role_id WHERE id = :id"
+            "UPDATE users SET name = :name, email = :email, phone_number = :phone_number, country = :country, city = :city, addres = :addres, postcode = :postcode, password = :password, role_id = :role_id WHERE id = :id"
         );
 
         $stmt->execute([
-            ':email' => $email,
-            ':password' => password_hash($password, PASSWORD_DEFAULT),
-            ':role_id' => $roleId,
-            ':id' => $id
+            ':name'=> $user->name,
+            ':email' => $user->email,
+            ':phone_number' => $user->phoneNumber,
+            ':country' => $user->country,
+            ':city' => $user->city,
+            ':addres' => $user->addres,
+            ':postcode' => $user->postcode,
+            ':password' => password_hash($user->password, PASSWORD_DEFAULT),
+            ':role_id' => $user->userRole->value,
+            ':id'=> $user->id
         ]);
 
-        return $this->findById($id);
+        return $this->findById($user->id);
     }
 
 
     public function searchUsers(string $query): array
     {
-        $stmt = $this->db->prepare("SELECT id, email, password, role_id, created_at FROM users WHERE email LIKE :query");
+        $stmt = $this->db->prepare("SELECT id, name, email,phone_number,country,city,addres,postcode, password, role_id, created_at  FROM users WHERE email LIKE :query");
         $stmt->execute([':query' => '%' . $query . '%']);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         $users = [];
         foreach($rows as $row) {
-            $users[] = new UserModel(
-                (int)$row['id'],
-                $row['email'],
-                $row['password'],
-                (int)$row['role_id'],
-                $row['created_at']
-            );
+            $users[] =$this->makeUser($row);
         }
         return $users;
     }
@@ -174,19 +159,13 @@ class UserRepository implements IUserRepository
                 $sortOrder = 'DESC'; 
             }
     
-            $stmt = $this->db->prepare("SELECT id, email, password, role_id, created_at FROM users ORDER BY $sortBy $sortOrder");
+            $stmt = $this->db->prepare("SELECT id, name, email,phone_number,country,city,addres,postcode, password, role_id, created_at FROM users ORDER BY $sortBy $sortOrder");
             $stmt->execute();
             $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
             $users = [];
             foreach($rows as $row) {
-                $users[] = new UserModel(
-                    (int)$row['id'],
-                    $row['email'],
-                    $row['password'],
-                    (int)$row['role_id'],
-                    $row['created_at']
-                );
+                $users[] = $this->makeUser($row);
             }
             return $users;
         }

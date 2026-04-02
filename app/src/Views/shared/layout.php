@@ -89,6 +89,11 @@ $canManage = $roleId === 1; // 1=Administrator
                     <i data-lucide="shield-check"></i>
                 </a>
             <?php endif; ?>
+             <?php if ($isLoggedIn && !$canManage): ?>
+                <a class="hf-icon-btn" href="/user?id=<?= $_SESSION['user_id']?>" aria-label="user page">
+                    <i data-lucide="user"></i>
+                </a>
+            <?php endif; ?>
             <a class="hf-icon-btn" href="/cart" aria-label="Cart">
                 <i data-lucide="shopping-cart"></i>
             </a>
