@@ -89,15 +89,15 @@ $canManage = $roleId === 1; // 1=Administrator
                     <i data-lucide="shield-check"></i>
                 </a>
             <?php endif; ?>
-            <a class="hf-icon-btn" href="/favorites" aria-label="Favorites">
-                <i data-lucide="heart"></i>
-            </a>
             <a class="hf-icon-btn" href="/cart" aria-label="Cart">
                 <i data-lucide="shopping-cart"></i>
             </a>
             <?php if ($isLoggedIn): ?>
                 <a class="hf-icon-btn" href="/logout" aria-label="Logout">
                     <i data-lucide="log-out"></i>
+                </a>
+                <a class="hf-icon-btn" href="/personal-program" aria-label="Personal Program">
+                    <i data-lucide="heart"></i>
                 </a>
             <?php else: ?>
                 <a class="hf-icon-btn" href="/login" aria-label="Login">
