@@ -84,6 +84,8 @@ try {
         $danceService,
         $pageRepo
     );
+    $cmsYummyService = new App\Service\Cms\CmsYummyService($cmsEventEditorService, $pageRepo);
+
     $authController = new App\Controllers\AuthController($authService);
     $homeController = new App\Controllers\HomeController($pageService, $scheduleService, $scheduleViewModelMapper);
     $danceController = new App\Controllers\DanceController($danceService, $danceViewModelMapper, $scheduleViewModelMapper);
@@ -100,6 +102,7 @@ try {
     $storiesController = new App\Controllers\StoriesController($pageService, $scheduleService, $scheduleViewModelMapper);
     $cmsEventEditorController = new App\Controllers\Cms\CmsEventEditorController($cmsScheduleService, $cmsEventEditorService);
     $cmsTourContentController = new App\Controllers\Cms\CmsTourContentController($pageService, $cmsEventEditorService);
+    $cmsYummyContentController = new App\Controllers\Cms\CmsYummyContentController($pageService, $cmsYummyService);
     $cmsStoriesContentController = new App\Controllers\Cms\CmsStoriesContentController($pageService, $cmsEventEditorService);
     $cmsDanceController = new App\Controllers\Cms\CmsDanceController($cmsDanceService, $cmsDanceViewModelMapper);
     $cmsMediaController = new App\Controllers\Cms\CmsMediaController($imageUploadService, $audioUploadService);
@@ -171,6 +174,10 @@ try {
         $r->addRoute('POST', '/cms/events/tour-home', ['CmsTourContentController', 'update']);
         $r->addRoute('GET', '/cms/events/tour-details', ['CmsTourContentController', 'details']);
         $r->addRoute('POST', '/cms/events/tour-details', ['CmsTourContentController', 'detailsUpdate']);
+        $r->addRoute('GET', '/cms/events/yummy-home', ['CmsYummyContentController', 'index']);
+        $r->addRoute('POST', '/cms/events/yummy-home', ['CmsYummyContentController', 'update']);
+        $r->addRoute('GET', '/cms/events/yummy-details/{slug}', ['CmsYummyContentController', 'detail']);
+        $r->addRoute('POST', '/cms/events/yummy-details/{slug}', ['CmsYummyContentController', 'detailUpdate']);
         $r->addRoute('GET', '/cms/events/stories-home', ['CmsStoriesContentController', 'index']);
         $r->addRoute('POST', '/cms/events/stories-home', ['CmsStoriesContentController', 'update']);
         $r->addRoute('GET', '/cms/events/stories-details', ['CmsStoriesContentController', 'details']);
@@ -265,6 +272,7 @@ try {
                 'CmsEventEditorController' => $cmsEventEditorController,
                 'CmsDanceController' => $cmsDanceController,
                 'CmsTourContentController' => $cmsTourContentController,
+                'CmsYummyContentController' => $cmsYummyContentController,
                 'CmsStoriesContentController' => $cmsStoriesContentController,
                 'CmsMediaController' => $cmsMediaController,
                 'CmsHomeContentController' => $cmsHomeContentController,

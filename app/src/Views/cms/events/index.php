@@ -107,5 +107,34 @@ $tourDetailPages = is_array($tourDetailPages ?? null) ? $tourDetailPages : [];
                 </div>
             </div>
         </div>
+
+        <div class="col-12 col-lg-8">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2 class="h5 mb-0">Yummy</h2>
+                        <span class="badge text-bg-success">Live</span>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex flex-wrap">
+                        <a href="/cms/events/yummy-home" class="btn btn-primary">Edit Yummy HomePage</a>
+                    </div>
+
+                    <p class="mb-1">Restaurant Pages:</p>
+
+                    <div class="d-flex flex-wrap gap-2">
+
+                        <a href="/cms/events/yummy-details/ratatouille"
+                            class="btn btn-outline-primary">
+                            Edit Ratatouille
+                        </a>
+
+                        <a href="/cms/events/yummy-details/cafe-de-roemer"
+                            class="btn btn-outline-primary">
+                            Edit Cafe De Roemer
+                        </a>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
