@@ -24,6 +24,7 @@ try {
     $pageMapper = new App\Mapper\PageMapper();
     $scheduleMapper = new App\Mapper\ScheduleMapper($eventMapper);
     $scheduleViewModelMapper = new App\Mapper\ScheduleViewModelMapper();
+    $personalProgramMapper = new App\Mapper\PersonalProgramMapper();
 
     $userRepo = new App\Repository\UserRepository();
     $passwordResetRepo = new App\Repository\PasswordResetRepository();
@@ -33,6 +34,7 @@ try {
     $pageRepo = new App\Repository\PageRepository($pageMapper);
     $jazzRepo = new App\Repository\JazzRepository();
     $yummyRepo = new App\Repository\YummyRepository();
+    $personalProgramRepo = new App\Repository\PersonalProgramRepository();
     $artistesRepo = new App\Repository\ArtistesRepository();
     $venueRepo = new App\Repository\VenueRepository();
     $ticketRepo = new App\Repository\TicketRepository();
@@ -52,6 +54,7 @@ try {
     $yummyService = new App\Service\YummyService($yummyRepo);
     $jazzService = new App\Service\JazzService($jazzRepo, $scheduleRepo);
     $authService = new App\Service\AuthService($userRepo, $passwordResetRepo, $mailService);
+    $personalProgramService = new App\Service\PersonalProgramService($personalProgramRepo, $personalProgramMapper);
     $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
     $host = (string) ($_SERVER['HTTP_HOST'] ?? 'localhost');
     $baseUrl = $scheme . '://' . $host;
@@ -84,6 +87,8 @@ try {
         $danceService,
         $pageRepo
     );
+    $cmsYummyService = new App\Service\Cms\CmsYummyService($cmsEventEditorService, $pageRepo);
+
     $authController = new App\Controllers\AuthController($authService);
     $homeController = new App\Controllers\HomeController($pageService, $scheduleService, $scheduleViewModelMapper);
     $danceController = new App\Controllers\DanceController($danceService, $danceViewModelMapper, $scheduleViewModelMapper);
@@ -91,6 +96,7 @@ try {
     $jazzController = new App\Controllers\JazzController($scheduleService, $jazzService, $scheduleViewModelMapper, $pageService);
     $yummyController = new App\Controllers\YummyController($yummyService);
     $userController= new App\Controllers\UserController($cmsService);
+    $personalProgramController = new App\Controllers\PersonalProgramController($pageService, $personalProgramService);
 
     $cmsController = new App\Controllers\Cms\CmsController($cmsService);
     $cmsEventsController = new App\Controllers\Cms\CmsEventsController($cmsService, $danceService, $pageService, $cmsEventEditorService);
@@ -99,6 +105,7 @@ try {
     $storiesController = new App\Controllers\StoriesController($pageService, $scheduleService, $scheduleViewModelMapper);
     $cmsEventEditorController = new App\Controllers\Cms\CmsEventEditorController($cmsScheduleService, $cmsEventEditorService);
     $cmsTourContentController = new App\Controllers\Cms\CmsTourContentController($pageService, $cmsEventEditorService);
+    $cmsYummyContentController = new App\Controllers\Cms\CmsYummyContentController($pageService, $cmsYummyService);
     $cmsStoriesContentController = new App\Controllers\Cms\CmsStoriesContentController($pageService, $cmsEventEditorService);
     $cmsDanceController = new App\Controllers\Cms\CmsDanceController($cmsDanceService, $cmsDanceViewModelMapper);
     $cmsJazzController = new App\Controllers\Cms\CmsJazzController($cmsJazzService,$cmsJazzViewModelMapper);
@@ -138,6 +145,9 @@ try {
         $r->addRoute('GET', '/reset-password', ['AuthController', 'showResetPassword']);
         $r->addRoute('POST', '/reset-password', ['AuthController', 'resetPassword']);
         $r->addRoute('GET', '/logout', ['AuthController', 'logout']);
+        $r->addRoute('GET', '/personal-program', ['PersonalProgramController', 'index']);
+        $r->addRoute('POST', '/personal-program/delete', ['PersonalProgramController', 'delete']);
+
 
         $r->addRoute('GET', '/tour', ['TourController', 'index']);
         $r->addRoute('GET', '/tour/details', ['TourController', 'details']);
@@ -152,6 +162,7 @@ try {
         $r->addRoute('GET', '/stories', ['StoriesController', 'index']);
         $r->addRoute('GET', '/stories/details', ['StoriesController', 'details']);
         $r->addRoute('GET', '/stories/{slug}', ['StoriesController', 'details']);
+
 
         // CMS routes
         $r->addRoute('GET', '/cms', ['CmsController', 'index']);
@@ -172,6 +183,10 @@ try {
         $r->addRoute('POST', '/cms/events/tour-home', ['CmsTourContentController', 'update']);
         $r->addRoute('GET', '/cms/events/tour-details', ['CmsTourContentController', 'details']);
         $r->addRoute('POST', '/cms/events/tour-details', ['CmsTourContentController', 'detailsUpdate']);
+        $r->addRoute('GET', '/cms/events/yummy-home', ['CmsYummyContentController', 'index']);
+        $r->addRoute('POST', '/cms/events/yummy-home', ['CmsYummyContentController', 'update']);
+        $r->addRoute('GET', '/cms/events/yummy-details/{slug}', ['CmsYummyContentController', 'detail']);
+        $r->addRoute('POST', '/cms/events/yummy-details/{slug}', ['CmsYummyContentController', 'detailUpdate']);
         $r->addRoute('GET', '/cms/events/stories-home', ['CmsStoriesContentController', 'index']);
         $r->addRoute('POST', '/cms/events/stories-home', ['CmsStoriesContentController', 'update']);
         $r->addRoute('GET', '/cms/events/stories-details', ['CmsStoriesContentController', 'details']);
@@ -267,6 +282,7 @@ try {
                 'JazzController' => $jazzController,
                 'StoriesController' => $storiesController,
                 'UserController' => $userController,
+                'PersonalProgramController' => $personalProgramController,
                 'CmsEventsController' => $cmsEventsController,
                 'CmsTicketsController' => $cmsTicketsController,
                 'CmsUsersController' => $cmsUsersController,
@@ -274,6 +290,7 @@ try {
                 'CmsDanceController' => $cmsDanceController,
                 'CmsJazzController' => $cmsJazzController,
                 'CmsTourContentController' => $cmsTourContentController,
+                'CmsYummyContentController' => $cmsYummyContentController,
                 'CmsStoriesContentController' => $cmsStoriesContentController,
                 'CmsMediaController' => $cmsMediaController,
                 'CmsHomeContentController' => $cmsHomeContentController,
@@ -304,7 +321,7 @@ try {
     }
 } catch (\Throwable $e) {
     if ($showDebug) {
-       // var_dump($e);
+        var_dump($e);
     }
     $debugError = $e->getMessage();
     $renderErrorPage(

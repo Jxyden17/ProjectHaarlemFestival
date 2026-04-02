@@ -15,7 +15,17 @@ class UserController extends BaseController
    public function index()
     {
         $this->requireAuth();
-        $user = $this->cmsService->getUserById((int)($_GET['id'] ?? 0));
+        $userId = (int) ($_GET['id'] ?? ($_SESSION['user_id'] ?? 0));
+        $user = $this->cmsService->getUserById($userId);
+        if ($user === null) {
+            http_response_code(404);
+            $this->render('shared/error', [
+                'errorTitle' => 'User not found',
+                'errorMessage' => 'The requested user does not exist.',
+            ]);
+            return;
+        }
+
         $this->render("/User/index",['user' => $user]);
     }
 }

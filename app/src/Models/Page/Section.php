@@ -8,18 +8,16 @@ class Section
     public int $id;
     public string $type;
     public string $title;
-    public int $order;
     public ?string $subTitle;
     public ?string $description;
 
     public array $items = [];
 
-    public function __construct(int $id, string $type, string $title,int $order, string $subTitle, string $description)
+    public function __construct(int $id, string $type, string $title, string $subTitle, string $description)
     {
         $this->id = $id;
         $this->type = $type;
         $this->title = $title;
-        $this->order = $order;
         $this->subTitle = $subTitle;
         $this->description = $description;
     }
