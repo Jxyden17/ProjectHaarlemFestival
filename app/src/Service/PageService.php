@@ -29,4 +29,9 @@ class PageService implements IPageService
 
         return $page;
     }
+
+    public function getPagesByEventId(int $eventId): array
+    {
+        return $this->pageRepo->findPagesByEventId($eventId);
+    }
 }

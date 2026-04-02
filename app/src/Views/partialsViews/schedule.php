@@ -163,10 +163,11 @@ if ($scheduleSectionClass !== '') {
                         $isPayAsYouLike = $isStories && (
                             $normalizedPrice === 'pay as you like' ||
                             $normalizedPrice === '€ 0.00' ||
+                            $normalizedPrice === 'eur 0.00' ||
                             $normalizedPrice === '0' ||
                             $normalizedPrice === '0.00'
                         );
-                        $bookUrl = $isPayAsYouLike ? '/stories/pay-as-you-like' : (string) ($row->bookUrl ?? '#');
+                        $bookUrl = (string) ($row->bookUrl ?? '#');
                         $bookLabel = $isPayAsYouLike ? 'Pay As You Like' : 'Book Now';
 
                         $rowAttributes = [];

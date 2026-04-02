@@ -97,6 +97,23 @@ class PageRepository implements IPageRepository
         return $this->pageMapper->mapPageRows($rows);
     }
 
+    public function findPagesByEventId(int $eventId): array
+    {
+        if ($eventId <= 0) {
+            return [];
+        }
+
+        $stmt = $this->db->prepare(
+            'SELECT id, page_name, slug
+             FROM pages
+             WHERE event_id = :event_id
+             ORDER BY id ASC'
+        );
+        $stmt->execute([':event_id' => $eventId]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function saveOrUpdateSection(
         int $pageId,
         string $sectionType,
@@ -260,5 +277,16 @@ class PageRepository implements IPageRepository
         }
 
         return $itemIds;
+    }
+
+    public function getTourDetailPages(): array
+    {
+        $stmt = $this->db->query(
+            'SELECT id, page_name
+             FROM pages
+             WHERE event_id = 1 AND id != 1'
+        );
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
