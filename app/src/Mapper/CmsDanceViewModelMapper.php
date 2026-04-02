@@ -38,6 +38,7 @@ class CmsDanceViewModelMapper
     private const ITEM_CATEGORY_HIGHLIGHT = 'highlight';
     private const ITEM_CATEGORY_TRACK = 'track';
 
+    // Maps the stored dance home page into a CMS edit view model so the editor can preload existing values.
     public function mapHomePageToEditViewModel(Page $page): DanceHomeEditViewModel
     {
         $schedule = $page->getSection(self::SECTION_SCHEDULE);
@@ -66,6 +67,7 @@ class CmsDanceViewModelMapper
         );
     }
 
+    // Maps a posted dance home request back into a CMS edit view model so validation errors can re-render submitted values.
     public function mapHomeRequestToEditViewModel(UpdateDanceHomeRequest $request): DanceHomeEditViewModel
     {
         return new DanceHomeEditViewModel(
@@ -86,6 +88,7 @@ class CmsDanceViewModelMapper
         );
     }
 
+    // Maps CMS dance detail data into an edit view model so the editor gets page content, labels, and media rows together.
     public function mapDetailDataToEditViewModel(DanceDetailEditorData $detailData): DanceDetailEditViewModel
     {
         $meta = $detailData->detailMeta;
@@ -117,6 +120,7 @@ class CmsDanceViewModelMapper
         );
     }
 
+    // Maps a posted dance detail request back into an edit view model so validation errors can re-render submitted values.
     public function mapDetailRequestToEditViewModel(UpdateDanceDetailRequest $request, DanceDetailEditViewModel $baseViewModel): DanceDetailEditViewModel
     {
         return new DanceDetailEditViewModel(
@@ -139,6 +143,7 @@ class CmsDanceViewModelMapper
         );
     }
 
+    // Maps stored pass items into CMS pass rows so the home editor can show editable pass fields.
     private function mapPassViewModels(?Section $passes): array
     {
         if ($passes === null) {
@@ -162,6 +167,7 @@ class CmsDanceViewModelMapper
         return $rows;
     }
 
+    // Maps posted pass edit rows into CMS pass rows so failed saves preserve submitted pass values.
     private function mapPassRequestViewModels(array $passes): array
     {
         $rows = [];
@@ -181,6 +187,7 @@ class CmsDanceViewModelMapper
         return $rows;
     }
 
+    // Maps stored hero image items into CMS hero image rows so the detail editor can show existing images and alt text.
     private function mapHeroImageViewModels(?Section $heroSection): array
     {
         if ($heroSection === null) {
@@ -203,6 +210,7 @@ class CmsDanceViewModelMapper
         return $rows;
     }
 
+    // Maps posted hero image edit rows into CMS hero image rows so failed saves preserve submitted media values.
     private function mapHeroImageRequestViewModels(array $heroImages): array
     {
         $rows = [];
@@ -217,6 +225,7 @@ class CmsDanceViewModelMapper
         return $rows;
     }
 
+    // Maps stored highlight items into CMS highlight rows so the detail editor can show existing highlight content.
     private function mapHighlightViewModels(?Section $section): array
     {
         if ($section === null) {
@@ -240,6 +249,7 @@ class CmsDanceViewModelMapper
         return $rows;
     }
 
+    // Maps posted highlight edit rows into CMS highlight rows so failed saves preserve submitted highlight values.
     private function mapHighlightRequestViewModels(array $highlights): array
     {
         $rows = [];
@@ -259,6 +269,7 @@ class CmsDanceViewModelMapper
         return $rows;
     }
 
+    // Maps stored track items into CMS track rows so the detail editor can show existing track metadata and media.
     private function mapTrackViewModels(?Section $section): array
     {
         if ($section === null) {
@@ -284,6 +295,7 @@ class CmsDanceViewModelMapper
         return $rows;
     }
 
+    // Maps posted track edit rows into CMS track rows so failed saves preserve submitted track values.
     private function mapTrackRequestViewModels(array $tracks): array
     {
         $rows = [];

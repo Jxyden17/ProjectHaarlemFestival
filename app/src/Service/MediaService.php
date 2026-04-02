@@ -11,11 +11,13 @@ abstract class MediaService
 
     protected IMediaRepository $mediaRepository;
 
+    // Stores the media repository so shared upload helpers can resolve and sync section-item targets.
     public function __construct(IMediaRepository $mediaRepository)
     {
         $this->mediaRepository = $mediaRepository;
     }
 
+    // Pulls one uploaded file payload from the request so later validation always receives the expected array shape.
     protected function getUploadedFile(array $files, string $fieldName): array
     {
         if (!isset($files[$fieldName]) || !is_array($files[$fieldName])) {
@@ -25,6 +27,7 @@ abstract class MediaService
         return $files[$fieldName];
     }
 
+    // Validates one uploaded file so only safe size and MIME combinations continue to storage. Example: MIME 'image/png' -> extension 'png'.
     protected function validateUploadedFile(array $file, array $allowedMimeMap, string $allowedExtensionMessage, string $mediaType): array
     {
         $errorCode = (int)($file['error'] ?? UPLOAD_ERR_NO_FILE);
@@ -61,6 +64,7 @@ abstract class MediaService
         ];
     }
 
+    // Extracts a posted section item id so uploads can target an existing row when the client sends one.
     protected function getPostedSectionItemId(array $post): ?int
     {
         $sectionItemId = isset($post['section_item_id']) ? (int)$post['section_item_id'] : 0;
@@ -68,6 +72,7 @@ abstract class MediaService
         return $sectionItemId > 0 ? $sectionItemId : null;
     }
 
+    // Resolves current and target filesystem paths so uploads stay inside approved public prefixes.
     protected function buildUploadTargetPaths(MediaModuleConfig $moduleConfig, string $publicPath, string $uploadExt, bool $autoCreateDir): ?array
     {
         if (!$this->isPathAllowedForModule($moduleConfig, $publicPath) || str_contains($publicPath, '..')) {
@@ -96,6 +101,7 @@ abstract class MediaService
         ];
     }
 
+    // Resolves an audio upload target and can generate a new track filename so audio uploads work before a path exists.
     protected function buildAudioUploadTargetPaths(MediaModuleConfig $moduleConfig, string $currentPublicPath, string $uploadExt, ?int $sectionItemId): ?array
     {
         $publicPath = $currentPublicPath;
@@ -111,6 +117,7 @@ abstract class MediaService
         return $this->buildUploadTargetPaths($moduleConfig, $publicPath, $uploadExt, true);
     }
 
+    // Moves the uploaded temp file into its final location so validated media becomes publicly available.
     protected function moveUploadedFileToTarget(string $tmpPath, string $absoluteTarget): void
     {
         if (!move_uploaded_file($tmpPath, $absoluteTarget)) {
@@ -122,6 +129,7 @@ abstract class MediaService
         }
     }
 
+    // Removes the old file when the extension changes so stale variants do not remain on disk.
     protected function removeOldFileWhenExtensionChanged(array $resolved): void
     {
         if ($resolved['public_path'] !== $resolved['current_public_path'] && is_file($resolved['absolute_current'])) {
@@ -129,6 +137,7 @@ abstract class MediaService
         }
     }
 
+    // Builds a consistent upload success payload so callers can return the same JSON shape for every media module.
     protected function buildUploadSuccessResponse(string $publicPath, array $debugContext = []): array
     {
         $body = [
@@ -146,6 +155,7 @@ abstract class MediaService
         ];
     }
 
+    // Builds a consistent upload error payload so callers can surface runtime and unexpected failures the same way.
     protected function buildUploadErrorResponse(\Throwable $e, string $fallbackMessage): array
     {
         if ($e instanceof \RuntimeException) {
@@ -177,6 +187,7 @@ abstract class MediaService
         ];
     }
 
+    // Builds optional debug details so upload responses explain which page, section, and item were targeted in debug mode.
     protected function buildUploadDebugContext(string $dbSyncStatus, ?int $sectionItemId, array $post, string $currentPath, MediaModuleConfig $moduleConfig): array
     {
         return [
@@ -190,11 +201,13 @@ abstract class MediaService
         ];
     }
 
+    // Checks debug mode so upload responses can include extra diagnostics without exposing them in production.
     protected function isDebugMode(): bool
     {
         return filter_var($_ENV['APP_DEBUG'] ?? getenv('APP_DEBUG') ?? false, FILTER_VALIDATE_BOOLEAN);
     }
 
+    // Detects the upload extension from MIME type so file trust comes from server inspection instead of client filenames.
     private function detectUploadExtension(string $tmpPath, array $allowedMimeMap): ?string
     {
         $finfo = new \finfo(FILEINFO_MIME_TYPE);
@@ -203,6 +216,7 @@ abstract class MediaService
         return $allowedMimeMap[$mimeType] ?? null;
     }
 
+    // Verifies a target path matches the module prefixes so uploads cannot escape their allowed folder.
     private function isPathAllowedForModule(MediaModuleConfig $moduleConfig, string $publicPath): bool
     {
         foreach ($moduleConfig->allowedPrefixes as $prefix) {
@@ -214,6 +228,7 @@ abstract class MediaService
         return false;
     }
 
+    // Splits a public path into directory, base name, and extension so upload targets can be rewritten safely.
     private function parseTargetPathParts(string $publicPath): ?array
     {
         $pathInfo = pathinfo($publicPath);
@@ -232,6 +247,7 @@ abstract class MediaService
         ];
     }
 
+    // Reuses the current path when the extension matches or rewrites it when the uploaded file changes type. Example: '/img/a.jpeg' + 'webp' -> '/img/a.webp'.
     private function resolveFinalPublicPath(string $currentPublicPath, array $pathParts, string $uploadExt): string
     {
         $normalizedTargetExt = $pathParts['extension'] === 'jpeg' ? 'jpg' : $pathParts['extension'];
@@ -242,6 +258,7 @@ abstract class MediaService
         return rtrim($pathParts['directory'], '/') . '/' . $pathParts['base_name'] . '.' . $uploadExt;
     }
 
+    // Maps raw PHP upload error codes to readable messages so clients get useful failure reasons.
     private function mapUploadErrorMessage(int $errorCode): string
     {
         return match ($errorCode) {

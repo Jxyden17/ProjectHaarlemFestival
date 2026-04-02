@@ -13,6 +13,7 @@ class ScheduleEditorRequest
     private array $performers;
     private array $sessions;
 
+    // Stores the posted schedule editor rows so controllers can convert one request into typed edit inputs.
     private function __construct(array $venues, array $performers, array $sessions)
     {
         $this->venues = $venues;
@@ -20,6 +21,7 @@ class ScheduleEditorRequest
         $this->sessions = $sessions;
     }
 
+    // Builds a typed schedule editor request from raw POST data so CMS schedule actions can validate and save structured rows.
     public static function fromArray(array $input): self
     {
         return new self(
@@ -29,6 +31,7 @@ class ScheduleEditorRequest
         );
     }
 
+    // Maps posted venue arrays into typed venue edit rows so later code works with validated accessors instead of raw arrays.
     private static function mapVenues(array $input): array
     {
         $rows = [];
@@ -43,6 +46,7 @@ class ScheduleEditorRequest
         return $rows;
     }
 
+    // Maps posted performer arrays into typed performer edit rows so later code works with validated accessors instead of raw arrays.
     private static function mapPerformers(array $input): array
     {
         $rows = [];
@@ -57,6 +61,7 @@ class ScheduleEditorRequest
         return $rows;
     }
 
+    // Maps posted session arrays into typed session edit rows so later code works with validated accessors instead of raw arrays.
     private static function mapSessions(array $input): array
     {
         $rows = [];
@@ -71,21 +76,25 @@ class ScheduleEditorRequest
         return $rows;
     }
 
+    // Returns posted venue rows so CMS schedule code can read the typed venue input collection.
     public function venues(): array
     {
         return $this->venues;
     }
 
+    // Returns posted performer rows so CMS schedule code can read the typed performer input collection.
     public function performers(): array
     {
         return $this->performers;
     }
 
+    // Returns posted session rows so CMS schedule code can read the typed session input collection.
     public function sessions(): array
     {
         return $this->sessions;
     }
 
+    // Builds the consolidated save input so CMS schedule services can persist one typed payload instead of separate arrays.
     public function toSaveInput(): ScheduleSaveInput
     {
         return new ScheduleSaveInput($this->venues(), $this->performers(), $this->sessions());
