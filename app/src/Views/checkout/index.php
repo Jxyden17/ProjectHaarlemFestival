@@ -98,12 +98,15 @@ $subtotal = (float) ($subtotal ?? 0);
                             <span class="badge rounded-pill px-3 py-2" style="background-color: rgba(214, 164, 54, 0.14); color: #f4d27a;">iDEAL</span>
                             <span class="badge rounded-pill px-3 py-2" style="background-color: rgba(255, 255, 255, 0.08); color: #f8f6f1;">Visa</span>
                             <span class="badge rounded-pill px-3 py-2" style="background-color: rgba(255, 255, 255, 0.08); color: #f8f6f1;">Mastercard</span>
-                            <span class="badge rounded-pill px-3 py-2" style="background-color: rgba(255, 255, 255, 0.08); color: #f8f6f1;">PayPal</span>
                         </div>
+
+                        <p class="small mb-4" style="color: rgba(255, 255, 255, 0.7);">
+                            You will continue to Stripe to complete your payment securely with iDEAL or card.
+                        </p>
 
                         <form method="POST" action="/checkout/confirm">
                             <button type="submit" class="btn w-100 py-3 fs-5" style="background-color: #246df0; color: #ffffff; border: none;">
-                                Continue to iDEAL
+                                Continue to secure payment
                             </button>
                         </form>
                     </div>

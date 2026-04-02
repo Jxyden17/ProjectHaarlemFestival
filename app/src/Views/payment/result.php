@@ -11,6 +11,10 @@ $isPaid = (bool) ($paymentResult['isPaid'] ?? false);
             <h1 class="display-5 mb-3">
                 <?php if ($isPaid): ?>
                     Payment Successful
+                <?php elseif ($status === 'cancelled'): ?>
+                    Payment Cancelled
+                <?php elseif ($status === 'processing' || $status === 'pending'): ?>
+                    Payment Pending
                 <?php else: ?>
                     Payment Status: <?= htmlspecialchars(ucfirst($status)) ?>
                 <?php endif; ?>
@@ -22,6 +26,10 @@ $isPaid = (bool) ($paymentResult['isPaid'] ?? false);
 
             <?php if ($isPaid): ?>
                 <p class="text-muted mb-4">Your payment has been confirmed successfully.</p>
+            <?php elseif ($status === 'cancelled'): ?>
+                <p class="text-muted mb-4">You left the payment page before completing the payment.</p>
+            <?php elseif ($status === 'processing' || $status === 'pending'): ?>
+                <p class="text-muted mb-4">Your payment is still being processed by Stripe. Please check again shortly.</p>
             <?php else: ?>
                 <p class="text-muted mb-4">Your payment is currently marked as <?= htmlspecialchars($status) ?>.</p>
             <?php endif; ?>

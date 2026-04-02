@@ -16,12 +16,25 @@ class PaymentController extends BaseController
     public function return(): void
     {
         $orderId = (int) ($_GET['order_id'] ?? 0);
+        $isCancelled = isset($_GET['cancelled']) && (string) $_GET['cancelled'] === '1';
 
         if ($orderId <= 0) {
             http_response_code(400);
             $this->render('shared/error', [
                 'errorTitle' => 'Payment unavailable',
                 'errorMessage' => 'Missing order identifier.',
+            ]);
+            return;
+        }
+
+        if ($isCancelled) {
+            $this->render('payment/result', [
+                'title' => 'Payment Cancelled',
+                'paymentResult' => [
+                    'status' => 'cancelled',
+                    'orderId' => $orderId,
+                    'isPaid' => false,
+                ],
             ]);
             return;
         }

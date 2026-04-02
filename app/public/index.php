@@ -53,6 +53,11 @@ try {
     $host = (string) ($_SERVER['HTTP_HOST'] ?? 'localhost');
     $baseUrl = $scheme . '://' . $host;
     $paymentDriver = trim((string) ($_ENV['PAYMENT_DRIVER'] ?? getenv('PAYMENT_DRIVER') ?? 'stripe'));
+    $stripeSecretKey = trim((string) ($_ENV['STRIPE_SECRET_KEY'] ?? getenv('STRIPE_SECRET_KEY') ?? ''));
+    $artistesService = new App\Service\ArtistesService($artistesRepo);
+    $venueService = new App\Service\VenueService($venueRepo);
+    $ticketService = new App\Service\TicketService($ticketRepo);
+    $cmsEventManagementService = new App\Service\Cms\CmsEventManagementService();
 
     $cmsScheduleMapper = new App\Mapper\CmsScheduleMapper();
     $cmsDanceMapper = new App\Mapper\CmsDanceMapper();
@@ -101,7 +106,7 @@ try {
     $checkoutRepo = new App\Repository\CheckoutRepository();
     $checkoutService = new App\Service\CheckoutService($cartService, $cartRepo, $checkoutRepo);
     $paymentRepo = new App\Repository\PaymentRepository();
-    $paymentService = new App\Service\PaymentService($paymentRepo, $baseUrl, $paymentDriver);
+    $paymentService = new App\Service\PaymentService($paymentRepo, $baseUrl, $paymentDriver, $stripeSecretKey);
     $checkoutController = new App\Controllers\CheckoutController($checkoutService, $paymentService);
     $paymentController = new App\Controllers\PaymentController($paymentService);
 
