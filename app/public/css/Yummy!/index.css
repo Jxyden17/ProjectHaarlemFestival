@@ -11,18 +11,51 @@
 }
 
 .yummy-hero {
-    padding: 40px 0 20px 0;
+    position: relative;
+    padding: 0;
+    margin-bottom: 60px;
+}
+
+.yummy-banner {
+    width: 100vw;
+    height: 420px;
+    object-fit: cover;
+    display: block;
+
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+}
+
+.yummy-title,
+.yummy-subtitle {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    text-align: center;
 }
 
 .yummy-title {
+    top: 45%;
+    transform: translate(-50%, -50%);
     font-size: 48px;
     font-weight: 700;
-    margin-bottom: 8px;
+    color: white;
+    background: var(--primary-color);
+    padding: 16px 28px;
+    border-radius: 10px;
+    backdrop-filter: blur(6px);
 }
 
 .yummy-subtitle {
-    font-size: 18px;
-    color: #9bb3c9;
+    top: calc(45% + 60px);
+    color: #d6e2ef;
+    background: var(--primary-color);
+    padding: 10px 20px;
+    border-radius: 8px;
 }
 
 .yummy-map-section {

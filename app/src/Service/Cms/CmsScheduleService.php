@@ -22,6 +22,7 @@ class CmsScheduleService implements ICmsScheduleService
     private CmsScheduleMapper $cmsScheduleMapper;
     private CmsScheduleValidator $scheduleValidator;
 
+    // Stores CMS schedule dependencies so editor mapping, validation, and repository saves stay coordinated.
     public function __construct(
         IScheduleRepository $scheduleRepo,
         CmsScheduleMapper $cmsScheduleMapper,
@@ -33,6 +34,7 @@ class CmsScheduleService implements ICmsScheduleService
         $this->scheduleValidator = $scheduleValidator;
     }
 
+    // Builds the CMS editor payload for one event so the admin schedule screen gets all editable rows in one response.
     public function getScheduleEditorData(string $eventName): ScheduleEditorViewModel
     {
         $event = $this->findEventOrFail($eventName);
@@ -51,6 +53,7 @@ class CmsScheduleService implements ICmsScheduleService
         );
     }
 
+    // Saves one event schedule edit so posted rows are normalized, validated, and written transactionally.
     public function saveScheduleData(string $eventName, ScheduleSaveInput $input): void
     {
         $event = $this->findEventOrFail($eventName);
@@ -72,7 +75,6 @@ class CmsScheduleService implements ICmsScheduleService
         );
 
         $this->scheduleValidator->validateSessionRowsNotEmpty($sessionRows);
-
         $this->scheduleRepo->saveEventScheduleData(
             (int)$event->id,
             $venueRows,
@@ -82,6 +84,7 @@ class CmsScheduleService implements ICmsScheduleService
         );
     }
 
+    // Resolves one required event so CMS schedule flows fail fast when the event name is invalid.
     private function findEventOrFail(string $eventName): EventModel
     {
         $event = $this->scheduleRepo->findEventByName($eventName);
@@ -92,6 +95,7 @@ class CmsScheduleService implements ICmsScheduleService
         return $event;
     }
 
+    // Extracts allowed venue ids so session validation can reject posted venues from other events.
     private function extractVenueIds(array $venues): array
     {
         $ids = [];
@@ -105,6 +109,7 @@ class CmsScheduleService implements ICmsScheduleService
         return $ids;
     }
 
+    // Extracts allowed performer ids so session-performer validation only accepts performers from the current event.
     private function extractPerformerIds(array $performers): array
     {
         $ids = [];
@@ -118,6 +123,7 @@ class CmsScheduleService implements ICmsScheduleService
         return $ids;
     }
 
+    // Extracts allowed session ids so CMS edits cannot update sessions outside the selected event.
     private function extractSessionIds(array $sessions): array
     {
         $ids = [];
@@ -131,6 +137,7 @@ class CmsScheduleService implements ICmsScheduleService
         return $ids;
     }
 
+    // Normalizes posted venue rows into repository-ready arrays so the save layer works with validated scalar values.
     private function normalizeVenueRows(array $rows): array
     {
         $normalizedRows = [];
@@ -158,6 +165,7 @@ class CmsScheduleService implements ICmsScheduleService
         return $normalizedRows;
     }
 
+    // Normalizes posted performer rows and generates unique slugs so detail-page links stay stable after schedule edits.
     private function normalizePerformerRows(array $rows): array
     {
         $normalizedRows = [];
@@ -190,6 +198,7 @@ class CmsScheduleService implements ICmsScheduleService
         return $normalizedRows;
     }
 
+    // Converts a performer name into a URL-safe slug so schedule performer edits can sync to dance detail page slugs. Example: 'DJ Mina' -> 'dj-mina'.
     private function normalizeSlug(string $value): string
     {
         $slug = trim($value);
@@ -204,6 +213,7 @@ class CmsScheduleService implements ICmsScheduleService
         return trim($slug, '-');
     }
 
+    // Normalizes session and session-performer rows together so CMS saves keep session data and assignments aligned.
     private function normalizeSessionRows(array $rows, array $allowedVenueIds, array $allowedPerformerIds, array $allowedSessionIds): array
     {
         $sessionRows = [];
@@ -233,6 +243,7 @@ class CmsScheduleService implements ICmsScheduleService
         return [$sessionRows, $sessionPerformerRows];
     }
 
+    // Normalizes one session row so repository saves receive validated scalar values in the expected format.
     private function normalizeSingleSessionRow(ScheduleSessionEditRow $row, array $allowedVenueIds, array $allowedSessionIds): array
     {
         $id = $row->id();
@@ -269,6 +280,7 @@ class CmsScheduleService implements ICmsScheduleService
         ];
     }
 
+    // Normalizes performer assignments for one session so duplicates are removed before persistence.
     private function normalizeSessionPerformerRows(int $sessionId, array $performerIds, array $allowedPerformerIds, array &$seenSessionPerformer): array
     {
         $normalizedRows = [];

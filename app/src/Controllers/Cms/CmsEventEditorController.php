@@ -12,12 +12,14 @@ class CmsEventEditorController extends BaseController
     private ICmsScheduleService $cmsScheduleService;
     private ICmsEventEditorService $cmsEventEditorService;
 
+    // Stores CMS event editor dependencies so schedule editing actions stay focused on request and response flow.
     public function __construct(ICmsScheduleService $cmsScheduleService, ICmsEventEditorService $cmsEventEditorService)
     {
         $this->cmsScheduleService = $cmsScheduleService;
         $this->cmsEventEditorService = $cmsEventEditorService;
     }
 
+    // Renders the CMS event schedule editor so admins can manage one event's schedule in a single form.
     public function index(array $vars = []): void
     {
         $this->requireAdmin();
@@ -41,6 +43,7 @@ class CmsEventEditorController extends BaseController
         ]);
     }
 
+    // Handles the CMS event schedule save so posted schedule rows persist and redirect back with status.
     public function update(array $vars = []): void
     {
         $this->requireAdmin();
@@ -80,6 +83,7 @@ class CmsEventEditorController extends BaseController
         }
     }
 
+    // Converts the route slug into an event name so CMS schedule routes can resolve the target event. Example: 'telling-story' -> 'Telling Story'.
     private function resolveEventName(array $vars): string
     {
         $slug = trim((string)($vars['eventSlug'] ?? ''));
@@ -96,6 +100,7 @@ class CmsEventEditorController extends BaseController
         };
     }
 
+    // Converts an event name into a route slug so redirects land back on the correct CMS schedule page. Example: 'Telling Story' -> 'telling-story'.
     private function toEventSlug(string $eventName): string
     {
         return str_replace(' ', '-', strtolower(trim($eventName)));

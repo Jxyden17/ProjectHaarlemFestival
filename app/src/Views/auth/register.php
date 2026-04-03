@@ -16,11 +16,34 @@ $turnstileSiteKey = $_ENV['TURNSTILE_SITE_KEY'] ?? getenv('TURNSTILE_SITE_KEY');
                     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
                     <form method="post" action="/register">
+                       <div class="mb-3">
+                            <label for="name" class="form-label">name</label>
+                            <input type="text" id="name" name="name" class="form-control" value="" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="phoneNumber" class="form-label">Phone number</label>
+                            <input type="text" id="phoneNumber" name="phoneNumber" class="form-control" value="" required>
+                        </div>
                         <div class="mb-3">
                             <label for="email" class="form-label">Email</label>
-                            <input type="email" name="email" id="email" class="form-control" placeholder="name@example.com" autocomplete="email" required>
+                            <input type="email" id="email" name="email" class="form-control" value="" required>
                         </div>
-
+                        <div class="mb-3">
+                            <label for="country" class="form-label">country</label>
+                            <input type="text" id="country" name="country" class="form-control" value="" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="city" class="form-label">city</label>
+                            <input type="text" id="city" name="city" class="form-control" value="" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="addres" class="form-label">addres</label>
+                            <input type="text" id="addres" name="addres" class="form-control" value="" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="postcode" class="form-label">postcode</label>
+                            <input type="text" id="postcode" name="postcode" class="form-control" value="" required>
+                        </div>
                         <div class="mb-3">
                             <label for="password" class="form-label">Password</label>
                             <input type="password" name="password" id="password" class="form-control" placeholder="Create a password" autocomplete="new-password" required>

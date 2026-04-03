@@ -12,6 +12,7 @@ class MailConfig
     public string $password;
     public string $encryption;
 
+    // Stores normalized SMTP settings so the mail service can open a configured connection without re-reading env vars.
     public function __construct(
         string $host,
         int $port,
@@ -30,6 +31,7 @@ class MailConfig
         $this->encryption = strtolower(trim($encryption));
     }
 
+    // Builds mail config from environment variables so deployment settings stay outside the codebase.
     public static function fromEnvironment(): self
     {
         return new self(
