@@ -26,7 +26,7 @@ class ImageUploadService extends MediaService implements IImageUploadService
     {
         try {
             $moduleConfig = $this->parseImageModuleConfig($post);
-            $currentPath = $this->requireCurrentImagePath($post);
+            $currentPath = $this->getCurrentImagePath($post);
             $file = $this->getUploadedFile($files, 'image');
             $upload = $this->validateUploadedFile(
                 $file,
@@ -37,7 +37,7 @@ class ImageUploadService extends MediaService implements IImageUploadService
 
             $sectionItemId = $this->findImageSectionItemId($moduleConfig, $post, $currentPath);
             $currentPath = $this->loadStoredImagePath($currentPath, $sectionItemId);
-            $paths = $this->buildUploadTargetPaths($moduleConfig, $currentPath, $upload['extension'], false);
+            $paths = $this->buildImageUploadTargetPaths($moduleConfig, $currentPath, $upload['extension'], $sectionItemId);
             if ($paths === null) {
                 throw new \RuntimeException('Target path is not allowed for this module', 400);
             }
@@ -131,14 +131,9 @@ class ImageUploadService extends MediaService implements IImageUploadService
         };
     }
 
-    private function requireCurrentImagePath(array $post): string
+    private function getCurrentImagePath(array $post): string
     {
-        $currentPath = trim((string)($post['current_path'] ?? ''));
-        if ($currentPath === '') {
-            throw new \RuntimeException('No target image path provided', 400);
-        }
-
-        return $currentPath;
+        return trim((string)($post['current_path'] ?? ''));
     }
 
     private function buildDanceDetailImageModuleConfig(string $pageSlug, string $sectionType, string $itemCategory): ?MediaModuleConfig

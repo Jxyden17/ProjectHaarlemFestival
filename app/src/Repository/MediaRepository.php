@@ -156,39 +156,7 @@ class MediaRepository implements IMediaRepository
             ':link_url' => $linkUrl,
         ]);
 
-        if ($existsStmt->fetch(PDO::FETCH_ASSOC) !== false) {
-            return true;
-        }
-
-        $fallbackUpdateStmt = $this->db->prepare(
-            'UPDATE section_items
-             SET link_url = :link_url
-             WHERE id = :section_item_id'
-        );
-
-        $fallbackUpdateStmt->execute([
-            ':link_url' => $linkUrl,
-            ':section_item_id' => $sectionItemId,
-        ]);
-
-        if ($fallbackUpdateStmt->rowCount() > 0) {
-            return true;
-        }
-
-        $fallbackExistsStmt = $this->db->prepare(
-            'SELECT id
-             FROM section_items
-             WHERE id = :section_item_id
-               AND link_url = :link_url
-             LIMIT 1'
-        );
-
-        $fallbackExistsStmt->execute([
-            ':section_item_id' => $sectionItemId,
-            ':link_url' => $linkUrl,
-        ]);
-
-        return $fallbackExistsStmt->fetch(PDO::FETCH_ASSOC) !== false;
+        return $existsStmt->fetch(PDO::FETCH_ASSOC) !== false;
     }
 
     public function findSectionItemIdByLinkUrl(
@@ -272,42 +240,7 @@ class MediaRepository implements IMediaRepository
             ':image_path' => $imagePath,
         ]);
 
-        if ($existsStmt->fetch(PDO::FETCH_ASSOC) !== false) {
-            return true;
-        }
-
-        // Stories home now uploads by the known section item id. If the page slug
-        // or section mapping in the existing data is slightly inconsistent, we can
-        // still safely update by the unique section item id.
-        $fallbackUpdateStmt = $this->db->prepare(
-            'UPDATE section_items
-             SET image_path = :image_path
-             WHERE id = :section_item_id'
-        );
-
-        $fallbackUpdateStmt->execute([
-            ':image_path' => $imagePath,
-            ':section_item_id' => $sectionItemId,
-        ]);
-
-        if ($fallbackUpdateStmt->rowCount() > 0) {
-            return true;
-        }
-
-        $fallbackExistsStmt = $this->db->prepare(
-            'SELECT id
-             FROM section_items
-             WHERE id = :section_item_id
-               AND image_path = :image_path
-             LIMIT 1'
-        );
-
-        $fallbackExistsStmt->execute([
-            ':section_item_id' => $sectionItemId,
-            ':image_path' => $imagePath,
-        ]);
-
-        return $fallbackExistsStmt->fetch(PDO::FETCH_ASSOC) !== false;
+        return $existsStmt->fetch(PDO::FETCH_ASSOC) !== false;
     }
 
     public function findSectionItemImagePathById(int $sectionItemId): ?string
