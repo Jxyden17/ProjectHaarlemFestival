@@ -63,8 +63,6 @@
             <h2 class="h5 mt-4">Did You Know</h2>
             <label class="form-label">Section Title</label>
             <input type="text" name="sections[did_you_know][title]" class="form-control mb-3" value="<?= htmlspecialchars($didYouKnow?->title ?? '') ?>">
-            <input type="hidden" name="sections[did_you_know][subtitle]" value="<?= htmlspecialchars($didYouKnow?->subTitle ?? '') ?>">
-            <input type="hidden" name="sections[did_you_know][description]" value="<?= htmlspecialchars($didYouKnow?->description ?? '') ?>">
             <?php foreach ($didYouKnow?->items ?? [] as $index => $item): ?>
                 <div class="mb-3" data-tour-upload-row="1" data-tour-section-type="did_you_know" data-tour-item-category="<?= htmlspecialchars((string)($item->category ?? '')) ?>">
                     <input type="hidden" name="items[did_you_know][<?= (int)$index ?>][id]" class="tour-item-id" value="<?= (int)$item->id ?>">

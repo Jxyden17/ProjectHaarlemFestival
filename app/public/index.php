@@ -291,8 +291,7 @@ try {
                 'CmsArtistsController' => $cmsArtistsController,
                 'CmsVenuesController' => $cmsVenuesController,
                 'CmsEventManagementController' => $cmsEventManagementController,
-                'CmsScheduleController' => $cmsScheduleController,
-                'CmsJazzController'=> $cmsJazzController
+                'CmsScheduleController' => $cmsScheduleController
             ];
 
             if (!isset($controllerMap[$controllerName])) {
