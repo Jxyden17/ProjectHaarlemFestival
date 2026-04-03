@@ -6,7 +6,7 @@ interface IPaymentRepository
 {
     public function findOrderById(int $orderId): ?array;
 
-    public function createPaymentRecord(int $orderId, string $method, string $status, ?string $providerPaymentId = null): int;
+    public function createPaymentRecord(int $orderId, int $cartId, string $method, string $status, ?string $providerPaymentId = null): int;
 
     public function updatePaymentStatus(string $providerPaymentId, string $status): void;
 
@@ -21,4 +21,6 @@ interface IPaymentRepository
     public function updateOrderStatus(int $orderId, string $status): void;
 
     public function markOrderAsPaid(int $orderId): void;
+
+    public function markCartAsConverted(int $cartId): void;
 }

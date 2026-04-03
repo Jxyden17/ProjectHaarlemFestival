@@ -202,6 +202,95 @@ class PageRepository implements IPageRepository
         return (int) $row['id'];
     }
 
+    public function createPage(int $eventId, string $pageName, string $slug, array $sections): int
+    {
+        $this->db->beginTransaction();
+
+        try {
+            $pageStmt = $this->db->prepare(
+                'INSERT INTO pages (event_id, page_name, slug)
+                 VALUES (:event_id, :page_name, :slug)'
+            );
+            $pageStmt->execute([
+                ':event_id' => $eventId,
+                ':page_name' => $pageName,
+                ':slug' => $slug,
+            ]);
+
+            $pageId = (int) $this->db->lastInsertId();
+
+            $sectionStmt = $this->db->prepare(
+                'INSERT INTO page_sections (page_id, section_type, title, subtitle, description, order_index)
+                 VALUES (:page_id, :section_type, :title, :subtitle, :description, :order_index)'
+            );
+
+            $itemStmt = $this->db->prepare(
+                'INSERT INTO section_items (
+                    section_id,
+                    item_category,
+                    title,
+                    item_subtitle,
+                    content,
+                    image_path,
+                    link_url,
+                    duration,
+                    icon_class,
+                    order_index
+                 ) VALUES (
+                    :section_id,
+                    :item_category,
+                    :title,
+                    :item_subtitle,
+                    :content,
+                    :image_path,
+                    :link_url,
+                    :duration,
+                    :icon_class,
+                    :order_index
+                 )'
+            );
+
+            foreach ($sections as $section) {
+                $sectionStmt->execute([
+                    ':page_id' => $pageId,
+                    ':section_type' => (string) ($section['section_type'] ?? ''),
+                    ':title' => $section['title'] ?? null,
+                    ':subtitle' => $section['subtitle'] ?? null,
+                    ':description' => $section['description'] ?? null,
+                    ':order_index' => (int) ($section['order_index'] ?? 0),
+                ]);
+
+                $sectionId = (int) $this->db->lastInsertId();
+                $items = is_array($section['items'] ?? null) ? $section['items'] : [];
+
+                foreach ($items as $item) {
+                    $itemStmt->execute([
+                        ':section_id' => $sectionId,
+                        ':item_category' => (string) ($item['item_category'] ?? ''),
+                        ':title' => $item['title'] ?? null,
+                        ':item_subtitle' => $item['item_subtitle'] ?? null,
+                        ':content' => $item['content'] ?? null,
+                        ':image_path' => $item['image_path'] ?? null,
+                        ':link_url' => $item['link_url'] ?? null,
+                        ':duration' => $item['duration'] ?? null,
+                        ':icon_class' => $item['icon_class'] ?? null,
+                        ':order_index' => (int) ($item['order_index'] ?? 0),
+                    ]);
+                }
+            }
+
+            $this->db->commit();
+
+            return $pageId;
+        } catch (\Throwable $e) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+
+            throw $e;
+        }
+    }
+
     public function findSectionIdsByPageId(int $pageId): array
     {
         if ($pageId <= 0) {

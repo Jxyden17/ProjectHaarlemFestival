@@ -15,10 +15,12 @@ class CartController extends BaseController
 
     public function index(): void
     {
+        $this->requireAuth();
+
         $cartData = $this->cartService->getCartWithItems();
 
         $this->render('cart/index', [
-            'title' => 'Personal Program',
+            'title' => 'Shopping Cart',
             'cart' => $cartData['cart'],
             'items' => $cartData['items'],
             'groups' => $cartData['groups'],
@@ -28,6 +30,8 @@ class CartController extends BaseController
 
     public function add(): void
     {
+        $this->requireAuth();
+
         $sessionId = (int) ($_POST['session_id'] ?? 0);
         $quantity = (int) ($_POST['quantity'] ?? 1);
         $customPriceInput = $_POST['custom_price'] ?? null;
@@ -41,6 +45,8 @@ class CartController extends BaseController
 
     public function update(): void
     {
+        $this->requireAuth();
+
         $cartItemId = (int) ($_POST['cart_item_id'] ?? 0);
         $quantity = (int) ($_POST['quantity'] ?? 0);
 
@@ -52,6 +58,8 @@ class CartController extends BaseController
 
     public function remove(): void
     {
+        $this->requireAuth();
+
         $cartItemId = (int) ($_POST['cart_item_id'] ?? 0);
 
         $this->cartService->removeCartItem($cartItemId);

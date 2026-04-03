@@ -54,10 +54,7 @@ try {
     $baseUrl = $scheme . '://' . $host;
     $paymentDriver = trim((string) ($_ENV['PAYMENT_DRIVER'] ?? getenv('PAYMENT_DRIVER') ?? 'stripe'));
     $stripeSecretKey = trim((string) ($_ENV['STRIPE_SECRET_KEY'] ?? getenv('STRIPE_SECRET_KEY') ?? ''));
-    $artistesService = new App\Service\ArtistesService($artistesRepo);
-    $venueService = new App\Service\VenueService($venueRepo);
-    $ticketService = new App\Service\TicketService($ticketRepo);
-    $cmsEventManagementService = new App\Service\Cms\CmsEventManagementService();
+    $stripeWebhookSecret = trim((string) ($_ENV['STRIPE_WEBHOOK_SECRET'] ?? getenv('STRIPE_WEBHOOK_SECRET') ?? ''));
 
     $cmsScheduleMapper = new App\Mapper\CmsScheduleMapper();
     $cmsDanceMapper = new App\Mapper\CmsDanceMapper();
@@ -106,7 +103,7 @@ try {
     $checkoutRepo = new App\Repository\CheckoutRepository();
     $checkoutService = new App\Service\CheckoutService($cartService, $cartRepo, $checkoutRepo);
     $paymentRepo = new App\Repository\PaymentRepository();
-    $paymentService = new App\Service\PaymentService($paymentRepo, $baseUrl, $paymentDriver, $stripeSecretKey);
+    $paymentService = new App\Service\PaymentService($paymentRepo, $baseUrl, $paymentDriver, $stripeSecretKey, $stripeWebhookSecret);
     $checkoutController = new App\Controllers\CheckoutController($checkoutService, $paymentService);
     $paymentController = new App\Controllers\PaymentController($paymentService);
 
@@ -156,6 +153,8 @@ try {
         $r->addRoute('POST', '/cms/events/tour-details', ['CmsTourContentController', 'detailsUpdate']);
         $r->addRoute('GET', '/cms/events/stories-home', ['CmsStoriesContentController', 'index']);
         $r->addRoute('POST', '/cms/events/stories-home', ['CmsStoriesContentController', 'update']);
+        $r->addRoute('GET', '/cms/events/stories/create', ['CmsStoriesContentController', 'createForm']);
+        $r->addRoute('POST', '/cms/events/stories/create', ['CmsStoriesContentController', 'create']);
         $r->addRoute('GET', '/cms/events/stories-details', ['CmsStoriesContentController', 'details']);
         $r->addRoute('POST', '/cms/events/stories-details', ['CmsStoriesContentController', 'detailsUpdate']);
         $r->addRoute('POST', '/cms/media/upload-image', ['CmsMediaController', 'uploadImage']);

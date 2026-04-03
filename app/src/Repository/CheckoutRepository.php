@@ -39,7 +39,7 @@ class CheckoutRepository implements ICheckoutRepository
         );
 
         $stmt->execute([
-            ':status' => 'converted',
+            ':status' => 'paid',
             ':id' => $cartId,
         ]);
     }

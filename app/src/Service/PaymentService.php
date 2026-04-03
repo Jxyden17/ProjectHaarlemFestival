@@ -7,28 +7,37 @@ use App\Service\Interfaces\IPaymentService;
 
 class PaymentService implements IPaymentService
 {
+    private const WEBHOOK_TOLERANCE_IN_SECONDS = 300;
+
     private IPaymentRepository $paymentRepository;
     private string $baseUrl;
     private string $paymentDriver;
     private string $stripeSecretKey;
+    private string $stripeWebhookSecret;
 
     public function __construct(
         IPaymentRepository $paymentRepository,
         string $baseUrl,
         string $paymentDriver = 'stripe',
-        string $stripeSecretKey = ''
+        string $stripeSecretKey = '',
+        string $stripeWebhookSecret = ''
     )
     {
         $this->paymentRepository = $paymentRepository;
         $this->baseUrl = rtrim($baseUrl, '/');
         $this->paymentDriver = strtolower(trim($paymentDriver)) !== '' ? strtolower(trim($paymentDriver)) : 'stripe';
         $this->stripeSecretKey = trim($stripeSecretKey);
+        $this->stripeWebhookSecret = trim($stripeWebhookSecret);
     }
 
-    public function createPayment(int $orderId): string
+    public function createPayment(int $orderId, int $cartId): string
     {
         if ($orderId <= 0) {
             throw new \RuntimeException('Invalid order.');
+        }
+
+        if ($cartId <= 0) {
+            throw new \RuntimeException('Invalid cart.');
         }
 
         if (trim($this->baseUrl) === '') {
@@ -36,7 +45,7 @@ class PaymentService implements IPaymentService
         }
 
         if ($this->paymentDriver === 'stripe') {
-            return $this->createStripeCheckoutSession($orderId);
+            return $this->createStripeCheckoutSession($orderId, $cartId);
         }
 
         throw new \RuntimeException('Unsupported payment driver: ' . $this->paymentDriver);
@@ -67,6 +76,10 @@ class PaymentService implements IPaymentService
 
             if ($status === 'paid') {
                 $this->paymentRepository->markOrderAsPaid($orderId);
+                $cartId = (int) ($paymentRecord['cart_id'] ?? 0);
+                if ($cartId > 0) {
+                    $this->paymentRepository->markCartAsConverted($cartId);
+                }
             } else {
                 $this->paymentRepository->updateOrderStatus($orderId, $status);
             }
@@ -79,9 +92,14 @@ class PaymentService implements IPaymentService
         ];
     }
 
-    public function handleWebhook(string $providerPaymentId): void
+    public function handleWebhook(string $payload, string $signature = ''): void
     {
-        if (trim($providerPaymentId) === '') {
+        if (trim($payload) === '') {
+            return;
+        }
+
+        if ($this->paymentDriver === 'stripe') {
+            $this->processStripeWebhook($payload, $signature);
             return;
         }
 
@@ -98,7 +116,7 @@ class PaymentService implements IPaymentService
         return (string) ($paymentRecord['status'] ?? 'unknown');
     }
 
-    private function createStripeCheckoutSession(int $orderId): string
+    private function createStripeCheckoutSession(int $orderId, int $cartId): string
     {
         if ($this->stripeSecretKey === '') {
             throw new \RuntimeException('Stripe secret key is missing. Configure STRIPE_SECRET_KEY in the environment.');
@@ -124,11 +142,12 @@ class PaymentService implements IPaymentService
             'payment_method_types[0]' => 'ideal',
             'payment_method_types[1]' => 'card',
             'line_items[0][price_data][currency]' => 'eur',
-            'line_items[0][price_data][product_data][name]' => 'Haarlem Festival order #' . $orderId,
-            'line_items[0][price_data][product_data][description]' => 'Checkout payment for your selected festival tickets.',
+            'line_items[0][price_data][product_data][name]' => 'Haarlem Festival tickets',
+            'line_items[0][price_data][product_data][description]' => 'Order #' . $orderId,
             'line_items[0][price_data][unit_amount]' => (string) $unitAmount,
             'line_items[0][quantity]' => '1',
             'metadata[order_id]' => (string) $orderId,
+            'metadata[cart_id]' => (string) $cartId,
         ];
 
         $response = $this->sendStripeRequest('POST', '/v1/checkout/sessions', $payload);
@@ -139,7 +158,7 @@ class PaymentService implements IPaymentService
             throw new \RuntimeException('Stripe did not return a checkout URL.');
         }
 
-        $this->paymentRepository->createPaymentRecord($orderId, 'stripe', 'pending', $sessionId);
+        $this->paymentRepository->createPaymentRecord($orderId, $cartId, 'stripe', 'pending', $sessionId);
         $this->paymentRepository->updateOrderStatus($orderId, 'pending');
 
         return $checkoutUrl;
@@ -172,6 +191,104 @@ class PaymentService implements IPaymentService
         }
 
         return 'pending';
+    }
+
+    private function processStripeWebhook(string $payload, string $signature): void
+    {
+        if ($this->stripeWebhookSecret === '') {
+            throw new \RuntimeException('Stripe webhook secret is missing. Configure STRIPE_WEBHOOK_SECRET in the environment.');
+        }
+
+        $this->assertValidStripeSignature($payload, $signature);
+
+        $event = json_decode($payload, true);
+        if (!is_array($event)) {
+            throw new \RuntimeException('Stripe webhook payload could not be decoded.');
+        }
+
+        $eventType = (string) ($event['type'] ?? '');
+        $session = $event['data']['object'] ?? null;
+
+        if (!is_array($session)) {
+            return;
+        }
+
+        $sessionId = trim((string) ($session['id'] ?? ''));
+        if ($sessionId === '') {
+            return;
+        }
+
+        $paymentRecord = $this->paymentRepository->findPaymentByProviderPaymentId($sessionId);
+        if ($paymentRecord === null) {
+            return;
+        }
+
+        $orderId = (int) ($paymentRecord['order_id'] ?? 0);
+        if ($orderId <= 0) {
+            return;
+        }
+
+        $status = match ($eventType) {
+            'checkout.session.completed' => $this->mapStripeStatus($session),
+            'checkout.session.async_payment_succeeded' => 'paid',
+            'checkout.session.async_payment_failed',
+            'checkout.session.expired' => 'failed',
+            default => '',
+        };
+
+        if ($status === '') {
+            return;
+        }
+
+        $this->paymentRepository->updatePaymentStatusByOrderId($orderId, $status);
+
+        if ($status === 'paid') {
+            $this->paymentRepository->markOrderAsPaid($orderId);
+            $cartId = (int) ($paymentRecord['cart_id'] ?? 0);
+            if ($cartId > 0) {
+                $this->paymentRepository->markCartAsConverted($cartId);
+            }
+            return;
+        }
+
+        $this->paymentRepository->updateOrderStatus($orderId, $status);
+    }
+
+    private function assertValidStripeSignature(string $payload, string $signatureHeader): void
+    {
+        if ($signatureHeader === '') {
+            throw new \RuntimeException('Missing Stripe signature header.');
+        }
+
+        $parts = [];
+        foreach (explode(',', $signatureHeader) as $chunk) {
+            [$key, $value] = array_pad(explode('=', trim($chunk), 2), 2, '');
+            if ($key !== '' && $value !== '') {
+                $parts[$key][] = $value;
+            }
+        }
+
+        $timestamp = isset($parts['t'][0]) ? (int) $parts['t'][0] : 0;
+        $signatures = $parts['v1'] ?? [];
+
+        if ($timestamp <= 0 || $signatures === []) {
+            throw new \RuntimeException('Invalid Stripe signature header.');
+        }
+
+        if (abs(time() - $timestamp) > self::WEBHOOK_TOLERANCE_IN_SECONDS) {
+            throw new \RuntimeException('Stripe webhook timestamp is outside the allowed tolerance.');
+        }
+
+        $signedPayload = $timestamp . '.' . $payload;
+        $expectedSignature = hash_hmac('sha256', $signedPayload, $this->stripeWebhookSecret);
+
+        foreach ($signatures as $candidate) {
+            if (hash_equals($expectedSignature, $candidate)) {
+                return;
+            }
+        }
+
+        throw new \RuntimeException('Stripe webhook signature verification failed.');
     }
 
     private function sendStripeRequest(string $method, string $path, array $payload = []): array

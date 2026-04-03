@@ -51,8 +51,10 @@ class CheckoutController extends BaseController
         }
 
         try {
-            $orderId = $this->checkoutService->confirmCheckout();
-            $checkoutUrl = $this->paymentService->createPayment($orderId);
+            $checkoutData = $this->checkoutService->confirmCheckout();
+            $orderId = (int) ($checkoutData['order_id'] ?? 0);
+            $cartId = (int) ($checkoutData['cart_id'] ?? 0);
+            $checkoutUrl = $this->paymentService->createPayment($orderId, $cartId);
         } catch (\Throwable $e) {
             http_response_code(400);
             $this->render('shared/error', [

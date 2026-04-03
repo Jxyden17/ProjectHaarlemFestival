@@ -36,9 +36,11 @@ $renderBlockRichText = static function (?string $html): string {
 <section class="stories-hero-section">
     <div class="stories-hero-images">
         <?php foreach ($items as $item): ?>
+            <?php $image = trim((string) ($item->image ?? '')); ?>
+            <?php if ($image === '') { continue; } ?>
             <div class="stories-hero-img-item">
                 <img
-                    src="<?= htmlspecialchars((string) ($item->image ?? '')) ?>"
+                    src="<?= htmlspecialchars($image) ?>"
                     alt="<?= htmlspecialchars((string) ($item->title ?? '')) ?>"
                 >
             </div>

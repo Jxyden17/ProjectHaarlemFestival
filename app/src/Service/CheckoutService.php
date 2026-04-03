@@ -36,7 +36,7 @@ class CheckoutService implements ICheckoutService
         return $cartData;
     }
 
-    public function confirmCheckout(): int
+    public function confirmCheckout(): array
     {
         $userId = (int) ($_SESSION['user_id'] ?? 0);
         if ($userId <= 0) {
@@ -56,9 +56,11 @@ class CheckoutService implements ICheckoutService
         }
 
         $orderId = $this->checkoutRepository->createOrder($userId, $subtotal);
-        $this->checkoutRepository->markCartAsConverted($cartId);
 
-        return $orderId;
+        return [
+            'order_id' => $orderId,
+            'cart_id' => $cartId,
+        ];
     }
 
     private function validateItemsAgainstLatestStock(array $items): void

@@ -29,14 +29,14 @@ $isPaid = (bool) ($paymentResult['isPaid'] ?? false);
             <?php elseif ($status === 'cancelled'): ?>
                 <p class="text-muted mb-4">You left the payment page before completing the payment.</p>
             <?php elseif ($status === 'processing' || $status === 'pending'): ?>
-                <p class="text-muted mb-4">Your payment is still being processed by Stripe. Please check again shortly.</p>
+                <p class="text-muted mb-4">Your payment is still being processed. Please check again shortly.</p>
             <?php else: ?>
                 <p class="text-muted mb-4">Your payment is currently marked as <?= htmlspecialchars($status) ?>.</p>
             <?php endif; ?>
 
             <div class="d-flex justify-content-center gap-3">
                 <a href="/" class="btn btn-primary">Back to Events</a>
-                <a href="/cart" class="btn btn-outline-secondary">Open Cart</a>
+                <a href="/cart" class="btn btn-outline-secondary">Open Shopping Cart</a>
             </div>
         </div>
     </section>

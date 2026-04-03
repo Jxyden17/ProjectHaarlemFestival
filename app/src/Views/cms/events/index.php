@@ -3,6 +3,8 @@ use App\Models\Event\EventDetailPageModel;
 
 $danceDetailPages = is_array($danceDetailPages ?? null) ? $danceDetailPages : [];
 $storyDetailPages = is_array($storyDetailPages ?? null) ? $storyDetailPages : [];
+$storiesSuccess = isset($storiesSuccess) && is_string($storiesSuccess) ? $storiesSuccess : '';
+$storiesError = isset($storiesError) && is_string($storiesError) ? $storiesError : '';
 ?>
 
 <div class="container py-4">
@@ -16,6 +18,18 @@ $storyDetailPages = is_array($storyDetailPages ?? null) ? $storyDetailPages : []
         <a href="/cms/users" class="btn btn-sm btn-outline-secondary">Users</a>
         <a href="/cms/tickets" class="btn btn-sm btn-outline-secondary">Tickets</a>
     </div>
+
+    <?php if ($storiesSuccess !== ''): ?>
+        <div class="alert alert-success" role="alert">
+            <?= htmlspecialchars($storiesSuccess) ?>
+        </div>
+    <?php endif; ?>
+
+    <?php if ($storiesError !== ''): ?>
+        <div class="alert alert-danger" role="alert">
+            <?= htmlspecialchars($storiesError) ?>
+        </div>
+    <?php endif; ?>
 
     
     <div class="row g-3">
@@ -106,9 +120,12 @@ $storyDetailPages = is_array($storyDetailPages ?? null) ? $storyDetailPages : []
         <div class="col-12">
             <div class="card h-100">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
                         <h2 class="h5 mb-0">Stories</h2>
-                        <span class="badge text-bg-success">Live</span>
+                        <div class="d-flex align-items-center gap-2">
+                            <a href="/cms/events/stories/create" class="btn btn-sm btn-success">Add Story Event</a>
+                            <span class="badge text-bg-success">Live</span>
+                        </div>
                     </div>
                     <div class="mb-3">
                         <a href="/cms/events/stories/schedule" class="btn btn-outline-primary">Edit Schedule</a>
@@ -123,7 +140,6 @@ $storyDetailPages = is_array($storyDetailPages ?? null) ? $storyDetailPages : []
                             </a>
                         <?php endforeach; ?>
                     </div>
-                    <p class="mb-0 text-muted">Edit hero, grid, venues, schedule, FAQ, and each Stories detail page.</p>
                 </div>
             </div>
         </div>

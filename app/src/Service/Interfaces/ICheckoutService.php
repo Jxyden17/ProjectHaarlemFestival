@@ -6,5 +6,5 @@ interface ICheckoutService
 {
     public function getCheckoutData(): array;
 
-    public function confirmCheckout(): int;
+    public function confirmCheckout(): array;
 }

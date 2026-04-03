@@ -58,10 +58,11 @@ class PaymentController extends BaseController
 
     public function webhook(): void
     {
-        $paymentId = trim((string) ($_POST['id'] ?? ''));
+        $payload = file_get_contents('php://input');
+        $signature = trim((string) ($_SERVER['HTTP_STRIPE_SIGNATURE'] ?? ''));
 
         try {
-            $this->paymentService->handleWebhook($paymentId);
+            $this->paymentService->handleWebhook((string) $payload, $signature);
             http_response_code(200);
             echo 'OK';
         } catch (\Throwable $e) {
