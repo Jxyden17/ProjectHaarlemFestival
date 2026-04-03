@@ -39,7 +39,7 @@ class CmsArtistsController extends BaseController
     public function showEditForm(): void
     {
         $this->requireAdmin();
-        $artiste = $this->artistesService->getArtisteById((int)($_GET['id'] ?? 0));
+        $artiste = $this->artistesService->getArtisteById($_GET['id'] ?? 0);
         $selectedEvent = $this->getSelectedEvent();
         $this->renderCms('cms/artists/edit', [
             'title' => 'Edit Artist',

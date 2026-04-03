@@ -61,7 +61,6 @@ try {
     $paymentDriver = trim((string) ($_ENV['PAYMENT_DRIVER'] ?? getenv('PAYMENT_DRIVER') ?? 'stripe'));
     $artistesService = new App\Service\ArtistesService($artistesRepo);
     $venueService = new App\Service\VenueService($venueRepo);
-    $ticketService = new App\Service\TicketService($ticketRepo);
     $cmsEventManagementService = new App\Service\Cms\CmsEventManagementService();
 
     $cmsScheduleMapper = new App\Mapper\CmsScheduleMapper();
@@ -100,7 +99,6 @@ try {
 
     $cmsController = new App\Controllers\Cms\CmsController($cmsService);
     $cmsEventsController = new App\Controllers\Cms\CmsEventsController($cmsService, $danceService, $pageService, $cmsEventEditorService);
-    $cmsTicketsController = new App\Controllers\Cms\CmsTicketsController($ticketService);
     $cmsUsersController = new App\Controllers\Cms\CmsUsersController($cmsService);
     $storiesController = new App\Controllers\StoriesController($pageService, $scheduleService, $scheduleViewModelMapper);
     $cmsEventEditorController = new App\Controllers\Cms\CmsEventEditorController($cmsScheduleService, $cmsEventEditorService);
@@ -230,13 +228,6 @@ try {
         $r->addRoute('POST', '/cms/eventManagement/schedules/create', ['CmsScheduleController', 'create']);
         $r->addRoute('GET', '/cms/eventManagement/schedules/delete', ['CmsScheduleController', 'delete']);
 
-        $r->addRoute('GET', '/cms/eventManagement/schedules/{sessionId:\d+}/tickets', ['CmsTicketsController', 'index']);
-        $r->addRoute('GET', '/cms/eventManagement/schedules/{sessionId:\d+}/tickets/create', ['CmsTicketsController', 'showCreateForm']);
-        $r->addRoute('POST', '/cms/eventManagement/schedules/{sessionId:\d+}/tickets/create', ['CmsTicketsController', 'create']);
-        $r->addRoute('GET', '/cms/eventManagement/schedules/{sessionId:\d+}/tickets/edit', ['CmsTicketsController', 'showEditForm']);
-        $r->addRoute('POST', '/cms/eventManagement/schedules/{sessionId:\d+}/tickets/edit', ['CmsTicketsController', 'edit']);
-        $r->addRoute('GET', '/cms/eventManagement/schedules/{sessionId:\d+}/tickets/delete', ['CmsTicketsController', 'delete']);
-
         $r->addRoute('GET', '/jazz', ['JazzController', 'index']);
 
         // Shopping Cart routes
@@ -284,7 +275,6 @@ try {
                 'UserController' => $userController,
                 'PersonalProgramController' => $personalProgramController,
                 'CmsEventsController' => $cmsEventsController,
-                'CmsTicketsController' => $cmsTicketsController,
                 'CmsUsersController' => $cmsUsersController,
                 'CmsEventEditorController' => $cmsEventEditorController,
                 'CmsDanceController' => $cmsDanceController,
@@ -301,8 +291,7 @@ try {
                 'CmsArtistsController' => $cmsArtistsController,
                 'CmsVenuesController' => $cmsVenuesController,
                 'CmsEventManagementController' => $cmsEventManagementController,
-                'CmsScheduleController' => $cmsScheduleController,
-                'CmsJazzController'=> $cmsJazzController
+                'CmsScheduleController' => $cmsScheduleController
             ];
 
             if (!isset($controllerMap[$controllerName])) {

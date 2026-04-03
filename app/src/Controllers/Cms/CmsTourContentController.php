@@ -90,9 +90,9 @@ class CmsTourContentController extends BaseController
      public function detailsUpdate(): void
     {
         $this->requireAdmin();
-        $pageId = (int)($_POST['page_id'] ?? $_GET['id'] ?? 0);
-        $sections = is_array($_POST['sections']) ? $_POST['sections'] : [];
-        $items = is_array($_POST['items']) ? $_POST['items'] : [];
+        $pageId = $_POST['page_id'] ?? $_GET['id'] ?? 0;
+        $sections = $_POST['sections'] ?? [];
+        $items = $_POST['items'] ?? [];
 
         try {
             $this->cmsEventEditorService->savePageContent($pageId, $sections, $items);
