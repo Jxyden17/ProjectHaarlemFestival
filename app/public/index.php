@@ -141,11 +141,8 @@ try {
     // Shopping Cart setup
     $cartRepo = new App\Repository\CartRepository();
     $cartService = new App\Service\CartService($cartRepo);
-    $favoritesRepo = new App\Repository\FavoritesRepository();
-    $favoritesService = new App\Service\FavoritesService($favoritesRepo, $cartRepo);
     $cartController = new App\Controllers\CartController($cartService);
-    $favoritesController = new App\Controllers\FavoritesController($favoritesService);
-    $bookController = new App\Controllers\BookController($cartService, $favoritesService);
+    $bookController = new App\Controllers\BookController($cartService);
     $checkoutRepo = new App\Repository\CheckoutRepository();
     $checkoutService = new App\Service\CheckoutService($cartService, $cartRepo, $checkoutRepo);
     $paymentRepo = new App\Repository\PaymentRepository();
@@ -224,9 +221,6 @@ try {
         $r->addRoute('POST', '/cart/add', ['CartController', 'add']);
         $r->addRoute('POST', '/cart/update', ['CartController', 'update']);
         $r->addRoute('POST', '/cart/remove', ['CartController', 'remove']);
-        $r->addRoute('GET', '/favorites', ['FavoritesController', 'index']);
-        $r->addRoute('POST', '/favorites/add', ['FavoritesController', 'add']);
-        $r->addRoute('POST', '/favorites/remove', ['FavoritesController', 'remove']);
         $r->addRoute('GET', '/book/{sessionId:\d+}', ['BookController', 'index']);
         $r->addRoute('GET', '/checkout', ['CheckoutController', 'index']);
         $r->addRoute('POST', '/checkout/confirm', ['CheckoutController', 'confirm']);
@@ -270,7 +264,6 @@ try {
                 'CmsMediaController' => $cmsMediaController,
                 'CmsHomeContentController' => $cmsHomeContentController,
                 'CartController' => $cartController,
-                'FavoritesController' => $favoritesController,
                 'BookController' => $bookController,
                 'CheckoutController' => $checkoutController,
                 'PaymentController' => $paymentController,

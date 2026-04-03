@@ -90,9 +90,6 @@ $canManage = $roleId === 1; // 1=Administrator
                     <i data-lucide="shield-check"></i>
                 </a>
             <?php endif; ?>
-            <a class="hf-icon-btn" href="/favorites" aria-label="Favorites">
-                <i data-lucide="heart"></i>
-            </a>
             <a class="hf-icon-btn" href="/cart" aria-label="Cart">
                 <i data-lucide="shopping-cart"></i>
             </a>
