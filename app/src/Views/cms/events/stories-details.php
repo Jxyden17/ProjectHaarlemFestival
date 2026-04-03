@@ -1,26 +1,84 @@
 <?php
-$heroImageItems = $hero?->getItemsByCategorie('image') ?? [];
-$heroTagItems = $hero?->getItemsByCategorie('tag') ?? [];
-$aboutItems = $about?->getItemsByCategorie('paragraph') ?? [];
-$galleryItems = $gallery?->getItemsByCategorie('gallery') ?? [];
-$featuredItems = $featured?->items ?? [];
-$bookingButtonItems = $booking?->getItemsByCategorie('button') ?? [];
-$bookingPriceItems = $booking?->getItemsByCategorie('price') ?? [];
-$bookingPriceLabelItems = $booking?->getItemsByCategorie('price_label') ?? [];
-$bookingDateItems = $booking?->getItemsByCategorie('datetime') ?? [];
-$bookingLocationItems = $booking?->getItemsByCategorie('location') ?? [];
-$bookingTagItems = $booking?->getItemsByCategorie('tag') ?? [];
-$pageSlug = trim((string) ($pageSlug ?? ''));
+
+use App\Models\ViewModels\Cms\Stories\StoriesDetailEditViewModel;
+use App\Models\ViewModels\Cms\Stories\StoriesItemRowViewModel;
+use App\Models\ViewModels\Cms\Stories\StoriesSectionEditViewModel;
+
+$contentViewModel = (isset($contentViewModel) && $contentViewModel instanceof StoriesDetailEditViewModel)
+    ? $contentViewModel
+    : new StoriesDetailEditViewModel(
+        0,
+        'Stories Detail Content',
+        '',
+        '',
+        new StoriesSectionEditViewModel('', '', ''),
+        [],
+        [],
+        new StoriesSectionEditViewModel('', '', ''),
+        [],
+        new StoriesSectionEditViewModel('', '', ''),
+        [],
+        new StoriesSectionEditViewModel('', '', ''),
+        [],
+        new StoriesSectionEditViewModel('', '', ''),
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+    );
+
+$hero = $contentViewModel->hero;
+$heroImageItems = $contentViewModel->heroImageItems;
+$heroTagItems = $contentViewModel->heroTagItems;
+$about = $contentViewModel->about;
+$aboutItems = $contentViewModel->aboutItems;
+$gallery = $contentViewModel->gallery;
+$galleryItems = $contentViewModel->galleryItems;
+$featured = $contentViewModel->featured;
+$featuredItems = $contentViewModel->featuredItems;
+$booking = $contentViewModel->booking;
+$bookingButtonItems = $contentViewModel->bookingButtonItems;
+$bookingPriceItems = $contentViewModel->bookingPriceItems;
+$bookingPriceLabelItems = $contentViewModel->bookingPriceLabelItems;
+$bookingDateItems = $contentViewModel->bookingDateItems;
+$bookingLocationItems = $contentViewModel->bookingLocationItems;
+$bookingTagItems = $contentViewModel->bookingTagItems;
+$pageSlug = trim($contentViewModel->pageSlug);
+$pageId = $contentViewModel->pageId;
+
+$renderHiddenItemFields = static function (string $prefix, StoriesItemRowViewModel $item, array $skip = []): void {
+    $fields = [
+        'id' => (string) $item->id,
+        'item_category' => $item->category,
+        'title' => $item->title,
+        'item_subtitle' => $item->subTitle,
+        'content' => $item->content,
+        'image_path' => $item->image,
+        'link_url' => $item->url,
+        'duration' => $item->duration,
+        'icon_class' => $item->icon,
+    ];
+
+    foreach ($skip as $fieldName) {
+        unset($fields[$fieldName]);
+    }
+
+    foreach ($fields as $fieldName => $fieldValue) {
+        echo '<input type="hidden" name="' . htmlspecialchars($prefix . '[' . $fieldName . ']') . '" value="' . htmlspecialchars($fieldValue) . '">';
+    }
+};
 ?>
 
 <div class="container-lg py-4 py-md-5">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
-            <h1 class="h3 mb-1"><?= htmlspecialchars((string)($pageTitle ?? 'Stories Detail Content')) ?></h1>
+            <h1 class="h3 mb-1"><?= htmlspecialchars($contentViewModel->editorTitle) ?></h1>
         </div>
         <div class="d-flex align-items-center gap-2">
             <form method="POST" action="/cms/events/stories/delete" onsubmit="return confirm('Are you sure you want to delete this Stories subpage? This action cannot be undone.');" class="m-0">
-                <input type="hidden" name="page_id" value="<?= (int)($pageId ?? 0) ?>">
+                <input type="hidden" name="page_id" value="<?= (int)$pageId ?>">
                 <button type="submit" class="btn btn-outline-danger">Delete Subpage</button>
             </form>
             <a href="/cms/events" class="btn btn-outline-secondary">Back to Events</a>
@@ -34,7 +92,7 @@ $pageSlug = trim((string) ($pageSlug ?? ''));
 
     <form method="POST" action="/cms/events/stories-details" class="card border-0 shadow-sm" data-stories-page-slug="<?= htmlspecialchars($pageSlug) ?>">
         <div class="card-body p-4">
-            <input type="hidden" name="page_id" value="<?= (int)($pageId ?? 0) ?>">
+            <input type="hidden" name="page_id" value="<?= (int)$pageId ?>">
 
             <div class="accordion cms-editor-accordion" id="storiesDetailAccordion">
                 <div class="accordion-item">
@@ -83,11 +141,7 @@ $pageSlug = trim((string) ($pageSlug ?? ''));
                                                 <button type="button" class="btn btn-sm btn-outline-primary upload-performer-image">Upload</button>
                                                 <a href="<?= htmlspecialchars($item->image ?? '') ?>" class="btn btn-sm btn-outline-secondary performer-download-link<?= ($item->image ?? '') === '' ? ' d-none' : '' ?>" download>Download</a>
                                             </div>
-                                            <input type="hidden" name="items[hero][<?= (int)$index ?>][content]" value="<?= htmlspecialchars($item->content ?? '') ?>">
-                                            <input type="hidden" name="items[hero][<?= (int)$index ?>][link_url]" value="<?= htmlspecialchars($item->url ?? '') ?>">
-                                            <input type="hidden" name="items[hero][<?= (int)$index ?>][duration]" value="<?= htmlspecialchars($item->duration ?? '') ?>">
-                                            <input type="hidden" name="items[hero][<?= (int)$index ?>][icon_class]" value="<?= htmlspecialchars($item->icon ?? '') ?>">
-                                            <input type="hidden" name="items[hero][<?= (int)$index ?>][item_subtitle]" value="<?= htmlspecialchars($item->subTitle ?? '') ?>">
+                                            <?php $renderHiddenItemFields('items[hero][' . (int)$index . ']', $item, ['id', 'item_category', 'image_path', 'title']); ?>
                                         </div>
                                     </div>
                                 <?php endforeach; ?>
@@ -100,12 +154,7 @@ $pageSlug = trim((string) ($pageSlug ?? ''));
                                             <input type="hidden" name="items[hero][<?= (int)$rowIndex ?>][id]" value="<?= (int)$item->id ?>">
                                             <input type="hidden" name="items[hero][<?= (int)$rowIndex ?>][item_category]" value="<?= htmlspecialchars($item->category ?? '') ?>">
                                             <input type="text" name="items[hero][<?= (int)$rowIndex ?>][title]" class="form-control" value="<?= htmlspecialchars($item->title ?? '') ?>">
-                                            <input type="hidden" name="items[hero][<?= (int)$rowIndex ?>][content]" value="<?= htmlspecialchars($item->content ?? '') ?>">
-                                            <input type="hidden" name="items[hero][<?= (int)$rowIndex ?>][image_path]" value="<?= htmlspecialchars($item->image ?? '') ?>">
-                                            <input type="hidden" name="items[hero][<?= (int)$rowIndex ?>][link_url]" value="<?= htmlspecialchars($item->url ?? '') ?>">
-                                            <input type="hidden" name="items[hero][<?= (int)$rowIndex ?>][duration]" value="<?= htmlspecialchars($item->duration ?? '') ?>">
-                                            <input type="hidden" name="items[hero][<?= (int)$rowIndex ?>][icon_class]" value="<?= htmlspecialchars($item->icon ?? '') ?>">
-                                            <input type="hidden" name="items[hero][<?= (int)$rowIndex ?>][item_subtitle]" value="<?= htmlspecialchars($item->subTitle ?? '') ?>">
+                                            <?php $renderHiddenItemFields('items[hero][' . (int)$rowIndex . ']', $item, ['id', 'item_category', 'title']); ?>
                                         </div>
                                     </div>
                                 <?php endforeach; ?>
@@ -137,12 +186,7 @@ $pageSlug = trim((string) ($pageSlug ?? ''));
                                             <input type="hidden" name="items[about][<?= (int)$index ?>][id]" value="<?= (int)$item->id ?>">
                                             <input type="hidden" name="items[about][<?= (int)$index ?>][item_category]" value="<?= htmlspecialchars($item->category ?? '') ?>">
                                             <textarea name="items[about][<?= (int)$index ?>][content]" class="form-control" rows="5"><?= htmlspecialchars($item->content ?? '') ?></textarea>
-                                            <input type="hidden" name="items[about][<?= (int)$index ?>][title]" value="<?= htmlspecialchars($item->title ?? '') ?>">
-                                            <input type="hidden" name="items[about][<?= (int)$index ?>][image_path]" value="<?= htmlspecialchars($item->image ?? '') ?>">
-                                            <input type="hidden" name="items[about][<?= (int)$index ?>][link_url]" value="<?= htmlspecialchars($item->url ?? '') ?>">
-                                            <input type="hidden" name="items[about][<?= (int)$index ?>][duration]" value="<?= htmlspecialchars($item->duration ?? '') ?>">
-                                            <input type="hidden" name="items[about][<?= (int)$index ?>][icon_class]" value="<?= htmlspecialchars($item->icon ?? '') ?>">
-                                            <input type="hidden" name="items[about][<?= (int)$index ?>][item_subtitle]" value="<?= htmlspecialchars($item->subTitle ?? '') ?>">
+                                            <?php $renderHiddenItemFields('items[about][' . (int)$index . ']', $item, ['id', 'item_category', 'content']); ?>
                                         </div>
                                     </div>
                                 <?php endforeach; ?>

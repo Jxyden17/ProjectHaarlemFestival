@@ -1,18 +1,71 @@
 <?php
-$heroItems = $hero?->items ?? [];
-$gridItems = $grid?->items ?? [];
-$venueItems = $venues?->items ?? [];
-$scheduleItems = $schedule?->items ?? [];
-$exploreItems = $explore?->items ?? [];
-$faqItems = $faq?->items ?? [];
-$pageSlug = 'stories';
+
+use App\Models\ViewModels\Cms\Stories\StoriesHomeEditViewModel;
+use App\Models\ViewModels\Cms\Stories\StoriesItemRowViewModel;
+use App\Models\ViewModels\Cms\Stories\StoriesSectionEditViewModel;
+
+$contentViewModel = (isset($contentViewModel) && $contentViewModel instanceof StoriesHomeEditViewModel)
+    ? $contentViewModel
+    : new StoriesHomeEditViewModel(
+        'Stories Home Content',
+        'stories',
+        '/stories',
+        new StoriesSectionEditViewModel('', '', ''),
+        [],
+        new StoriesSectionEditViewModel('', '', ''),
+        [],
+        new StoriesSectionEditViewModel('', '', ''),
+        [],
+        new StoriesSectionEditViewModel('', '', ''),
+        [],
+        new StoriesSectionEditViewModel('', '', ''),
+        [],
+        new StoriesSectionEditViewModel('', '', ''),
+        []
+    );
+
+$hero = $contentViewModel->hero;
+$heroItems = $contentViewModel->heroItems;
+$grid = $contentViewModel->grid;
+$gridItems = $contentViewModel->gridItems;
+$venues = $contentViewModel->venues;
+$venueItems = $contentViewModel->venueItems;
+$schedule = $contentViewModel->schedule;
+$scheduleItems = $contentViewModel->scheduleItems;
+$explore = $contentViewModel->explore;
+$exploreItems = $contentViewModel->exploreItems;
+$faq = $contentViewModel->faq;
+$faqItems = $contentViewModel->faqItems;
+$pageSlug = $contentViewModel->pageSlug;
+
+$renderHiddenItemFields = static function (string $prefix, StoriesItemRowViewModel $item, array $skip = []): void {
+    $fields = [
+        'id' => (string) $item->id,
+        'item_category' => $item->category,
+        'title' => $item->title,
+        'item_subtitle' => $item->subTitle,
+        'content' => $item->content,
+        'image_path' => $item->image,
+        'link_url' => $item->url,
+        'duration' => $item->duration,
+        'icon_class' => $item->icon,
+    ];
+
+    foreach ($skip as $fieldName) {
+        unset($fields[$fieldName]);
+    }
+
+    foreach ($fields as $fieldName => $fieldValue) {
+        echo '<input type="hidden" name="' . htmlspecialchars($prefix . '[' . $fieldName . ']') . '" value="' . htmlspecialchars($fieldValue) . '">';
+    }
+};
 ?>
 
 <div class="container-lg py-4 py-md-5">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
-            <h1 class="h3 mb-1">Stories Home Content</h1>
-            <p class="text-muted mb-0">Public page: <a href="/stories" target="_blank" rel="noreferrer">/stories</a></p>
+            <h1 class="h3 mb-1"><?= htmlspecialchars($contentViewModel->editorTitle) ?></h1>
+            <p class="text-muted mb-0">Public page: <a href="<?= htmlspecialchars($contentViewModel->publicPath) ?>" target="_blank" rel="noreferrer"><?= htmlspecialchars($contentViewModel->publicPath) ?></a></p>
         </div>
         <a href="/cms/events" class="btn btn-outline-secondary">Back to Events</a>
     </div>
@@ -72,10 +125,7 @@ $pageSlug = 'stories';
                                                 <a href="<?= htmlspecialchars($item->image ?? '') ?>" class="btn btn-sm btn-outline-secondary performer-download-link<?= ($item->image ?? '') === '' ? ' d-none' : '' ?>" download>Download</a>
                                             </div>
 
-                                            <input type="hidden" name="items[hero][<?= (int)$index ?>][link_url]" value="<?= htmlspecialchars($item->url ?? '') ?>">
-                                            <input type="hidden" name="items[hero][<?= (int)$index ?>][duration]" value="<?= htmlspecialchars($item->duration ?? '') ?>">
-                                            <input type="hidden" name="items[hero][<?= (int)$index ?>][icon_class]" value="<?= htmlspecialchars($item->icon ?? '') ?>">
-                                            <input type="hidden" name="items[hero][<?= (int)$index ?>][item_subtitle]" value="<?= htmlspecialchars($item->subTitle ?? '') ?>">
+                                            <?php $renderHiddenItemFields('items[hero][' . (int)$index . ']', $item, ['id', 'item_category', 'image_path', 'title', 'content']); ?>
                                         </div>
                                     </div>
                                 <?php endforeach; ?>
@@ -126,9 +176,7 @@ $pageSlug = 'stories';
                                                 <button type="button" class="btn btn-sm btn-outline-primary upload-performer-image">Upload</button>
                                                 <a href="<?= htmlspecialchars($item->image ?? '') ?>" class="btn btn-sm btn-outline-secondary performer-download-link<?= ($item->image ?? '') === '' ? ' d-none' : '' ?>" download>Download</a>
                                             </div>
-                                            <input type="hidden" name="items[grid][<?= (int)$index ?>][duration]" value="<?= htmlspecialchars($item->duration ?? '') ?>">
-                                            <input type="hidden" name="items[grid][<?= (int)$index ?>][icon_class]" value="<?= htmlspecialchars($item->icon ?? '') ?>">
-                                            <input type="hidden" name="items[grid][<?= (int)$index ?>][item_subtitle]" value="<?= htmlspecialchars($item->subTitle ?? '') ?>">
+                                            <?php $renderHiddenItemFields('items[grid][' . (int)$index . ']', $item, ['id', 'item_category', 'image_path', 'title', 'content', 'link_url']); ?>
                                         </div>
                                     </div>
                                 <?php endforeach; ?>
@@ -361,11 +409,7 @@ $pageSlug = 'stories';
                                                 <label class="form-label">Answer</label>
                                                 <textarea name="items[faq][<?= (int)$index ?>][content]" class="form-control" rows="3"><?= htmlspecialchars($item->content ?? '') ?></textarea>
                                             </div>
-                                            <input type="hidden" name="items[faq][<?= (int)$index ?>][image_path]" value="<?= htmlspecialchars($item->image ?? '') ?>">
-                                            <input type="hidden" name="items[faq][<?= (int)$index ?>][link_url]" value="<?= htmlspecialchars($item->url ?? '') ?>">
-                                            <input type="hidden" name="items[faq][<?= (int)$index ?>][duration]" value="<?= htmlspecialchars($item->duration ?? '') ?>">
-                                            <input type="hidden" name="items[faq][<?= (int)$index ?>][icon_class]" value="<?= htmlspecialchars($item->icon ?? '') ?>">
-                                            <input type="hidden" name="items[faq][<?= (int)$index ?>][item_subtitle]" value="<?= htmlspecialchars($item->subTitle ?? '') ?>">
+                                            <?php $renderHiddenItemFields('items[faq][' . (int)$index . ']', $item, ['id', 'item_category', 'title', 'content']); ?>
                                         </div>
                                     </div>
                                 <?php endforeach; ?>

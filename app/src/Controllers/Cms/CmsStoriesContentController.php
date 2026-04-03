@@ -3,6 +3,7 @@
 namespace App\Controllers\Cms;
 
 use App\Controllers\BaseController;
+use App\Mapper\CmsStoriesViewModelMapper;
 use App\Service\Cms\Interfaces\ICmsEventEditorService;
 use App\Service\Interfaces\IPageService;
 
@@ -13,11 +14,17 @@ class CmsStoriesContentController extends BaseController
 
     private IPageService $pageService;
     private ICmsEventEditorService $cmsEventEditorService;
+    private CmsStoriesViewModelMapper $storiesViewModelMapper;
 
-    public function __construct(IPageService $pageService, ICmsEventEditorService $cmsEventEditorService)
+    public function __construct(
+        IPageService $pageService,
+        ICmsEventEditorService $cmsEventEditorService,
+        CmsStoriesViewModelMapper $storiesViewModelMapper
+    )
     {
         $this->pageService = $pageService;
         $this->cmsEventEditorService = $cmsEventEditorService;
+        $this->storiesViewModelMapper = $storiesViewModelMapper;
     }
 
     public function index(): void
@@ -36,13 +43,7 @@ class CmsStoriesContentController extends BaseController
 
         $this->renderCms('cms/events/stories-home', [
             'title' => 'Stories Home Content',
-            'pageTitle' => $page->title,
-            'hero' => $page->getSection('hero'),
-            'grid' => $page->getSection('grid'),
-            'venues' => $page->getSection('venues'),
-            'schedule' => $page->getSection('schedule'),
-            'explore' => $page->getSection('explore'),
-            'faq' => $page->getSection('faq'),
+            'contentViewModel' => $this->storiesViewModelMapper->mapHomePageToEditViewModel($page),
             'success' => isset($_GET['saved']),
         ]);
     }
@@ -84,15 +85,7 @@ class CmsStoriesContentController extends BaseController
 
         $this->renderCms('cms/events/stories-details', [
             'title' => 'Stories Detail Content',
-            'pageTitle' => $page->title,
-            'pageId' => $pageId,
-            'pageSlug' => (string) $page->slug,
-            'publicPath' => '/stories/' . ltrim((string)$page->slug, '/'),
-            'hero' => $page->getSection('hero'),
-            'about' => $page->getSection('about'),
-            'gallery' => $page->getSection('gallery'),
-            'featured' => $page->getSection('featured'),
-            'booking' => $page->getSection('booking'),
+            'contentViewModel' => $this->storiesViewModelMapper->mapDetailPageToEditViewModel($page, $pageId),
             'success' => isset($_GET['saved']),
         ]);
     }
