@@ -1,14 +1,20 @@
+<?php
+use App\Models\Page\Section;
+$section = $section ?? null;
+
+if (!$section instanceof Section) {
+    return;
+}
+?>
 <section class="discover-section">
     <div class="discover-container">
         <h1 class="discover-title">
             <?= $section->title ?>
         </h1>
-        
         <div class="discover-description">
             <?= $section->subTitle ?>
             <?= $section->description ?>
         </div>
-
         <div class="info-grid">
             <?php foreach ($section->getItemsByCategorie('grid') as $item): ?>
                 <div class="info-item">
@@ -18,7 +24,6 @@
                 </div>
             <?php endforeach; ?>
         </div>
-
         <div class="pricing-info-row">
                 <div class="pricing-section">
                     <h2 class="section-title">Prices</h2>

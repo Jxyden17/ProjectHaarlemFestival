@@ -53,6 +53,8 @@ class CmsPageSaveService implements ICmsPageSaveService
         $existingItems = $this->loadExistingItemMetadata($pageId);
         $normalizedSections = [];
         $sectionOrder = 0;
+        
+        $pageTitle = $this->normalizeOptionalString($sections['header']['title'] ?? $sections['page_title']['title'] ?? null);
 
         foreach ($sections as $sectionType => $sectionData) {
             if (!is_array($sectionData)) {
@@ -70,7 +72,7 @@ class CmsPageSaveService implements ICmsPageSaveService
             ];
         }
 
-        $this->savePageContent($pageId, null, $normalizedSections);
+        $this->savePageContent($pageId, $pageTitle, $normalizedSections);
     }
 
     public function savePageContentBySlug(

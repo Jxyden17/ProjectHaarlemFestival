@@ -467,7 +467,7 @@
     padding: 10px 20px;
 }
 
-.title
+.stops-section .title
 {
     text-align: center;
     font-family: var(--font-main);
@@ -476,78 +476,117 @@
     color: var(--natural-light);
 }
 
-.grid
+.stops-section  .grid
 {
     display: grid;
     grid-template-columns: repeat(3, 1fr); 
-    gap: 30px;
+    gap: 24px;
 }
 
-.card
+.stops-section .card
 {
     background: var(--primary-color);
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 4px 15px var(--accent-history);
     transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    min-height: 520px;
 }
 
-.card:hover
+.stops-section .card:hover
 {
     transform: translateY(-5px);
+    box-shadow: 0 10px 24px var(--accent-history);
 }
 
-.image
+.stops-section .image
 {
     position: relative;
-    height: 200px;
+    height: 210px;
+    flex: 0 0 auto;
 }
 
-.image img 
+.stops-section .image img 
 {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    display: block;
 }
 
-.info
+.stops-section .info
 {
     color: var(--natural-light);
+    padding: 12px 14px 14px;
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    gap: 8px;
 }
 
-.letter
+.stops-section .info h3
+{
+    font-size: 1.05rem;
+    margin: 0;
+    line-height: 1.25;
+}
+
+.stops-section .info p
+{
+    font-size: 0.85rem;
+    line-height: 1.45;
+    margin: 0;
+}
+.stops-section .letter
 {
     position: absolute;
-    top: 15px;
-    left: 15px;
+    top: 10px;
+    left: 10px;
     background: var(--accent-color);
     color: var(--natural-light);
-    width: 35px;
-    height: 35px;
+    width: 26px;
+    height: 26px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 50%;
-    font-weight: bold;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.75rem;
 }
-.Read-More
+.stops-section .Read-More
 {
-    display: inline-block;
-    margin: 10px;
-    margin-left: 110px;
-    padding: 10px 20px 10px 20px;
-    background-color: var(--accent-history);
-    color: var(--natural-dark);
-    border-radius: 10px;
-    transition: background-color 0.3s ease;
+    margin-top: auto;
+    align-self: center;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
+    padding: 7px 16px;
+    background-color: var(--accent-history);
+    color: var(--natural-dark);
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 0.78rem;
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-.Read-More:hover
+.stops-section .Read-More:hover
 {
     background-color: var(--accent-color);
     color: var(--natural-light);
     font-weight: 600;
+}
+
+@media (max-width: 992px) {
+    .stops-section .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    .stops-section .grid {
+        grid-template-columns: 1fr;
+    }
 }
 /* ===== END from partialViews/Tour/stopGrid.css ===== */
