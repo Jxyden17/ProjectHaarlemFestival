@@ -25,4 +25,8 @@ interface IScheduleService
 
     // Finds one event by name so other schedule flows can branch on null when the event does not exist.
     public function findEventByName(string $eventName): ?EventModel;
+    public function getSessionById(int $sessionId): ?ScheduleEditorViewModel;
+    public function editSchedule(int $id, int $eventId, int $venueId, string $date, string $startTime, int $availableSpots, ?string $label,  ?float $price, ?int $language): bool;
+    public function createSchedule(    int $eventId, int $venueId, string $date, string $startTime, int $availableSpots, ?string $label, ?float $price, ?int $language, array $performerIds = []): bool;
+    public function deleteSchedule(int $id): bool;
 }
