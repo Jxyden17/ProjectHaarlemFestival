@@ -3,14 +3,17 @@
 namespace App\Controllers;
 
 use App\Service\Interfaces\ICartService;
+use App\Service\Interfaces\IFavoritesService;
 
 class BookController extends BaseController
 {
     private ICartService $cartService;
+    private IFavoritesService $favoritesService;
 
-    public function __construct(ICartService $cartService)
+    public function __construct(ICartService $cartService, IFavoritesService $favoritesService)
     {
         $this->cartService = $cartService;
+        $this->favoritesService = $favoritesService;
     }
 
     public function index(array $vars): void
@@ -42,6 +45,7 @@ class BookController extends BaseController
         $this->render('book/index', [
             'title' => 'Book Tickets',
             'session' => $session,
+            'isFavorite' => $this->favoritesService->isFavorite($sessionId),
         ]);
     }
 }

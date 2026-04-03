@@ -93,6 +93,16 @@ class AudioUploadService extends MediaService implements IAudioUploadService
             return $this->buildDanceDetailAudioModuleConfig($matches[1]);
         }
 
+        if (preg_match('/^stories_detail_audio:([a-z0-9-]+)$/', $module, $matches) === 1) {
+            return new MediaModuleConfig(
+                ['/audio/stories/'],
+                $matches[1],
+                'featured',
+                '',
+                MediaModuleConfig::MATCH_BY_SECTION_AND_CATEGORY
+            );
+        }
+
         return null;
     }
 

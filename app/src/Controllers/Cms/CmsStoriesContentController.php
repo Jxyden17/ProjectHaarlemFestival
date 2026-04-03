@@ -86,6 +86,7 @@ class CmsStoriesContentController extends BaseController
             'title' => 'Stories Detail Content',
             'pageTitle' => $page->title,
             'pageId' => $pageId,
+            'pageSlug' => (string) $page->slug,
             'publicPath' => '/stories/' . ltrim((string)$page->slug, '/'),
             'hero' => $page->getSection('hero'),
             'about' => $page->getSection('about'),
@@ -156,6 +157,34 @@ class CmsStoriesContentController extends BaseController
             'title' => 'Create Stories Event',
             'storiesError' => is_string($storiesError) ? $storiesError : null,
         ]);
+    }
+
+    public function delete(): void
+    {
+        $this->requireAdmin();
+
+        $pageId = (int) ($_POST['page_id'] ?? 0);
+        if ($pageId <= 0) {
+            $_SESSION['cms_stories_error'] = 'Missing Stories page identifier.';
+            header('Location: /cms/events');
+            exit;
+        }
+
+        if (!$this->canDeleteStoriesPage($pageId)) {
+            $_SESSION['cms_stories_error'] = 'This Stories page cannot be deleted.';
+            header('Location: /cms/events');
+            exit;
+        }
+
+        try {
+            $this->pageService->deletePageById($pageId);
+            $_SESSION['cms_stories_success'] = 'Stories subpage deleted.';
+        } catch (\Throwable $e) {
+            $_SESSION['cms_stories_error'] = 'Could not delete the Stories subpage. ' . $e->getMessage();
+        }
+
+        header('Location: /cms/events');
+        exit;
     }
 
     private function generateUniqueSlug(string $pageName): string
@@ -357,5 +386,20 @@ class CmsStoriesContentController extends BaseController
                 ],
             ],
         ];
+    }
+
+    private function canDeleteStoriesPage(int $pageId): bool
+    {
+        if ($pageId === self::STORIES_PAGE_ID) {
+            return false;
+        }
+
+        foreach ($this->pageService->getPagesByEventId(self::STORIES_EVENT_ID) as $page) {
+            if ((int) ($page['id'] ?? 0) === $pageId) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

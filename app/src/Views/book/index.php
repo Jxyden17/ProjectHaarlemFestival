@@ -38,6 +38,7 @@ $initialDisplayQuantity = 1;
 $initialMultiplier = 1;
 $initialSubmittedQuantity = $initialDisplayQuantity * $initialMultiplier;
 $initialMaxDisplayQuantity = max(1, $availableSpots);
+$isFavorite = (bool) ($isFavorite ?? false);
 ?>
 
 <div class="container-fluid px-0 book-page">
@@ -227,6 +228,14 @@ $initialMaxDisplayQuantity = max(1, $availableSpots);
 
                 <button type="submit" class="btn w-100 py-3 book-submit-btn" <?= $isSoldOut ? 'disabled' : '' ?>>
                     Add to shopping cart
+                </button>
+            </form>
+
+            <form method="POST" action="<?= $isFavorite ? '/favorites/remove' : '/favorites/add' ?>" class="mt-3">
+                <input type="hidden" name="session_id" value="<?= (int) ($session['id'] ?? 0) ?>">
+                <input type="hidden" name="redirect_to" value="/book/<?= (int) ($session['id'] ?? 0) ?>">
+                <button type="submit" class="btn w-100 py-3 payment-result-secondary-btn book-favorite-btn">
+                    <?= $isFavorite ? 'Remove from favorites' : 'Save to favorites' ?>
                 </button>
             </form>
 

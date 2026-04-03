@@ -3,6 +3,49 @@ session_start();
 
 require __DIR__ . '/../vendor/autoload.php';
 
+$loadEnvironmentFile = static function (string $path): void {
+    if (!is_file($path) || !is_readable($path)) {
+        return;
+    }
+
+    $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    if (!is_array($lines)) {
+        return;
+    }
+
+    foreach ($lines as $line) {
+        $trimmedLine = trim($line);
+        if ($trimmedLine === '' || str_starts_with($trimmedLine, '#')) {
+            continue;
+        }
+
+        $separatorPosition = strpos($trimmedLine, '=');
+        if ($separatorPosition === false) {
+            continue;
+        }
+
+        $name = trim(substr($trimmedLine, 0, $separatorPosition));
+        $value = trim(substr($trimmedLine, $separatorPosition + 1));
+
+        if ($name === '') {
+            continue;
+        }
+
+        if (
+            (str_starts_with($value, '"') && str_ends_with($value, '"'))
+            || (str_starts_with($value, '\'') && str_ends_with($value, '\''))
+        ) {
+            $value = substr($value, 1, -1);
+        }
+
+        $_ENV[$name] = $value;
+        putenv($name . '=' . $value);
+    }
+};
+
+$loadEnvironmentFile(__DIR__ . '/../.env');
+$loadEnvironmentFile(__DIR__ . '/../.env.local');
+
 use FastRoute\RouteCollector;
 use function FastRoute\simpleDispatcher;
 
@@ -98,8 +141,11 @@ try {
     // Shopping Cart setup
     $cartRepo = new App\Repository\CartRepository();
     $cartService = new App\Service\CartService($cartRepo);
+    $favoritesRepo = new App\Repository\FavoritesRepository();
+    $favoritesService = new App\Service\FavoritesService($favoritesRepo, $cartRepo);
     $cartController = new App\Controllers\CartController($cartService);
-    $bookController = new App\Controllers\BookController($cartService);
+    $favoritesController = new App\Controllers\FavoritesController($favoritesService);
+    $bookController = new App\Controllers\BookController($cartService, $favoritesService);
     $checkoutRepo = new App\Repository\CheckoutRepository();
     $checkoutService = new App\Service\CheckoutService($cartService, $cartRepo, $checkoutRepo);
     $paymentRepo = new App\Repository\PaymentRepository();
@@ -155,6 +201,7 @@ try {
         $r->addRoute('POST', '/cms/events/stories-home', ['CmsStoriesContentController', 'update']);
         $r->addRoute('GET', '/cms/events/stories/create', ['CmsStoriesContentController', 'createForm']);
         $r->addRoute('POST', '/cms/events/stories/create', ['CmsStoriesContentController', 'create']);
+        $r->addRoute('POST', '/cms/events/stories/delete', ['CmsStoriesContentController', 'delete']);
         $r->addRoute('GET', '/cms/events/stories-details', ['CmsStoriesContentController', 'details']);
         $r->addRoute('POST', '/cms/events/stories-details', ['CmsStoriesContentController', 'detailsUpdate']);
         $r->addRoute('POST', '/cms/media/upload-image', ['CmsMediaController', 'uploadImage']);
@@ -177,6 +224,9 @@ try {
         $r->addRoute('POST', '/cart/add', ['CartController', 'add']);
         $r->addRoute('POST', '/cart/update', ['CartController', 'update']);
         $r->addRoute('POST', '/cart/remove', ['CartController', 'remove']);
+        $r->addRoute('GET', '/favorites', ['FavoritesController', 'index']);
+        $r->addRoute('POST', '/favorites/add', ['FavoritesController', 'add']);
+        $r->addRoute('POST', '/favorites/remove', ['FavoritesController', 'remove']);
         $r->addRoute('GET', '/book/{sessionId:\d+}', ['BookController', 'index']);
         $r->addRoute('GET', '/checkout', ['CheckoutController', 'index']);
         $r->addRoute('POST', '/checkout/confirm', ['CheckoutController', 'confirm']);
@@ -220,6 +270,7 @@ try {
                 'CmsMediaController' => $cmsMediaController,
                 'CmsHomeContentController' => $cmsHomeContentController,
                 'CartController' => $cartController,
+                'FavoritesController' => $favoritesController,
                 'BookController' => $bookController,
                 'CheckoutController' => $checkoutController,
                 'PaymentController' => $paymentController,

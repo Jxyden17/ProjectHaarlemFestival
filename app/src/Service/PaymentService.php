@@ -78,7 +78,7 @@ class PaymentService implements IPaymentService
                 $this->paymentRepository->markOrderAsPaid($orderId);
                 $cartId = (int) ($paymentRecord['cart_id'] ?? 0);
                 if ($cartId > 0) {
-                    $this->paymentRepository->markCartAsConverted($cartId);
+                    $this->paymentRepository->markCartAsPaid($cartId);
                 }
             } else {
                 $this->paymentRepository->updateOrderStatus($orderId, $status);
@@ -89,6 +89,36 @@ class PaymentService implements IPaymentService
             'status' => $status,
             'orderId' => $orderId,
             'isPaid' => $status === 'paid',
+        ];
+    }
+
+    public function handleCancellation(int $orderId): array
+    {
+        if ($orderId <= 0) {
+            throw new \RuntimeException('Missing order identifier.');
+        }
+
+        $paymentRecord = $this->paymentRepository->findPaymentByOrderId($orderId);
+        $currentStatus = strtolower(trim((string) ($paymentRecord['status'] ?? '')));
+
+        if ($currentStatus === 'paid') {
+            return [
+                'status' => 'paid',
+                'orderId' => $orderId,
+                'isPaid' => true,
+            ];
+        }
+
+        if ($paymentRecord !== null) {
+            $this->paymentRepository->updatePaymentStatusByOrderId($orderId, 'cancelled');
+        }
+
+        $this->paymentRepository->updateOrderStatus($orderId, 'cancelled');
+
+        return [
+            'status' => 'cancelled',
+            'orderId' => $orderId,
+            'isPaid' => false,
         ];
     }
 
@@ -231,8 +261,8 @@ class PaymentService implements IPaymentService
         $status = match ($eventType) {
             'checkout.session.completed' => $this->mapStripeStatus($session),
             'checkout.session.async_payment_succeeded' => 'paid',
-            'checkout.session.async_payment_failed',
-            'checkout.session.expired' => 'failed',
+            'checkout.session.async_payment_failed' => 'failed',
+            'checkout.session.expired' => 'expired',
             default => '',
         };
 
@@ -246,7 +276,7 @@ class PaymentService implements IPaymentService
             $this->paymentRepository->markOrderAsPaid($orderId);
             $cartId = (int) ($paymentRecord['cart_id'] ?? 0);
             if ($cartId > 0) {
-                $this->paymentRepository->markCartAsConverted($cartId);
+                $this->paymentRepository->markCartAsPaid($cartId);
             }
             return;
         }

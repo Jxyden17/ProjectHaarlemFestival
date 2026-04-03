@@ -44,4 +44,9 @@ class PageService implements IPageService
     {
         return $this->pageRepo->createPage($eventId, $pageName, $slug, $sections);
     }
+
+    public function deletePageById(int $pageId): void
+    {
+        $this->pageRepo->deletePageById($pageId);
+    }
 }

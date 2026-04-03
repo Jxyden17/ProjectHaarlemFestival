@@ -121,7 +121,7 @@ class PaymentRepository implements IPaymentRepository
         $this->updateOrderStatus($orderId, 'paid');
     }
 
-    public function markCartAsConverted(int $cartId): void
+    public function markCartAsPaid(int $cartId): void
     {
         $stmt = $this->db->prepare(
             'UPDATE shopping_carts

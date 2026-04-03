@@ -22,5 +22,5 @@ interface IPaymentRepository
 
     public function markOrderAsPaid(int $orderId): void;
 
-    public function markCartAsConverted(int $cartId): void;
+    public function markCartAsPaid(int $cartId): void;
 }

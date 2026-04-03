@@ -97,6 +97,16 @@ class ImageUploadService extends MediaService implements IImageUploadService
             );
         }
 
+        if (preg_match('/^stories_home:([a-z0-9-]+):([a-z_]+)$/', $module, $matches) === 1) {
+            return new MediaModuleConfig(
+                ['/img/storiesIMG/'],
+                $matches[1],
+                $matches[2],
+                null,
+                MediaModuleConfig::MATCH_BY_SECTION
+            );
+        }
+
         return null;
     }
 

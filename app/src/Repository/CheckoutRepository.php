@@ -30,7 +30,7 @@ class CheckoutRepository implements ICheckoutRepository
         return (int) $this->db->lastInsertId();
     }
 
-    public function markCartAsConverted(int $cartId): void
+    public function markCartAsPaid(int $cartId): void
     {
         $stmt = $this->db->prepare(
             'UPDATE shopping_carts

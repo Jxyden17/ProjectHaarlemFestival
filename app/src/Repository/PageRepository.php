@@ -291,6 +291,49 @@ class PageRepository implements IPageRepository
         }
     }
 
+    public function deletePageById(int $pageId): void
+    {
+        if ($pageId <= 0) {
+            throw new \InvalidArgumentException('Invalid page id.');
+        }
+
+        $this->db->beginTransaction();
+
+        try {
+            $sectionIds = array_values($this->findSectionIdsByPageId($pageId));
+
+            if ($sectionIds !== []) {
+                $placeholders = implode(',', array_fill(0, count($sectionIds), '?'));
+
+                $deleteItemsStmt = $this->db->prepare(
+                    'DELETE FROM section_items
+                     WHERE section_id IN (' . $placeholders . ')'
+                );
+                $deleteItemsStmt->execute($sectionIds);
+
+                $deleteSectionsStmt = $this->db->prepare(
+                    'DELETE FROM page_sections
+                     WHERE id IN (' . $placeholders . ')'
+                );
+                $deleteSectionsStmt->execute($sectionIds);
+            }
+
+            $deletePageStmt = $this->db->prepare(
+                'DELETE FROM pages
+                 WHERE id = :id'
+            );
+            $deletePageStmt->execute([':id' => $pageId]);
+
+            $this->db->commit();
+        } catch (\Throwable $e) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+
+            throw $e;
+        }
+    }
+
     public function findSectionIdsByPageId(int $pageId): array
     {
         if ($pageId <= 0) {

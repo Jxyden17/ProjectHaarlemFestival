@@ -28,13 +28,20 @@ class PaymentController extends BaseController
         }
 
         if ($isCancelled) {
+            try {
+                $result = $this->paymentService->handleCancellation($orderId);
+            } catch (\Throwable $e) {
+                http_response_code(400);
+                $this->render('shared/error', [
+                    'errorTitle' => 'Payment unavailable',
+                    'errorMessage' => $e->getMessage(),
+                ]);
+                return;
+            }
+
             $this->render('payment/result', [
                 'title' => 'Payment Cancelled',
-                'paymentResult' => [
-                    'status' => 'cancelled',
-                    'orderId' => $orderId,
-                    'isPaid' => false,
-                ],
+                'paymentResult' => $result,
             ]);
             return;
         }

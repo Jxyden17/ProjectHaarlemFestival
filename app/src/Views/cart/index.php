@@ -19,10 +19,11 @@ $subtotal = (float) ($subtotal ?? 0);
         <?php if ($items === []): ?>
             <section class="mx-auto cart-empty-shell">
                 <div class="card border-0 shadow-sm cart-empty-card">
-                    <div class="card-body text-center py-5 px-4">
-                        <h2 class="display-6 mb-3">Your shopping cart is empty</h2>
-                        <p class="lead text-muted mb-4">You have not added any tickets yet.</p>
-                        <a href="/" class="btn btn-primary px-4">View Events</a>
+                    <div class="card-body text-center py-5 px-4 px-lg-5">
+                        <span class="cart-empty-eyebrow">Shopping Cart</span>
+                        <h2 class="display-5 mb-3 cart-empty-title">Your shopping cart is empty</h2>
+                        <p class="cart-empty-copy mb-4">You have not added any tickets yet. Explore the festival and come back once you are ready to book.</p>
+                        <a href="/" class="btn px-4 py-2 cart-checkout-btn">View Events</a>
                     </div>
                 </div>
             </section>
