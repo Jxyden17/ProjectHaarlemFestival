@@ -3,13 +3,6 @@
 $performers=$jazzViewModel->jazzPerformers;
 $scheduleData = $jazzViewModel->schedule;
 $page=$jazzViewModel->page;
-
-
-
-//require __DIR__ . '/../partialsViews/schedule.php';
-//require __DIR__ . '/../partialsViews/jazz/jazz-featured-artists.php';   
-//var_dump($page);
-//die();
 $map = [
     'jazz_schedule' => '/../partialsViews/schedule.php',   
     'jazz_artists' => '/../partialsViews/jazz/jazz-featured-artists.php',  

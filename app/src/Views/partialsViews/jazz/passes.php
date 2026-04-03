@@ -1,7 +1,5 @@
 
 <?php
-//var_dump($section);
-//die();
 ?>
 
 <div class="cardcontainer" style="width: 100%;">

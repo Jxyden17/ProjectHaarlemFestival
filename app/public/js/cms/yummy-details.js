@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.CmsFormSaveAPI.initialize(form);
     }
 
+    // Delegate image upload clicks for every editable Yummy detail row.
     form.addEventListener('click', (event) => {
 
         const target = event.target;
@@ -32,6 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 
+// Upload the selected image and persist its returned path on the detail row.
 async function uploadYummyImage(row, button, form) {
 
     if (!window.CmsMediaUpload) {

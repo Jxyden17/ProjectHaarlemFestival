@@ -109,7 +109,7 @@ try {
     $cmsJazzController = new App\Controllers\Cms\CmsJazzController($cmsJazzService,$cmsJazzViewModelMapper);
     $cmsMediaController = new App\Controllers\Cms\CmsMediaController($imageUploadService, $audioUploadService);
     $cmsHomeContentController = new App\Controllers\Cms\CmsHomeContentController($pageService, $cmsEventEditorService);
-    $cmsArtistsController = new App\Controllers\Cms\CmsArtistsController($artistesService);
+    $cmsArtistsController = new App\Controllers\Cms\CmsArtistsController($artistesService, $cmsEventEditorService);
     $cmsVenuesController = new App\Controllers\Cms\CmsVenuesController($venueService);
     $cmsScheduleController = new App\Controllers\Cms\CmsScheduleController($scheduleService, $venueService, $artistesService);
     $cmsEventManagementController = new App\Controllers\Cms\CmsEventManagementController($cmsEventManagementService);
@@ -165,10 +165,8 @@ try {
         // CMS routes
         $r->addRoute('GET', '/cms', ['CmsController', 'index']);
         $r->addRoute('GET', '/cms/events', ['CmsEventsController', 'index']);
-        $r->addRoute('GET', '/cms/events/{eventSlug}/schedule', ['CmsEventEditorController', 'index']);
-        $r->addRoute('POST', '/cms/events/{eventSlug}/schedule', ['CmsEventEditorController', 'update']);
-        $r->addRoute('GET', '/cms/eventManagement/{eventSlug}/schedule-editor', ['CmsEventEditorController', 'index']);
-        $r->addRoute('POST', '/cms/eventManagement/{eventSlug}/schedule-editor', ['CmsEventEditorController', 'update']);
+        $r->addRoute('GET', '/cms/events/stories/schedule', ['CmsEventEditorController', 'index']);
+        $r->addRoute('POST', '/cms/events/stories/schedule', ['CmsEventEditorController', 'update']);
         $r->addRoute('GET', '/cms/events/dance-home', ['CmsDanceController', 'index']);
         $r->addRoute('POST', '/cms/events/dance-home', ['CmsDanceController', 'updateHome']);
          $r->addRoute('GET', '/cms/events/jazz-home', ['CmsJazzController', 'index']);

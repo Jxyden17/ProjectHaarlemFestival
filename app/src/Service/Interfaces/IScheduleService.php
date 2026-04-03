@@ -25,4 +25,16 @@ interface IScheduleService
 
     // Finds one event by name so other schedule flows can branch on null when the event does not exist.
     public function findEventByName(string $eventName): ?EventModel;
+
+    // Returns one schedule editor payload by session id so the CMS edit form can preload the selected session.
+    public function getSessionById(int $id): ?ScheduleEditorViewModel;
+
+    // Updates one schedule row so the CMS schedule editor can persist session changes.
+    public function editSchedule(int $id, int $eventId, int $venueId, string $date, string $startTime, int $availableSpots, ?string $label, ?float $price, ?int $language, array $performerIds = []): bool;
+
+    // Creates one schedule row so the CMS schedule editor can add a new session with optional performers.
+    public function createSchedule(int $eventId, int $venueId, string $date, string $startTime, int $availableSpots, ?string $label, ?float $price, ?int $language, array $performerIds = []): bool;
+
+    // Deletes one schedule row so the CMS schedule editor can remove obsolete sessions.
+    public function deleteSchedule(int $id): bool;
 }

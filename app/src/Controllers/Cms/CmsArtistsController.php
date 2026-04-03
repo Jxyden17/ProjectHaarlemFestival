@@ -3,17 +3,21 @@
 namespace App\Controllers\Cms;
 
 use App\Controllers\BaseController;
-use App\Service\Interfaces\IArtistesService;
 use App\Models\Enums\Event;
+use App\Service\Interfaces\IArtistesService;
+use App\Service\Cms\Interfaces\ICmsEventEditorService;
 use App\Models\Event\PerformerModel;
+use App\Models\ViewModels\Cms\Schedule\ScheduleEditorPerformerRowViewModel;
 
 class CmsArtistsController extends BaseController
 {
     private IArtistesService $artistesService;
+    private ICmsEventEditorService $cmsEventEditorService;
 
-    public function __construct(IArtistesService $artistesService)
+    public function __construct(IArtistesService $artistesService, ICmsEventEditorService $cmsEventEditorService)
     {
         $this->artistesService = $artistesService;
+        $this->cmsEventEditorService = $cmsEventEditorService;
     }
 
     public function index(): void
@@ -23,10 +27,28 @@ class CmsArtistsController extends BaseController
         {
             $selectedEvent = $this->getSelectedEvent();
             $artistes = $this->artistesService->getAllArtistesForEvent((int)$selectedEvent->value);
+            $danceArtistMediaById = [];
+
+            if ($selectedEvent === Event::Dance) {
+                $editorData = $this->cmsEventEditorService->getEditorData('Dance');
+
+                foreach ($editorData->performers as $performer) {
+                    if (!$performer instanceof ScheduleEditorPerformerRowViewModel) {
+                        continue;
+                    }
+
+                    $danceArtistMediaById[$performer->id] = [
+                        'artistSectionItemId' => $performer->artistSectionItemId,
+                        'artistImagePath' => $performer->artistImagePath,
+                    ];
+                }
+            }
+
             $this->renderCms('cms/artists/index', [
                 'title' => 'Artist Management',
                 'artistes' => $artistes,
                 'selectedEvent' => $selectedEvent,
+                'danceArtistMediaById' => $danceArtistMediaById,
             ]);
         } 
         catch (\InvalidArgumentException $e) 

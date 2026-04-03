@@ -339,6 +339,7 @@
 .dance-artist-card-link {
     display: block;
     text-decoration: none;
+    border-radius: 0.45rem;
 }
 
 .dance-artist-card {
@@ -348,6 +349,21 @@
     border: 0.0625rem solid var(--dance-card-border);
     aspect-ratio: 1.55 / 1;
     background: var(--dance-card-bg);
+    box-shadow: 0 0.85rem 1.8rem rgba(3, 10, 20, 0.2);
+    transform: translateY(0);
+    transition: transform 180ms ease, border-color 180ms ease, box-shadow 220ms ease;
+}
+
+.dance-artist-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    opacity: 0;
+    background:
+        radial-gradient(circle at top right, rgba(0, 184, 255, 0.22), transparent 42%),
+        radial-gradient(circle at bottom left, rgba(214, 163, 60, 0.2), transparent 46%);
+    transition: opacity 220ms ease;
 }
 
 .dance-artist-card img {
@@ -355,6 +371,8 @@
     height: 100%;
     object-fit: cover;
     display: block;
+    transform: scale(1);
+    transition: transform 260ms ease, filter 260ms ease;
 }
 
 .dance-artist-card::after {
@@ -362,6 +380,7 @@
     position: absolute;
     inset: 0;
     background: linear-gradient(180deg, var(--dance-overlay-start) 35%, var(--dance-overlay-end) 100%);
+    transition: background 220ms ease;
 }
 
 .dance-artist-card-content {
@@ -390,6 +409,47 @@
     font-size: 0.95rem;
     line-height: 1.25;
     text-shadow: 0 0.06rem 0.4rem var(--dance-name-shadow);
+    transition: transform 180ms ease, color 180ms ease;
+}
+
+.dance-artist-card:hover,
+.dance-artist-card-link:hover .dance-artist-card,
+.dance-artist-card-link:focus-visible .dance-artist-card {
+    transform: translateY(-0.4rem);
+    border-color: rgba(214, 163, 60, 0.62);
+    box-shadow:
+        0 1.2rem 2.2rem rgba(3, 10, 20, 0.34),
+        0 0 0 0.0625rem rgba(0, 184, 255, 0.22);
+}
+
+.dance-artist-card:hover::before,
+.dance-artist-card-link:hover .dance-artist-card::before,
+.dance-artist-card-link:focus-visible .dance-artist-card::before {
+    opacity: 1;
+}
+
+.dance-artist-card:hover::after,
+.dance-artist-card-link:hover .dance-artist-card::after,
+.dance-artist-card-link:focus-visible .dance-artist-card::after {
+    background: linear-gradient(180deg, rgba(5, 11, 20, 0.1) 24%, rgba(5, 11, 20, 0.88) 100%);
+}
+
+.dance-artist-card:hover img,
+.dance-artist-card-link:hover .dance-artist-card img,
+.dance-artist-card-link:focus-visible .dance-artist-card img {
+    transform: scale(1.06);
+    filter: saturate(1.08) contrast(1.03);
+}
+
+.dance-artist-card:hover .dance-artist-card-name,
+.dance-artist-card-link:hover .dance-artist-card-name,
+.dance-artist-card-link:focus-visible .dance-artist-card-name {
+    color: #fff7df;
+    transform: translateY(-0.08rem);
+}
+
+.dance-artist-card-link:focus-visible {
+    outline: none;
 }
 
 @media (max-width: 62rem) {

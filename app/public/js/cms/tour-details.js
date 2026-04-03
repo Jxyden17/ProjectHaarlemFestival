@@ -1,5 +1,6 @@
 const tourDetailsForm = document.querySelector('form[action="/cms/events/tour-details"]');
 
+// Upload the selected image for a specific tour detail content row.
 async function uploadTourImage(row, button) {
     if (!tourDetailsForm || !window.CmsMediaUpload) {
         return;
@@ -32,6 +33,7 @@ async function uploadTourImage(row, button) {
 }
 
 if (tourDetailsForm) {
+    // Delegate upload clicks so all tour detail image rows share one listener.
     tourDetailsForm.addEventListener('click', (event) => {
         const target = event.target;
         if (!(target instanceof HTMLElement) || !target.classList.contains('upload-performer-image')) {
@@ -47,6 +49,7 @@ if (tourDetailsForm) {
     });
 }
 
+// Upgrade rich text fields on the tour detail editor.
 if (tourDetailsForm && window.CmsPageEditor) {
     window.CmsPageEditor.initializeQuillEditors(tourDetailsForm);
 }

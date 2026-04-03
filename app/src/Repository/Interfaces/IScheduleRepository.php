@@ -3,6 +3,7 @@
 namespace App\Repository\Interfaces;
 
 use App\Models\Event\EventModel;
+use App\Models\Event\SessionModel;
 
 interface IScheduleRepository
 {
@@ -24,8 +25,14 @@ interface IScheduleRepository
     public function saveEventScheduleData(int $eventId, array $venueRows, array $performerRows, array $sessionRows, array $sessionPerformerRows): void;
     // Returns all events so callers can build cross-event schedule views.
     public function getAllEvents(): array;
+    // Returns one session row by id so CMS schedule editing can preload an existing session into its editor view model.
+    public function getSessionById(int $id): ?SessionModel;
+    // Finds one event by id so CMS schedule editing can rebuild related venues and performers for that event.
     public function findEventById(int $id): ?EventModel;
+    // Updates one schedule row so CMS forms can persist event, venue, timing, language, and pricing changes.
     public function editSchedule(int $id, int $eventId, int $venueId, string $date, string $startTime, int $availableSpots, ?string $label, ?float $price, ?int $language, array $performerIds = []): bool;
+    // Creates one schedule row and optional performer links so CMS forms can add a new scheduled session.
     public function createSchedule(int $eventId, int $venueId, string $date, string $startTime, int $availableSpots, ?string $label, ?float $price, ?int $language, array $performerIds = []): bool;
+    // Deletes one schedule row and its performer links so CMS schedule cleanup does not leave orphan assignments behind.
     public function deleteSchedule(int $id): bool;
 }

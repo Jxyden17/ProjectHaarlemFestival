@@ -10,10 +10,11 @@ if (!$scheduleData instanceof ScheduleViewModel) {
     return;
 }
 
-$title = $scheduleData->title;
+$scheduleTitle = $scheduleData->title;
 $eventName = $scheduleData->eventName ?? '';
 $normalizedEventName = strtolower(trim($eventName));
 
+// Normalize inconsistent event names into one schedule variant so this shared partial can switch columns and filters.
 if ($normalizedEventName === 'a stroll through history') {
     $eventType = 'tour';
 } elseif ($normalizedEventName === 'tellingstory') {
@@ -54,7 +55,7 @@ if ($scheduleSectionClass !== '') {
                 <?php if ($scheduleTitleIcon !== ''): ?>
                     <i data-lucide="<?= htmlspecialchars($scheduleTitleIcon) ?>" aria-hidden="true"></i>
                 <?php endif; ?>
-                <?= htmlspecialchars($title) ?>
+                <?= htmlspecialchars($scheduleTitle) ?>
             </h2>
         </div>
 
@@ -161,6 +162,7 @@ if ($scheduleSectionClass !== '') {
                             $languageSlug = 'unknown';
                         }
 
+                        // Build the data-* hooks used by the shared schedule filter script instead of branching the markup per event type.
                         $rowAttributes = [];
                         if ($showLanguageFilter) {
                             $rowAttributes[] = 'data-language="' . htmlspecialchars($languageSlug) . '"';
@@ -197,6 +199,7 @@ if ($scheduleSectionClass !== '') {
                             <?php elseif ($isJazz): ?>
                                 <div jazz-schedule-img-holder>
                                         <?php
+                                        // Keep a small alias map for performer names that do not match the default "slug + .png" image convention.
                                         $specialImages = [
                                             "rilan & the bombadiers" => "Rilan-&-The-Bombadiers",
                                             "eric vloeimans and hotspot!" => "hotspot"
