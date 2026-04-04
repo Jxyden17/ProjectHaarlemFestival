@@ -117,7 +117,21 @@ abstract class MediaService
         return $this->buildUploadTargetPaths($moduleConfig, $publicPath, $uploadExt, true);
     }
 
-    // Moves the uploaded temp file into its final location so validated media becomes publicly available.
+    protected function buildImageUploadTargetPaths(MediaModuleConfig $moduleConfig, string $currentPublicPath, string $uploadExt, ?int $sectionItemId): ?array
+    {
+        $publicPath = $currentPublicPath;
+        if ($publicPath === '') {
+            $primaryPrefix = $moduleConfig->allowedPrefixes[0] ?? '';
+            if ($primaryPrefix === '' || $sectionItemId === null || $sectionItemId <= 0) {
+                return null;
+            }
+
+            $publicPath = rtrim((string) $primaryPrefix, '/') . '/item-' . $sectionItemId . '.' . $uploadExt;
+        }
+
+        return $this->buildUploadTargetPaths($moduleConfig, $publicPath, $uploadExt, true);
+    }
+
     protected function moveUploadedFileToTarget(string $tmpPath, string $absoluteTarget): void
     {
         if (!move_uploaded_file($tmpPath, $absoluteTarget)) {

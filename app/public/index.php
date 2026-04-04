@@ -38,6 +38,8 @@ try {
     $artistesRepo = new App\Repository\ArtistesRepository();
     $venueRepo = new App\Repository\VenueRepository();
     $ticketRepo = new App\Repository\TicketRepository();
+    $cartRepo = new App\Repository\CartRepository();
+    $paymentRepo = new App\Repository\PaymentRepository();
 
     $mailConfig = App\Models\MailConfig::fromEnvironment();
     $pageService = new App\Service\PageService($pageRepo);
@@ -59,14 +61,18 @@ try {
     $host = (string) ($_SERVER['HTTP_HOST'] ?? 'localhost');
     $baseUrl = $scheme . '://' . $host;
     $paymentDriver = trim((string) ($_ENV['PAYMENT_DRIVER'] ?? getenv('PAYMENT_DRIVER') ?? 'stripe'));
+    $stripeSecretKey = trim((string) ($_ENV['STRIPE_SECRET_KEY'] ?? getenv('STRIPE_SECRET_KEY') ?? ''));
+    $stripeWebhookSecret = trim((string) ($_ENV['STRIPE_WEBHOOK_SECRET'] ?? getenv('STRIPE_WEBHOOK_SECRET') ?? ''));
     $artistesService = new App\Service\ArtistesService($artistesRepo);
     $venueService = new App\Service\VenueService($venueRepo);
+    $ticketService = new App\Service\TicketService($ticketRepo, $cartRepo, $paymentRepo, $userRepo, $mailService);
     $cmsEventManagementService = new App\Service\Cms\CmsEventManagementService();
 
     $cmsScheduleMapper = new App\Mapper\CmsScheduleMapper();
     $cmsDanceMapper = new App\Mapper\CmsDanceMapper();
     $cmsJazzMapper = new App\Mapper\CmsJazzMapper();
     $cmsDanceViewModelMapper = new App\Mapper\CmsDanceViewModelMapper();
+    $cmsStoriesViewModelMapper = new App\Mapper\CmsStoriesViewModelMapper();
     $cmsJazzViewModelMapper = new App\Mapper\CmsJazzViewModelMapper();
     $cmsScheduleService = new App\Service\Cms\CmsScheduleService($scheduleRepo, $cmsScheduleMapper, $cmsScheduleValidator);
     $cmsDanceService = new App\Service\Cms\CmsDanceService(
@@ -103,8 +109,8 @@ try {
     $storiesController = new App\Controllers\StoriesController($pageService, $scheduleService, $scheduleViewModelMapper);
     $cmsEventEditorController = new App\Controllers\Cms\CmsEventEditorController($cmsScheduleService, $cmsEventEditorService);
     $cmsTourContentController = new App\Controllers\Cms\CmsTourContentController($pageService, $cmsEventEditorService);
+    $cmsStoriesContentController = new App\Controllers\Cms\CmsStoriesContentController($pageService, $cmsEventEditorService, $cmsStoriesViewModelMapper);
     $cmsYummyContentController = new App\Controllers\Cms\CmsYummyContentController($pageService, $cmsYummyService);
-    $cmsStoriesContentController = new App\Controllers\Cms\CmsStoriesContentController($pageService, $cmsEventEditorService);
     $cmsDanceController = new App\Controllers\Cms\CmsDanceController($cmsDanceService, $cmsDanceViewModelMapper);
     $cmsJazzController = new App\Controllers\Cms\CmsJazzController($cmsJazzService,$cmsJazzViewModelMapper);
     $cmsMediaController = new App\Controllers\Cms\CmsMediaController($imageUploadService, $audioUploadService);
@@ -118,14 +124,12 @@ try {
    
 
     // Shopping Cart setup
-    $cartRepo = new App\Repository\CartRepository();
     $cartService = new App\Service\CartService($cartRepo);
     $cartController = new App\Controllers\CartController($cartService);
     $bookController = new App\Controllers\BookController($cartService);
     $checkoutRepo = new App\Repository\CheckoutRepository();
     $checkoutService = new App\Service\CheckoutService($cartService, $cartRepo, $checkoutRepo);
-    $paymentRepo = new App\Repository\PaymentRepository();
-    $paymentService = new App\Service\PaymentService($paymentRepo, $baseUrl, $paymentDriver);
+    $paymentService = new App\Service\PaymentService($paymentRepo, $ticketService, $baseUrl, $paymentDriver, $stripeSecretKey, $stripeWebhookSecret);
     $checkoutController = new App\Controllers\CheckoutController($checkoutService, $paymentService);
     $paymentController = new App\Controllers\PaymentController($paymentService);
 
@@ -187,6 +191,9 @@ try {
         $r->addRoute('POST', '/cms/events/yummy-details/{slug}', ['CmsYummyContentController', 'detailUpdate']);
         $r->addRoute('GET', '/cms/events/stories-home', ['CmsStoriesContentController', 'index']);
         $r->addRoute('POST', '/cms/events/stories-home', ['CmsStoriesContentController', 'update']);
+        $r->addRoute('GET', '/cms/events/stories/create', ['CmsStoriesContentController', 'createForm']);
+        $r->addRoute('POST', '/cms/events/stories/create', ['CmsStoriesContentController', 'create']);
+        $r->addRoute('POST', '/cms/events/stories/delete', ['CmsStoriesContentController', 'delete']);
         $r->addRoute('GET', '/cms/events/stories-details', ['CmsStoriesContentController', 'details']);
         $r->addRoute('POST', '/cms/events/stories-details', ['CmsStoriesContentController', 'detailsUpdate']);
         $r->addRoute('POST', '/cms/media/upload-image', ['CmsMediaController', 'uploadImage']);

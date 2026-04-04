@@ -34,35 +34,15 @@ class CartRepository implements ICartRepository
         return $cart ?: null;
     }
 
-    public function findActiveCartByGuestToken(string $guestToken): ?array
+    public function createCart(int $userId): int
     {
         $stmt = $this->db->prepare(
-            'SELECT *
-             FROM shopping_carts
-             WHERE guest_token = :guest_token AND status = :status
-             LIMIT 1'
-        );
-
-        $stmt->execute([
-            ':guest_token' => $guestToken,
-            ':status' => 'active',
-        ]);
-
-        $cart = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        return $cart ?: null;
-    }
-
-    public function createCart(?int $userId, ?string $guestToken): int
-    {
-        $stmt = $this->db->prepare(
-            'INSERT INTO shopping_carts (user_id, guest_token, status)
-             VALUES (:user_id, :guest_token, :status)'
+            'INSERT INTO shopping_carts (user_id, status)
+             VALUES (:user_id, :status)'
         );
 
         $stmt->execute([
             ':user_id' => $userId,
-            ':guest_token' => $guestToken,
             ':status' => 'active',
         ]);
 
@@ -268,5 +248,18 @@ class CartRepository implements ICartRepository
         return $session ?: null;
     }
 
+    public function incrementSessionAmountSold(int $sessionId, int $quantity): void
+    {
+        $stmt = $this->db->prepare(
+            'UPDATE sessions
+             SET amount_sold = amount_sold + :quantity
+             WHERE id = :id'
+        );
+
+        $stmt->execute([
+            ':quantity' => $quantity,
+            ':id' => $sessionId,
+        ]);
+    }
 
 }

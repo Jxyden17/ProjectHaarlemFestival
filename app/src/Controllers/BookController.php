@@ -15,6 +15,8 @@ class BookController extends BaseController
 
     public function index(array $vars): void
     {
+        $this->requireAuth();
+
         $sessionId = (int) ($vars['sessionId'] ?? 0);
 
         if ($sessionId <= 0) {

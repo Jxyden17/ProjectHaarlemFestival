@@ -4,9 +4,9 @@ namespace App\Service\Interfaces;
 
 interface ICartService
 {
-    //Get the active cart for the current user or guest, or create a new one if it doesn't exist
+    //Get the active cart for the current logged-in user, or create a new one if it doesn't exist
     public function getOrCreateActiveCart(): array;
-    //Get the cart with its items for the current user or guest
+    //Get the cart with its items for the current logged-in user
     public function getCartWithItems(): array;
     //Add a session to the cart with the specified quantity
     public function addSessionToCart(int $sessionId, int $quantity = 1, ?float $customPrice = null): void;

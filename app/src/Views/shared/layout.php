@@ -7,7 +7,8 @@
     <!-- Bootstrap CSS CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
-    <link href="/css/styles.css" rel="stylesheet">
+    <?php $sharedCssVersion = @filemtime(__DIR__ . '/../../../public/css/styles.css') ?: time(); ?>
+    <link href="/css/styles.css?v=<?= (int) $sharedCssVersion ?>" rel="stylesheet">
 </head>
 <body class="hf-page">
 
@@ -83,15 +84,10 @@ $canManage = $roleId === 1; // 1=Administrator
         </ul>
 
         <div class="hf-nav-actions">
-            <a class="hf-btn" href="/book">Book Now</a>
+            <a class="hf-btn" href="/#schedule">Book Now</a>
             <?php if ($isLoggedIn && $canManage): ?>
                 <a class="hf-icon-btn" href="/cms" aria-label="CMS">
                     <i data-lucide="shield-check"></i>
-                </a>
-            <?php endif; ?>
-             <?php if ($isLoggedIn && !$canManage): ?>
-                <a class="hf-icon-btn" href="/user?id=<?= $_SESSION['user_id']?>" aria-label="user page">
-                    <i data-lucide="user"></i>
                 </a>
             <?php endif; ?>
             <a class="hf-icon-btn" href="/cart" aria-label="Cart">

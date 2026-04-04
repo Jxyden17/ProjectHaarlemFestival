@@ -83,6 +83,81 @@ body {
 .cms-content .card {
     background: #f8fafc;
 }
+.cms-editor-accordion .accordion-item {
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 0.85rem;
+    overflow: hidden;
+    margin-bottom: 0.85rem;
+}
+
+.cms-editor-accordion .accordion-button {
+    font-weight: 600;
+    background: #eef4fb;
+}
+
+.cms-editor-accordion .accordion-button:not(.collapsed) {
+    color: #0f172a;
+    background: #e6effa;
+    box-shadow: none;
+}
+
+.cms-editor-accordion .accordion-body {
+    background: #ffffff;
+}
+
+.cms-editor-item-card {
+    background: #fbfdff;
+    border-color: rgba(15, 23, 42, 0.08) !important;
+    height: 100%;
+}
+
+.cms-editor-field-card {
+    background: #fbfdff;
+    border-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+.cms-readonly-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.25;
+    color: #0f172a;
+    padding: 0.15rem 0 0.1rem;
+}
+
+.cms-editor-item-card .ql-toolbar.ql-snow,
+.cms-editor-field-card .ql-toolbar.ql-snow {
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+}
+
+.cms-editor-item-card .ql-container.ql-snow,
+.cms-editor-field-card .ql-container.ql-snow {
+    min-height: 120px;
+    background: #ffffff;
+    border-bottom-left-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
+}
+
+.cms-editor-field-card .ql-container.ql-snow {
+    min-height: 140px;
+}
+
+.cms-editor-item-card .ql-editor,
+.cms-editor-field-card .ql-editor {
+    min-height: 96px;
+}
+
+.cms-upload-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    align-items: center;
+}
+
+.cms-upload-row .form-control-sm {
+    max-width: 320px;
+}
+
 .save-btn
 {
     position: fixed;

@@ -6,4 +6,13 @@ interface IMailService
 {
     // Sends one plain-text email so callers can trigger outbound mail without knowing the SMTP implementation details.
     public function sendMail(string $to, string $subject, string $body): bool;
+
+    public function sendTicketMail(
+        string $to,
+        string $subject,
+        string $textBody,
+        string $htmlBody,
+        array $inlineImages = [],
+        array $attachments = []
+    ): bool;
 }
