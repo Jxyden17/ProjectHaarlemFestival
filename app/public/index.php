@@ -24,6 +24,7 @@ try {
     $pageMapper = new App\Mapper\PageMapper();
     $scheduleMapper = new App\Mapper\ScheduleMapper($eventMapper);
     $scheduleViewModelMapper = new App\Mapper\ScheduleViewModelMapper();
+    $personalProgramMapper = new App\Mapper\PersonalProgramMapper();
 
     $userRepo = new App\Repository\UserRepository();
     $passwordResetRepo = new App\Repository\PasswordResetRepository();
@@ -33,6 +34,7 @@ try {
     $pageRepo = new App\Repository\PageRepository($pageMapper);
     $jazzRepo = new App\Repository\JazzRepository();
     $yummyRepo = new App\Repository\YummyRepository();
+    $personalProgramRepo = new App\Repository\PersonalProgramRepository();
     $artistesRepo = new App\Repository\ArtistesRepository();
     $venueRepo = new App\Repository\VenueRepository();
     $ticketRepo = new App\Repository\TicketRepository();
@@ -54,6 +56,7 @@ try {
     $yummyService = new App\Service\YummyService($yummyRepo);
     $jazzService = new App\Service\JazzService($jazzRepo, $scheduleRepo);
     $authService = new App\Service\AuthService($userRepo, $passwordResetRepo, $mailService);
+    $personalProgramService = new App\Service\PersonalProgramService($personalProgramRepo, $personalProgramMapper);
     $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
     $host = (string) ($_SERVER['HTTP_HOST'] ?? 'localhost');
     $baseUrl = $scheme . '://' . $host;
@@ -67,8 +70,10 @@ try {
 
     $cmsScheduleMapper = new App\Mapper\CmsScheduleMapper();
     $cmsDanceMapper = new App\Mapper\CmsDanceMapper();
+    $cmsJazzMapper = new App\Mapper\CmsJazzMapper();
     $cmsDanceViewModelMapper = new App\Mapper\CmsDanceViewModelMapper();
     $cmsStoriesViewModelMapper = new App\Mapper\CmsStoriesViewModelMapper();
+    $cmsJazzViewModelMapper = new App\Mapper\CmsJazzViewModelMapper();
     $cmsScheduleService = new App\Service\Cms\CmsScheduleService($scheduleRepo, $cmsScheduleMapper, $cmsScheduleValidator);
     $cmsDanceService = new App\Service\Cms\CmsDanceService(
         $danceRepo,
@@ -78,6 +83,7 @@ try {
         $cmsDanceMapper,
         $cmsDanceValidator
     );
+    $cmsJazzService = new App\Service\Cms\CmsJazzService($cmsPageSaveService,$pageService,$htmlSanitizerService,$cmsJazzMapper);
     $cmsService = new App\Service\Cms\CmsService($userRepo);
     $cmsEventEditorService = new App\Service\Cms\CmsEventEditorService(
         $cmsScheduleService,
@@ -86,29 +92,36 @@ try {
         $danceService,
         $pageRepo
     );
+    $cmsYummyService = new App\Service\Cms\CmsYummyService($cmsEventEditorService, $pageRepo);
+
     $authController = new App\Controllers\AuthController($authService);
     $homeController = new App\Controllers\HomeController($pageService, $scheduleService, $scheduleViewModelMapper);
     $danceController = new App\Controllers\DanceController($danceService, $danceViewModelMapper, $scheduleViewModelMapper);
     $tourController = new App\Controllers\TourController($pageService, $scheduleService, $scheduleViewModelMapper);
-    $jazzController = new App\Controllers\JazzController($scheduleService, $jazzService, $scheduleViewModelMapper);
+    $jazzController = new App\Controllers\JazzController($scheduleService, $jazzService, $scheduleViewModelMapper, $pageService);
     $yummyController = new App\Controllers\YummyController($yummyService);
+    $userController= new App\Controllers\UserController($cmsService);
+    $personalProgramController = new App\Controllers\PersonalProgramController($pageService, $personalProgramService);
 
     $cmsController = new App\Controllers\Cms\CmsController($cmsService);
     $cmsEventsController = new App\Controllers\Cms\CmsEventsController($cmsService, $danceService, $pageService, $cmsEventEditorService);
-    $cmsTicketsController = new App\Controllers\Cms\CmsTicketsController($ticketService);
     $cmsUsersController = new App\Controllers\Cms\CmsUsersController($cmsService);
-    $jazzController = new App\Controllers\JazzController($scheduleService, $jazzService, $scheduleViewModelMapper);
     $storiesController = new App\Controllers\StoriesController($pageService, $scheduleService, $scheduleViewModelMapper);
     $cmsEventEditorController = new App\Controllers\Cms\CmsEventEditorController($cmsScheduleService, $cmsEventEditorService);
     $cmsTourContentController = new App\Controllers\Cms\CmsTourContentController($pageService, $cmsEventEditorService);
     $cmsStoriesContentController = new App\Controllers\Cms\CmsStoriesContentController($pageService, $cmsEventEditorService, $cmsStoriesViewModelMapper);
+    $cmsYummyContentController = new App\Controllers\Cms\CmsYummyContentController($pageService, $cmsYummyService);
     $cmsDanceController = new App\Controllers\Cms\CmsDanceController($cmsDanceService, $cmsDanceViewModelMapper);
+    $cmsJazzController = new App\Controllers\Cms\CmsJazzController($cmsJazzService,$cmsJazzViewModelMapper);
     $cmsMediaController = new App\Controllers\Cms\CmsMediaController($imageUploadService, $audioUploadService);
     $cmsHomeContentController = new App\Controllers\Cms\CmsHomeContentController($pageService, $cmsEventEditorService);
     $cmsArtistsController = new App\Controllers\Cms\CmsArtistsController($artistesService);
     $cmsVenuesController = new App\Controllers\Cms\CmsVenuesController($venueService);
     $cmsScheduleController = new App\Controllers\Cms\CmsScheduleController($scheduleService, $venueService, $artistesService);
     $cmsEventManagementController = new App\Controllers\Cms\CmsEventManagementController($cmsEventManagementService);
+    
+   
+   
 
     // Shopping Cart setup
     $cartService = new App\Service\CartService($cartRepo);
@@ -134,6 +147,9 @@ try {
         $r->addRoute('GET', '/reset-password', ['AuthController', 'showResetPassword']);
         $r->addRoute('POST', '/reset-password', ['AuthController', 'resetPassword']);
         $r->addRoute('GET', '/logout', ['AuthController', 'logout']);
+        $r->addRoute('GET', '/personal-program', ['PersonalProgramController', 'index']);
+        $r->addRoute('POST', '/personal-program/delete', ['PersonalProgramController', 'delete']);
+
 
         $r->addRoute('GET', '/tour', ['TourController', 'index']);
         $r->addRoute('GET', '/tour/details', ['TourController', 'details']);
@@ -149,6 +165,7 @@ try {
         $r->addRoute('GET', '/stories/details', ['StoriesController', 'details']);
         $r->addRoute('GET', '/stories/{slug}', ['StoriesController', 'details']);
 
+
         // CMS routes
         $r->addRoute('GET', '/cms', ['CmsController', 'index']);
         $r->addRoute('GET', '/cms/events', ['CmsEventsController', 'index']);
@@ -158,6 +175,8 @@ try {
         $r->addRoute('POST', '/cms/eventManagement/{eventSlug}/schedule-editor', ['CmsEventEditorController', 'update']);
         $r->addRoute('GET', '/cms/events/dance-home', ['CmsDanceController', 'index']);
         $r->addRoute('POST', '/cms/events/dance-home', ['CmsDanceController', 'updateHome']);
+         $r->addRoute('GET', '/cms/events/jazz-home', ['CmsJazzController', 'index']);
+        $r->addRoute('POST', '/cms/events/jazz-home', ['CmsJazzController', 'updateHome']);
         $r->addRoute('POST', '/cms/events/dance-homeAPI', ['CmsDanceController', 'updateHomeAPI']);
         $r->addRoute('GET', '/cms/events/dance-detail/{pageSlug}', ['CmsDanceController', 'detail']);
         $r->addRoute('POST', '/cms/events/dance-detail/{pageSlug}', ['CmsDanceController', 'updateDetail']);
@@ -166,6 +185,10 @@ try {
         $r->addRoute('POST', '/cms/events/tour-home', ['CmsTourContentController', 'update']);
         $r->addRoute('GET', '/cms/events/tour-details', ['CmsTourContentController', 'details']);
         $r->addRoute('POST', '/cms/events/tour-details', ['CmsTourContentController', 'detailsUpdate']);
+        $r->addRoute('GET', '/cms/events/yummy-home', ['CmsYummyContentController', 'index']);
+        $r->addRoute('POST', '/cms/events/yummy-home', ['CmsYummyContentController', 'update']);
+        $r->addRoute('GET', '/cms/events/yummy-details/{slug}', ['CmsYummyContentController', 'detail']);
+        $r->addRoute('POST', '/cms/events/yummy-details/{slug}', ['CmsYummyContentController', 'detailUpdate']);
         $r->addRoute('GET', '/cms/events/stories-home', ['CmsStoriesContentController', 'index']);
         $r->addRoute('POST', '/cms/events/stories-home', ['CmsStoriesContentController', 'update']);
         $r->addRoute('GET', '/cms/events/stories/create', ['CmsStoriesContentController', 'createForm']);
@@ -179,12 +202,15 @@ try {
         $r->addRoute('GET', '/cms/users', ['CmsUsersController', 'index']);
         $r->addRoute('GET', '/cms/users/create', ['CmsUsersController', 'showCreateForm']);
         $r->addRoute('POST', '/cms/users/create', ['CmsUsersController', 'addUser']);
-        $r->addRoute('GET', '/cms/users/edit', ['CmsUsersController', 'showEditForm']);
-        $r->addRoute('POST', '/cms/users/edit', ['CmsUsersController', 'editUser']);
+        $r->addRoute('GET', '/cms/users/edit', ['CmsUsersController', 'showAdminEditForm']);
+        $r->addRoute('GET', '/cms/users/editSelf', ['CmsUsersController', 'showSelfEditForm']);
+        $r->addRoute('POST', '/cms/users/edit', ['CmsUsersController', 'editUserAsAdmin']);
+        $r->addRoute('POST', '/cms/users/editSelf', ['CmsUsersController', 'editUserAsUser']);
         $r->addRoute('GET', '/cms/users/delete', ['CmsUsersController', 'showDeleteConfirmation']);
         $r->addRoute('POST', '/cms/users/delete', ['CmsUsersController', 'deleteUser']);
         $r->addRoute('GET', '/cms/events/home', ['CmsHomeContentController', 'index']);
         $r->addRoute('POST', '/cms/events/home', ['CmsHomeContentController', 'update']);
+        
         //event management routes
         $r->addRoute('GET', '/cms/eventManagement', ['CmsEventManagementController', 'index']);
         
@@ -209,13 +235,6 @@ try {
         $r->addRoute('POST', '/cms/eventManagement/schedules/create', ['CmsScheduleController', 'create']);
         $r->addRoute('GET', '/cms/eventManagement/schedules/delete', ['CmsScheduleController', 'delete']);
 
-        $r->addRoute('GET', '/cms/eventManagement/schedules/{sessionId:\d+}/tickets', ['CmsTicketsController', 'index']);
-        $r->addRoute('GET', '/cms/eventManagement/schedules/{sessionId:\d+}/tickets/create', ['CmsTicketsController', 'showCreateForm']);
-        $r->addRoute('POST', '/cms/eventManagement/schedules/{sessionId:\d+}/tickets/create', ['CmsTicketsController', 'create']);
-        $r->addRoute('GET', '/cms/eventManagement/schedules/{sessionId:\d+}/tickets/edit', ['CmsTicketsController', 'showEditForm']);
-        $r->addRoute('POST', '/cms/eventManagement/schedules/{sessionId:\d+}/tickets/edit', ['CmsTicketsController', 'edit']);
-        $r->addRoute('GET', '/cms/eventManagement/schedules/{sessionId:\d+}/tickets/delete', ['CmsTicketsController', 'delete']);
-
         $r->addRoute('GET', '/jazz', ['JazzController', 'index']);
 
         // Shopping Cart routes
@@ -228,6 +247,10 @@ try {
         $r->addRoute('POST', '/checkout/confirm', ['CheckoutController', 'confirm']);
         $r->addRoute('GET', '/payment/return', ['PaymentController', 'return']);
         $r->addRoute('POST', '/payment/webhook', ['PaymentController', 'webhook']);
+         
+        // User routes
+        $r->addRoute('GET', '/user', ['UserController', 'index']);
+
 
 
     });
@@ -256,12 +279,15 @@ try {
                 'CmsController' => $cmsController,
                 'JazzController' => $jazzController,
                 'StoriesController' => $storiesController,
+                'UserController' => $userController,
+                'PersonalProgramController' => $personalProgramController,
                 'CmsEventsController' => $cmsEventsController,
-                'CmsTicketsController' => $cmsTicketsController,
                 'CmsUsersController' => $cmsUsersController,
                 'CmsEventEditorController' => $cmsEventEditorController,
                 'CmsDanceController' => $cmsDanceController,
+                'CmsJazzController' => $cmsJazzController,
                 'CmsTourContentController' => $cmsTourContentController,
+                'CmsYummyContentController' => $cmsYummyContentController,
                 'CmsStoriesContentController' => $cmsStoriesContentController,
                 'CmsMediaController' => $cmsMediaController,
                 'CmsHomeContentController' => $cmsHomeContentController,

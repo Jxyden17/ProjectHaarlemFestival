@@ -5,13 +5,21 @@
             <div class="yummy-container">
                 <div class="yummy-map-card">
                     <div class="map-header">
-                        <h2><?= htmlspecialchars($section->title) ?></h2>
-                        <span class="map-tag"><?= htmlspecialchars($item->title) ?></span>
+
+                        <h2><?= $section->title ?></h2>
+
+                        <span class="map-tag"><?= $item->title ?></span>
+
                     </div>
+
                     <div class="map-container">
-                        <iframe src="<?= htmlspecialchars($item->content) ?>" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                        <iframe src="<?= $item->content ?>" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
                     </div>
-                    <p class="map-description"><?= htmlspecialchars($item->subTitle) ?></p>
+
+                    <div class="map-description">
+                        <?= $item->subTitle ?>
+                    </div>
+
                 </div>
             </div>
         </section>

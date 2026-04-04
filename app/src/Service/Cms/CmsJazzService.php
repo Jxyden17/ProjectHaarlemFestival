@@ -1,0 +1,87 @@
+<?php
+
+namespace App\Service\Cms;
+
+
+
+
+use App\Models\Page\Page;
+use App\Models\Page\Section;
+use App\Models\Page\SectionItem;
+use App\Service\Cms\Interfaces\ICmsJazzService;
+use App\Service\Cms\Interfaces\ICmsPageSaveService;
+use App\Service\Interfaces\IHtmlSanitizerService;
+use App\Service\Interfaces\IPageService;
+use App\Mapper\CmsJazzMapper;
+use App\Models\Requests\UpdateJazzHomeRequest;
+
+class CmsJazzService implements ICmsJazzService
+{
+    private ICmsPageSaveService $pageSaveService;
+    private IPageService $pageService;
+    private IHtmlSanitizerService $htmlSanitizer;
+    private CmsJazzMapper $cmsJazzMapper;
+
+    public function __construct(ICmsPageSaveService $pageSaveService, IPageService $pageService, IHtmlSanitizerService $htmlSanitizer, CmsJazzMapper $cmsJazzMapper)
+    {
+        $this->pageSaveService = $pageSaveService;
+        $this->pageService = $pageService;
+        $this->htmlSanitizer = $htmlSanitizer;
+        $this->cmsJazzMapper = $cmsJazzMapper;
+    }
+
+    public function getJazzHomePage(): Page
+    {
+        return $this->pageService->buildPage(28);
+    }
+    public function saveJazzHomePage($request)
+    {
+       
+        $passItems = $this->cmsJazzMapper->normalizePasses($request->passes());
+        $page = $this->buildJazzHomePage(
+            $request,
+            $passItems,
+        );
+        $this->persistJazzHomePage($page);
+    }
+    private function sanitizeWysiwygField(string $value): string
+    {
+        return $this->htmlSanitizer->sanitizeWysiwygHtml($value);
+    }
+    private function buildJazzHomePage(UpdateJazzHomeRequest $request, array $passItems): Page
+    {
+        $page = new Page($request->pageTitle(), 'Jazz-home');
+        $page->sections = [
+            new Section(0, 'jazz_schedule', $request->scheduleTitle(),5, '', ''),
+            new Section(0, 'jazz_artists', $request->featuredArtistsTitle(),15, '', ''),
+            new Section(0, 'jazz_passes', $request->passesTitle(),10, '', ''),
+        ];
+        $this->appendSectionItems($page, 'Jazz_passes', $passItems);
+
+        return $page;
+    }
+     private function persistJazzHomePage(Page $page): void
+    {
+        $this->pageSaveService->savePageContentBySlug(
+            'Jazz-home',
+            $page->title,
+            $this->cmsJazzMapper->mapHomeSectionsForSave($page),
+            'Jazz home page not found.'
+        );
+    }
+    private function appendSectionItems(Page $page, string $sectionType, array $items): void
+    {
+        $section = $page->getSection($sectionType);
+        if ($section === null) {
+            return;
+        }
+
+        foreach ($items as $item) {
+            if ($item instanceof SectionItem) {
+                $section->addItem($item);
+            }
+        }
+    }
+
+
+}

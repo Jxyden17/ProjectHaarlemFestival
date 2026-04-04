@@ -25,13 +25,13 @@ class CmsService implements ICmsService
         return $this->userRepo->findById($id);
     }
 
-    public function addUser(string $email, string $password, int $roleId): UserModel
+    public function addUser(UserModel $user): UserModel
     {
-        if($this->userRepo->findByEmail($email)) 
+        if($this->userRepo->findByEmail($user->email)) 
         {
             throw new \Exception("Email is already used.");
         }
-        return $this->userRepo->addUsers($email, $password, $roleId);
+        return $this->userRepo->create($user);
     }
 
     public function deleteUser(int $id): void
@@ -39,13 +39,13 @@ class CmsService implements ICmsService
         $this->userRepo->deleteUser($id);
     }
 
-    public function updateUser(int $id, string $email, string $password, int $roleId): UserModel
+    public function updateUser( UserModel $user): UserModel
     {
-        if(empty($email))
+        if(empty($user->email))
             {
                 throw new \Exception("Email can not be empty.");
             }
-        return $this->userRepo->updateUser($id, $email, $password, $roleId);
+        return $this->userRepo->updateUser($user);
     }
 
     public function searchUsers(string $query): array

@@ -3,9 +3,9 @@ use App\Models\Event\EventDetailPageModel;
 
 $danceDetailPages = is_array($danceDetailPages ?? null) ? $danceDetailPages : [];
 $storyDetailPages = is_array($storyDetailPages ?? null) ? $storyDetailPages : [];
+$tourDetailPages = is_array($tourDetailPages ?? null) ? $tourDetailPages : [];
 $storiesSuccess = isset($storiesSuccess) && is_string($storiesSuccess) ? $storiesSuccess : '';
 $storiesError = isset($storiesError) && is_string($storiesError) ? $storiesError : '';
-$tourDetailPages = is_array($tourDetailPages ?? null) ? $tourDetailPages : [];
 ?>
 
 <div class="container-lg py-4 py-md-5">
@@ -38,17 +38,14 @@ $tourDetailPages = is_array($tourDetailPages ?? null) ? $tourDetailPages : [];
         </div>
     <?php endif; ?>
 
-    
-    <div class="row g-3">
-        <div class="col-12 col-lg-8">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h2 class="h5 mb-0">Home</h2>
-                        <span class="badge text-bg-success">Live</span>
-                    </div>
-                    <div class="d-grid gap-2 d-md-flex flex-wrap">
-                        <a href="/cms/events/home" class="btn btn-outline-primary">Edit HomePage</a>
+    <div class="row g-3 g-md-4">
+        <div class="col-12 col-xl-6">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="h5 mb-3">Home</h2>
+                    <p class="text-muted mb-4">Update the main homepage content and keep the festival landing experience current.</p>
+                    <div class="d-grid gap-2 d-sm-flex flex-wrap">
+                        <a href="/cms/events/home" class="btn btn-primary">Edit Homepage</a>
                     </div>
                 </div>
             </div>
@@ -72,6 +69,17 @@ $tourDetailPages = is_array($tourDetailPages ?? null) ? $tourDetailPages : [];
                                 </a>
                             <?php endforeach; ?>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+         <div class="col-12 col-xl-6">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="h5 mb-3">Jazz</h2>
+                    <p class="text-muted mb-4">Manage the Jazz home page </p>
+                    <div class="d-grid gap-2 d-sm-flex flex-wrap mb-4">
+                        <a href="/cms/events/jazz-home" class="btn btn-primary">Edit Home Content</a>
                     </div>
                 </div>
             </div>
@@ -127,6 +135,35 @@ $tourDetailPages = is_array($tourDetailPages ?? null) ? $tourDetailPages : [];
                         </div>
                         <p class="mb-0 text-muted">Edit hero, grid, venues, schedule, FAQ, and each Stories detail page.</p>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-8">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2 class="h5 mb-0">Yummy</h2>
+                        <span class="badge text-bg-success">Live</span>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex flex-wrap">
+                        <a href="/cms/events/yummy-home" class="btn btn-primary">Edit Yummy HomePage</a>
+                    </div>
+
+                    <p class="mb-1">Restaurant Pages:</p>
+
+                    <div class="d-flex flex-wrap gap-2">
+
+                        <a href="/cms/events/yummy-details/ratatouille"
+                            class="btn btn-outline-primary">
+                            Edit Ratatouille
+                        </a>
+
+                        <a href="/cms/events/yummy-details/cafe-de-roemer"
+                            class="btn btn-outline-primary">
+                            Edit Cafe De Roemer
+                        </a>
                 </div>
             </div>
         </div>

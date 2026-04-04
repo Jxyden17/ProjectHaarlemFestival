@@ -16,16 +16,19 @@ class ScheduleMapper
 {
     private EventMapper $eventMapper;
 
+    // Stores the shared event mapper so schedule rows reuse the same core event, venue, and performer mapping rules.
     public function __construct(EventMapper $eventMapper)
     {
         $this->eventMapper = $eventMapper;
     }
 
+    // Maps one event row so schedule repositories can return a typed event model from simple event queries.
     public function mapEventRow(array $row): EventModel
     {
         return $this->eventMapper->mapEventRow($row);
     }
 
+    // Maps one session row so schedule repositories can turn SQL rows into typed session models.
     public function mapSessionRow(array $row): SessionModel
     {
         $languageId = isset($row['language_id']) ? (int) $row['language_id'] : null;
@@ -44,21 +47,25 @@ class ScheduleMapper
         );
     }
 
+    // Maps one venue row so schedule repositories reuse the shared venue mapping rules.
     public function mapVenueModelRow(array $row): VenueModel
     {
         return $this->eventMapper->mapVenueRow($row);
     }
 
+    // Maps one performer row so schedule repositories reuse the shared performer mapping rules.
     public function mapPerformerModelRow(array $row): PerformerModel
     {
         return $this->eventMapper->mapPerformerRow($row);
     }
 
+    // Maps one session-performer row so performer assignments become typed models before graph assembly.
     public function mapSessionPerformerRow(array $row): SessionPerformerModel
     {
         return $this->eventMapper->mapSessionPerformerRow($row);
     }
 
+    // Rebuilds one full event graph from joined SQL rows so sessions, venues, and performers are linked in one pass.
     public function mapEventRowsToEvent(array $rows, string $eventName): EventModel
     {
         if ($rows === []) {
@@ -153,6 +160,7 @@ class ScheduleMapper
         return $event;
     }
 
+    // Rebuilds one full event graph from separately loaded collections so services can attach relations after repository lookups.
     public function mapEventRowsFromCollections(
         EventModel $event,
         array $venues,

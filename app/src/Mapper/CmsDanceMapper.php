@@ -2,13 +2,13 @@
 
 namespace App\Mapper;
 
-use App\Models\Page\Page;
-use App\Models\Page\Section;
 use App\Models\Page\SectionItem;
 use App\Models\Edit\Dance\DanceDetailHeroImageEditRow;
 use App\Models\Edit\Dance\DanceDetailHighlightEditRow;
 use App\Models\Edit\Dance\DanceDetailTrackEditRow;
 use App\Models\Edit\Dance\DanceHomePassEditRow;
+use App\Models\Requests\UpdateDanceDetailRequest;
+use App\Models\Requests\UpdateDanceHomeRequest;
 
 class CmsDanceMapper
 {
@@ -31,50 +31,70 @@ class CmsDanceMapper
     private const ITEM_CATEGORY_TRACK = 'track';
     private const DEFAULT_HIGHLIGHT_ICON = 'star';
 
-    public function mapHomeSectionsForSave(Page $page): array
-    {
-        $schedule = $page->getSection(self::SECTION_SCHEDULE);
-        $artists = $page->getSection(self::SECTION_ARTISTS);
-        $banner = $page->getSection(self::SECTION_BANNER);
-        $info = $page->getSection(self::SECTION_INFO);
-        $passes = $page->getSection(self::SECTION_PASSES);
-        $capacity = $page->getSection(self::SECTION_CAPACITY);
-        $special = $page->getSection(self::SECTION_SPECIAL);
-
-        if ($schedule === null || $artists === null || $banner === null || $info === null || $passes === null || $capacity === null || $special === null) {
-            throw new \RuntimeException('Required dance sections are missing.');
-        }
-
+    // Builds the dance home save payload directly from the CMS request so saves do not need a temporary Page object.
+    public function mapHomeRequestSectionsForSave(
+        UpdateDanceHomeRequest $request,
+        array $passItems,
+        string $bannerDescription,
+        string $importantInformationHtml,
+        string $capacityHtml,
+        string $specialHtml
+    ): array {
         return [
-            $this->mapSectionForSave(self::SECTION_SCHEDULE, $schedule, 5),
-            $this->mapSectionForSave(self::SECTION_BANNER, $banner, 10),
-            $this->mapSectionForSave(self::SECTION_ARTISTS, $artists, 15),
-            $this->mapSectionForSave(self::SECTION_INFO, $info, 20),
-            $this->mapSectionForSave(self::SECTION_PASSES, $passes, 40, $this->mapPassRows($passes->items)),
-            $this->mapSectionForSave(self::SECTION_CAPACITY, $capacity, 50),
-            $this->mapSectionForSave(self::SECTION_SPECIAL, $special, 60),
+            $this->createSectionPayload(self::SECTION_SCHEDULE, $request->scheduleTitle(), null, null, 5),
+            $this->createSectionPayload(self::SECTION_BANNER, $request->bannerTitle(), $request->bannerBadge(), $bannerDescription, 10),
+            $this->createSectionPayload(self::SECTION_ARTISTS, $request->featuredArtistsTitle(), null, null, 15),
+            $this->createSectionPayload(self::SECTION_INFO, $request->importantInformationTitle(), null, $importantInformationHtml, 20),
+            $this->createSectionPayload(self::SECTION_PASSES, $request->passesTitle(), null, null, 40, $this->mapPassRows($passItems)),
+            $this->createSectionPayload(self::SECTION_CAPACITY, $request->capacityTitle(), null, $capacityHtml, 50),
+            $this->createSectionPayload(self::SECTION_SPECIAL, $request->specialTitle(), null, $specialHtml, 60),
         ];
     }
 
-    public function mapDetailSectionsForSave(Page $page): array
-    {
-        $hero = $page->getSection(self::SECTION_DETAIL_HERO);
-        $highlights = $page->getSection(self::SECTION_DETAIL_HIGHLIGHTS);
-        $tracks = $page->getSection(self::SECTION_DETAIL_TRACKS);
-        $info = $page->getSection(self::SECTION_DETAIL_INFO);
-
-        if ($hero === null || $highlights === null || $tracks === null || $info === null) {
-            throw new \RuntimeException('Required dance detail sections are missing.');
-        }
-
+    // Builds the dance detail save payload directly from the CMS request so detail saves can persist normalized sections in one pass.
+    public function mapDetailRequestSectionsForSave(
+        UpdateDanceDetailRequest $request,
+        array $heroImages,
+        array $highlights,
+        array $tracks,
+        string $importantInformationHtml
+    ): array {
         return [
-            $this->mapSectionForSave(self::SECTION_DETAIL_HERO, $hero, 10, $this->mapHeroImageRows($hero->items)),
-            $this->mapSectionForSave(self::SECTION_DETAIL_HIGHLIGHTS, $highlights, 20, $this->mapHighlightRows($highlights->items)),
-            $this->mapSectionForSave(self::SECTION_DETAIL_TRACKS, $tracks, 30, $this->mapTrackRows($tracks->items)),
-            $this->mapSectionForSave(self::SECTION_DETAIL_INFO, $info, 40),
+            $this->createSectionPayload(
+                self::SECTION_DETAIL_HERO,
+                $request->heroTitle(),
+                $request->heroBadge(),
+                $request->heroSubtitle(),
+                10,
+                $this->mapHeroImageRows($heroImages)
+            ),
+            $this->createSectionPayload(
+                self::SECTION_DETAIL_HIGHLIGHTS,
+                $request->highlightsTitle(),
+                null,
+                null,
+                20,
+                $this->mapHighlightRows($highlights)
+            ),
+            $this->createSectionPayload(
+                self::SECTION_DETAIL_TRACKS,
+                $request->tracksTitle(),
+                null,
+                $request->tracksNote(),
+                30,
+                $this->mapTrackRows($tracks)
+            ),
+            $this->createSectionPayload(
+                self::SECTION_DETAIL_INFO,
+                $request->importantInformationTitle(),
+                null,
+                $importantInformationHtml,
+                40
+            ),
         ];
     }
 
+    // Normalizes posted pass rows into section items so validation and persistence use the same internal shape.
     public function normalizePasses(array $passes): array
     {
         $result = [];
@@ -106,6 +126,7 @@ class CmsDanceMapper
         return $result;
     }
 
+    // Normalizes posted hero image rows into section items so detail page media can be saved in order.
     public function normalizeHeroImages(array $heroImages): array
     {
         $result = [];
@@ -131,6 +152,7 @@ class CmsDanceMapper
         return $result;
     }
 
+    // Normalizes posted highlight rows into section items so empty rows are ignored before validation and save.
     public function normalizeHighlights(array $highlights): array
     {
         $result = [];
@@ -160,6 +182,7 @@ class CmsDanceMapper
         return $result;
     }
 
+    // Normalizes posted track rows into section items and preserves existing audio URLs so unchanged tracks keep their media.
     public function normalizeTracks(array $tracks, array $existingTrackAudioUrls = []): array
     {
         $result = [];
@@ -195,6 +218,7 @@ class CmsDanceMapper
         return $result;
     }
 
+    // Converts normalized pass items into repository save rows so CMS pass edits match the page item schema.
     public function mapPassRows(array $passes): array
     {
         $rows = [];
@@ -229,6 +253,7 @@ class CmsDanceMapper
         return $rows;
     }
 
+    // Converts normalized hero image items into repository save rows so hero media persists with alt text and order.
     public function mapHeroImageRows(array $heroImages): array
     {
         $rows = [];
@@ -256,6 +281,7 @@ class CmsDanceMapper
         return $rows;
     }
 
+    // Converts normalized highlight items into repository save rows so icons and text persist in CMS order.
     public function mapHighlightRows(array $highlights): array
     {
         $rows = [];
@@ -283,6 +309,7 @@ class CmsDanceMapper
         return $rows;
     }
 
+    // Converts normalized track items into repository save rows so image, subtitle, year, and audio path persist together.
     public function mapTrackRows(array $tracks): array
     {
         $rows = [];
@@ -312,21 +339,26 @@ class CmsDanceMapper
         return $rows;
     }
 
-    private function mapSectionForSave(string $sectionType, Section $section, int $orderIndex, array $items = []): array
-    {
-        $subtitle = $this->sectionUsesSubtitle($sectionType) ? $section->subTitle : null;
-        $description = $this->sectionUsesDescription($sectionType) ? $section->description : null;
-
+    // Builds one section payload so request-driven saves share one consistent output shape for the page save service.
+    private function createSectionPayload(
+        string $sectionType,
+        string $title,
+        ?string $subtitle,
+        ?string $description,
+        int $orderIndex,
+        array $items = []
+    ): array {
         return [
             'type' => $sectionType,
-            'title' => $section->title,
-            'subtitle' => $subtitle,
-            'description' => $description,
+            'title' => $title,
+            'subtitle' => $this->sectionUsesSubtitle($sectionType) ? $subtitle : null,
+            'description' => $this->sectionUsesDescription($sectionType) ? $description : null,
             'order_index' => $orderIndex,
             'items' => $items,
         ];
     }
 
+    // Flags which section types actually store subtitles so unsupported fields are not written to storage.
     private function sectionUsesSubtitle(string $sectionType): bool
     {
         return $sectionType !== self::SECTION_SCHEDULE
@@ -339,6 +371,7 @@ class CmsDanceMapper
             && $sectionType !== self::SECTION_DETAIL_INFO;
     }
 
+    // Flags which section types actually store descriptions so unsupported fields are omitted from save payloads.
     private function sectionUsesDescription(string $sectionType): bool
     {
         return $sectionType !== self::SECTION_SCHEDULE

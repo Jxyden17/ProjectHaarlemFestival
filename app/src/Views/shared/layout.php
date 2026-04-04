@@ -97,6 +97,9 @@ $canManage = $roleId === 1; // 1=Administrator
                 <a class="hf-icon-btn" href="/logout" aria-label="Logout">
                     <i data-lucide="log-out"></i>
                 </a>
+                <a class="hf-icon-btn" href="/personal-program" aria-label="Personal Program">
+                    <i data-lucide="heart"></i>
+                </a>
             <?php else: ?>
                 <a class="hf-icon-btn" href="/login" aria-label="Login">
                     <i data-lucide="log-in"></i>

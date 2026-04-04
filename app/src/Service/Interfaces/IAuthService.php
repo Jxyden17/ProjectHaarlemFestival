@@ -7,7 +7,7 @@ interface IAuthService
 {
     public function login(string $email, string $password): UserModel;
 
-    public function register(string $email, string $password): UserModel;
+    public function register(UserModel $user): UserModel;
 
     public function requestPasswordReset(string $email, string $baseUrl): void;
 

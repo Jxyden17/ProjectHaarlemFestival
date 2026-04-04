@@ -11,11 +11,13 @@ class MailService implements IMailService
 {
     private MailConfig $config;
 
+    // Stores the mail configuration so each send can reuse the same SMTP host, auth, and sender settings.
     public function __construct(MailConfig $config)
     {
         $this->config = $config;
     }
 
+    // Sends one plain-text email over SMTP so auth and password-reset flows can trigger outbound mail. Example: to 'user@example.com' -> true.
     public function sendMail(string $to, string $subject, string $body): bool
     {
         return $this->sendMessage($to, $subject, $body, '', [], []);

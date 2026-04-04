@@ -1,15 +1,15 @@
 <section class="restaurant-card">
 
-    <h2><?= htmlspecialchars($section->title) ?></h2>
+    <h2><?= $section->title ?></h2>
 
-    <p><?= htmlspecialchars($section->description) ?></p>
+    <p><?= $section->description ?></p>
 
     <ul class="specials-list">
 
-        <h3><?= htmlspecialchars($section->subTitle) ?></h3>
+        <h3><?= $section->subTitle ?></h3>
 
         <?php foreach ($section->items as $item): ?>
-            <li><?= htmlspecialchars($item->content) ?></li>
+            <li><?= $item->content ?></li>
         <?php endforeach; ?>
 
     </ul>

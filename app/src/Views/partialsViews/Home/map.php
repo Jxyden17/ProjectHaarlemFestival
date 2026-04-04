@@ -1,3 +1,11 @@
+<?php
+use App\Models\Page\Section;
+$section = $section ?? null;
+
+if (!$section instanceof Section) {
+    return;
+}
+?>
 <section class="home-map-section">
     <div class="container map-box">
         <div class="map-wrapper">

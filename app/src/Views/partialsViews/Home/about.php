@@ -1,3 +1,11 @@
+<?php
+use App\Models\Page\Section;
+$section = $section ?? null;
+
+if (!$section instanceof Section) {
+    return;
+}
+?>
 <section class="about-section">
     <div class="container">
         <div class="about-wrapper">
