@@ -1,3 +1,11 @@
+<?php
+use App\Models\Page\Section;
+$section = $section ?? null;
+
+if (!$section instanceof Section) {
+    return;
+}
+?>
 <section class="home-faq-section">
     <div class="container faq-box">
         <h2 class="faq-title"><?= htmlspecialchars($section->title ?? 'Frequently Asked Questions') ?></h2>

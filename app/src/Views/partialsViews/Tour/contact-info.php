@@ -1,3 +1,11 @@
+<?php
+use App\Models\Page\Section;
+$section = $section ?? null;
+
+if (!$section instanceof Section) {
+    return;
+}
+?>
 <section class="contact-details-section">
     <div class="contact-container">
         <div class="map-wrapper">

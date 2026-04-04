@@ -1,3 +1,11 @@
+<?php
+use App\Models\Page\Section;
+$section = $section ?? null;
+
+if (!$section instanceof Section) {
+    return;
+}
+?>
 <section class="discover-events">
     <div class="container discover-box">
         <h2 class="section-title"><?= htmlspecialchars($section->title ?? 'Discover Events') ?></h2>
