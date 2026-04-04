@@ -52,13 +52,6 @@ $failedPayments = (int) ($summary['failedPayments'] ?? 0);
                                 <strong class="cms-ticket-overview-main__value"><?= $availableTotal ?></strong>
                             </div>
                         </div>
-                        <div class="cms-ticket-overview-action">
-                            <div>
-                                <span class="cms-ticket-overview-action__label">Pending payment queue</span>
-                                <p class="cms-ticket-overview-action__text mb-0">Open the ticket list already filtered to pending payments and check what still needs confirmation.</p>
-                            </div>
-                            <a href="/cms/tickets/sold?payment_status=pending" class="btn btn-primary">Review Pending Payments</a>
-                        </div>
                     </div>
                     <div class="cms-ticket-overview-side">
                         <div class="cms-ticket-overview-side__alert">
@@ -128,6 +121,7 @@ $failedPayments = (int) ($summary['failedPayments'] ?? 0);
                             </div>
 
                             <div class="d-grid gap-2 d-sm-flex">
+                                <a href="/cms/tickets/orders?event_id=<?= (int) ($event['id'] ?? 0) ?>" class="btn btn-outline-secondary">View Orders</a>
                                 <a href="/cms/tickets/sold?event_id=<?= (int) ($event['id'] ?? 0) ?>" class="btn btn-primary">View Sold Tickets</a>
                                 <a href="/cms/eventManagement/schedules?event_id=<?= (int) ($event['id'] ?? 0) ?>" class="btn btn-outline-secondary">Manage Availability</a>
                             </div>

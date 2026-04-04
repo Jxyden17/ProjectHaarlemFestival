@@ -137,8 +137,6 @@ class PaymentService implements IPaymentService
             $this->processStripeWebhook($payload, $signature);
             return;
         }
-
-        throw new \RuntimeException('Webhook handling is not configured for the selected payment driver.');
     }
 
     public function getPaymentStatus(string $providerPaymentId): string
@@ -153,10 +151,6 @@ class PaymentService implements IPaymentService
 
     private function createStripeCheckoutSession(int $orderId, int $cartId): string
     {
-        if ($this->stripeSecretKey === '') {
-            throw new \RuntimeException('Stripe secret key is missing. Configure STRIPE_SECRET_KEY in the environment.');
-        }
-
         $order = $this->paymentRepository->findOrderById($orderId);
         if ($order === null) {
             throw new \RuntimeException('Order not found.');
@@ -201,10 +195,6 @@ class PaymentService implements IPaymentService
 
     private function fetchStripeCheckoutSession(string $sessionId): array
     {
-        if ($this->stripeSecretKey === '') {
-            throw new \RuntimeException('Stripe secret key is missing. Configure STRIPE_SECRET_KEY in the environment.');
-        }
-
         return $this->sendStripeRequest('GET', '/v1/checkout/sessions/' . rawurlencode($sessionId));
     }
 

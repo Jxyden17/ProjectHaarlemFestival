@@ -31,9 +31,6 @@ $storiesError = isset($storiesError) && is_string($storiesError) ? $storiesError
                 >
             </div>
 
-            <p class="text-muted mb-0">
-                The page will be created with the default Stories sections: hero, about, gallery, featured, and booking.
-            </p>
         </div>
         <div class="card-footer d-flex justify-content-end gap-2">
             <a href="/cms/events" class="btn btn-outline-secondary">Cancel</a>

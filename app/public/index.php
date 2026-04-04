@@ -58,6 +58,7 @@ try {
     $jazzService = new App\Service\JazzService($jazzRepo, $scheduleRepo);
     $authService = new App\Service\AuthService($userRepo, $passwordResetRepo, $mailService);
     $personalProgramService = new App\Service\PersonalProgramService($personalProgramRepo, $personalProgramMapper);
+    $storiesPageService = new App\Service\StoriesPageService($pageService, $scheduleService, $scheduleViewModelMapper);
     $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
     $host = (string) ($_SERVER['HTTP_HOST'] ?? 'localhost');
     $baseUrl = $scheme . '://' . $host;
@@ -67,7 +68,9 @@ try {
     $artistesService = new App\Service\ArtistesService($artistesRepo);
     $venueService = new App\Service\VenueService($venueRepo);
     $ticketService = new App\Service\TicketService($ticketRepo, $cartRepo, $paymentRepo, $userRepo, $mailService);
+    $paymentResultViewService = new App\Service\PaymentResultViewService();
     $cmsEventManagementService = new App\Service\Cms\CmsEventManagementService();
+    $ticketQrCodeService = new App\Service\Cms\TicketQrCodeService();
     $cmsTicketManagementService = new App\Service\Cms\CmsTicketManagementService($cmsTicketManagementRepo);
 
     $cmsScheduleMapper = new App\Mapper\CmsScheduleMapper();
@@ -108,7 +111,7 @@ try {
     $cmsController = new App\Controllers\Cms\CmsController($cmsService);
     $cmsEventsController = new App\Controllers\Cms\CmsEventsController($cmsService, $danceService, $pageService, $cmsEventEditorService);
     $cmsUsersController = new App\Controllers\Cms\CmsUsersController($cmsService);
-    $storiesController = new App\Controllers\StoriesController($pageService, $scheduleService, $scheduleViewModelMapper);
+    $storiesController = new App\Controllers\StoriesController($storiesPageService);
     $cmsEventEditorController = new App\Controllers\Cms\CmsEventEditorController($cmsScheduleService, $cmsEventEditorService);
     $cmsTourContentController = new App\Controllers\Cms\CmsTourContentController($pageService, $cmsEventEditorService);
     $cmsStoriesContentController = new App\Controllers\Cms\CmsStoriesContentController($pageService, $cmsEventEditorService, $cmsStoriesViewModelMapper);
@@ -121,7 +124,7 @@ try {
     $cmsVenuesController = new App\Controllers\Cms\CmsVenuesController($venueService);
     $cmsScheduleController = new App\Controllers\Cms\CmsScheduleController($scheduleService, $venueService, $artistesService);
     $cmsEventManagementController = new App\Controllers\Cms\CmsEventManagementController($cmsEventManagementService);
-    $cmsTicketManagementController = new App\Controllers\Cms\CmsTicketManagementController($cmsTicketManagementService);
+    $cmsTicketManagementController = new App\Controllers\Cms\CmsTicketManagementController($cmsTicketManagementService, $ticketQrCodeService);
     
    
    
@@ -134,7 +137,7 @@ try {
     $checkoutService = new App\Service\CheckoutService($cartService, $cartRepo, $checkoutRepo);
     $paymentService = new App\Service\PaymentService($paymentRepo, $ticketService, $baseUrl, $paymentDriver, $stripeSecretKey, $stripeWebhookSecret);
     $checkoutController = new App\Controllers\CheckoutController($checkoutService, $paymentService);
-    $paymentController = new App\Controllers\PaymentController($paymentService);
+    $paymentController = new App\Controllers\PaymentController($paymentService, $paymentResultViewService);
 
 
 
@@ -215,6 +218,9 @@ try {
         $r->addRoute('GET', '/cms/eventManagement', ['CmsEventManagementController', 'index']);
         $r->addRoute('GET', '/cms/tickets', ['CmsTicketManagementController', 'index']);
         $r->addRoute('GET', '/cms/tickets/sold', ['CmsTicketManagementController', 'sold']);
+        $r->addRoute('GET', '/cms/tickets/orders', ['CmsTicketManagementController', 'orders']);
+        $r->addRoute('GET', '/cms/tickets/orders/detail', ['CmsTicketManagementController', 'orderDetail']);
+        $r->addRoute('GET', '/cms/tickets/qr', ['CmsTicketManagementController', 'qr']);
         
         $r->addRoute('GET', '/cms/eventManagement/artists', ['CmsArtistsController', 'index']);
         $r->addRoute('GET', '/cms/eventManagement/artists/create', ['CmsArtistsController', 'showCreateForm']);
