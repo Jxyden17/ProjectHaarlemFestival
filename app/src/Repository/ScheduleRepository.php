@@ -489,4 +489,31 @@ class ScheduleRepository implements IScheduleRepository
             ':id' => $id,
         ]);
     }
+
+    public function getSessionById(int $id): ?array
+    {
+        $stmt = $this->db->prepare(
+            'SELECT
+                s.id,
+                s.event_id,
+                s.venue_id,
+                s.date,
+                s.start_time,
+                s.language_id,
+                s.label,
+                s.price,
+                s.available_spots,
+                s.amount_sold
+                FROM sessions s
+                WHERE s.id = :id'
+        );
+        $stmt->execute([':id' => $id]);
+        $session = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$session) {
+            return null;
+        }
+
+        return $session;
+    }
 }

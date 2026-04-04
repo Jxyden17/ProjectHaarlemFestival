@@ -28,4 +28,5 @@ interface IScheduleRepository
     public function editSchedule(int $id, int $eventId, int $venueId, string $date, string $startTime, int $availableSpots, ?string $label, ?float $price, ?int $language, array $performerIds = []): bool;
     public function createSchedule(int $eventId, int $venueId, string $date, string $startTime, int $availableSpots, ?string $label, ?float $price, ?int $language, array $performerIds = []): bool;
     public function deleteSchedule(int $id): bool;
+    public function getSessionById(int $id): ?array;
 }
