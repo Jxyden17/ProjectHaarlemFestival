@@ -48,7 +48,8 @@ class CmsScheduleController extends BaseController
             return;
         }
         $venueData = $this->venueService->getAllVenuesForEvent($selectedEvent->value);
-        $this->renderCms('cms/schedule/edit', ['title' => 'Edit Schedule', 'selectedEvent' => $selectedEvent, 'schedule' => $scheduleData, 'language' => $language, 'venues' => $venueData]);
+        $performers = $this->artistesService->getAllArtistesForEvent((int)$selectedEvent->value);
+        $this->renderCms('cms/schedule/edit', ['title' => 'Edit Schedule', 'selectedEvent' => $selectedEvent, 'schedule' => $scheduleData, 'language' => $language, 'venues' => $venueData, 'performers' => $performers]);
     }
 
     public function edit(): void
@@ -63,7 +64,8 @@ class CmsScheduleController extends BaseController
             availableSpots: $_POST['available_spots'],
             label: trim($_POST['label']),
             price: (float)$_POST['price'],
-            language: $_POST['language_id']
+            language: $_POST['language_id'],
+            performerIds: $_POST['performer_ids'] ?? []
          );
         
         if ($updated) {

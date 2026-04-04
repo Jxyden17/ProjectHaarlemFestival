@@ -80,7 +80,7 @@ class UserRepository implements IUserRepository
         $id = (int)$this->db->lastInsertId();
         $createdAt = date('Y-m-d H:i:s');
 
-        return new UserModel( $id, $user->name, $user->email," ", $user->phoneNumber, $user->country, $user->city, $user->addres, $user->postcode, $user->userRole->value, $user->createdAt);
+        return new UserModel($id, $user->name, $user->email, " ", $user->phoneNumber, $user->country, $user->city, $user->addres, $user->postcode, $user->userRole->value, $createdAt);
     }
 
     // Update the user's password.
@@ -100,8 +100,9 @@ class UserRepository implements IUserRepository
 
         $users = [];
         foreach($rows as $row) {
-          return $this->makeUser($row);
+            $users[] = $this->makeUser($row);
         }
+
         return $users;
     }
 

@@ -70,8 +70,7 @@ $passes = $contentViewModel->passes;
 
             <h2 class="h5">Featured Artists & Schedule</h2>
             <div class="alert alert-info" role="alert">
-                This section controls the featured artists title and the schedule title. Performer names, types, descriptions, schedule sessions, and artist images are managed in the
-                <a href="/cms/events/dance-schedule" class="alert-link">Dance Schedule editor</a>.
+                This section controls the featured artists title and the schedule title. Performer names, types, descriptions, schedule sessions, and artist images are managed in Event Management.
             </div>
             <div class="mb-3">
                 <label for="featured_artists_title" class="form-label">Featured Artists Title</label>

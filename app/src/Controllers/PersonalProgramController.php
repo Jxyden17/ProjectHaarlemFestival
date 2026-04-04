@@ -42,8 +42,7 @@ class PersonalProgramController extends BaseController
 
         }
         catch (\Exception $e) {
-            var_dump($e->getMessage());
-            die();
+            throw $e;
         }
     }
 

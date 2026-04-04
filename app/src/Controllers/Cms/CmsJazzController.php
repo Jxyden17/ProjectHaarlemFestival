@@ -41,8 +41,6 @@ class CmsJazzController extends BaseController
             header('Location: /cms/events/jazz-home?saved=1');
             exit;
         } catch (\Throwable $e) {
-           var_dump($e);
-           die();
             $contentViewModel =$this->cmsJazzViewModelMapper->mapHomeRequestToEditViewModel($request);
             $this->renderCms('cms/events/jazz-home', [
                 'title' => 'jazz Home Content',

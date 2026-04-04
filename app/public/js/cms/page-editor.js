@@ -1,4 +1,5 @@
 (function () {
+    // Replace flagged textareas with Quill editors and sync HTML back on submit.
     function initializeQuillEditors(form) {
         if (!(form instanceof HTMLFormElement) || typeof Quill === 'undefined') {
             return [];

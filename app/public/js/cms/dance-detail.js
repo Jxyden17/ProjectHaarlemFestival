@@ -1,5 +1,6 @@
 const danceDetailForm = document.querySelector('form[action*="/cms/events/dance-detail/"]');
 
+// Upload the selected hero image for the current dance detail row.
 async function uploadImage(row, button) {
     if (!window.CmsMediaUpload) {
         return;
@@ -29,6 +30,7 @@ async function uploadImage(row, button) {
     }
 }
 
+// Upload the selected audio track for the current dance detail row.
 async function uploadAudio(row, button) {
     if (!window.CmsMediaUpload) {
         return;
@@ -59,6 +61,7 @@ async function uploadAudio(row, button) {
 }
 
 if (danceDetailForm) {
+    // Route image and audio upload clicks through the shared row handlers.
     danceDetailForm.addEventListener('click', (event) => {
         const target = event.target;
         if (!(target instanceof HTMLElement)) {
@@ -86,10 +89,12 @@ if (danceDetailForm) {
     });
 }
 
+// Upgrade rich text fields on the dance detail editor.
 if (danceDetailForm && window.CmsPageEditor) {
     window.CmsPageEditor.initializeQuillEditors(danceDetailForm);
 }
 
+// Submit the dance detail editor through the shared save API flow.
 if (danceDetailForm && window.CmsFormSaveAPI) {
     window.CmsFormSaveAPI.initialize(danceDetailForm);
 }

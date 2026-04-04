@@ -5,6 +5,7 @@
     const uploadFeedbackMessage = document.getElementById('cmsUploadFeedbackMessage');
     let uploadFeedbackModal = null;
 
+    // Reuse one Bootstrap modal instance for all CMS upload/save feedback.
     function getUploadFeedbackModal() {
         if (!uploadFeedbackModalElement || typeof bootstrap === 'undefined') {
             return null;
@@ -17,6 +18,7 @@
         return uploadFeedbackModal;
     }
 
+    // Update the feedback modal content and display the requested status variant.
     function showUploadFeedback(title, message, variant) {
         const modalInstance = getUploadFeedbackModal();
         if (!modalInstance || !uploadFeedbackTitle || !uploadFeedbackAlert || !uploadFeedbackMessage) {
@@ -29,6 +31,7 @@
         modalInstance.show();
     }
 
+    // Swap button text and disabled state while an upload is in flight.
     function setUploadingState(button, isUploading) {
         if (!(button instanceof HTMLElement)) {
             return;
@@ -42,6 +45,7 @@
         button.textContent = isUploading ? 'Uploading...' : button.dataset.originalLabel;
     }
 
+    // Only expose raw error details when the modal is in debug mode.
     function resolveUploadErrorMessage(error, fallbackMessage) {
         const debugEnabled = uploadFeedbackModalElement
             ? uploadFeedbackModalElement.dataset.debugEnabled === '1'

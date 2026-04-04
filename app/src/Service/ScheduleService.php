@@ -187,7 +187,7 @@ class ScheduleService implements IScheduleService
     public function getSessionById(int $id): ?ScheduleEditorViewModel
     {
         if ($id <= 0) {
-        return null;
+            return null;
         }
 
         $session = $this->scheduleRepo->getSessionById($id);
@@ -220,11 +220,9 @@ class ScheduleService implements IScheduleService
         );
     }
 
-
-
-    public function editSchedule(int $id, int $eventId, int $venueId, string $date, string $startTime, int $availableSpots, ?string $label, ?float $price, ?int $language): bool
+    public function editSchedule(int $id, int $eventId, int $venueId, string $date, string $startTime, int $availableSpots, ?string $label, ?float $price, ?int $language, array $performerIds = []): bool
     {
-        return $this->scheduleRepo->editSchedule($id, $eventId, $venueId, $date, $startTime, $availableSpots, $label, $price, $language);
+        return $this->scheduleRepo->editSchedule($id, $eventId, $venueId, $date, $startTime, $availableSpots, $label, $price, $language, $performerIds);
     }
 
     public function createSchedule(int $eventId, int $venueId, string $date, string $startTime, int $availableSpots, ?string $label, ?float $price, ?int $language, array $performerIds = []): bool
