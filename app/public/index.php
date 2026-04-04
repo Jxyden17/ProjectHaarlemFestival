@@ -214,6 +214,7 @@ try {
         //event management routes
         $r->addRoute('GET', '/cms/eventManagement', ['CmsEventManagementController', 'index']);
         $r->addRoute('GET', '/cms/tickets', ['CmsTicketManagementController', 'index']);
+        $r->addRoute('GET', '/cms/tickets/sold', ['CmsTicketManagementController', 'sold']);
         
         $r->addRoute('GET', '/cms/eventManagement/artists', ['CmsArtistsController', 'index']);
         $r->addRoute('GET', '/cms/eventManagement/artists/create', ['CmsArtistsController', 'showCreateForm']);

@@ -6,7 +6,7 @@ interface IPaymentService
 {
     public function createPayment(int $orderId, int $cartId): string;
 
-    public function handleReturn(int $orderId): array;
+    public function handleReturn(int $orderId, string $sessionId = ''): array;
 
     public function handleCancellation(int $orderId): array;
 

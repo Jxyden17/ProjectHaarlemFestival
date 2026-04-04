@@ -16,6 +16,7 @@ class PaymentController extends BaseController
     public function return(): void
     {
         $orderId = (int) ($_GET['order_id'] ?? 0);
+        $sessionId = trim((string) ($_GET['session_id'] ?? ''));
         $isCancelled = isset($_GET['cancelled']) && (string) $_GET['cancelled'] === '1';
 
         if ($orderId <= 0) {
@@ -47,7 +48,7 @@ class PaymentController extends BaseController
         }
 
         try {
-            $result = $this->paymentService->handleReturn($orderId);
+            $result = $this->paymentService->handleReturn($orderId, $sessionId);
         } catch (\Throwable $e) {
             http_response_code(400);
             $this->render('shared/error', [

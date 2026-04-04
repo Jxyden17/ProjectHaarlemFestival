@@ -64,4 +64,37 @@ class CmsTicketManagementRepository
             'failed_payments' => 0,
         ];
     }
+
+    public function getSoldTicketsByEventId(int $eventId): array
+    {
+        $stmt = $this->db->prepare(
+            'SELECT
+                t.id AS ticket_id,
+                t.order_id,
+                t.user_id,
+                u.email AS customer_email,
+                s.id AS session_id,
+                s.label AS session_label,
+                s.date AS session_date,
+                s.start_time,
+                s.price,
+                s.available_spots,
+                s.amount_sold,
+                COALESCE(ts.status_name, \'Unknown\') AS ticket_status,
+                COALESCE(p.status, \'unknown\') AS payment_status,
+                COALESCE(o.status, \'unknown\') AS order_status,
+                t.qr_code
+             FROM tickets t
+             INNER JOIN sessions s ON s.id = t.session_id
+             INNER JOIN users u ON u.id = t.user_id
+             LEFT JOIN ticket_statuses ts ON ts.id = t.status_id
+             LEFT JOIN payments p ON p.order_id = t.order_id
+             LEFT JOIN orders o ON o.id = t.order_id
+             WHERE s.event_id = :event_id
+             ORDER BY s.date DESC, s.start_time DESC, t.id DESC'
+        );
+
+        $stmt->execute([':event_id' => $eventId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

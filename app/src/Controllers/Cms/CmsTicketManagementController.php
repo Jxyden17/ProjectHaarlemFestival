@@ -23,4 +23,22 @@ class CmsTicketManagementController extends BaseController
             'events' => $dashboardData['events'] ?? [],
         ]);
     }
+
+    public function sold(): void
+    {
+        $this->requireAdmin();
+
+        $eventId = isset($_GET['event_id']) ? (int) $_GET['event_id'] : null;
+        $paymentStatus = trim((string) ($_GET['payment_status'] ?? 'all'));
+        $soldTicketsData = $this->cmsTicketManagementService->getSoldTicketsData($eventId, $paymentStatus);
+
+        $this->renderCms('cms/tickets/sold', [
+            'title' => 'Sold Tickets',
+            'selectedEvent' => $soldTicketsData['selectedEvent'] ?? null,
+            'eventTypes' => $soldTicketsData['eventTypes'] ?? [],
+            'tickets' => $soldTicketsData['tickets'] ?? [],
+            'paymentStatusFilter' => $soldTicketsData['paymentStatusFilter'] ?? 'all',
+            'summary' => $soldTicketsData['summary'] ?? [],
+        ]);
+    }
 }
