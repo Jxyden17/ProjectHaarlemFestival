@@ -40,6 +40,7 @@ try {
     $ticketRepo = new App\Repository\TicketRepository();
     $cartRepo = new App\Repository\CartRepository();
     $paymentRepo = new App\Repository\PaymentRepository();
+    $cmsTicketManagementRepo = new App\Repository\CmsTicketManagementRepository();
 
     $mailConfig = App\Models\MailConfig::fromEnvironment();
     $pageService = new App\Service\PageService($pageRepo);
@@ -67,6 +68,7 @@ try {
     $venueService = new App\Service\VenueService($venueRepo);
     $ticketService = new App\Service\TicketService($ticketRepo, $cartRepo, $paymentRepo, $userRepo, $mailService);
     $cmsEventManagementService = new App\Service\Cms\CmsEventManagementService();
+    $cmsTicketManagementService = new App\Service\Cms\CmsTicketManagementService($cmsTicketManagementRepo);
 
     $cmsScheduleMapper = new App\Mapper\CmsScheduleMapper();
     $cmsDanceMapper = new App\Mapper\CmsDanceMapper();
@@ -119,6 +121,7 @@ try {
     $cmsVenuesController = new App\Controllers\Cms\CmsVenuesController($venueService);
     $cmsScheduleController = new App\Controllers\Cms\CmsScheduleController($scheduleService, $venueService, $artistesService);
     $cmsEventManagementController = new App\Controllers\Cms\CmsEventManagementController($cmsEventManagementService);
+    $cmsTicketManagementController = new App\Controllers\Cms\CmsTicketManagementController($cmsTicketManagementService);
     
    
    
@@ -196,7 +199,6 @@ try {
         $r->addRoute('POST', '/cms/events/stories-details', ['CmsStoriesContentController', 'detailsUpdate']);
         $r->addRoute('POST', '/cms/media/upload-image', ['CmsMediaController', 'uploadImage']);
         $r->addRoute('POST', '/cms/media/upload-audio', ['CmsMediaController', 'uploadAudio']);
-        $r->addRoute('GET', '/cms/tickets', ['CmsTicketsController', 'index']);
         $r->addRoute('GET', '/cms/users', ['CmsUsersController', 'index']);
         $r->addRoute('GET', '/cms/users/create', ['CmsUsersController', 'showCreateForm']);
         $r->addRoute('POST', '/cms/users/create', ['CmsUsersController', 'addUser']);
@@ -211,6 +213,7 @@ try {
         
         //event management routes
         $r->addRoute('GET', '/cms/eventManagement', ['CmsEventManagementController', 'index']);
+        $r->addRoute('GET', '/cms/tickets', ['CmsTicketManagementController', 'index']);
         
         $r->addRoute('GET', '/cms/eventManagement/artists', ['CmsArtistsController', 'index']);
         $r->addRoute('GET', '/cms/eventManagement/artists/create', ['CmsArtistsController', 'showCreateForm']);
@@ -296,6 +299,7 @@ try {
                 'CmsArtistsController' => $cmsArtistsController,
                 'CmsVenuesController' => $cmsVenuesController,
                 'CmsEventManagementController' => $cmsEventManagementController,
+                'CmsTicketManagementController' => $cmsTicketManagementController,
                 'CmsScheduleController' => $cmsScheduleController
             ];
 
