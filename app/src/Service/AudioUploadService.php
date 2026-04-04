@@ -22,12 +22,14 @@ class AudioUploadService extends MediaService implements IAudioUploadService
     ];
     private IDanceService $danceService;
 
+    // Stores audio upload dependencies so dance-aware module resolution can reuse the shared media helpers.
     public function __construct(IMediaRepository $mediaRepository, IDanceService $danceService)
     {
         parent::__construct($mediaRepository);
         $this->danceService = $danceService;
     }
 
+    // Uploads one audio file and syncs its public path so dance track editors can attach audio without manual filesystem work.
     public function uploadAudio(array $post, array $files): array
     {
         try {
@@ -66,6 +68,7 @@ class AudioUploadService extends MediaService implements IAudioUploadService
         }
     }
 
+    // Parses the requested audio module so later steps know which page, section, and category may be updated.
     private function parseAudioModuleConfig(array $post): MediaModuleConfig
     {
         $module = trim((string)($post['module'] ?? ''));
@@ -77,6 +80,7 @@ class AudioUploadService extends MediaService implements IAudioUploadService
         return $moduleConfig;
     }
 
+    // Resolves an audio module name so dynamic and static upload targets share one entry point. Example: module 'dance_detail_track_audio:urban-echo' -> MediaModuleConfig.
     private function matchAudioModule(string $module): ?MediaModuleConfig
     {
         $dynamicModule = $this->matchDynamicAudioModule($module);
@@ -87,6 +91,7 @@ class AudioUploadService extends MediaService implements IAudioUploadService
         return $this->matchStaticAudioModule($module);
     }
 
+    // Resolves dynamic audio modules so detail-page track uploads can target the correct dance slug.
     private function matchDynamicAudioModule(string $module): ?MediaModuleConfig
     {
         if (preg_match('/^dance_detail_track_audio:([a-z0-9-]+)$/', $module, $matches) === 1) {
@@ -106,6 +111,7 @@ class AudioUploadService extends MediaService implements IAudioUploadService
         return null;
     }
 
+    // Resolves static audio modules so future fixed audio targets can be added without changing the upload flow.
     private function matchStaticAudioModule(string $module): ?MediaModuleConfig
     {
         return match ($module) {
@@ -113,6 +119,7 @@ class AudioUploadService extends MediaService implements IAudioUploadService
         };
     }
 
+    // Builds the dance detail audio config so track uploads only write inside the selected detail page scope.
     private function buildDanceDetailAudioModuleConfig(string $pageSlug): ?MediaModuleConfig
     {
         $detailPage = $this->danceService->getDanceDetailPageBySlug($pageSlug);
@@ -129,6 +136,7 @@ class AudioUploadService extends MediaService implements IAudioUploadService
         );
     }
 
+    // Finds the section item to update so audio uploads can target either the posted item id or the current stored path.
     private function findAudioSectionItemId(MediaModuleConfig $moduleConfig, array $post, string $currentPath): ?int
     {
         $sectionItemId = $this->getPostedSectionItemId($post);
@@ -148,6 +156,7 @@ class AudioUploadService extends MediaService implements IAudioUploadService
         );
     }
 
+    // Persists the new audio path so the uploaded file is reachable from the matching track item in the database.
     private function syncAudioPathToDatabase(MediaModuleConfig $moduleConfig, ?int $sectionItemId, string $publicPath): string
     {
         if ($sectionItemId === null || $sectionItemId <= 0) {

@@ -15,6 +15,7 @@ use App\Models\ViewModels\Cms\Schedule\ScheduleEditorVenueRowViewModel;
 
 class CmsScheduleMapper
 {
+    // Maps venue models into CMS editor rows so the schedule form can render existing venue data.
     public function mapVenueRows(array $venues): array
     {
         $rows = [];
@@ -35,6 +36,7 @@ class CmsScheduleMapper
         return $rows;
     }
 
+    // Maps posted venue edit rows back into editor rows so validation errors can re-render submitted values.
     public function mapVenueViewModels(array $rows): array
     {
         $venues = [];
@@ -55,6 +57,7 @@ class CmsScheduleMapper
         return $venues;
     }
 
+    // Maps posted performer edit rows back into editor rows while preserving existing dance image metadata when available.
     public function mapPerformerViewModels(array $rows, array $existingPerformers): array
     {
         $performers = [];
@@ -85,6 +88,7 @@ class CmsScheduleMapper
         return $performers;
     }
 
+    // Maps performer models into CMS editor rows so the schedule form can render existing performer data.
     public function mapPerformerRows(array $performers): array
     {
         $rows = [];
@@ -107,6 +111,7 @@ class CmsScheduleMapper
         return $rows;
     }
 
+    // Builds a session-to-performer id map so CMS session rows can preload assigned performers. Example: session 12 -> [3, 7].
     public function buildSessionPerformerMap(array $sessionPerformers): array
     {
         $sessionPerformerMap = [];
@@ -123,6 +128,7 @@ class CmsScheduleMapper
         return $sessionPerformerMap;
     }
 
+    // Maps posted session edit rows back into editor rows so validation errors can re-render submitted values.
     public function mapSessionViewModels(array $rows): array
     {
         $sessions = [];
@@ -141,13 +147,15 @@ class CmsScheduleMapper
                 $row->price(),
                 $row->availableSpots(),
                 $row->amountSold(),
-                array_values(array_map('intval', $row->performerIds()))
+                array_values(array_map('intval', $row->performerIds())),
+                $row->languageId(),
             );
         }
 
         return $sessions;
     }
 
+    // Maps session models into CMS editor rows so the schedule form can render existing session data.
     public function mapSessionRows(array $sessions, array $sessionPerformerMap): array
     {
         $rows = [];
@@ -166,7 +174,8 @@ class CmsScheduleMapper
                 number_format($session->price, 2, '.', ''),
                 $session->availableSpots,
                 $session->amountSold,
-                array_values(array_map('intval', $sessionPerformerMap[$session->id] ?? []))
+                array_values(array_map('intval', $sessionPerformerMap[$session->id] ?? [])),
+                $session->languageId ?? 1
             );
         }
 

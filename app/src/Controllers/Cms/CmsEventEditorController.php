@@ -12,42 +12,48 @@ class CmsEventEditorController extends BaseController
     private ICmsScheduleService $cmsScheduleService;
     private ICmsEventEditorService $cmsEventEditorService;
 
+    // Stores CMS event editor dependencies so schedule editing actions stay focused on request and response flow.
     public function __construct(ICmsScheduleService $cmsScheduleService, ICmsEventEditorService $cmsEventEditorService)
     {
         $this->cmsScheduleService = $cmsScheduleService;
         $this->cmsEventEditorService = $cmsEventEditorService;
     }
 
+    // Renders the CMS event schedule editor so admins can manage one event's schedule in a single form.
     public function index(array $vars = []): void
     {
         $this->requireAdmin();
 
         $eventName = $this->resolveEventName($vars);
-        $eventSlug = $this->toEventSlug($eventName);
         $editorViewModel = $this->cmsEventEditorService->getEditorData($eventName);
         $view = $eventName === 'TellingStory' ? 'cms/events/stories-schedule' : 'cms/events/dance-schedule';
         $title = $eventName === 'TellingStory' ? 'Stories Schedule' : $eventName . ' Schedule';
+        $tourDetailPages = $view === 'cms/events/dance-schedule'
+            ? $this->cmsEventEditorService->getTourDetailPages()
+            : [];
 
         $this->renderCms($view, [
             'title' => $title,
             'eventName' => $eventName,
             'editorViewModel' => $editorViewModel,
-            'formAction' => '/cms/events/' . $eventSlug . '/schedule',
+            'formAction' => $this->buildEventManagementScheduleEditorPath($eventName),
             'success' => isset($_GET['saved']),
+            'tourDetailPages' => $tourDetailPages,
+            'backUrl' => '/cms/eventManagement',
         ]);
     }
 
+    // Handles the CMS event schedule save so posted schedule rows persist and redirect back with status.
     public function update(array $vars = []): void
     {
         $this->requireAdmin();
 
         $eventName = $this->resolveEventName($vars);
-        $eventSlug = $this->toEventSlug($eventName);
         $request = ScheduleEditorRequest::fromArray($_POST);
 
         try {
             $this->cmsScheduleService->saveScheduleData($eventName, $request->toSaveInput());
-            header('Location: /cms/events/' . $eventSlug . '/schedule?saved=1');
+            header('Location: ' . $this->buildEventManagementScheduleEditorPath($eventName) . '?saved=1');
             exit;
         } catch (\Throwable $e) {
             $editorViewModel = $this->cmsEventEditorService->getEditorData($eventName);
@@ -60,18 +66,24 @@ class CmsEventEditorController extends BaseController
             );
             $view = $eventName === 'TellingStory' ? 'cms/events/stories-schedule' : 'cms/events/dance-schedule';
             $title = $eventName === 'TellingStory' ? 'Stories Schedule' : $eventName . ' Schedule';
+            $tourDetailPages = $view === 'cms/events/dance-schedule'
+                ? $this->cmsEventEditorService->getTourDetailPages()
+                : [];
 
             $this->renderCms($view, [
                 'title' => $title,
                 'eventName' => $eventName,
                 'editorViewModel' => $editorViewModel,
-                'formAction' => '/cms/events/' . $eventSlug . '/schedule',
+                'formAction' => $this->buildEventManagementScheduleEditorPath($eventName),
                 'error' => $e->getMessage(),
                 'success' => false,
+                'tourDetailPages' => $tourDetailPages,
+                'backUrl' => '/cms/eventManagement',
             ]);
         }
     }
 
+    // Converts the route slug into an event name so CMS schedule routes can resolve the target event. Example: 'telling-story' -> 'Telling Story'.
     private function resolveEventName(array $vars): string
     {
         $slug = trim((string)($vars['eventSlug'] ?? ''));
@@ -88,8 +100,14 @@ class CmsEventEditorController extends BaseController
         };
     }
 
+    // Converts an event name into a route slug so redirects land back on the correct CMS schedule page. Example: 'Telling Story' -> 'telling-story'.
     private function toEventSlug(string $eventName): string
     {
         return str_replace(' ', '-', strtolower(trim($eventName)));
+    }
+
+    private function buildEventManagementScheduleEditorPath(string $eventName): string
+    {
+        return '/cms/eventManagement/' . $this->toEventSlug($eventName) . '/schedule-editor';
     }
 }

@@ -4,6 +4,7 @@ namespace App\Models\ViewModels\Shared;
 
 class ScheduleRowViewModel
 {
+    public int $id;
     public string $date;
     public string $time;
     public string $event;
@@ -18,8 +19,9 @@ class ScheduleRowViewModel
     public int $bookedTickets;
 
 
-    public function __construct(string $date, string $time, string $event, string $location, string $price, string $bookUrl, string $language, int $totalTickets, int $bookedTickets, string $eventName, string $ageLabel) {
-        $this->date = $date;
+    public function __construct(int $id, string $date, string $time, string $event, string $location, string $price, string $bookUrl, string $language, int $totalTickets, int $bookedTickets, string $eventName, string $ageLabel) {
+        $this->id = $id;
+        $this->date = $date; 
         $this->time = $time;
         $this->event = $event;
         $this->eventName = $eventName;

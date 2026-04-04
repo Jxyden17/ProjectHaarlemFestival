@@ -31,6 +31,7 @@ class DanceViewModelMapper
     private const ITEM_CATEGORY_HIGHLIGHT = 'highlight';
     private const ITEM_CATEGORY_TRACK = 'track';
 
+    // Builds the public dance landing view model so one typed page payload becomes render-ready homepage content.
     public function buildIndexViewModel(DanceIndexData $indexData, ScheduleViewModel $schedule): DanceIndexViewModel
     {
         $homePage = $indexData->homePage;
@@ -65,6 +66,7 @@ class DanceViewModelMapper
         );
     }
 
+    // Builds the public dance detail view model so one detail payload becomes render-ready hero, highlights, tracks, and schedule content.
     public function buildDetailViewModel(DanceDetailData $detailData, array $scheduleRows): DanceDetailViewModel
     {
         $contentPage = $detailData->contentPage;
@@ -92,6 +94,7 @@ class DanceViewModelMapper
         );
     }
 
+    // Builds the public pass cards so dance home pricing rows only include complete label and price pairs.
     private function buildPasses(?Section $passesSection): array
     {
         $passes = [];
@@ -113,6 +116,7 @@ class DanceViewModelMapper
         return $passes;
     }
 
+    // Builds the left, center, and right hero image slots so detail pages always receive a fixed hero layout.
     private function buildHeroImages(?Section $heroSection, string $performerName): array
     {
         $heroImageItems = $this->getSectionItemsByCategory($heroSection, self::ITEM_CATEGORY_HERO_IMAGE);
@@ -123,6 +127,7 @@ class DanceViewModelMapper
         ];
     }
 
+    // Builds highlight card data so the detail page can render icon, title, and copy from stored section items.
     private function buildHighlightItems(?Section $highlightsSection): array
     {
         $highlightItems = [];
@@ -138,6 +143,7 @@ class DanceViewModelMapper
         return $highlightItems;
     }
 
+    // Builds track card data so the detail page can render title, subtitle, year, image, and audio together.
     private function buildTrackItems(?Section $tracksSection): array
     {
         $trackItems = [];
@@ -155,6 +161,7 @@ class DanceViewModelMapper
         return $trackItems;
     }
 
+    // Resolves the display performer name so detail pages fall back to the hero title when metadata is blank.
     private function resolvePerformerName(EventDetailPageModel $detailMeta, ?Section $heroSection): string
     {
         $performerName = trim((string)($detailMeta->performerName ?? ''));
@@ -165,6 +172,7 @@ class DanceViewModelMapper
         return $heroSection === null ? '' : trim((string)$heroSection->title);
     }
 
+    // Counts total events and unique locations so the dance landing page can show schedule summary stats.
     private function extractScheduleStats(ScheduleViewModel $schedule): array
     {
         $totalEvents = 0;
@@ -189,6 +197,7 @@ class DanceViewModelMapper
         return [$totalEvents, count($locations)];
     }
 
+    // Builds featured artist cards by matching performer order to stored artist images so the dance home page stays visually aligned.
     private function buildFeaturedArtistCardsFromOrderedImages(?Section $featuredArtistsSection, array $performers, array $detailUrlsByPerformerId): array
     {
         $featuredArtistImageItems = $this->getSectionItemsByCategory($featuredArtistsSection, self::ITEM_CATEGORY_ARTIST);
@@ -210,6 +219,7 @@ class DanceViewModelMapper
         return $featuredArtistCards;
     }
 
+    // Maps performer ids to detail URLs so featured artist cards can link directly to matching dance detail pages.
     private function mapDetailUrlsByPerformerId(array $detailPages): array
     {
         $detailUrlsByPerformerId = [];
@@ -225,6 +235,7 @@ class DanceViewModelMapper
         return $detailUrlsByPerformerId;
     }
 
+    // Builds one featured artist card so performers without a name or image are skipped instead of rendering broken cards.
     private function mapFeaturedArtistCard(PerformerModel $performer, ?SectionItem $featuredArtistImageItem, array $detailUrlsByPerformerId): ?array
     {
         $name = trim($performer->performerName);
@@ -250,6 +261,7 @@ class DanceViewModelMapper
         ];
     }
 
+    // Builds one hero image slot so the detail page receives a consistent image-plus-alt structure even when a slot is empty.
     private function mapHeroImageSlot(?SectionItem $heroImageItem, string $fallbackAlt): array
     {
         $image = $heroImageItem instanceof SectionItem ? trim((string)($heroImageItem->image ?? '')) : '';
@@ -265,6 +277,7 @@ class DanceViewModelMapper
         ];
     }
 
+    // Returns typed section items for one category so dance view building can ignore unrelated or malformed items.
     private function getSectionItemsByCategory(?Section $section, string $category): array
     {
         if ($section === null) {

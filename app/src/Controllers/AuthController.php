@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Service\Interfaces\IAuthService;
+use App\Models\UserModel;
 
 class AuthController extends BaseController
 {
@@ -66,7 +67,13 @@ class AuthController extends BaseController
 
     public function register()
     {
+        $name = trim($_POST['name'] ?? '');
         $email = trim($_POST['email'] ?? '');
+        $phoneNumber = trim($_POST['phoneNumber'] ?? '');
+        $country = trim($_POST['country'] ?? '');
+        $city = trim($_POST['city'] ?? '');
+        $addres = trim($_POST['addres'] ?? '');
+        $postcode = trim($_POST['postcode'] ?? '');
         $password = $_POST['password'] ?? '';
         $turnstileToken = $_POST['cf-turnstile-response'] ?? '';
 
@@ -81,7 +88,8 @@ class AuthController extends BaseController
         }
 
         try {
-            $this->authService->register($email, $password);
+           $user=new UserModel (0, $name, $email, $password, $phoneNumber, $country, $city, $addres,  $postcode, 3, "");
+            $this->authService->register($user);
             header('Location: /login');
             exit;
         } catch (\Exception $e) {

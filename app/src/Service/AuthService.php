@@ -7,6 +7,7 @@ use App\Repository\Interfaces\IPasswordResetRepository;
 use App\Repository\Interfaces\IUserRepository;
 use App\Service\Interfaces\IAuthService;
 use App\Service\Interfaces\IMailService;
+use App\Models\Enums\UserRole;
 
 class AuthService implements IAuthService
 {
@@ -39,14 +40,15 @@ class AuthService implements IAuthService
         return $user;
     }
 
-    public function register(string $email, string $password): UserModel
+    public function register( UserModel $user): UserModel
     {
-        $existing = $this->userRepo->findByEmail($email);
+        $existing = $this->userRepo->findByEmail($user->email);
         if ($existing) {
             throw new \Exception('Email already taken');
         }
+       $user->userRole = UserRole::Customer;
 
-        return $this->userRepo->create($email, $password);
+        return $this->userRepo->create($user);
     }
 
     public function requestPasswordReset(string $email, string $baseUrl): void

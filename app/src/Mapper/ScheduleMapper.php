@@ -11,26 +11,24 @@ use App\Models\Event\VenueModel;
 use App\Models\ViewModels\Cms\Schedule\ScheduleEditorPerformerRowViewModel;
 use App\Models\ViewModels\Cms\Schedule\ScheduleEditorSessionRowViewModel;
 use App\Models\ViewModels\Cms\Schedule\ScheduleEditorVenueRowViewModel;
-use App\Models\ViewModels\Shared\ScheduleDayFilterViewModel;
-use App\Models\ViewModels\Shared\ScheduleGroupViewModel;
-use App\Models\ViewModels\Shared\ScheduleRowViewModel;
-use App\Models\ViewModels\Shared\ScheduleViewModel;
-
 
 class ScheduleMapper
 {
     private EventMapper $eventMapper;
 
+    // Stores the shared event mapper so schedule rows reuse the same core event, venue, and performer mapping rules.
     public function __construct(EventMapper $eventMapper)
     {
         $this->eventMapper = $eventMapper;
     }
 
+    // Maps one event row so schedule repositories can return a typed event model from simple event queries.
     public function mapEventRow(array $row): EventModel
     {
         return $this->eventMapper->mapEventRow($row);
     }
 
+    // Maps one session row so schedule repositories can turn SQL rows into typed session models.
     public function mapSessionRow(array $row): SessionModel
     {
         $languageId = isset($row['language_id']) ? (int) $row['language_id'] : null;
@@ -49,21 +47,25 @@ class ScheduleMapper
         );
     }
 
+    // Maps one venue row so schedule repositories reuse the shared venue mapping rules.
     public function mapVenueModelRow(array $row): VenueModel
     {
         return $this->eventMapper->mapVenueRow($row);
     }
 
+    // Maps one performer row so schedule repositories reuse the shared performer mapping rules.
     public function mapPerformerModelRow(array $row): PerformerModel
     {
         return $this->eventMapper->mapPerformerRow($row);
     }
 
+    // Maps one session-performer row so performer assignments become typed models before graph assembly.
     public function mapSessionPerformerRow(array $row): SessionPerformerModel
     {
         return $this->eventMapper->mapSessionPerformerRow($row);
     }
 
+    // Rebuilds one full event graph from joined SQL rows so sessions, venues, and performers are linked in one pass.
     public function mapEventRowsToEvent(array $rows, string $eventName): EventModel
     {
         if ($rows === []) {
@@ -158,6 +160,7 @@ class ScheduleMapper
         return $event;
     }
 
+    // Rebuilds one full event graph from separately loaded collections so services can attach relations after repository lookups.
     public function mapEventRowsFromCollections(
         EventModel $event,
         array $venues,
@@ -301,227 +304,11 @@ class ScheduleMapper
                 number_format($session->price, 2, '.', ''),
                 $session->availableSpots,
                 $session->amountSold,
-                array_values(array_map('intval', $sessionPerformerMap[$session->id] ?? []))
+                array_values(array_map('intval', $sessionPerformerMap[$session->id] ?? [])),
+                $session->language?->value
             );
         }
 
         return $rows;
-    }
-
-    public function mapScheduleViewModel(
-        array $sessions,
-        string $title,
-        string $eventName,
-        bool $includeEventFilters = false
-    ): ScheduleViewModel {
-        $groups = [];
-        $dayCounts = [];
-        $eventCounts = [];
-        $languageCounts = [];
-
-        foreach ($sessions as $session) {
-            if (!$session instanceof SessionModel) {
-                continue;
-            }
-
-            $dt = new \DateTime($session->date);
-            $dayLabel = $dt->format('l');
-            $dayKey = strtolower($dayLabel);
-            $groupKey = $session->date;
-            $dayCounts[$dayLabel] = ($dayCounts[$dayLabel] ?? 0) + 1;
-
-            if (!isset($groups[$groupKey]) || !$groups[$groupKey] instanceof ScheduleGroupViewModel) {
-                $groups[$groupKey] = new ScheduleGroupViewModel(
-                    $dt->format('l - F j, Y'),
-                    $dayKey,
-                    ''
-                );
-            }
-
-            $groups[$groupKey]->rows[] = $this->mapScheduleRow($session, $dt);
-            $this->addSessionLanguageCount($session, $languageCounts);
-
-            if ($includeEventFilters) {
-                $this->addSessionEventCount($session, $eventCounts);
-            }
-        }
-
-        foreach ($groups as $group) {
-            if (!$group instanceof ScheduleGroupViewModel) {
-                continue;
-            }
-
-            $group->subtitle = count($group->rows) . ' events scheduled';
-        }
-
-        return new ScheduleViewModel(
-            $title,
-            $eventName,
-            $this->buildDayFilters($dayCounts),
-            $this->buildEventFilters($eventCounts),
-            array_values($groups),
-            $this->buildLanguageFilters($languageCounts)
-        );
-    }
-
-    public function mapScheduleRow(SessionModel $session, \DateTime $dt): ScheduleRowViewModel
-    {
-        $language = $this->buildLanguageLabel($session->language);
-        $eventName = $this->checkEvent($session->event?->name ?? 'Other');
-
-        return new ScheduleRowViewModel(
-            $dt->format('M j, Y'),
-            substr($session->startTime, 0, 5),
-            $this->buildEventLabel($session),
-            $session->venue !== null ? ($session->venue->venueName ?? 'Unknown venue') : 'Unknown venue',
-            '€ ' . number_format($session->price, 2, '.', ''),
-            '/book/' . $session->id,
-            $language['label'] ?? 'Unknown',
-            $session->availableSpots,
-            $session->amountSold,
-            $eventName,
-            trim((string) ($session->label ?? '')) !== '' ? (string) $session->label : 'N/A'
-        );
-    }
-
-    private function buildEventLabel(SessionModel $session): string
-    {
-        $lineup = [];
-
-        foreach ($session->sessionPerformers as $sessionPerformer) {
-            if (!$sessionPerformer instanceof SessionPerformerModel) {
-                continue;
-            }
-
-            if ($sessionPerformer->performer !== null) {
-                $lineup[] = $sessionPerformer->performer->performerName;
-            }
-        }
-
-        sort($lineup);
-
-        return $lineup === [] ? 'Session' : implode(' B2B ', $lineup);
-    }
-
-    private function addSessionLanguageCount(SessionModel $session, array &$languageCounts): void
-    {
-        $language = $this->buildLanguageLabel($session->language);
-        if ($language === null) {
-            return;
-        }
-
-        $languageCounts[$language['key']] ??= [
-            'label' => $language['label'],
-            'count' => 0,
-        ];
-        $languageCounts[$language['key']]['count']++;
-    }
-
-    private function addSessionEventCount(SessionModel $session, array &$eventCounts): void
-    {
-        $eventName = $this->checkEvent($session->event?->name ?? 'Other');
-        $eventKey = $this->toFilterKey($eventName);
-
-        $eventCounts[$eventKey] ??= [
-            'label' => $eventName,
-            'count' => 0,
-        ];
-        $eventCounts[$eventKey]['count']++;
-    }
-
-    private function buildDayFilters(array $dayCounts): array
-    {
-        $dayFilters = [new ScheduleDayFilterViewModel('all', 'All Days', '', true)];
-
-        foreach ($dayCounts as $day => $count) {
-            $dayFilters[] = new ScheduleDayFilterViewModel(
-                strtolower($day),
-                $day,
-                $count > 0 ? '(' . $count . ')' : '',
-                false
-            );
-        }
-
-        return $dayFilters;
-    }
-
-    private function buildEventFilters(array $eventCounts): array
-    {
-        $eventFilters = [new ScheduleDayFilterViewModel('all', 'All Events', '', true)];
-
-        foreach ($eventCounts as $event => $meta) {
-            $eventFilters[] = new ScheduleDayFilterViewModel(
-                strtolower((string) $event),
-                (string) ($meta['label'] ?? $event),
-                (int) ($meta['count'] ?? 0) > 0 ? '(' . (int) ($meta['count'] ?? 0) . ')' : '',
-                false
-            );
-        }
-
-        return $eventFilters;
-    }
-
-    private function buildLanguageFilters(array $languageCounts): array
-    {
-        $languageFilters = [new ScheduleDayFilterViewModel('all', 'All Languages', '', true)];
-
-        foreach ($languageCounts as $language => $meta) {
-            $languageFilters[] = new ScheduleDayFilterViewModel(
-                strtolower((string) $language),
-                (string) ($meta['label'] ?? $language),
-                (int) ($meta['count'] ?? 0) > 0 ? '(' . (int) ($meta['count'] ?? 0) . ')' : '',
-                false
-            );
-        }
-
-        return $languageFilters;
-    }
-
-    private function buildLanguageLabel(?Language $language): ?array
-    {
-        if ($language === null) {
-            return null;
-        }
-
-        $label = $language->label();
-
-        return [
-            'key' => $this->toFilterKey($label),
-            'label' => $label,
-        ];
-    }
-
-    private function checkEvent(string $eventName): string
-    {
-        return match ($this->getEventType($eventName)) {
-            'tour' => 'Tour',
-            'stories' => 'Stories',
-            'dance' => 'Dance',
-            default => $eventName,
-        };
-    }
-
-    private function getEventType(string $eventName): string
-    {
-        $eventType = $this->toFilterKey($eventName);
-
-        if ($eventType === 'astrollthroughhistory') {
-            return 'tour';
-        }
-
-        if ($eventType === 'tellingstory') {
-            return 'stories';
-        }
-
-        if ($eventType === 'dance') {
-            return 'dance';
-        }
-
-        return 'other';
-    }
-
-    private function toFilterKey(string $key): string
-    {
-        return strtolower(str_replace(' ', '', $key));
     }
 }
