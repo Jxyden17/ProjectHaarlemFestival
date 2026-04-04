@@ -50,6 +50,7 @@ class PaymentController extends BaseController
         try {
             $result = $this->paymentService->handleReturn($orderId, $sessionId);
         } catch (\Throwable $e) {
+            error_log('Payment return failed for order #' . $orderId . ': ' . $e->getMessage());
             http_response_code(400);
             $this->render('shared/error', [
                 'errorTitle' => 'Payment unavailable',
@@ -74,6 +75,7 @@ class PaymentController extends BaseController
             http_response_code(200);
             echo 'OK';
         } catch (\Throwable $e) {
+            error_log('Payment webhook failed: ' . $e->getMessage());
             http_response_code(400);
             echo 'ERROR';
         }

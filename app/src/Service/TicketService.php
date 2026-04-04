@@ -47,33 +47,40 @@ class TicketService implements ITicketService
     public function fulfillPaidOrder(int $orderId, int $cartId): void
     {
         $this->assertValidPaidReferences($orderId, $cartId);
-        $context = $this->loadFulfillmentContext($orderId, $cartId);
-
-        $createdTickets = [];
-
-        $this->ticketRepo->beginTransaction();
-
-        try {
-            $existingTickets = $this->ticketRepo->findByOrderId($orderId);
-            if ($existingTickets !== []) {
-                $this->markFulfillmentAsPaid($orderId, $cartId);
-                $this->ticketRepo->commitTransaction();
-                return;
-            }
-
-            $createdTickets = $this->createTicketsForCartItems($context['cartItems'], (int) $context['user_id'], $orderId);
-            $this->markFulfillmentAsPaid($orderId, $cartId);
-            $this->ticketRepo->commitTransaction();
-        } catch (\Throwable $e) {
-            try {
-                $this->ticketRepo->rollBackTransaction();
-            } catch (\Throwable) {
-            }
-
-            throw $e;
+        if (!$this->paymentRepository->acquireFulfillmentLock($orderId)) {
+            throw new \RuntimeException('Could not acquire fulfillment lock for paid order #' . $orderId . '.');
         }
 
-        $this->sendTicketEmail((string) $context['user_email'], $orderId, $createdTickets);
+        try {
+            $context = $this->loadFulfillmentContext($orderId, $cartId);
+            $createdTickets = [];
+
+            $this->ticketRepo->beginTransaction();
+
+            try {
+                $existingTickets = $this->ticketRepo->findByOrderId($orderId);
+                if ($existingTickets !== []) {
+                    $this->markFulfillmentAsPaid($orderId, $cartId);
+                    $this->ticketRepo->commitTransaction();
+                    return;
+                }
+
+                $createdTickets = $this->createTicketsForCartItems($context['cartItems'], (int) $context['user_id'], $orderId);
+                $this->markFulfillmentAsPaid($orderId, $cartId);
+                $this->ticketRepo->commitTransaction();
+            } catch (\Throwable $e) {
+                try {
+                    $this->ticketRepo->rollBackTransaction();
+                } catch (\Throwable) {
+                }
+
+                throw $e;
+            }
+
+            $this->sendTicketEmail((string) $context['user_email'], $orderId, $createdTickets);
+        } finally {
+            $this->paymentRepository->releaseFulfillmentLock($orderId);
+        }
     }
 
     // Validates the minimal paid references up front so later logic can assume real identifiers.
