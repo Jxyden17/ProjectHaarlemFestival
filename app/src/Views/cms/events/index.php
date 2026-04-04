@@ -108,12 +108,18 @@ $storiesError = isset($storiesError) && is_string($storiesError) ? $storiesError
             </div>
         </div>
 
-        <div class="col-12 col-xl-6">
-            <div class="card h-100 border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <h2 class="h5 mb-3">Stories</h2>
-                    <p class="text-muted mb-4">Edit Stories home content, schedule content, and each story detail page from the same section.</p>
-                    <div class="d-grid gap-2 d-sm-flex flex-wrap mb-4">
+        <div class="col-12">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2 class="h5 mb-0">Stories</h2>
+                        <div class="d-flex align-items-center gap-2">
+                            <a href="/cms/events/stories/create" class="btn btn-sm btn-success">Add Story Event</a>
+                            <span class="badge text-bg-success">Live</span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <a href="/cms/events/stories/schedule" class="btn btn-outline-primary">Edit Schedule</a>
                         <a href="/cms/events/stories-home" class="btn btn-primary">Edit Stories Home</a>
                         <a href="/cms/events/stories/schedule" class="btn btn-outline-primary">Edit Schedule</a>
                     </div>

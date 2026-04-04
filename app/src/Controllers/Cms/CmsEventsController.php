@@ -46,6 +46,7 @@ class CmsEventsController extends BaseController
             'storyDetailPages' => $storyDetailPages,
             'storiesSuccess' => is_string($storiesSuccess) ? $storiesSuccess : null,
             'storiesError' => is_string($storiesError) ? $storiesError : null,
+            'tourDetailPages' => $this->cmsEventEditorService->getTourDetailPages(),
         ]);
     }
 }
