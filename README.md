@@ -45,6 +45,35 @@ docker compose run --rm php composer install
 docker compose run --rm php composer dump-autoload
 ```
 
+## Stripe CLI In Docker
+
+The Stripe CLI runs as a Docker Compose service.
+
+Start the stack:
+
+```bash
+docker compose up -d
+```
+
+Follow the Stripe CLI logs:
+
+```bash
+docker compose logs -f stripe-cli
+```
+
+Stripe will print a webhook signing secret like `whsec_...`.
+Set that value in the root `.env` as `STRIPE_WEBHOOK_SECRET` and then restart PHP:
+
+```bash
+docker compose restart php
+```
+
+The Stripe CLI forwards webhooks to:
+
+```text
+http://nginx/payment/webhook
+```
+
 ## Architecture
 
 ### Layers

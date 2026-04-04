@@ -28,7 +28,7 @@ class ImageUploadService extends MediaService implements IImageUploadService
     {
         try {
             $moduleConfig = $this->parseImageModuleConfig($post);
-            $currentPath = $this->requireCurrentImagePath($post);
+            $currentPath = $this->getCurrentImagePath($post);
             $file = $this->getUploadedFile($files, 'image');
             $upload = $this->validateUploadedFile(
                 $file,
@@ -39,7 +39,7 @@ class ImageUploadService extends MediaService implements IImageUploadService
 
             $sectionItemId = $this->findImageSectionItemId($moduleConfig, $post, $currentPath);
             $currentPath = $this->loadStoredImagePath($currentPath, $sectionItemId);
-            $paths = $this->buildUploadTargetPaths($moduleConfig, $currentPath, $upload['extension'], false);
+            $paths = $this->buildImageUploadTargetPaths($moduleConfig, $currentPath, $upload['extension'], $sectionItemId);
             if ($paths === null) {
                 throw new \RuntimeException('Target path is not allowed for this module', 400);
             }
@@ -103,14 +103,13 @@ class ImageUploadService extends MediaService implements IImageUploadService
             );
         }
 
-        if (preg_match('/^yummy_hero:([a-z0-9-]+)$/', $module, $matches) === 1) {
-            
+        if (preg_match('/^stories_home:([a-z0-9-]+):([a-z_]+)$/', $module, $matches) === 1) {
             return new MediaModuleConfig(
-                ['/img/yummyIMG/'],
+                ['/img/storiesIMG/'],
                 $matches[1],
-                'restaurant_hero',
-                'hero',
-                MediaModuleConfig::MATCH_BY_SECTION_AND_CATEGORY
+                $matches[2],
+                null,
+                MediaModuleConfig::MATCH_BY_SECTION
             );
         }
 
@@ -146,14 +145,9 @@ class ImageUploadService extends MediaService implements IImageUploadService
         };
     }
 
-    // Requires a current image path so image uploads know which existing asset location they are replacing.
-    private function requireCurrentImagePath(array $post): string
+    private function getCurrentImagePath(array $post): string
     {
-        if (!isset($post['current_path'])) {
-            return '';
-        }
-
-        return trim((string)$post['current_path']);
+        return trim((string)($post['current_path'] ?? ''));
     }
 
     // Builds the dance detail image config so hero and track image uploads stay inside the selected detail page scope.

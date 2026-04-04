@@ -16,41 +16,21 @@ class CartService implements ICartService
 
     public function getOrCreateActiveCart(): array
     {
-        $userId = isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : null;
-
-        if ($userId) {
-            $cart = $this->cartRepository->findActiveCartByUserId($userId);
-            if ($cart) {
-                return $cart;
-            }
-
-            $cartId = $this->cartRepository->createCart($userId, null);
-
-            return [
-                'id' => $cartId,
-                'user_id' => $userId,
-                'guest_token' => null,
-                'status' => 'active',
-            ];
+        $userId = (int) ($_SESSION['user_id'] ?? 0);
+        if ($userId <= 0) {
+            throw new \RuntimeException('Please log in to manage your shopping cart.');
         }
 
-        $guestToken = $_SESSION['guest_token'] ?? null;
-        if (!$guestToken) {
-            $guestToken = bin2hex(random_bytes(16));
-            $_SESSION['guest_token'] = $guestToken;
-        }
-
-        $cart = $this->cartRepository->findActiveCartByGuestToken($guestToken);
+        $cart = $this->cartRepository->findActiveCartByUserId($userId);
         if ($cart) {
             return $cart;
         }
 
-        $cartId = $this->cartRepository->createCart(null, $guestToken);
+        $cartId = $this->cartRepository->createCart($userId);
 
         return [
             'id' => $cartId,
-            'user_id' => null,
-            'guest_token' => $guestToken,
+            'user_id' => $userId,
             'status' => 'active',
         ];
     }

@@ -6,10 +6,8 @@ interface ICartRepository
 {
     //Search Cart by user id that is logged in
     public function findActiveCartByUserId(int $userId): ?array;
-    //Search Cart by guest token for users that are not logged in
-    public function findActiveCartByGuestToken(string $guestToken): ?array;
-    //Create a new cart for a user or guest
-    public function createCart(?int $userId, ?string $guestToken): int;
+    //Create a new cart for a logged-in user
+    public function createCart(int $userId): int;
     //Find cart items by cart id
     public function findCartItemsByCartId(int $cartId): array;
     //Check if the session is already in the cart
@@ -28,4 +26,5 @@ interface ICartRepository
     public function clearCart(int $cartId): void;
     //Obtain the session real for validation and price calculation
     public function findSessionById(int $sessionId): ?array;
+    public function incrementSessionAmountSold(int $sessionId, int $quantity): void;
 }

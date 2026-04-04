@@ -3,35 +3,35 @@ $groups = is_array($groups ?? null) ? $groups : [];
 $subtotal = (float) ($subtotal ?? 0);
 ?>
 
-<div class="container-fluid px-0" style="background-color: #132746; min-height: 100vh;">
-    <section class="py-4 py-lg-5" style="background: linear-gradient(rgba(7, 16, 38, 0.72), rgba(7, 16, 38, 0.92)), url('/img/home/home-banner.png') center/cover no-repeat;">
+<div class="container-fluid px-0 checkout-page">
+    <section class="py-4 py-lg-5 cart-hero">
         <div class="container">
-            <a href="/cart" class="btn btn-sm mb-3" style="background-color: transparent; color: #ffffff; border: 1px solid #ffffff; padding-inline: 1rem;">
-                Back to Personal Program
+            <a href="/cart" class="btn btn-sm mb-3 checkout-back-btn">
+                Back to Shopping Cart
             </a>
             <h1 class="display-3 fw-bold mb-2 text-white">Checkout</h1>
-            <p class="fs-4 mb-0 text-white">Review your final order before confirming it.</p>
+            <p class="fs-4 mb-0 text-white cart-page-subtitle">Review your final order before confirming it.</p>
         </div>
     </section>
 
     <div class="container py-5">
         <div class="row g-4 align-items-start">
             <div class="col-lg-8">
-                <section class="card border-0 shadow-sm h-100" style="border-radius: 0.5rem; background-color: #132746; border: 2px solid #d6a436;">
+                <section class="card border-0 shadow-sm h-100 checkout-card">
                     <div class="card-body p-4 p-lg-5">
-                        <h2 class="display-5 mb-4" style="color: #f8f6f1;">Order Summary</h2>
+                        <h2 class="display-5 mb-4 checkout-card-title">Order Summary</h2>
 
                         <?php foreach ($groups as $group): ?>
                             <section class="mb-5">
-                                <div class="d-flex justify-content-between align-items-start gap-3 border-bottom pb-3 mb-3" style="border-color: rgba(214, 164, 54, 0.35) !important;">
+                                <div class="d-flex justify-content-between align-items-start gap-3 border-bottom pb-3 mb-3 checkout-group-head">
                                     <div>
-                                        <h3 class="h2 mb-1" style="color: #f8f6f1;"><?= htmlspecialchars((string) ($group['title'] ?? 'Unknown Date')) ?></h3>
-                                        <div class="small" style="color: rgba(255, 255, 255, 0.7);">
+                                        <h3 class="h2 mb-1 checkout-group-title"><?= htmlspecialchars((string) ($group['title'] ?? 'Unknown Date')) ?></h3>
+                                        <div class="small checkout-group-meta">
                                             <?= count($group['items'] ?? []) ?> ticket<?= count($group['items'] ?? []) === 1 ? '' : 's' ?>
                                         </div>
                                     </div>
 
-                                    <div class="h3 mb-0" style="color: #d6a436;">&euro;<?= number_format((float) ($group['total'] ?? 0), 2) ?></div>
+                                    <div class="h3 mb-0 checkout-accent">&euro;<?= number_format((float) ($group['total'] ?? 0), 2) ?></div>
                                 </div>
 
                                 <div class="d-grid gap-3">
@@ -52,27 +52,29 @@ $subtotal = (float) ($subtotal ?? 0);
                                             $itemTitle = 'Session #' . (int) ($item['session_id'] ?? 0);
                                         }
 
+                                        $eventSlug = strtolower($eventLabel);
+                                        $eventSlug = preg_replace('/[^a-z0-9]+/', '-', $eventSlug) ?: 'default';
                                         $timeLabel = substr((string) ($item['start_time'] ?? ''), 0, 5);
                                         ?>
-                                        <div class="border rounded-3 p-3 p-lg-4" style="border-color: rgba(214, 164, 54, 0.18) !important; background-color: #1a3154;">
+                                        <div class="border rounded-3 p-3 p-lg-4 checkout-item-card">
                                             <div class="d-flex justify-content-between align-items-start gap-3">
                                                 <div>
                                                     <div class="mb-3">
-                                                        <span class="badge rounded-pill px-3 py-2" style="background-color: #7b8794; color: #ffffff; font-size: 0.8rem;">
+                                                        <span class="badge rounded-pill px-3 py-2 cart-event-pill cart-event-pill--<?= htmlspecialchars($eventSlug) ?>">
                                                             <?= htmlspecialchars($eventLabel) ?>
                                                         </span>
                                                     </div>
 
-                                                    <div class="h3 mb-1" style="color: #f8f6f1;"><?= htmlspecialchars($itemTitle) ?></div>
-                                                    <div class="fs-5" style="color: rgba(255, 255, 255, 0.72);"><?= htmlspecialchars((string) ($item['venue_name'] ?? 'Unknown venue')) ?></div>
-                                                    <div class="small mt-2" style="color: rgba(255, 255, 255, 0.6);"><?= htmlspecialchars($timeLabel) ?></div>
+                                                    <div class="h3 mb-1 checkout-item-title"><?= htmlspecialchars($itemTitle) ?></div>
+                                                    <div class="fs-5 checkout-item-venue"><?= htmlspecialchars((string) ($item['venue_name'] ?? 'Unknown venue')) ?></div>
+                                                    <div class="small mt-2 checkout-item-time"><?= htmlspecialchars($timeLabel) ?></div>
                                                 </div>
 
-                                                <div class="text-end" style="min-width: 110px;">
-                                                    <div style="color: rgba(255, 255, 255, 0.65);">Tickets</div>
-                                                    <div class="h4 mb-3" style="color: #f8f6f1;"><?= (int) ($item['quantity'] ?? 0) ?></div>
-                                                    <div style="color: rgba(255, 255, 255, 0.65);">Line Total</div>
-                                                    <div class="h3 mb-0" style="color: #d6a436;">&euro;<?= number_format((float) ($item['line_total'] ?? 0), 2) ?></div>
+                                                <div class="text-end checkout-item-summary">
+                                                    <div class="checkout-item-label">Tickets</div>
+                                                    <div class="h4 mb-3 checkout-item-value"><?= (int) ($item['quantity'] ?? 0) ?></div>
+                                                    <div class="checkout-item-label">Line Total</div>
+                                                    <div class="h3 mb-0 checkout-accent">&euro;<?= number_format((float) ($item['line_total'] ?? 0), 2) ?></div>
                                                 </div>
                                             </div>
                                         </div>
@@ -85,25 +87,28 @@ $subtotal = (float) ($subtotal ?? 0);
             </div>
 
             <div class="col-lg-4">
-                <section class="card border-0 shadow-sm" style="border-radius: 0.5rem; background-color: #132746; border: 2px solid #d6a436;">
+                <section class="card border-0 shadow-sm checkout-card">
                     <div class="card-body p-4">
-                        <h2 class="display-5 mb-4" style="color: #f8f6f1;">Final Total</h2>
+                        <h2 class="display-5 mb-4 checkout-card-title">Final Total</h2>
 
                         <div class="d-flex justify-content-between align-items-center mb-4">
-                            <span class="fs-4" style="color: #f8f6f1;">Subtotal</span>
-                            <strong class="fs-3" style="color: #d6a436;">&euro;<?= number_format($subtotal, 2) ?></strong>
+                            <span class="fs-4 checkout-total-label">Subtotal</span>
+                            <strong class="fs-3 checkout-accent">&euro;<?= number_format($subtotal, 2) ?></strong>
                         </div>
 
                         <div class="d-flex flex-wrap gap-2 mb-4">
-                            <span class="badge rounded-pill px-3 py-2" style="background-color: rgba(214, 164, 54, 0.14); color: #f4d27a;">iDEAL</span>
-                            <span class="badge rounded-pill px-3 py-2" style="background-color: rgba(255, 255, 255, 0.08); color: #f8f6f1;">Visa</span>
-                            <span class="badge rounded-pill px-3 py-2" style="background-color: rgba(255, 255, 255, 0.08); color: #f8f6f1;">Mastercard</span>
-                            <span class="badge rounded-pill px-3 py-2" style="background-color: rgba(255, 255, 255, 0.08); color: #f8f6f1;">PayPal</span>
+                            <span class="badge rounded-pill px-3 py-2 checkout-method checkout-method--ideal">iDEAL</span>
+                            <span class="badge rounded-pill px-3 py-2 checkout-method">Visa</span>
+                            <span class="badge rounded-pill px-3 py-2 checkout-method">Mastercard</span>
                         </div>
 
+                        <p class="small mb-4 checkout-copy">
+                            You will continue to a secure payment page to complete your order with iDEAL or card.
+                        </p>
+
                         <form method="POST" action="/checkout/confirm">
-                            <button type="submit" class="btn w-100 py-3 fs-5" style="background-color: #246df0; color: #ffffff; border: none;">
-                                Continue to iDEAL
+                            <button type="submit" class="btn w-100 py-3 fs-5 checkout-submit-btn">
+                                Continue to payment
                             </button>
                         </form>
                     </div>

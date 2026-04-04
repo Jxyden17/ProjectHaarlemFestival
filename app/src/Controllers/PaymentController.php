@@ -16,12 +16,32 @@ class PaymentController extends BaseController
     public function return(): void
     {
         $orderId = (int) ($_GET['order_id'] ?? 0);
+        $isCancelled = isset($_GET['cancelled']) && (string) $_GET['cancelled'] === '1';
 
         if ($orderId <= 0) {
             http_response_code(400);
             $this->render('shared/error', [
                 'errorTitle' => 'Payment unavailable',
                 'errorMessage' => 'Missing order identifier.',
+            ]);
+            return;
+        }
+
+        if ($isCancelled) {
+            try {
+                $result = $this->paymentService->handleCancellation($orderId);
+            } catch (\Throwable $e) {
+                http_response_code(400);
+                $this->render('shared/error', [
+                    'errorTitle' => 'Payment unavailable',
+                    'errorMessage' => $e->getMessage(),
+                ]);
+                return;
+            }
+
+            $this->render('payment/result', [
+                'title' => 'Payment Cancelled',
+                'paymentResult' => $result,
             ]);
             return;
         }
@@ -45,10 +65,11 @@ class PaymentController extends BaseController
 
     public function webhook(): void
     {
-        $paymentId = trim((string) ($_POST['id'] ?? ''));
+        $payload = file_get_contents('php://input');
+        $signature = trim((string) ($_SERVER['HTTP_STRIPE_SIGNATURE'] ?? ''));
 
         try {
-            $this->paymentService->handleWebhook($paymentId);
+            $this->paymentService->handleWebhook((string) $payload, $signature);
             http_response_code(200);
             echo 'OK';
         } catch (\Throwable $e) {

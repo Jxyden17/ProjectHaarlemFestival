@@ -7,7 +7,6 @@
                     <img src="<?= $item->image ?>" alt="<?= $item->title?>">
                 </div>
                 <div class="text-box">
-                    <p><?= htmlspecialchars($item->id) ?></p>
                     <h3 class="item-title"><?= $item->title ?></h3>
                     <div class="item-content">
                         <?= $item->content ?>

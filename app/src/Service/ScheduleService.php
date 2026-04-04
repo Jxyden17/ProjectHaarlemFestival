@@ -195,7 +195,7 @@ class ScheduleService implements IScheduleService
             return null;
         }
 
-        $eventId = (int)($session->eventId ?? 0);
+        $eventId = (int)($session['event_id'] ?? 0);
         if ($eventId <= 0) {
             return null;
         }
@@ -210,12 +210,13 @@ class ScheduleService implements IScheduleService
         $sessionPerformers = $this->scheduleRepo->getSessionPerformersByEventId($eventId);
 
         $sessionPerformerMap = $this->scheduleMapper->buildSessionPerformerMap($sessionPerformers);
+        $sessionModel = $this->scheduleMapper->mapSessionRow($session);
 
         return new ScheduleEditorViewModel(
             $event->name,
             $this->scheduleMapper->mapVenueRows($venues),
             $this->scheduleMapper->mapPerformerRows($performers),
-            $this->scheduleMapper->mapSessionRows([$session], $sessionPerformerMap)
+            $this->scheduleMapper->mapSessionRows([$sessionModel], $sessionPerformerMap)
         );
     }
 
