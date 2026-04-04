@@ -27,7 +27,7 @@
                                 <div>
                                     <p class="text-uppercase text-muted small fw-semibold mb-2">Event hub</p>
                                     <h2 class="h5 mb-2"><?= htmlspecialchars((string)($event['label'] ?? 'Event')) ?></h2>
-                                    <p class="text-muted mb-0">Jump into the operational modules configured for this event.</p>
+                                    <p class="text-muted mb-0">Manage artists, venues, and schedules for this event.</p>
                                 </div>
                             </div>
 
