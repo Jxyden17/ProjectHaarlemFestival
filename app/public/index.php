@@ -3,49 +3,6 @@ session_start();
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$loadEnvironmentFile = static function (string $path): void {
-    if (!is_file($path) || !is_readable($path)) {
-        return;
-    }
-
-    $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    if (!is_array($lines)) {
-        return;
-    }
-
-    foreach ($lines as $line) {
-        $trimmedLine = trim($line);
-        if ($trimmedLine === '' || str_starts_with($trimmedLine, '#')) {
-            continue;
-        }
-
-        $separatorPosition = strpos($trimmedLine, '=');
-        if ($separatorPosition === false) {
-            continue;
-        }
-
-        $name = trim(substr($trimmedLine, 0, $separatorPosition));
-        $value = trim(substr($trimmedLine, $separatorPosition + 1));
-
-        if ($name === '') {
-            continue;
-        }
-
-        if (
-            (str_starts_with($value, '"') && str_ends_with($value, '"'))
-            || (str_starts_with($value, '\'') && str_ends_with($value, '\''))
-        ) {
-            $value = substr($value, 1, -1);
-        }
-
-        $_ENV[$name] = $value;
-        putenv($name . '=' . $value);
-    }
-};
-
-$loadEnvironmentFile(__DIR__ . '/../.env');
-$loadEnvironmentFile(__DIR__ . '/../.env.local');
-
 use FastRoute\RouteCollector;
 use function FastRoute\simpleDispatcher;
 
@@ -79,6 +36,8 @@ try {
     $artistesRepo = new App\Repository\ArtistesRepository();
     $venueRepo = new App\Repository\VenueRepository();
     $ticketRepo = new App\Repository\TicketRepository();
+    $cartRepo = new App\Repository\CartRepository();
+    $paymentRepo = new App\Repository\PaymentRepository();
 
     $mailConfig = App\Models\MailConfig::fromEnvironment();
     $pageService = new App\Service\PageService($pageRepo);
@@ -103,7 +62,7 @@ try {
     $stripeWebhookSecret = trim((string) ($_ENV['STRIPE_WEBHOOK_SECRET'] ?? getenv('STRIPE_WEBHOOK_SECRET') ?? ''));
     $artistesService = new App\Service\ArtistesService($artistesRepo);
     $venueService = new App\Service\VenueService($venueRepo);
-    $ticketService = new App\Service\TicketService($ticketRepo);
+    $ticketService = new App\Service\TicketService($ticketRepo, $cartRepo, $paymentRepo, $userRepo, $mailService);
     $cmsEventManagementService = new App\Service\Cms\CmsEventManagementService();
 
     $cmsScheduleMapper = new App\Mapper\CmsScheduleMapper();
@@ -152,14 +111,12 @@ try {
     $cmsEventManagementController = new App\Controllers\Cms\CmsEventManagementController($cmsEventManagementService);
 
     // Shopping Cart setup
-    $cartRepo = new App\Repository\CartRepository();
     $cartService = new App\Service\CartService($cartRepo);
     $cartController = new App\Controllers\CartController($cartService);
     $bookController = new App\Controllers\BookController($cartService);
     $checkoutRepo = new App\Repository\CheckoutRepository();
     $checkoutService = new App\Service\CheckoutService($cartService, $cartRepo, $checkoutRepo);
-    $paymentRepo = new App\Repository\PaymentRepository();
-    $paymentService = new App\Service\PaymentService($paymentRepo, $baseUrl, $paymentDriver, $stripeSecretKey, $stripeWebhookSecret);
+    $paymentService = new App\Service\PaymentService($paymentRepo, $ticketService, $baseUrl, $paymentDriver, $stripeSecretKey, $stripeWebhookSecret);
     $checkoutController = new App\Controllers\CheckoutController($checkoutService, $paymentService);
     $paymentController = new App\Controllers\PaymentController($paymentService);
 

@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Repository\Interfaces\IPaymentRepository;
+use App\Service\Interfaces\ITicketService;
 use App\Service\Interfaces\IPaymentService;
 
 class PaymentService implements IPaymentService
@@ -14,9 +15,11 @@ class PaymentService implements IPaymentService
     private string $paymentDriver;
     private string $stripeSecretKey;
     private string $stripeWebhookSecret;
+    private ITicketService $ticketService;
 
     public function __construct(
         IPaymentRepository $paymentRepository,
+        ITicketService $ticketService,
         string $baseUrl,
         string $paymentDriver = 'stripe',
         string $stripeSecretKey = '',
@@ -24,6 +27,7 @@ class PaymentService implements IPaymentService
     )
     {
         $this->paymentRepository = $paymentRepository;
+        $this->ticketService = $ticketService;
         $this->baseUrl = rtrim($baseUrl, '/');
         $this->paymentDriver = strtolower(trim($paymentDriver)) !== '' ? strtolower(trim($paymentDriver)) : 'stripe';
         $this->stripeSecretKey = trim($stripeSecretKey);
@@ -68,22 +72,6 @@ class PaymentService implements IPaymentService
         }
 
         $status = (string) ($paymentRecord['status'] ?? 'unknown');
-
-        if ($this->paymentDriver === 'stripe') {
-            $session = $this->fetchStripeCheckoutSession($providerPaymentId);
-            $status = $this->mapStripeStatus($session);
-            $this->paymentRepository->updatePaymentStatusByOrderId($orderId, $status);
-
-            if ($status === 'paid') {
-                $this->paymentRepository->markOrderAsPaid($orderId);
-                $cartId = (int) ($paymentRecord['cart_id'] ?? 0);
-                if ($cartId > 0) {
-                    $this->paymentRepository->markCartAsPaid($cartId);
-                }
-            } else {
-                $this->paymentRepository->updateOrderStatus($orderId, $status);
-            }
-        }
 
         return [
             'status' => $status,
@@ -270,17 +258,13 @@ class PaymentService implements IPaymentService
             return;
         }
 
-        $this->paymentRepository->updatePaymentStatusByOrderId($orderId, $status);
-
         if ($status === 'paid') {
-            $this->paymentRepository->markOrderAsPaid($orderId);
             $cartId = (int) ($paymentRecord['cart_id'] ?? 0);
-            if ($cartId > 0) {
-                $this->paymentRepository->markCartAsPaid($cartId);
-            }
+            $this->ticketService->fulfillPaidOrder($orderId, $cartId);
             return;
         }
 
+        $this->paymentRepository->updatePaymentStatusByOrderId($orderId, $status);
         $this->paymentRepository->updateOrderStatus($orderId, $status);
     }
 
@@ -349,7 +333,6 @@ class PaymentService implements IPaymentService
         $rawResponse = curl_exec($curl);
         $httpStatus = (int) curl_getinfo($curl, CURLINFO_HTTP_CODE);
         $curlError = curl_error($curl);
-        curl_close($curl);
 
         if ($rawResponse === false) {
             throw new \RuntimeException('Stripe request failed: ' . $curlError);

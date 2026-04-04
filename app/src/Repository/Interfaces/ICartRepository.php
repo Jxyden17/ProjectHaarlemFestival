@@ -26,4 +26,5 @@ interface ICartRepository
     public function clearCart(int $cartId): void;
     //Obtain the session real for validation and price calculation
     public function findSessionById(int $sessionId): ?array;
+    public function incrementSessionAmountSold(int $sessionId, int $quantity): void;
 }

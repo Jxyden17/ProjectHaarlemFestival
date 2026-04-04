@@ -248,5 +248,18 @@ class CartRepository implements ICartRepository
         return $session ?: null;
     }
 
+    public function incrementSessionAmountSold(int $sessionId, int $quantity): void
+    {
+        $stmt = $this->db->prepare(
+            'UPDATE sessions
+             SET amount_sold = amount_sold + :quantity
+             WHERE id = :id'
+        );
+
+        $stmt->execute([
+            ':quantity' => $quantity,
+            ':id' => $sessionId,
+        ]);
+    }
 
 }

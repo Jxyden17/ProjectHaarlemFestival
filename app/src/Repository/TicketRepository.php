@@ -65,6 +65,37 @@ class TicketRepository implements ITicketRepository
         return $row ?: null;
     }
 
+    public function findByOrderId(int $orderId): array
+    {
+        $stmt = $this->db->prepare(
+            'SELECT id AS ticket_id, user_id, order_id, session_id, status_id, qr_code
+             FROM tickets
+             WHERE order_id = :order_id
+             ORDER BY id ASC'
+        );
+        $stmt->execute([':order_id' => $orderId]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function create(int $userId, int $orderId, int $sessionId, int $statusId = 1, string $qrCode = ''): int
+    {
+        $stmt = $this->db->prepare(
+            'INSERT INTO tickets (user_id, order_id, session_id, status_id, qr_code)
+             VALUES (:user_id, :order_id, :session_id, :status_id, :qr_code)'
+        );
+
+        $stmt->execute([
+            ':user_id' => $userId,
+            ':order_id' => $orderId,
+            ':session_id' => $sessionId,
+            ':status_id' => $statusId,
+            ':qr_code' => $qrCode,
+        ]);
+
+        return (int) $this->db->lastInsertId();
+    }
+
     public function createBulk(int $userId, int $orderId, int $sessionId, int $quantity): int
     {
         $stmt = $this->db->prepare(
@@ -83,6 +114,20 @@ class TicketRepository implements ITicketRepository
         return $count;
     }
 
+    public function updateQrCode(int $id, string $qrCode): bool
+    {
+        $stmt = $this->db->prepare(
+            'UPDATE tickets
+             SET qr_code = :qr_code
+             WHERE id = :id'
+        );
+
+        return $stmt->execute([
+            ':qr_code' => $qrCode,
+            ':id' => $id,
+        ]);
+    }
+
     public function update(int $id, int $statusId, ?string $qrCode): bool
     {
         $stmt = $this->db->prepare(
@@ -99,5 +144,26 @@ class TicketRepository implements ITicketRepository
     {
         $stmt = $this->db->prepare('DELETE FROM tickets WHERE id = :id');
         return $stmt->execute([':id' => $id]);
+    }
+
+    public function beginTransaction(): void
+    {
+        if (!$this->db->inTransaction()) {
+            $this->db->beginTransaction();
+        }
+    }
+
+    public function commitTransaction(): void
+    {
+        if ($this->db->inTransaction()) {
+            $this->db->commit();
+        }
+    }
+
+    public function rollBackTransaction(): void
+    {
+        if ($this->db->inTransaction()) {
+            $this->db->rollBack();
+        }
     }
 }
