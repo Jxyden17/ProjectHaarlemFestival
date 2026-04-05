@@ -41,7 +41,7 @@ class StoriesController extends BaseController
         );
 
         $viewData = [
-            'pageTitle' => $page->title,
+            'title' => $page->title,
             'hero'      => $page->getSection('hero'),
             'callout'   => $page->getSection('callout'),
             'grid'      => $page->getSection('grid'),
@@ -66,7 +66,7 @@ class StoriesController extends BaseController
         if ($slug === '') {
             http_response_code(404);
             $this->render('shared/error', [
-                'errorTitle' => 'Page not found',
+                'title' => 'Page not found',
                 'errorMessage' => 'The page you requested does not exist.',
             ]);
             return;
@@ -76,7 +76,7 @@ class StoriesController extends BaseController
         if ((int)($page->id ?? 0) <= 0) {
             http_response_code(404);
             $this->render('shared/error', [
-                'errorTitle' => 'Page not found',
+                'title' => 'Page not found',
                 'errorMessage' => 'The page you requested does not exist.',
             ]);
             return;
@@ -102,7 +102,7 @@ class StoriesController extends BaseController
         }
 
         $viewData = [
-            'pageTitle' => $page->title,
+            'title' => $page->title,
             'hero' => $page->getSection('hero'),
             'about' => $page->getSection('about'),
             'gallery' => $page->getSection('gallery'),

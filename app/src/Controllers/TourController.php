@@ -39,7 +39,7 @@ class TourController extends BaseController
         $this->scheduleService->getScheduleDataForEvent('A Stroll Through History', 'Tour Schedule')
     );
         $viewData = [
-        'pageTitle' => $page->title,
+        'title' => $page->title,
         'hero'      => $page->getSection('hero'),
         'stops'     => $page->getSection('tour_overview'),
         'discover'  => $page->getSection('discover'),
@@ -66,10 +66,10 @@ class TourController extends BaseController
         $page = $this->pageService->buildPage($pageId);
 
         $viewData = [
-        'pageTitle' => $page->title,
+        'title' => $page->title,
         'header'      => $page->getSection('header'),
         'history'     => $page->getSection('history'),
-        'did_you_know'  => $page->getSection('did_you_know'),
+        'didYouKnow'  => $page->getSection('did_you_know'),
         'openingTime' => $page->getSection('openings_time')
     ];
 

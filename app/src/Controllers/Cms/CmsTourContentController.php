@@ -26,14 +26,14 @@ class CmsTourContentController extends BaseController
         if (!$page) {
             http_response_code(404);
             $this->render('shared/error', [
-                'errorTitle' => 'Page not found',
+                'title' => 'Page not found',
                 'errorMessage' => 'The page you requested does not exist.',
             ]);
             return;
         }
 
         $viewData = [
-        'pageTitle' => $page->title,
+        'title' => $page->title,
         'pageSlug' => $page->slug,
         'hero'      => $page->getSection('hero'),
         'stops'     => $page->getSection('tour_overview'),
@@ -69,14 +69,14 @@ class CmsTourContentController extends BaseController
         if (!$page) {
             http_response_code(404);
             $this->renderCms('shared/error', [
-                'errorTitle' => 'Page not found',
+                'title' => 'Page not found',
                 'errorMessage' => 'The page you requested does not exist.',
             ]);
             return;
         }
 
         $viewData = [
-        'pageTitle' => $page->title,
+        'title' => $page->title,
         'pageSlug' => $page->slug,
         'pageId' => $pageId,
         'header'      => $page->getSection('header'),

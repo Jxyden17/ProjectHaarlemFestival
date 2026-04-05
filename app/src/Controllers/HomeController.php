@@ -30,7 +30,7 @@ class HomeController extends BaseController
         );
 
             $viewData = [
-            'pageTitle' => $page->title,
+            'title' => $page->title,
             'hero'      => $page->getSection('hero'),
             'about'     => $page->getSection('about'),
             'discover'  => $page->getSection('discover_events'),

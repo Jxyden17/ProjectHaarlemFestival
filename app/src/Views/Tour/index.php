@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?= htmlspecialchars($pageTitle ?? 'Tour Event') ?></title>
+    <title><?= htmlspecialchars($pageTitle) ?></title>
     <link href="/css/Tour/index.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/partialViews/schedule.css">
 </head>
