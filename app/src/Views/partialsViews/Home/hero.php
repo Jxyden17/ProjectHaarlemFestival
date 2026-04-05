@@ -1,4 +1,12 @@
-<link rel="stylesheet" href="/css/partialViews/hero.css">
+<?php
+use App\Models\Page\Section;
+$section = $section ?? null;
+
+if (!$section instanceof Section) {
+    return;
+}
+$firstItem = $heroItems[0] ?? null;
+?>
 <section class="hero-section">
     <div class="hero-images">
         <?php foreach($section->getItemsByCategorie('hero') as $item): ?>

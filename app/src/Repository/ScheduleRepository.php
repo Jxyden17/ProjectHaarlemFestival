@@ -5,21 +5,23 @@ namespace App\Repository;
 use App\Mapper\ScheduleMapper;
 use App\Models\Database;
 use App\Models\Event\EventModel;
+use App\Models\Event\SessionModel;
 use App\Repository\Interfaces\IScheduleRepository;
 use PDO;
-use PDOException;
 
 class ScheduleRepository implements IScheduleRepository
 {
     private PDO $db;
     private ScheduleMapper $scheduleMapper;
 
+    // Stores the database handle and mapper so schedule SQL results can be converted into typed models.
     public function __construct(ScheduleMapper $scheduleMapper)
     {
         $this->db = Database::getInstance();
         $this->scheduleMapper = $scheduleMapper;
     }
 
+    // Finds one event row by name so services can resolve an event before loading related schedule records.
     public function findEventByName(string $name): ?EventModel
     {
         $stmt = $this->db->prepare('SELECT id, name, description FROM events WHERE name = :name LIMIT 1');
@@ -33,6 +35,7 @@ class ScheduleRepository implements IScheduleRepository
         return $this->scheduleMapper->mapEventRow($row);
     }
 
+    // Returns the full joined row set for one event so the mapper can rebuild sessions, venues, and performers together.
     public function getScheduleRowsByEventName(string $name): array
     {
         $stmt = $this->db->prepare(
@@ -48,6 +51,7 @@ class ScheduleRepository implements IScheduleRepository
                     s.price,
                     s.available_spots,
                     s.amount_sold,
+                    s.is_pass,
                     v.id AS venue_id_ref,
                     v.venue_name,
                     v.address,
@@ -73,6 +77,7 @@ class ScheduleRepository implements IScheduleRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Returns the joined row set for one event and performer so detail pages can build performer-specific schedules.
     public function getScheduleRowsByEventNameAndPerformerId(string $name, int $performerId): array
     {
         if ($performerId <= 0) {
@@ -92,6 +97,7 @@ class ScheduleRepository implements IScheduleRepository
                     s.price,
                     s.available_spots,
                     s.amount_sold,
+                    s.is_pass,
                     v.id AS venue_id_ref,
                     v.venue_name,
                     v.address,
@@ -121,6 +127,7 @@ class ScheduleRepository implements IScheduleRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Returns all event rows so callers can build all-events schedule views.
     public function getAllEvents(): array
     {
         $stmt = $this->db->query('SELECT id, name, description FROM events ORDER BY id ASC');
@@ -132,10 +139,34 @@ class ScheduleRepository implements IScheduleRepository
         );
     }
 
+    // Returns one mapped session row by id so the CMS schedule editor can preload a single session.
+    public function getSessionById(int $id): ?SessionModel
+    {
+        if ($id <= 0) {
+            return null;
+        }
+
+        $stmt = $this->db->prepare(
+            'SELECT id, event_id, venue_id, date, start_time, language_id, label, price, available_spots, amount_sold, is_pass
+             FROM sessions
+             WHERE id = :id
+             LIMIT 1'
+        );
+        $stmt->execute([':id' => $id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($row === false) {
+            return null;
+        }
+
+        return $this->scheduleMapper->mapSessionRow($row);
+    }
+
+    // Returns mapped session rows for one event so services can attach standalone session collections to an event.
     public function getSessionsByEventId(int $eventId): array
     {
         $stmt = $this->db->prepare(
-            'SELECT id, event_id, venue_id, date, start_time, language_id, label, price, available_spots, amount_sold
+            'SELECT id, event_id, venue_id, date, start_time, language_id, label, price, available_spots, amount_sold, is_pass
              FROM sessions
              WHERE event_id = :event_id
              ORDER BY date ASC, start_time ASC'
@@ -146,64 +177,7 @@ class ScheduleRepository implements IScheduleRepository
         return array_map(fn(array $row) => $this->scheduleMapper->mapSessionRow($row), $rows);
     }
 
-    public function getSessionById(int $id): ?\App\Models\Event\SessionModel
-    {
-        $stmt = $this->db->prepare(
-            'SELECT id, event_id, venue_id, date, start_time, language_id, label, price, available_spots, amount_sold
-             FROM sessions
-             WHERE id = :id
-             LIMIT 1'
-        );
-        $stmt->execute([':id' => $id]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        return $row ? $this->scheduleMapper->mapSessionRow($row) : null;
-    }
-
-    public function createSessionForTicketing(int $eventId, int $venueId, string $date, string $startTime, int $availableSpots): int
-    {
-        $stmt = $this->db->prepare(
-            'INSERT INTO sessions (event_id, venue_id, date, start_time, label, price, available_spots, amount_sold)
-             VALUES (:event_id, :venue_id, :date, :start_time, NULL, 0, :available_spots, 0)'
-        );
-        $stmt->execute([
-            ':event_id' => $eventId,
-            ':venue_id' => $venueId,
-            ':date' => $date,
-            ':start_time' => $startTime,
-            ':available_spots' => $availableSpots,
-        ]);
-
-        return (int) $this->db->lastInsertId();
-    }
-
-    public function updateSessionForTicketing(int $id, int $eventId, string $date, string $startTime, int $availableSpots): bool
-    {
-        $stmt = $this->db->prepare(
-            'UPDATE sessions
-             SET date = :date, start_time = :start_time, available_spots = :available_spots
-             WHERE id = :id AND event_id = :event_id'
-        );
-
-        return $stmt->execute([
-            ':id' => $id,
-            ':event_id' => $eventId,
-            ':date' => $date,
-            ':start_time' => $startTime,
-            ':available_spots' => $availableSpots,
-        ]);
-    }
-
-    public function deleteSessionById(int $id, int $eventId): bool
-    {
-        $stmt = $this->db->prepare('DELETE FROM sessions WHERE id = :id AND event_id = :event_id');
-
-        return $stmt->execute([
-            ':id' => $id,
-            ':event_id' => $eventId,
-        ]);
-    }
-
+    // Returns mapped venue rows for one event so services and CMS editors can work with allowed venues.
     public function getVenuesByEventId(int $eventId): array
     {
         $stmt = $this->db->prepare(
@@ -218,6 +192,7 @@ class ScheduleRepository implements IScheduleRepository
         return array_map(fn(array $row) => $this->scheduleMapper->mapVenueModelRow($row), $rows);
     }
 
+    // Returns mapped performer rows for one event so services and CMS editors can work with allowed performers.
     public function getPerformersByEventId(int $eventId): array
     {
         $stmt = $this->db->prepare(
@@ -232,6 +207,7 @@ class ScheduleRepository implements IScheduleRepository
         return array_map(fn(array $row) => $this->scheduleMapper->mapPerformerModelRow($row), $rows);
     }
 
+    // Returns mapped session-performer rows for one event so performer assignments can be reattached after loading.
     public function getSessionPerformersByEventId(int $eventId): array
     {
         $stmt = $this->db->prepare(
@@ -247,6 +223,7 @@ class ScheduleRepository implements IScheduleRepository
         return array_map(fn(array $row) => $this->scheduleMapper->mapSessionPerformerRow($row), $rows);
     }
 
+    // Saves venues, performers, sessions, and assignments for one event in one transaction so schedule edits stay consistent.
     public function saveEventScheduleData(
         int $eventId,
         array $venueRows,
@@ -269,6 +246,7 @@ class ScheduleRepository implements IScheduleRepository
         }
     }
 
+    // Updates venue records for one event so CMS venue edits persist without touching other events.
     private function updateEventVenues(int $eventId, array $rows): void
     {
         if ($rows === []) {
@@ -292,6 +270,7 @@ class ScheduleRepository implements IScheduleRepository
         }
     }
 
+    // Updates performer records for one event so CMS performer edits persist and remain scoped to the selected event.
     private function updateEventPerformers(int $eventId, array $rows): void
     {
         if ($rows === []) {
@@ -315,6 +294,7 @@ class ScheduleRepository implements IScheduleRepository
         }
     }
 
+    // Updates session records for one event so CMS schedule edits persist date, time, venue, and capacity changes.
     private function updateEventSessions(int $eventId, array $rows): void
     {
         if ($rows === []) {
@@ -341,6 +321,7 @@ class ScheduleRepository implements IScheduleRepository
         }
     }
 
+    // Syncs performer-driven detail page slugs so dance detail URLs stay aligned with renamed performers.
     private function syncDetailPagePageSlugsToPerformers(int $eventId, array $performerRows): void
     {
         if ($performerRows === []) {
@@ -369,6 +350,7 @@ class ScheduleRepository implements IScheduleRepository
         }
     }
 
+    // Replaces performer assignments for one event so the saved session-performer links exactly match the posted state.
     private function replaceEventSessionPerformers(int $eventId, array $rows): void
     {
         $delete = $this->db->prepare(
@@ -395,73 +377,19 @@ class ScheduleRepository implements IScheduleRepository
             ]);
         }
     }
-    private function syncDetailPageSlugsToPerformers(int $eventId, array $performerRows): void
-    {
-        if ($performerRows === []) {
-            return;
-        }
 
-        foreach ($performerRows as $row) {
-            $slug = trim((string)($row['detail_slug'] ?? ''));
-            if ($slug === '') {
-                continue;
-            }
-
-            $params = [
-                ':detail_slug' => $slug,
-                ':event_id' => $eventId,
-                ':performer_id' => (int)$row['id'],
-            ];
-
-            $this->executeSlugUpdateWithFallback($params);
-        }
-    }
-
-    private function executeSlugUpdateWithFallback(array $params): void
-    {
-        $queries = [
-            'UPDATE event_detail_pages
-             SET detail_slug = :detail_slug
-             WHERE event_id = :event_id
-               AND performer_id = :performer_id',
-            'UPDATE event_detail_pages
-             SET public_slug = :detail_slug,
-                 cms_slug = :detail_slug
-             WHERE event_id = :event_id
-               AND performer_id = :performer_id',
-            'UPDATE pages p
-             INNER JOIN event_detail_pages edp ON edp.page_id = p.id
-             SET p.slug = :detail_slug
-             WHERE edp.event_id = :event_id
-               AND edp.performer_id = :performer_id',
-        ];
-
-        $lastException = null;
-
-        foreach ($queries as $query) {
-            try {
-                $stmt = $this->db->prepare($query);
-                $stmt->execute($params);
-                return;
-            } catch (PDOException $exception) {
-                $lastException = $exception;
-            }
-        }
-
-        if ($lastException instanceof PDOException) {
-            throw $lastException;
-        }
-    }
-
+    // Finds one event by id so CMS schedule edit flows can rebuild the correct event context.
     public function findEventById(int $id): ?EventModel
     {
-    $stmt = $this->db->prepare('SELECT id, name, description FROM events WHERE id = :id LIMIT 1');
-    $stmt->execute([':id' => $id]);
-    $row = $stmt->fetch(PDO::FETCH_ASSOC);
-    return $row ? $this->scheduleMapper->mapEventRow($row) : null;
+        $stmt = $this->db->prepare('SELECT id, name, description FROM events WHERE id = :id LIMIT 1');
+        $stmt->execute([':id' => $id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $row ? $this->scheduleMapper->mapEventRow($row) : null;
     }
 
-    public function editSchedule(int $id, int $eventId, int $venueId, string $date, string $startTime, int $availableSpots, $label, $price, $language, array $performerIds = []): bool
+    // Updates one schedule row so standalone CMS schedule edits reuse the same repository.
+    public function editSchedule(int $id, int $eventId, int $venueId, string $date, string $startTime, int $availableSpots, ?string $label, ?float $price, ?int $language, array $performerIds = []): bool
     {
         $stmt = $this->db->prepare(
             'UPDATE sessions
@@ -469,7 +397,7 @@ class ScheduleRepository implements IScheduleRepository
             WHERE id = :id'
         );
 
-        return $stmt->execute([
+        $updated = $stmt->execute([
             ':id' => $id,
             ':event_id' => $eventId,
             ':venue_id' => $venueId,
@@ -480,8 +408,17 @@ class ScheduleRepository implements IScheduleRepository
             ':language' => $language ?? 1,
             ':price' => $price ?? -1,
         ]);
+
+        if (!$updated) {
+            return false;
+        }
+
+        $this->replaceSchedulePerformers($id, $performerIds);
+
+        return true;
     }
 
+    // Creates one schedule row and links selected performers so the standalone CMS schedule editor can add sessions.
     public function createSchedule(int $eventId, int $venueId, string $date, string $startTime, int $availableSpots, ?string $label, ?float $price, ?int $language, array $performerIds = []): bool
     {
         $stmt = $this->db->prepare(
@@ -490,38 +427,28 @@ class ScheduleRepository implements IScheduleRepository
         );
 
         $success = $stmt->execute([
-        ':event_id' => $eventId,
-        ':venue_id' => $venueId,
-        ':date' => $date,
-        ':start_time' => $startTime,
-        ':available_spots' => $availableSpots,
-        ':label' => $label ?? 'None',
-        ':price' => $price ?? -1,
-        ':language' => $language ?? 1,
-    ]);
+            ':event_id' => $eventId,
+            ':venue_id' => $venueId,
+            ':date' => $date,
+            ':start_time' => $startTime,
+            ':available_spots' => $availableSpots,
+            ':label' => $label ?? 'None',
+            ':price' => $price ?? -1,
+            ':language' => $language ?? 1,
+        ]);
 
-    if (!$success) {
-        return false;
-    }
-
-    $sessionId = (int)$this->db->lastInsertId();
-
-    // Koppel performers aan de sessie
-    if (!empty($performerIds)) {
-        $insert = $this->db->prepare(
-            'INSERT INTO session_performers (session_id, performer_id) VALUES (:session_id, :performer_id)'
-        );
-        foreach ($performerIds as $performerId) {
-            $insert->execute([
-                ':session_id' => $sessionId,
-                ':performer_id' => $performerId,
-            ]);
+        if (!$success) {
+            return false;
         }
+
+        $sessionId = (int)$this->db->lastInsertId();
+
+        $this->replaceSchedulePerformers($sessionId, $performerIds);
+
+        return true;
     }
 
-    return true;
-    }
-    // later tickets eerst nakijken dan pas verwijderen, anders kunnen er issues ontstaan met boekingen die nog gekoppeld zijn aan een sessie die verwijderd wordt
+    // Deletes one schedule row after clearing performer links so the standalone CMS schedule editor does not leave orphan assignments.
     public function deleteSchedule(int $id): bool
     {
         $stmt = $this->db->prepare('DELETE FROM session_performers WHERE session_id = :session_id');
@@ -531,5 +458,26 @@ class ScheduleRepository implements IScheduleRepository
         return $stmt->execute([
             ':id' => $id,
         ]);
+    }
+
+    private function replaceSchedulePerformers(int $sessionId, array $performerIds): void
+    {
+        $delete = $this->db->prepare('DELETE FROM session_performers WHERE session_id = :session_id');
+        $delete->execute([':session_id' => $sessionId]);
+
+        if ($performerIds === []) {
+            return;
+        }
+
+        $insert = $this->db->prepare(
+            'INSERT INTO session_performers (session_id, performer_id) VALUES (:session_id, :performer_id)'
+        );
+
+        foreach ($performerIds as $performerId) {
+            $insert->execute([
+                ':session_id' => $sessionId,
+                ':performer_id' => (int)$performerId,
+            ]);
+        }
     }
 }

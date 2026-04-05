@@ -1,4 +1,5 @@
 (function () {
+    // Keep the upload endpoints and messages in one place for each media type.
     const MEDIA_TYPES = {
         image: {
             endpoint: '/cms/media/upload-image',
@@ -18,6 +19,7 @@
         },
     };
 
+    // Provide a safe fallback when the shared feedback helper is not loaded yet.
     function getUploadFeedback() {
         return window.CmsUploadFeedback || {
             showUploadFeedback() {},
@@ -28,6 +30,7 @@
         };
     }
 
+    // Push the uploaded path back into the row so the current file can be reused immediately.
     function applyUploadedPath(row, options, path) {
         if (!(row instanceof Element)) {
             return;
@@ -46,6 +49,7 @@
         }
     }
 
+    // Post the selected media file and return the saved path when the upload succeeds.
     async function uploadMedia(type, options) {
         const uploadFeedback = getUploadFeedback();
         const typeConfig = MEDIA_TYPES[type];
@@ -61,6 +65,7 @@
             sectionItemId = 0,
             currentPath = '',
             extraFields = null,
+            missingFileMessage = typeConfig.missingFileMessage,
             missingSectionItemMessage = 'Missing media row. Please refresh the page and try again.',
             missingModuleMessage = 'Missing media upload module.',
         } = options;
@@ -123,10 +128,12 @@
         }
     }
 
+    // Convenience wrapper for image uploads.
     async function uploadImage(options) {
         return uploadMedia('image', options);
     }
 
+    // Convenience wrapper for audio uploads.
     async function uploadAudio(options) {
         return uploadMedia('audio', options);
     }

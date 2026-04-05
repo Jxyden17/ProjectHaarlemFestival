@@ -7,8 +7,8 @@ interface ICmsService
 {
     public function getAllUsers(): array;
     public function getUserById(int $id): ?UserModel;
-    public function addUser(string $email, string $password, int $roleId): UserModel;
-    public function updateUser(int $id, string $email, string $password, int $roleId): UserModel;
+    public function addUser( UserModel $user): UserModel;
+    public function updateUser( UserModel $user): UserModel;
     public function deleteUser(int $id): void;
     public function searchUsers(string $query): array;
     public function sortUsers(string $sortBy, string $sortOrder): array;

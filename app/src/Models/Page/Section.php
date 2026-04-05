@@ -29,22 +29,22 @@ class Section
 
     public function getItemsByCategorie(string $category) : array
     {
-        return array_filter($this->items, function(SectionItem $item) use ($category)
-        {
+        $items = array_filter($this->items, function(SectionItem $item) use ($category) {
             return $item->category === $category;
         });
+        return $items;
     }
 
     public function getFirstItemImage(string $category): ?string 
-{
-    $items = $this->getItemsByCategorie($category);
+    {
+        $items = $this->getItemsByCategorie($category);
 
-    // Controleer of het item een afbeelding heeft
-    foreach ($items as $item) {
-        if (!empty($item->image)) { 
-            return $item->image;
+        // Controleer of het item een afbeelding heeft
+        foreach ($items as $item) {
+            if (!empty($item->image)) { 
+                return $item->image;
+            }
         }
-    }
     return '/img/historyIMG/hero.png';
-}
+    }
 }

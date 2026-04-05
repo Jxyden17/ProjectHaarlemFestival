@@ -39,8 +39,17 @@ class CmsScheduleController extends BaseController
         $language = Language::cases();
         $id = (int)($_GET['id'] ?? 0);
         $scheduleData = $this->scheduleService->getSessionById($id);
+         if (!$scheduleData) {
+            http_response_code(404);
+            $this->render('shared/error', [
+                'errorTitle' => 'Schedule not found',
+                'errorMessage' => 'The schedule you requested does not exist.',
+            ]);
+            return;
+        }
         $venueData = $this->venueService->getAllVenuesForEvent($selectedEvent->value);
-        $this->renderCms('cms/schedule/edit', ['title' => 'Edit Schedule', 'selectedEvent' => $selectedEvent, 'schedule' => $scheduleData, 'language' => $language, 'venues' => $venueData]);
+        $performers = $this->artistesService->getAllArtistesForEvent((int)$selectedEvent->value);
+        $this->renderCms('cms/schedule/edit', ['title' => 'Edit Schedule', 'selectedEvent' => $selectedEvent, 'schedule' => $scheduleData, 'language' => $language, 'venues' => $venueData, 'performers' => $performers]);
     }
 
     public function edit(): void
@@ -55,7 +64,8 @@ class CmsScheduleController extends BaseController
             availableSpots: $_POST['available_spots'],
             label: trim($_POST['label']),
             price: (float)$_POST['price'],
-            language: $_POST['language_id']
+            language: $_POST['language_id'],
+            performerIds: $_POST['performer_ids'] ?? []
          );
         
         if ($updated) {

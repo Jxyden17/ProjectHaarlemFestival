@@ -1,71 +1,134 @@
-<!-- <div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1 class="h3 mb-0">Ticket Management - <?= htmlspecialchars($selectedEvent->label()) ?></h1>
-        <a href="/cms/eventManagement/tickets/create?event_id=<?= $selectedEvent->value ?>" class="btn btn-primary btn-sm">+ Add Tickets</a>
-    </div>
+<?php
+$summary = is_array($summary ?? null) ? $summary : [];
+$eventCards = is_array($events ?? null) ? $events : [];
 
-    <form method="GET" action="/cms/eventManagement/tickets" class="row g-2 align-items-end mb-3">
-        <div class="col-sm-6 col-md-4">
-            <label for="event-switch" class="form-label">Select Event</label>
-            <select id="event-switch" name="event" class="form-select">
-                <?php foreach ($eventTypes as $event): ?>
-                    <option value="<?= $event->value ?>"<?= $event->value === $selectedEvent->value ? ' selected' : '' ?>>
-                        <?= htmlspecialchars($event->label()) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
+$ticketedEventCount = (int) ($summary['ticketedEventCount'] ?? 0);
+$sessionCount = (int) ($summary['sessionCount'] ?? 0);
+$capacityTotal = (int) ($summary['capacityTotal'] ?? 0);
+$availableTotal = (int) ($summary['availableTotal'] ?? 0);
+$soldTotal = (int) ($summary['soldTotal'] ?? 0);
+$issuedTicketCount = (int) ($summary['issuedTicketCount'] ?? 0);
+$pendingPayments = (int) ($summary['pendingPayments'] ?? 0);
+$paidPayments = (int) ($summary['paidPayments'] ?? 0);
+$failedPayments = (int) ($summary['failedPayments'] ?? 0);
+?>
+
+<div class="container-lg py-4 py-md-5">
+    <div class="vstack gap-3">
+        <section class="cms-page-hero">
+            <div class="d-flex flex-wrap align-items-start justify-content-between gap-3">
+                <div>
+                    <p class="cms-page-hero__eyebrow">Operational control</p>
+                    <h1 class="cms-page-hero__title">Ticket Management</h1>
+                    <p class="cms-page-hero__description">Monitor capacity, sales, and payment pressure from one place.</p>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="/cms" class="btn btn-outline-secondary">Back to CMS</a>
+                    <a href="/cms/eventManagement" class="btn btn-outline-secondary">Event Management</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="card border-0 shadow-sm cms-ticket-focus-strip">
+            <div class="card-body p-3 p-md-4">
+                <div class="cms-ticket-overview-grid">
+                    <div class="cms-ticket-overview-main">
+                        <span class="cms-ticket-overview-main__eyebrow">Overview</span>
+                        <div class="cms-ticket-overview-main__stats">
+                            <div class="cms-ticket-overview-main__stat">
+                                <span class="cms-ticket-overview-main__label">Events</span>
+                                <strong class="cms-ticket-overview-main__value"><?= $ticketedEventCount ?></strong>
+                            </div>
+                            <div class="cms-ticket-overview-main__stat">
+                                <span class="cms-ticket-overview-main__label">Capacity</span>
+                                <strong class="cms-ticket-overview-main__value"><?= $capacityTotal ?></strong>
+                            </div>
+                            <div class="cms-ticket-overview-main__stat">
+                                <span class="cms-ticket-overview-main__label">Tickets sold</span>
+                                <strong class="cms-ticket-overview-main__value"><?= $soldTotal ?></strong>
+                            </div>
+                            <div class="cms-ticket-overview-main__stat">
+                                <span class="cms-ticket-overview-main__label">Available</span>
+                                <strong class="cms-ticket-overview-main__value"><?= $availableTotal ?></strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="cms-ticket-overview-side">
+                        <div class="cms-ticket-overview-side__alert">
+                            <span class="cms-ticket-overview-side__label">Need attention</span>
+                            <strong class="cms-ticket-overview-side__value"><?= $pendingPayments ?></strong>
+                            <span class="cms-ticket-overview-side__meta">Pending payments</span>
+                        </div>
+                        <div class="cms-ticket-overview-side__meta-grid">
+                            <div class="cms-ticket-overview-side__meta-card">
+                                <span class="cms-ticket-overview-side__meta-label">Issued</span>
+                                <strong class="cms-ticket-overview-side__meta-value"><?= $issuedTicketCount ?></strong>
+                            </div>
+                            <div class="cms-ticket-overview-side__meta-card">
+                                <span class="cms-ticket-overview-side__meta-label">Capacity</span>
+                                <strong class="cms-ticket-overview-side__meta-value"><?= $capacityTotal ?></strong>
+                            </div>
+                        </div>
+                        <div class="cms-ticket-status-inline">
+                            <span class="cms-ticket-status-inline__label">Payments</span>
+                            <div class="d-flex flex-wrap gap-2">
+                                <span class="badge rounded-pill border border-secondary-subtle bg-transparent text-muted px-3 py-2">Paid <?= $paidPayments ?></span>
+                                <span class="badge rounded-pill border border-secondary-subtle bg-transparent text-muted px-3 py-2">Pending <?= $pendingPayments ?></span>
+                                <span class="badge rounded-pill border border-secondary-subtle bg-transparent text-muted px-3 py-2">Failed <?= $failedPayments ?></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="row g-3 g-md-4">
+            <?php foreach ($eventCards as $event): ?>
+                <div class="col-12 col-lg-6">
+                    <div class="card h-100 border-0 shadow-sm cms-ticket-event-card">
+                        <div class="card-body p-4">
+                            <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+                                <div>
+                                    <h2 class="h5 mb-0"><?= htmlspecialchars((string) ($event['label'] ?? 'Event')) ?></h2>
+                                </div>
+                                <div class="d-flex flex-wrap gap-2 justify-content-end">
+                                    <span class="badge rounded-pill border border-secondary-subtle bg-transparent text-muted px-3 py-2">
+                                        Issued <?= (int) ($event['issuedTicketCount'] ?? 0) ?>
+                                    </span>
+                                    <?php if ((int) ($event['unlimitedSessions'] ?? 0) > 0): ?>
+                                        <span class="badge rounded-pill text-bg-light">Unlimited <?= (int) $event['unlimitedSessions'] ?></span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+
+                            <div class="cms-ticket-event-metrics mb-4">
+                                <div class="cms-ticket-event-metric">
+                                    <span class="cms-ticket-event-metric__label">Sold</span>
+                                    <strong class="cms-ticket-event-metric__value"><?= (int) ($event['soldTotal'] ?? 0) ?></strong>
+                                </div>
+                                <div class="cms-ticket-event-metric">
+                                    <span class="cms-ticket-event-metric__label">Available</span>
+                                    <strong class="cms-ticket-event-metric__value"><?= (int) ($event['availableTotal'] ?? 0) ?></strong>
+                                </div>
+                                <div class="cms-ticket-event-metric">
+                                    <span class="cms-ticket-event-metric__label">Capacity</span>
+                                    <strong class="cms-ticket-event-metric__value"><?= (int) ($event['capacityTotal'] ?? 0) ?></strong>
+                                </div>
+                                <div class="cms-ticket-event-metric">
+                                    <span class="cms-ticket-event-metric__label">Issued</span>
+                                    <strong class="cms-ticket-event-metric__value"><?= (int) ($event['issuedTicketCount'] ?? 0) ?></strong>
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-2 d-sm-flex">
+                                <a href="/cms/tickets/orders?event_id=<?= (int) ($event['id'] ?? 0) ?>" class="btn btn-outline-secondary">View Orders</a>
+                                <a href="/cms/tickets/sold?event_id=<?= (int) ($event['id'] ?? 0) ?>" class="btn btn-primary">View Sold Tickets</a>
+                                <a href="/cms/eventManagement/schedules?event_id=<?= (int) ($event['id'] ?? 0) ?>" class="btn btn-outline-secondary">Manage Availability</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
         </div>
-        <div class="col-sm-6 col-md-2">
-            <button type="submit" class="btn btn-outline-secondary w-100">Switch</button>
-        </div>
-    </form>
-
-    <div class="mb-3">
-        <a href="/cms" class="btn btn-sm btn-outline-secondary">Back to CMS</a>
-        <a href="/cms/eventManagement" class="btn btn-sm btn-outline-secondary">Events</a>
-        <a href="/cms/eventManagement/artists?event_id=<?= $selectedEvent->value ?>" class="btn btn-sm btn-outline-secondary">Artists</a>
-        <a href="/cms/eventManagement/venues?event_id=<?= $selectedEvent->value ?>" class="btn btn-sm btn-outline-secondary">Venues</a>
     </div>
-
-    <div class="table-responsive">
-        <table class="table table-striped table-hover align-middle">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th>Aantal te verkopen</th>
-                    <th>Verkocht</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if ($tickets === []): ?>
-                    <tr>
-                        <td colspan="6" class="text-muted">No ticket moments found for this event.</td>
-                    </tr>
-                <?php else: ?>
-                    <?php $counter = 1; ?>
-                    <?php foreach ($tickets as $ticket): ?>
-                        <tr>
-                            <td><?= $counter++ ?></td>
-                            <td><?= htmlspecialchars($ticket->date ?? 'Unknown') ?></td>
-                            <td><?= htmlspecialchars($ticket->startTime ?? 'Unknown') ?></td>
-                            <td><?= (int) ($ticket->availableSpots ?? 0) ?></td>
-                            <td><?= (int) ($ticket->amountSold ?? 0) ?></td>
-                            <td>
-                                <a href="/cms/tickets/edit?event_id=<?= $selectedEvent->value ?>&id=<?= $ticket->id ?>"
-                                   class="btn btn-sm btn-outline-primary">Edit</a>
-                                <a href="/cms/tickets/view?event_id=<?= $selectedEvent->value ?>&id=<?= $ticket->id ?>"
-                                   class="btn btn-sm btn-outline-primary">View Tickets</a>
-                                <a href="/cms/tickets/delete?event_id=<?= $selectedEvent->value ?>&id=<?= $ticket->id ?>"
-                                   class="btn btn-sm btn-outline-danger"
-                                   onclick="return confirm('Delete ticket slot #<?= $counter ?>?');">Delete</a>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </tbody>
-        </table>
-    </div>
-</div> -->
+</div>

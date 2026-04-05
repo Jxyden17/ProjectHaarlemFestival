@@ -4,6 +4,7 @@ namespace App\Controllers\Cms;
 
 use App\Controllers\BaseController;
 use App\Service\Cms\Interfaces\ICmsService;
+use App\Models\UserModel;
 
 class CmsUsersController extends BaseController
 {
@@ -40,7 +41,21 @@ class CmsUsersController extends BaseController
     {
         $this->requireAdmin();
         try {
-            $this->cmsService->addUser($_POST['email'] ?? '', $_POST['password'] ?? '', $_POST['role_id'] ?? 3);
+           $user = new UserModel(
+                0,
+                trim((string)($_POST['name'] ?? '')),
+                trim((string)($_POST['email'] ?? '')),
+                (string)($_POST['password'] ?? ''),
+                trim((string)($_POST['phoneNumber'] ?? '')),
+                trim((string)($_POST['country'] ?? '')),
+                trim((string)($_POST['city'] ?? '')),
+                trim((string)($_POST['addres'] ?? '')),
+                trim((string)($_POST['postcode'] ?? '')),
+                (int)($_POST['role_id'] ?? 3),
+                ''
+            );
+   
+            $this->cmsService->addUser($user);
             header('Location: /cms/users');
         } catch (\Exception $e) {
             error_log($e->getMessage());
@@ -48,24 +63,76 @@ class CmsUsersController extends BaseController
         }
         exit;
     }
-
-    public function showEditForm(): void
+    public function showAdminEditForm(): void
     {
         $this->requireAdmin();
+        $user= $this->showEditFormLogic();
+        $this->renderCms('cms/users/edit', ['title' => 'Edit User', 'user' => $user]);
+    }
+    public function showSelfEditForm(): void
+    {
+        if ( $_SESSION['user_id'] == $_GET['id'])
+        {
+           $user= $this->showEditFormLogic();
+            $this->render('cms/users/editSelf', ['title' => 'Edit User', 'user' => $user]);
+        }
+        else
+        {
+            http_response_code(403);
+            header('Location: /');
+            exit;
+        }
+
+    }
+
+    private function showEditFormLogic()
+    {
+      
         $user = $this->cmsService->getUserById((int)($_GET['id'] ?? 0));
         if ($user === null) {
             http_response_code(404);
             $this->render('shared/error', ['errorTitle' => 'User not found', 'errorMessage' => 'The requested user does not exist.']);
             return;
         }
-        $this->renderCms('cms/users/edit', ['title' => 'Edit User', 'user' => $user]);
+        return $user;
+ 
     }
-
-    public function editUser(): void
+    public function editUserAsAdmin(): void
     {
         $this->requireAdmin();
+        $this->editUser();
+    }
+    public function editUserAsUser(): void
+    {
+       if ( $_SESSION['user_id'] == $_POST['id'])
+        {
+            $this->editUser();
+        }
+        else
+        {
+            http_response_code(403);
+            header('Location: /');
+            exit;
+        }
+    }
+    private function editUser(): void
+    {
         try {
-            $this->cmsService->updateUser((int)($_POST['id'] ?? 0), (string)($_POST['email'] ?? ''), (string)($_POST['password'] ?? ''), (int)($_POST['role_id'] ?? 0));
+            $user = new UserModel(
+                (int)($_POST['id'] ?? 0),
+                trim((string)($_POST['name'] ?? '')),
+                trim((string)($_POST['email'] ?? '')),
+                (string)($_POST['password'] ?? ''),
+                trim((string)($_POST['phoneNumber'] ?? '')),
+                trim((string)($_POST['country'] ?? '')),
+                trim((string)($_POST['city'] ?? '')),
+                trim((string)($_POST['addres'] ?? '')),
+                trim((string)($_POST['postcode'] ?? '')),
+                (int)($_POST['role_id'] ?? 3),
+                ''
+            );
+   
+            $this->cmsService->updateUser($user);
             header('Location: /cms/users');
         } catch (\Exception $e) {
             error_log($e->getMessage());

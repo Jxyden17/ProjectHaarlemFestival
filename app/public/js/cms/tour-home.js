@@ -1,5 +1,6 @@
 const tourHomeForm = document.querySelector('form[action="/cms/events/tour-home"]');
 
+// Upload the selected image for a specific tour home content row.
 async function uploadTourImage(row, button) {
     if (!tourHomeForm || !window.CmsMediaUpload) {
         return;
@@ -32,6 +33,7 @@ async function uploadTourImage(row, button) {
 }
 
 if (tourHomeForm) {
+    // Delegate upload clicks so all tour home image rows share one listener.
     tourHomeForm.addEventListener('click', (event) => {
         const target = event.target;
         if (!(target instanceof HTMLElement) || !target.classList.contains('upload-performer-image')) {
@@ -47,6 +49,7 @@ if (tourHomeForm) {
     });
 }
 
+// Upgrade rich text fields on the tour home editor.
 if (tourHomeForm && window.CmsPageEditor) {
     window.CmsPageEditor.initializeQuillEditors(tourHomeForm);
 }

@@ -1,12 +1,3 @@
-<?php
-$heroItems = $hero?->items ?? [];
-$aboutItems = $about?->items ?? [];
-$labels = $about?->getItemsByCategorie('label') ?? [];
-$discoverItems = $discover?->getItemsByCategorie('event_card') ?? [];
-$faqItems = $faq?->getItemsByCategorie('faq_item') ?? [];
-$mapItems = $map?->getItemsByCategorie('map_location') ?? [];
-?>
-
 <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
 
 <div class="container py-4">
@@ -26,9 +17,11 @@ $mapItems = $map?->getItemsByCategorie('map_location') ?? [];
             <input type="hidden" name="sections[hero][title]" value="<?= htmlspecialchars($hero?->title ?? '') ?>">
             <input type="hidden" name="sections[hero][subtitle]" value="<?= htmlspecialchars($hero?->subTitle ?? '') ?>">
             <input type="hidden" name="sections[hero][description]" value="<?= htmlspecialchars($hero?->description ?? '') ?>">
-            <?php foreach ($heroItems as $index => $item): ?>
-                <div class="mb-3">
-                    <input type="hidden" name="items[hero][<?= (int)$index ?>][id]" value="<?= (int)$item->id ?>">
+            <?php foreach ($hero->items ?? [] as $index => $item): ?>
+                <div class="mb-3" data-home-upload-row="1" data-home-section-type="hero">
+                    <input type="hidden" name="items[hero][<?= (int)$index ?>][id]" class="home-item-id" value="<?= (int)$item->id ?>">
+                    <input type="hidden" name="items[hero][<?= (int)$index ?>][item_category]" value="<?= htmlspecialchars($item->category ?? '') ?>">
+                    <input type="hidden" name="items[hero][<?= (int)$index ?>][image_path]" class="home-image-path" value="<?= htmlspecialchars($item->image ?? '') ?>">
                     <label class="form-label">Foto</label>
                     <input type="file" class="form-control form-control-sm performer-upload-input" accept="image/jpeg,image/png,image/webp">
                     <button type="button" class="btn btn-sm btn-outline-primary upload-performer-image">Upload</button>
@@ -51,7 +44,7 @@ $mapItems = $map?->getItemsByCategorie('map_location') ?? [];
             <input type="text" name="sections[about][description]" class="form-control mb-2" value="<?= htmlspecialchars($about?->description ?? '') ?>">
             <div class="mb-3">
                 <label class="form-label">Labels</label>
-                <?php foreach ($labels as $index => $label): ?>
+                <?php foreach ($about?->getItemsByCategorie('label') ?? [] as $index => $label): ?>
                     <div class="d-flex gap-2 mb-2">
                         <input type="hidden" name="items[about][<?= (int)$index ?>][id]" value="<?= (int)$label->id ?>">
                         <input type="text" name="items[about][<?= (int)$index ?>][icon_class]" class="form-control" placeholder="Icon" value="<?= htmlspecialchars($label->icon ??  $label->subTitle ?? '') ?>">
@@ -63,9 +56,12 @@ $mapItems = $map?->getItemsByCategorie('map_location') ?? [];
             <h2 class="h5 mt-4">Discover Events</h2>
             <label class="form-label">Section Title</label>
             <input type="text" name="sections[discover_events][title]" class="form-control mb-2" value="<?= htmlspecialchars($discover?->title ?? '') ?>">
-            <?php foreach ($discoverItems as $index => $item): ?>
-                <div class="mb-3">
-                    <input type="hidden" name="items[discover_events][<?= (int)$index ?>][id]" value="<?= (int)$item->id ?>">
+            <?php foreach ($discover?->items ?? [] as $index => $item): ?>
+                <div class="mb-3" data-home-upload-row="1" data-home-section-type="discover_events">
+                    <input type="hidden" name="items[discover_events][<?= (int)$index ?>][id]" class="home-item-id" value="<?= (int)$item->id ?>">
+                    <input type="hidden" name="items[discover_events][<?= (int)$index ?>][item_category]" value="<?= htmlspecialchars($item->category ?? '') ?>">
+                    <input type="hidden" name="items[discover_events][<?= (int)$index ?>][image_path]" class="home-image-path" value="<?= htmlspecialchars($item->image ?? '') ?>">
+                    <input type="hidden" name="items[discover_events][<?= (int)$index ?>][link_url]" value="<?= htmlspecialchars($item->url ?? '') ?>">
                     <label class="form-label">Foto</label>
                     <input type="file" class="form-control form-control-sm performer-upload-input" accept="image/jpeg,image/png,image/webp">
                     <button type="button" class="btn btn-sm btn-outline-primary upload-performer-image">Upload</button>
@@ -80,7 +76,7 @@ $mapItems = $map?->getItemsByCategorie('map_location') ?? [];
             <h2 class="h5 mt-4">Map Section</h2>
             <label class="form-label">Section Title</label>
             <input type="text" name="sections[map_section][title]" class="form-control mb-2" value="<?= htmlspecialchars($map?->title ?? '') ?>">
-            <?php foreach ($mapItems as $index => $item): ?>
+            <?php foreach ($map?->items ?? [] as $index => $item): ?>
                 <div class="mb-3">
                     <input type="hidden" name="items[map_section][<?= (int)$index ?>][id]" value="<?= (int)$item->id ?>">
                     <label class="form-label">Location Title</label>
@@ -93,9 +89,10 @@ $mapItems = $map?->getItemsByCategorie('map_location') ?? [];
             <h2 class="h5 mt-4">FAQ Section</h2>
             <label class="form-label">Section Title</label>
             <input type="text" name="sections[faq][title]" class="form-control mb-2" value="<?= htmlspecialchars($faq?->title ?? '') ?>">
-            <?php foreach ($faqItems as $index => $item): ?>
+            <?php foreach ($faq?->items ?? [] as $index => $item): ?>
                 <div class="mb-3">
                     <input type="hidden" name="items[faq][<?= (int)$index ?>][id]" value="<?= (int)$item->id ?>">
+                    <input type="hidden" name="items[faq][<?= (int)$index ?>][item_category]" value="<?= htmlspecialchars($item->category ?? 'faq') ?>">
                     <label class="form-label">Question</label>
                     <input type="text" name="items[faq][<?= (int)$index ?>][title]" class="form-control mb-2" value="<?= htmlspecialchars($item->title ?? '') ?>">
                     <label class="form-label">Answer</label>
@@ -108,6 +105,12 @@ $mapItems = $map?->getItemsByCategorie('map_location') ?? [];
     </form>
 </div>
 
+<?php include __DIR__ . '/../../partialsViews/cms/upload-feedback-modal.php'; ?>
+
+<script src="/js/cms/upload-feedback.js"></script>
+<script src="/js/cms/media-upload.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
 <?php $tourDetailsJsVersion = @filemtime(__DIR__ . '/../../../../public/js/cms/tour-details.js') ?: time(); ?>
 <script src="/js/cms/tour-details.js?v=<?= (int)$tourDetailsJsVersion ?>"></script>
+<?php $homeJsVersion = @filemtime(__DIR__ . '/../../../../public/js/cms/home.js') ?: time(); ?>
+<script src="/js/cms/home.js?v=<?= (int)$homeJsVersion ?>"></script>

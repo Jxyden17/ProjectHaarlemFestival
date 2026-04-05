@@ -16,17 +16,19 @@ class ImageUploadService extends MediaService implements IImageUploadService
     ];
     private IDanceService $danceService;
 
+    // Stores image upload dependencies so dance-aware module resolution can reuse the shared media helpers.
     public function __construct(IMediaRepository $mediaRepository, IDanceService $danceService)
     {
         parent::__construct($mediaRepository);
         $this->danceService = $danceService;
     }
 
+    // Uploads one image file and syncs its public path so CMS image fields update storage and database together.
     public function uploadImage(array $post, array $files): array
     {
         try {
             $moduleConfig = $this->parseImageModuleConfig($post);
-            $currentPath = $this->requireCurrentImagePath($post);
+            $currentPath = $this->getCurrentImagePath($post);
             $file = $this->getUploadedFile($files, 'image');
             $upload = $this->validateUploadedFile(
                 $file,
@@ -37,7 +39,7 @@ class ImageUploadService extends MediaService implements IImageUploadService
 
             $sectionItemId = $this->findImageSectionItemId($moduleConfig, $post, $currentPath);
             $currentPath = $this->loadStoredImagePath($currentPath, $sectionItemId);
-            $paths = $this->buildUploadTargetPaths($moduleConfig, $currentPath, $upload['extension'], false);
+            $paths = $this->buildImageUploadTargetPaths($moduleConfig, $currentPath, $upload['extension'], $sectionItemId);
             if ($paths === null) {
                 throw new \RuntimeException('Target path is not allowed for this module', 400);
             }
@@ -56,6 +58,7 @@ class ImageUploadService extends MediaService implements IImageUploadService
         }
     }
 
+    // Parses the requested image module so later steps know which page, section, and category may be updated.
     private function parseImageModuleConfig(array $post): MediaModuleConfig
     {
         $module = trim((string)($post['module'] ?? ''));
@@ -67,6 +70,7 @@ class ImageUploadService extends MediaService implements IImageUploadService
         return $moduleConfig;
     }
 
+    // Resolves an image module name so dynamic and static upload targets share one entry point. Example: module 'dance_detail_hero:urban-echo' -> MediaModuleConfig.
     private function matchImageModule(string $module): ?MediaModuleConfig
     {
         $dynamicModule = $this->matchDynamicImageModule($module);
@@ -77,6 +81,7 @@ class ImageUploadService extends MediaService implements IImageUploadService
         return $this->matchStaticImageModule($module);
     }
 
+    // Resolves dynamic image modules so slug-based dance and tour uploads point at the correct page scope.
     private function matchDynamicImageModule(string $module): ?MediaModuleConfig
     {
         if (preg_match('/^dance_detail_hero:([a-z0-9-]+)$/', $module, $matches) === 1) {
@@ -88,6 +93,7 @@ class ImageUploadService extends MediaService implements IImageUploadService
         }
 
         if (preg_match('/^tour_image:([a-z0-9-]+):([a-z_]+)$/', $module, $matches) === 1) {
+
             return new MediaModuleConfig(
                 ['/img/historyIMG/'],
                 $matches[1],
@@ -97,9 +103,30 @@ class ImageUploadService extends MediaService implements IImageUploadService
             );
         }
 
+        if (preg_match('/^stories_home:([a-z0-9-]+):([a-z_]+)$/', $module, $matches) === 1) {
+            return new MediaModuleConfig(
+                ['/img/storiesIMG/'],
+                $matches[1],
+                $matches[2],
+                null,
+                MediaModuleConfig::MATCH_BY_SECTION
+            );
+        }
+
+        if (preg_match('/^home_image:(hero|discover_events)$/', $module, $matches) === 1) {
+            return new MediaModuleConfig(
+                ['/img/homeIMG/'],
+                'Home',
+                $matches[1],
+                null,
+                MediaModuleConfig::MATCH_BY_SECTION
+            );
+        }
+
         return null;
     }
 
+    // Resolves static image modules so fixed CMS image targets can reuse the same upload flow.
     private function matchStaticImageModule(string $module): ?MediaModuleConfig
     {
         return match ($module) {
@@ -117,20 +144,23 @@ class ImageUploadService extends MediaService implements IImageUploadService
                 'tour',
                 MediaModuleConfig::MATCH_BY_SECTION_AND_CATEGORY
             ),
+            'yummy' => new MediaModuleConfig(
+                ['/img/yummyIMG/'],
+                'yummy-home',
+                'yummy_header',
+                null,
+                MediaModuleConfig::MATCH_BY_SECTION
+            ),
             default => null,
         };
     }
 
-    private function requireCurrentImagePath(array $post): string
+    private function getCurrentImagePath(array $post): string
     {
-        $currentPath = trim((string)($post['current_path'] ?? ''));
-        if ($currentPath === '') {
-            throw new \RuntimeException('No target image path provided', 400);
-        }
-
-        return $currentPath;
+        return trim((string)($post['current_path'] ?? ''));
     }
 
+    // Builds the dance detail image config so hero and track image uploads stay inside the selected detail page scope.
     private function buildDanceDetailImageModuleConfig(string $pageSlug, string $sectionType, string $itemCategory): ?MediaModuleConfig
     {
         $detailPage = $this->danceService->getDanceDetailPageBySlug($pageSlug);
@@ -147,6 +177,7 @@ class ImageUploadService extends MediaService implements IImageUploadService
         );
     }
 
+    // Finds the section item to update so image uploads can target either a posted item id or the current stored path.
     private function findImageSectionItemId(MediaModuleConfig $moduleConfig, array $post, string $currentPath): ?int
     {
         $sectionItemId = $this->getPostedSectionItemId($post);
@@ -170,6 +201,7 @@ class ImageUploadService extends MediaService implements IImageUploadService
         );
     }
 
+    // Reloads the stored image path so extension swaps use the real current file instead of stale client input.
     private function loadStoredImagePath(string $currentPath, ?int $sectionItemId): string
     {
         if ($sectionItemId === null || $sectionItemId <= 0) {
@@ -184,6 +216,7 @@ class ImageUploadService extends MediaService implements IImageUploadService
         return $storedCurrentPath;
     }
 
+    // Persists the new image path so the uploaded file is reachable from the matching item or section in the database.
     private function syncImagePathToDatabase(MediaModuleConfig $moduleConfig, ?int $sectionItemId, string $publicPath): string
     {
         if ($sectionItemId === null || $sectionItemId <= 0) {

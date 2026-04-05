@@ -1,17 +1,8 @@
-<?php
-$heroItems = $header?->items ?? [];
-$historyItems = $history?->items ?? [];
-$didYouKnowItems = $didYouKnow?->items ?? [];
-$openingTimeInfo = $openingTime->getItemsByCategorie('info') ?? [];
-$openingTimeHours = $openingTime->getItemsByCategorie('opening_hours') ?? [];
-$pageSlug = (string)($pageSlug ?? '');
-?>
-
 <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
 
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1 class="h3 mb-0">Tour Detail Content</h1>
+        <h1 class="h3 mb-0">Tour Detail Content of <?= htmlspecialchars($header?->title) ?></h1>
         <a href="/cms/events" class="btn btn-outline-secondary">Back to Events</a>
     </div>
 
@@ -20,9 +11,9 @@ $pageSlug = (string)($pageSlug ?? '');
     include __DIR__ . '/../../partialsViews/cms/form-feedback.php';
     ?>
 
-    <form method="POST" action="/cms/events/tour-details" class="card" data-tour-page-slug="<?= htmlspecialchars($pageSlug) ?>">
+    <form method="POST" action="/cms/events/tour-details" class="card" data-tour-page-slug="<?= htmlspecialchars($pageSlug ?? 'tour-details') ?>">
         <div class="card-body">
-        <input type="hidden" name="page_id" value="<?= (int)($pageId ?? 0) ?>">
+        <input type="hidden" name="page_id" value="<?= $pageId ?? 0 ?>">
 
             <h2 class="h2">Banner</h2>
             <div class="mb-3">
@@ -35,20 +26,17 @@ $pageSlug = (string)($pageSlug ?? '');
 
             <div class="mb-3">
                 <label class="form-label">Fotos</label>
-                <?php foreach ($heroItems as $index => $item): ?>
+                <?php foreach ($header->items ?? [] as $index => $item): ?>
                     <div class="d-flex flex-wrap gap-2 align-items-center performer-image-row mb-2" data-tour-upload-row="1" data-tour-section-type="header" data-tour-item-category="<?= htmlspecialchars((string)($item->category ?? '')) ?>">
-                        <input type="hidden" name="items[header][<?= (int)$index ?>][id]" class="tour-item-id" value="<?= $item->id ?>">
-                        <input type="hidden" name="items[header][<?= (int)$index ?>][item_category]" value="<?= htmlspecialchars($item->category ?? '') ?>">
-                        <input type="hidden" name="items[header][<?= (int)$index ?>][image_path]" class="performer-artist-image" value="<?= htmlspecialchars($item->image ?? '') ?>">
+                        <input type="hidden" name="items[header][<?= $index ?>][id]" class="tour-item-id" value="<?= $item->id ?>">
+                        <input type="hidden" name="items[header][<?= $index ?>][item_category]" value="<?= htmlspecialchars($item->category ?? '') ?>">
                         <input type="file" class="form-control form-control-sm performer-upload-input" accept="image/jpeg,image/png,image/webp">
                         <button type="button" class="btn btn-sm btn-outline-primary upload-performer-image">Upload</button>
                         <a href="<?= $item->image ?>" class="btn btn-sm btn-outline-secondary performer-download-link<?= ($item->image ?? '') === '' ? ' d-none' : '' ?>" download>Download</a>
-                        <input type="hidden" name="items[header][<?= (int)$index ?>][title]" value="<?= htmlspecialchars($item->title ?? '') ?>">
-                        <input type="hidden" name="items[header][<?= (int)$index ?>][content]" value="<?= htmlspecialchars($item->content ?? '') ?>">
-                        <input type="hidden" name="items[header][<?= (int)$index ?>][link_url]" value="<?= htmlspecialchars($item->url ?? '') ?>">
-                        <input type="hidden" name="items[header][<?= (int)$index ?>][duration]" value="<?= htmlspecialchars($item->duration ?? '') ?>">
-                        <input type="hidden" name="items[header][<?= (int)$index ?>][icon_class]" value="<?= htmlspecialchars($item->icon ?? '') ?>">
-                        <input type="hidden" name="items[header][<?= (int)$index ?>][item_subtitle]" value="<?= htmlspecialchars($item->subTitle ?? '') ?>">
+                        <input type="hidden" name="items[header][<?= $index ?>][image_path]" class="performer-artist-image" value="<?= htmlspecialchars($item->image ?? '') ?>">
+                        <input type="hidden" name="items[header][<?= $index ?>][title]" value="<?= htmlspecialchars($item->title ?? '') ?>">
+                        <input type="hidden" name="items[header][<?= $index ?>][content]" value="<?= htmlspecialchars($item->content ?? '') ?>">
+
                     </div>
                 <?php endforeach; ?>
             </div>
@@ -56,35 +44,29 @@ $pageSlug = (string)($pageSlug ?? '');
             <h2 class="h5 mt-4">History</h2>
             <label class="form-label">Section Title</label>
             <input type="text" name="sections[history][title]" class="form-control mb-2" value="<?= htmlspecialchars($history?->title) ?>">
-            <input type="hidden" name="sections[history][subtitle]" value="<?= htmlspecialchars($history?->subTitle ?? '') ?>">
-            <input type="hidden" name="sections[history][description]" value="<?= htmlspecialchars($history?->description ?? '') ?>">
-            <?php foreach ($historyItems as $index => $item): ?>
+            <?php foreach ($history->items ?? [] as $index => $item): ?>
                 <div class="mb-3" data-tour-upload-row="1" data-tour-section-type="history" data-tour-item-category="<?= htmlspecialchars((string)($item->category ?? '')) ?>">
                     <input type="hidden" name="items[history][<?= $index ?>][id]" class="tour-item-id" value="<?= (int)$item->id ?>">
                     <input type="hidden" name="items[history][<?= $index ?>][item_category]" value="<?= htmlspecialchars($item->category ?? '') ?>">
+                    <input type="hidden" name="items[history][<?= $index ?>][image_path]" class="performer-artist-image" value="<?= htmlspecialchars($item->image ?? '') ?>">
                     <label class="form-label">Title</label>
-                    <input type="text" name="items[history][<?= $index ?>][title]" class="form-control mb-2" value="<?= htmlspecialchars($item->title) ?>">
+                    <input type="text" name="items[history][<?= (int)$index ?>][title]" class="form-control mb-2" value="<?= htmlspecialchars($item->title) ?>">
                     <label class="form-label">Foto</label>
                     <input type="file" class="form-control form-control-sm performer-upload-input" accept="image/jpeg,image/png,image/webp">
                         <button type="button" class="btn btn-sm btn-outline-primary upload-performer-image">Upload</button>
                         <a href="<?= htmlspecialchars($item->image ?? '') ?>" class="btn btn-sm btn-outline-secondary performer-download-link<?= ($item->image ?? '') === '' ? ' d-none' : '' ?>" download>Download</a>                    
                     <label class="form-label">Content</label>
                     <textarea name="items[history][<?= $index ?>][content]" data-quill="1" class="form-control mb-2" rows="2"><?= htmlspecialchars($item->content) ?></textarea>
-                    <input type="hidden" name="items[history][<?= (int)$index ?>][link_url]" value="<?= htmlspecialchars($item->url ?? '') ?>">
-                    <input type="hidden" name="items[history][<?= (int)$index ?>][duration]" value="<?= htmlspecialchars($item->duration ?? '') ?>">
-                    <input type="hidden" name="items[history][<?= (int)$index ?>][icon_class]" value="<?= htmlspecialchars($item->icon ?? '') ?>">
-                    <input type="hidden" name="items[history][<?= (int)$index ?>][item_subtitle]" value="<?= htmlspecialchars($item->subTitle ?? '') ?>">
                 </div>
             <?php endforeach; ?>
 
             <h2 class="h5 mt-4">Did You Know</h2>
             <label class="form-label">Section Title</label>
             <input type="text" name="sections[did_you_know][title]" class="form-control mb-3" value="<?= htmlspecialchars($didYouKnow?->title ?? '') ?>">
-            <input type="hidden" name="sections[did_you_know][subtitle]" value="<?= htmlspecialchars($didYouKnow?->subTitle ?? '') ?>">
-            <input type="hidden" name="sections[did_you_know][description]" value="<?= htmlspecialchars($didYouKnow?->description ?? '') ?>">
-            <?php foreach ($didYouKnowItems as $index => $item): ?>
+            <?php foreach ($didYouKnow?->items ?? [] as $index => $item): ?>
                 <div class="mb-3" data-tour-upload-row="1" data-tour-section-type="did_you_know" data-tour-item-category="<?= htmlspecialchars((string)($item->category ?? '')) ?>">
                     <input type="hidden" name="items[did_you_know][<?= (int)$index ?>][id]" class="tour-item-id" value="<?= (int)$item->id ?>">
+                    <input type="hidden" name="items[did_you_know][<?= (int)$index ?>][image_path]" class="performer-artist-image" value="<?= htmlspecialchars($item->image ?? '') ?>">
                     <input type="hidden" name="items[did_you_know][<?= (int)$index ?>][item_category]" value="<?= htmlspecialchars($item->category ?? '') ?>">
                     <label class="form-label">Title</label>
                     <input type="text" name="items[did_you_know][<?= (int)$index ?>][title]" class="form-control mb-2" value="<?= htmlspecialchars($item->title) ?>">
@@ -94,10 +76,6 @@ $pageSlug = (string)($pageSlug ?? '');
                         <a href="<?= htmlspecialchars($item->image ?? '') ?>" class="btn btn-sm btn-outline-secondary performer-download-link<?= ($item->image ?? '') === '' ? ' d-none' : '' ?>" download>Download</a>
                     <label class="form-label">Content</label>
                     <textarea name="items[did_you_know][<?= (int)$index ?>][content]" data-quill="1" class="form-control mb-2" rows="2"><?= htmlspecialchars($item->content) ?></textarea>
-                    <input type="hidden" name="items[did_you_know][<?= (int)$index ?>][link_url]" value="<?= htmlspecialchars($item->url ?? '') ?>">
-                    <input type="hidden" name="items[did_you_know][<?= (int)$index ?>][duration]" value="<?= htmlspecialchars($item->duration ?? '') ?>">
-                    <input type="hidden" name="items[did_you_know][<?= (int)$index ?>][icon_class]" value="<?= htmlspecialchars($item->icon ?? '') ?>">
-                    <input type="hidden" name="items[did_you_know][<?= (int)$index ?>][item_subtitle]" value="<?= htmlspecialchars($item->subTitle ?? '') ?>">
                 </div>
             <?php endforeach; ?>
 
@@ -105,13 +83,14 @@ $pageSlug = (string)($pageSlug ?? '');
             <h2 class="h5 mt-4">MapSections</h2>
             <label class="form-label">Title</label>
             <input type="text" name="sections[openings_time][title]" class="form-control mb-2" value="<?= htmlspecialchars($openingTime?->title) ?>">
-            <input type="hidden" name="sections[openings_time][subtitle]" value="<?= htmlspecialchars($openingTime?->subTitle) ?>">
+            <label class="form-label">Embeded map Link</label>
             <input type="text" name="sections[openings_time][description]" class="form-control mb-3" value="<?= htmlspecialchars($openingTime?->description) ?>">
+            <label class="form-label">Foto of Entery</label>
             <input type="file" class="form-control form-control-sm performer-upload-input" accept="image/jpeg,image/png,image/webp">
                         <button type="button" class="btn btn-sm btn-outline-primary upload-performer-image">Upload</button>
                         <a href="<?= htmlspecialchars((string)($openingTime?->image ?? '')) ?>" class="btn btn-sm btn-outline-secondary performer-download-link<?= (($openingTime?->image ?? '') === '') ? ' d-none' : '' ?>" download>Download</a>
             <h2 class="h5 mt-4">Informations</h2>
-            <?php foreach ($openingTimeInfo as $index => $item): ?>
+            <?php foreach ($openingTime->getItemsByCategorie('info') ?? [] as $index => $item): ?>
                 <?php $rowIndex = $index; ?>
                 <div class="d-flex gap-2 mb-2">
                     <input type="hidden" name="items[openings_time][<?= (int)$rowIndex ?>][id]" value="<?= (int)$item->id ?>">
@@ -120,26 +99,18 @@ $pageSlug = (string)($pageSlug ?? '');
                     <input type="text" name="items[openings_time][<?= (int)$rowIndex ?>][title]" class="form-control mb-2" value="<?= htmlspecialchars($item->title) ?>">
                     <label class="form-label">Content</label>
                     <input type="text" name="items[openings_time][<?= (int)$rowIndex ?>][content]" class="form-control" value="<?= htmlspecialchars($item->content) ?>">
-                    <input type="hidden" name="items[openings_time][<?= (int)$rowIndex ?>][link_url]" value="<?= htmlspecialchars($item->url ?? '') ?>">
-                    <input type="hidden" name="items[openings_time][<?= (int)$rowIndex ?>][duration]" value="<?= htmlspecialchars($item->duration ?? '') ?>">
-                    <input type="hidden" name="items[openings_time][<?= (int)$rowIndex ?>][icon_class]" value="<?= htmlspecialchars($item->icon ?? '') ?>">
-                    <input type="hidden" name="items[openings_time][<?= (int)$rowIndex ?>][item_subtitle]" value="<?= htmlspecialchars($item->subTitle ?? '') ?>">
                 </div>
             <?php endforeach; ?>
             <h2 class="h5 mt-4">Opening Times</h2>
-            <?php foreach ($openingTimeHours as $index => $item): ?>
+            <?php foreach ($openingTime->getItemsByCategorie('opening_hours') ?? [] as $index => $item): ?>
                 <?php $rowIndex = $index + 100; ?>
                 <div class="d-flex gap-2 mb-2">
                     <input type="hidden" name="items[openings_time][<?= (int)$rowIndex ?>][id]" value="<?= (int)$item->id ?>">
                     <input type="hidden" name="items[openings_time][<?= (int)$rowIndex ?>][item_category]" value="<?= htmlspecialchars($item->category ?? '') ?>">
-                    <label class="form-label">Dag</label>
+                    <label class="form-label">Dag:</label>
                     <input type="text" name="items[openings_time][<?= (int)$rowIndex ?>][title]" class="form-control mb-2" value="<?= htmlspecialchars($item->title) ?>">
-                    <label class="form-label">Tijd</label>
+                    <label class="form-label">Tijd:</label>
                     <input type="text" name="items[openings_time][<?= (int)$rowIndex ?>][content]" class="form-control" value="<?= htmlspecialchars($item->content) ?>">
-                    <input type="hidden" name="items[openings_time][<?= (int)$rowIndex ?>][link_url]" value="<?= htmlspecialchars($item->url ?? '') ?>">
-                    <input type="hidden" name="items[openings_time][<?= (int)$rowIndex ?>][duration]" value="<?= htmlspecialchars($item->duration ?? '') ?>">
-                    <input type="hidden" name="items[openings_time][<?= (int)$rowIndex ?>][icon_class]" value="<?= htmlspecialchars($item->icon ?? '') ?>">
-                    <input type="hidden" name="items[openings_time][<?= (int)$rowIndex ?>][item_subtitle]" value="<?= htmlspecialchars($item->subTitle ?? '') ?>">
                 </div>
             <?php endforeach; ?>
 

@@ -1,4 +1,5 @@
 (function () {
+    // Route form save results through the shared CMS feedback modal.
     function showFeedback(title, message, isSuccess) {
         if (!window.CmsUploadFeedback) {
             return;
@@ -11,6 +12,7 @@
         );
     }
 
+    // Keep the submit button state in sync while an async save is running.
     function setSubmittingState(button, isSubmitting) {
         if (!(button instanceof HTMLButtonElement)) {
             return;
@@ -24,6 +26,7 @@
         button.textContent = isSubmitting ? 'Saving...' : button.dataset.originalLabel;
     }
 
+    // Intercept a CMS form submit and send it to its configured save API endpoint.
     function initialize(form) {
         if (!(form instanceof HTMLFormElement)) {
             return;
@@ -75,6 +78,7 @@
         });
     }
 
+    // Find and initialize every CMS form that declares a save API endpoint.
     function initializeAll(root) {
         const scope = root instanceof ParentNode ? root : document;
         const forms = scope.querySelectorAll('form[data-save-api]');

@@ -13,6 +13,7 @@ use App\Models\ViewModels\Shared\ScheduleViewModel;
 
 class ScheduleViewModelMapper
 {
+    // Maps typed schedule data into the shared schedule view model so public pages can render grouped sessions and filters.
     public function mapScheduleData(ScheduleData $scheduleData): ScheduleViewModel
     {
         return $this->mapScheduleViewModel(
@@ -23,6 +24,7 @@ class ScheduleViewModelMapper
         );
     }
 
+    // Maps a flat list of sessions into schedule row view models so callers can embed performer-specific schedule snippets.
     public function mapScheduleRows(array $sessions): array
     {
         $rows = [];
@@ -38,6 +40,7 @@ class ScheduleViewModelMapper
         return $rows;
     }
 
+    // Builds the grouped schedule view model so public pages get rows plus day, event, and language filters together.
     private function mapScheduleViewModel(
         array $sessions,
         string $title,
@@ -94,6 +97,7 @@ class ScheduleViewModelMapper
         );
     }
 
+    // Maps one session into a render-ready row so schedule cards get formatted dates, labels, and booking links.
     public function mapScheduleRow(SessionModel $session, \DateTimeInterface $dt): ScheduleRowViewModel
     {
         $language = $this->buildLanguageLabel($session->language);
@@ -115,6 +119,7 @@ class ScheduleViewModelMapper
         );
     }
 
+    // Builds the lineup label so sessions show performer names in a stable sorted order. Example: Mina + Echo -> 'Echo B2B Mina'.
     private function buildEventLabel(SessionModel $session): string
     {
         $lineup = [];
@@ -134,6 +139,7 @@ class ScheduleViewModelMapper
         return $lineup === [] ? 'Session' : implode(' B2B ', $lineup);
     }
 
+    // Increments language counts so the schedule view can render language filters with totals.
     private function addSessionLanguageCount(SessionModel $session, array &$languageCounts): void
     {
         $language = $this->buildLanguageLabel($session->language);
@@ -148,6 +154,7 @@ class ScheduleViewModelMapper
         $languageCounts[$language['key']]['count']++;
     }
 
+    // Increments event counts so all-events schedules can render per-event filters with totals.
     private function addSessionEventCount(SessionModel $session, array &$eventCounts): void
     {
         $eventName = $this->checkEvent($session->event?->name ?? 'Other');
@@ -160,6 +167,7 @@ class ScheduleViewModelMapper
         $eventCounts[$eventKey]['count']++;
     }
 
+    // Builds day filter view models so schedules can be filtered by weekday in the UI.
     private function buildDayFilters(array $dayCounts): array
     {
         $dayFilters = [new ScheduleDayFilterViewModel('all', 'All Days', '', true)];
@@ -176,6 +184,7 @@ class ScheduleViewModelMapper
         return $dayFilters;
     }
 
+    // Builds event filter view models so all-events schedules can be filtered by event type in the UI.
     private function buildEventFilters(array $eventCounts): array
     {
         $eventFilters = [new ScheduleDayFilterViewModel('all', 'All Events', '', true)];
@@ -192,6 +201,7 @@ class ScheduleViewModelMapper
         return $eventFilters;
     }
 
+    // Builds language filter view models so schedules can be filtered by session language in the UI.
     private function buildLanguageFilters(array $languageCounts): array
     {
         $languageFilters = [new ScheduleDayFilterViewModel('all', 'All Languages', '', true)];
@@ -208,6 +218,7 @@ class ScheduleViewModelMapper
         return $languageFilters;
     }
 
+    // Resolves a filter key and label for one language enum so UI filters use stable slugs and readable text.
     private function buildLanguageLabel(?Language $language): ?array
     {
         if ($language === null) {
@@ -222,6 +233,7 @@ class ScheduleViewModelMapper
         ];
     }
 
+    // Normalizes event labels so different source names collapse into consistent public filter labels. Example: 'A stroll through history' -> 'Tour'.
     private function checkEvent(string $eventName): string
     {
         return match ($this->getEventType($eventName)) {
@@ -232,6 +244,7 @@ class ScheduleViewModelMapper
         };
     }
 
+    // Detects the canonical event type so schedule filters can treat alias event names as one category.
     private function getEventType(string $eventName): string
     {
         $eventType = $this->toFilterKey($eventName);
@@ -251,6 +264,7 @@ class ScheduleViewModelMapper
         return 'other';
     }
 
+    // Builds a compact lowercase filter key so UI filters stay stable across labels. Example: 'All Events' -> 'allevents'.
     private function toFilterKey(string $key): string
     {
         return strtolower(str_replace(' ', '', $key));
