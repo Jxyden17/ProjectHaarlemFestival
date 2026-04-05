@@ -14,6 +14,7 @@ $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 $isDashboard = $currentPath === '/cms';
 $isUsers = str_starts_with($currentPath, '/cms/users');
 $isEvents = str_starts_with($currentPath, '/cms/events');
+$isTickets = str_starts_with($currentPath, '/cms/tickets');
 $isEventManagement = str_starts_with($currentPath, '/cms/eventManagement');
 $success = $_SESSION['success'] ?? '';
 $error = $_SESSION['error'] ?? '';
@@ -59,7 +60,7 @@ unset($_SESSION['success'], $_SESSION['error']);
                     <i data-lucide="calendar-days"></i>
                     Page Management
                 </a>
-                <a href="" class="cms-nav-link">
+                <a href="/cms/tickets" class="cms-nav-link<?= $isTickets ? ' is-active' : '' ?>">
                     <i data-lucide="ticket"></i>
                     Ticket Management
                 </a>

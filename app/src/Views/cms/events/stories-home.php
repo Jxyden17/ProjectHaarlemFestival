@@ -62,20 +62,24 @@ $renderHiddenItemFields = static function (string $prefix, StoriesItemRowViewMod
 ?>
 
 <div class="container-lg py-4 py-md-5">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <div>
-            <h1 class="h3 mb-1"><?= htmlspecialchars($contentViewModel->editorTitle) ?></h1>
-            <p class="text-muted mb-0">Public page: <a href="<?= htmlspecialchars($contentViewModel->publicPath) ?>" target="_blank" rel="noreferrer"><?= htmlspecialchars($contentViewModel->publicPath) ?></a></p>
+    <section class="cms-page-hero mb-3">
+        <div class="d-flex flex-wrap align-items-start justify-content-between gap-3">
+            <div>
+                <h1 class="cms-page-hero__title"><?= htmlspecialchars($contentViewModel->editorTitle) ?></h1>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <a href="/cms/events" class="btn btn-outline-secondary">Back to Events</a>
+                <a href="<?= htmlspecialchars($contentViewModel->publicPath) ?>" class="btn btn-primary" target="_blank" rel="noreferrer">Open Public Page</a>
+            </div>
         </div>
-        <a href="/cms/events" class="btn btn-outline-secondary">Back to Events</a>
-    </div>
+    </section>
 
     <?php
     $successMessage = 'Stories home content updated.';
     include __DIR__ . '/../../partialsViews/cms/form-feedback.php';
     ?>
 
-    <form method="POST" action="/cms/events/stories-home" class="card border-0 shadow-sm" data-stories-page-slug="<?= htmlspecialchars($pageSlug) ?>">
+    <form method="POST" action="/cms/events/stories-home" class="card border-0 shadow-sm cms-editor-form cms-stories-editor" data-stories-page-slug="<?= htmlspecialchars($pageSlug) ?>">
         <div class="card-body p-4">
             <div class="accordion cms-editor-accordion" id="storiesHomeAccordion">
                 <div class="accordion-item">
@@ -87,11 +91,8 @@ $renderHiddenItemFields = static function (string $prefix, StoriesItemRowViewMod
                     <div id="stories-hero-panel" class="accordion-collapse collapse show" data-bs-parent="#storiesHomeAccordion">
                         <div class="accordion-body">
                             <div class="border rounded-3 p-3 cms-editor-field-card mb-3">
-                                <label for="hero_title" class="form-label">Title</label>
-                                <input type="hidden" name="sections[hero][title]" value="<?= htmlspecialchars($hero?->title ?? '') ?>">
-                                <div id="hero_title" class="cms-readonly-title">
-                                    <?= htmlspecialchars($hero?->title ?? '') ?>
-                                </div>
+                                <label for="hero_title" class="form-label">Page Title</label>
+                                <textarea id="hero_title" name="sections[hero][title]" class="form-control" rows="2"><?= htmlspecialchars($hero?->title ?? '') ?></textarea>
                                 <input type="hidden" name="sections[hero][subtitle]" value="<?= htmlspecialchars($hero?->subTitle ?? '') ?>">
                                 <input type="hidden" name="sections[hero][description]" value="<?= htmlspecialchars($hero?->description ?? '') ?>">
                             </div>

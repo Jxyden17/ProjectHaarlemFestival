@@ -55,7 +55,7 @@ class PaymentService implements IPaymentService
         throw new \RuntimeException('Unsupported payment driver: ' . $this->paymentDriver);
     }
 
-    public function handleReturn(int $orderId): array
+    public function handleReturn(int $orderId, string $sessionId = ''): array
     {
         if ($orderId <= 0) {
             throw new \RuntimeException('Missing order identifier.');
@@ -67,11 +67,28 @@ class PaymentService implements IPaymentService
         }
 
         $providerPaymentId = trim((string) ($paymentRecord['provider_payment_id'] ?? ''));
-        if ($providerPaymentId === '') {
+        $resolvedSessionId = trim($sessionId) !== '' ? trim($sessionId) : $providerPaymentId;
+
+        if ($resolvedSessionId === '') {
             throw new \RuntimeException('Payment provider reference is missing for this order.');
         }
 
-        $status = (string) ($paymentRecord['status'] ?? 'unknown');
+        $status = strtolower(trim((string) ($paymentRecord['status'] ?? 'unknown')));
+
+        if ($this->paymentDriver === 'stripe' && $this->stripeSecretKey !== '') {
+            $session = $this->fetchStripeCheckoutSession($resolvedSessionId);
+            $liveStatus = $this->mapStripeStatus($session);
+
+            if ($liveStatus === 'paid' && $status !== 'paid') {
+                $cartId = (int) ($paymentRecord['cart_id'] ?? 0);
+                $this->ticketService->fulfillPaidOrder($orderId, $cartId);
+                $status = 'paid';
+            } elseif ($liveStatus !== '' && $liveStatus !== $status && $status !== 'paid') {
+                $this->paymentRepository->updatePaymentStatusByOrderId($orderId, $liveStatus);
+                $this->paymentRepository->updateOrderStatus($orderId, $liveStatus);
+                $status = $liveStatus;
+            }
+        }
 
         return [
             'status' => $status,
@@ -120,8 +137,6 @@ class PaymentService implements IPaymentService
             $this->processStripeWebhook($payload, $signature);
             return;
         }
-
-        throw new \RuntimeException('Webhook handling is not configured for the selected payment driver.');
     }
 
     public function getPaymentStatus(string $providerPaymentId): string
@@ -136,10 +151,6 @@ class PaymentService implements IPaymentService
 
     private function createStripeCheckoutSession(int $orderId, int $cartId): string
     {
-        if ($this->stripeSecretKey === '') {
-            throw new \RuntimeException('Stripe secret key is missing. Configure STRIPE_SECRET_KEY in the environment.');
-        }
-
         $order = $this->paymentRepository->findOrderById($orderId);
         if ($order === null) {
             throw new \RuntimeException('Order not found.');
@@ -184,10 +195,6 @@ class PaymentService implements IPaymentService
 
     private function fetchStripeCheckoutSession(string $sessionId): array
     {
-        if ($this->stripeSecretKey === '') {
-            throw new \RuntimeException('Stripe secret key is missing. Configure STRIPE_SECRET_KEY in the environment.');
-        }
-
         return $this->sendStripeRequest('GET', '/v1/checkout/sessions/' . rawurlencode($sessionId));
     }
 
