@@ -51,6 +51,7 @@ class ScheduleRepository implements IScheduleRepository
                     s.price,
                     s.available_spots,
                     s.amount_sold,
+                    s.is_pass,
                     v.id AS venue_id_ref,
                     v.venue_name,
                     v.address,
@@ -96,6 +97,7 @@ class ScheduleRepository implements IScheduleRepository
                     s.price,
                     s.available_spots,
                     s.amount_sold,
+                    s.is_pass,
                     v.id AS venue_id_ref,
                     v.venue_name,
                     v.address,
@@ -145,7 +147,7 @@ class ScheduleRepository implements IScheduleRepository
         }
 
         $stmt = $this->db->prepare(
-            'SELECT id, event_id, venue_id, date, start_time, language_id, label, price, available_spots, amount_sold
+            'SELECT id, event_id, venue_id, date, start_time, language_id, label, price, available_spots, amount_sold, is_pass
              FROM sessions
              WHERE id = :id
              LIMIT 1'
@@ -164,7 +166,7 @@ class ScheduleRepository implements IScheduleRepository
     public function getSessionsByEventId(int $eventId): array
     {
         $stmt = $this->db->prepare(
-            'SELECT id, event_id, venue_id, date, start_time, language_id, label, price, available_spots, amount_sold
+            'SELECT id, event_id, venue_id, date, start_time, language_id, label, price, available_spots, amount_sold, is_pass
              FROM sessions
              WHERE event_id = :event_id
              ORDER BY date ASC, start_time ASC'
@@ -395,7 +397,7 @@ class ScheduleRepository implements IScheduleRepository
             WHERE id = :id'
         );
 
-        return $stmt->execute([
+        $updated = $stmt->execute([
             ':id' => $id,
             ':event_id' => $eventId,
             ':venue_id' => $venueId,
@@ -406,6 +408,14 @@ class ScheduleRepository implements IScheduleRepository
             ':language' => $language ?? 1,
             ':price' => $price ?? -1,
         ]);
+
+        if (!$updated) {
+            return false;
+        }
+
+        $this->replaceSchedulePerformers($id, $performerIds);
+
+        return true;
     }
 
     // Creates one schedule row and links selected performers so the standalone CMS schedule editor can add sessions.

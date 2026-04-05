@@ -4,7 +4,7 @@ $sortOrder = ($order ?? 'asc') === 'asc' ? 'desc' : 'asc';
 $searchValue = htmlspecialchars((string)($searchQuery ?? ''));
 $searchQueryString = trim((string)($searchQuery ?? '')) !== '' ? '&search=' . urlencode((string)$searchQuery) : '';
 ?>
-<div class="container-lg py-4 py-md-5">
+<div class="container-lg py-4 py-md-5 cms-users-page">
     <div class="vstack gap-3">
         <section class="cms-page-hero">
             <div class="d-flex flex-wrap align-items-start justify-content-between gap-3">
@@ -43,45 +43,57 @@ $searchQueryString = trim((string)($searchQuery ?? '')) !== '' ? '&search=' . ur
         <div class="card border-0 shadow-sm">
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-striped table-hover align-middle">
+                    <table class="table table-striped table-hover align-middle cms-users-table">
                         <thead>
                             <tr>
-                                <th>#</th>
-                                <th>
+                                <th class="cms-users-table__number">#</th>
+                                <th>Name</th>
+                                <th class="cms-users-table__nowrap">
                                     <a href="/cms/users?sort=email&order=<?= $sortOrder . $searchQueryString ?>" class="d-inline-flex align-items-center gap-2">
                                         <span>Email</span>
                                         <i data-lucide="arrow-up-down"></i>
                                     </a>
                                 </th>
-                                <th>
+                                <th class="cms-users-table__nowrap">Phone number</th>
+                                <th>Country</th>
+                                <th>City</th>
+                                <th>Address</th>
+                                <th class="cms-users-table__nowrap">Postcode</th>
+                                <th class="cms-users-table__nowrap">
                                     <a href="/cms/users?sort=role_id&order=<?= $sortOrder . $searchQueryString ?>" class="d-inline-flex align-items-center gap-2">
                                         <span>Role</span>
                                         <i data-lucide="arrow-up-down"></i>
                                     </a>
                                 </th>
-                                <th>
+                                <th class="cms-users-table__nowrap">
                                     <a href="/cms/users?sort=created_at&order=<?= $sortOrder . $searchQueryString ?>" class="d-inline-flex align-items-center gap-2">
                                         <span>Created</span>
                                         <i data-lucide="arrow-up-down"></i>
                                     </a>
                                 </th>
-                                <th>Actions</th>
+                                <th class="cms-users-table__nowrap">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php if ($userRows === []): ?>
                                 <tr>
-                                    <td colspan="5" class="cms-empty-state">No users matched the current query.</td>
+                                    <td colspan="11" class="cms-empty-state">No users matched the current query.</td>
                                 </tr>
                             <?php else: ?>
                                 <?php $counter = 1; ?>
                                 <?php foreach ($userRows as $user): ?>
                                     <tr>
-                                        <td><?= $counter++ ?></td>
-                                        <td><?= htmlspecialchars($user->email) ?></td>
-                                        <td><?= htmlspecialchars($user->userRole->label()) ?></td>
-                                        <td><?= htmlspecialchars((string)$user->createdAt) ?></td>
-                                        <td>
+                                        <td class="cms-users-table__number"><?= $counter++ ?></td>
+                                        <td><?= htmlspecialchars($user->name) ?></td>
+                                        <td class="cms-users-table__nowrap"><?= htmlspecialchars($user->email) ?></td>
+                                        <td class="cms-users-table__nowrap"><?= htmlspecialchars($user->phoneNumber) ?></td>
+                                        <td><?= htmlspecialchars($user->country) ?></td>
+                                        <td><?= htmlspecialchars($user->city) ?></td>
+                                        <td><?= htmlspecialchars($user->addres) ?></td>
+                                        <td class="cms-users-table__nowrap"><?= htmlspecialchars($user->postcode) ?></td>
+                                        <td class="cms-users-table__nowrap"><?= htmlspecialchars($user->userRole->label()) ?></td>
+                                        <td class="cms-users-table__nowrap"><?= htmlspecialchars((string)$user->createdAt) ?></td>
+                                        <td class="cms-users-table__nowrap">
                                             <div class="cms-table-actions">
                                                 <a href="/cms/users/edit?id=<?= (int)$user->id ?>" class="btn btn-sm btn-outline-primary">Edit</a>
                                                 <a href="/cms/users/delete?id=<?= (int)$user->id ?>" class="btn btn-sm btn-outline-danger">Delete</a>

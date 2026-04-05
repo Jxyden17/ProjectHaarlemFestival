@@ -113,6 +113,16 @@ class ImageUploadService extends MediaService implements IImageUploadService
             );
         }
 
+        if (preg_match('/^home_image:(hero|discover_events)$/', $module, $matches) === 1) {
+            return new MediaModuleConfig(
+                ['/img/homeIMG/'],
+                'Home',
+                $matches[1],
+                null,
+                MediaModuleConfig::MATCH_BY_SECTION
+            );
+        }
+
         return null;
     }
 

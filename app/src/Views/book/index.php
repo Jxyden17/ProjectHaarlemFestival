@@ -12,7 +12,10 @@ $eventLabel = match (strtolower(str_replace(' ', '', $eventNameRaw))) {
 };
 
 $performerNames = trim((string) ($session['performer_names'] ?? ''));
-$sessionTitle = $performerNames !== '' ? $performerNames : ('Session #' . (int) ($session['id'] ?? 0));
+$sessionLabel = trim((string) ($session['label'] ?? ''));
+$sessionTitle = $performerNames !== ''
+    ? $performerNames
+    : ($sessionLabel !== '' ? $sessionLabel : ('Session #' . (int) ($session['id'] ?? 0)));
 $venueName = (string) ($session['venue_name'] ?? 'Unknown venue');
 $dateLabel = '';
 
@@ -25,7 +28,7 @@ if (trim((string) ($session['date'] ?? '')) !== '') {
 }
 
 $timeLabel = substr((string) ($session['start_time'] ?? ''), 0, 5);
-$languageLabel = trim((string) ($session['label'] ?? ''));
+$languageLabel = preg_match('/^\+?\d{1,2}$/', $sessionLabel) === 1 ? $sessionLabel : '';
 $pricingType = (string) ($session['pricing_type'] ?? 'fixed');
 $minimumPrice = isset($session['minimum_price']) ? (float) $session['minimum_price'] : 5.0;
 $fixedPrice = isset($session['price']) ? (float) $session['price'] : 0.0;

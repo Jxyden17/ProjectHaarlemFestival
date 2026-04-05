@@ -43,7 +43,8 @@ class ScheduleMapper
             isset($row['label']) ? (string) $row['label'] : null,
             (float) $row['price'],
             (int) $row['available_spots'],
-            (int) $row['amount_sold']
+            (int) $row['amount_sold'],
+            !empty($row['is_pass'])
         );
     }
 
@@ -111,6 +112,7 @@ class ScheduleMapper
                     (float) ($row['price'] ?? 0),
                     (int) ($row['available_spots'] ?? 0),
                     (int) ($row['amount_sold'] ?? 0),
+                    !empty($row['is_pass']),
                     $event,
                     $venue
                 );
