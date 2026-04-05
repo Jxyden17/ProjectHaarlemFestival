@@ -12,13 +12,15 @@ class DanceIndexData
     public array $performers;
     public array $detailPages;
     public array $venues;
+    public array $passSessions;
 
-    public function __construct(Page $homePage, ScheduleData $schedule, array $performers, array $detailPages, array $venues)
+    public function __construct(Page $homePage, ScheduleData $schedule, array $performers, array $detailPages, array $venues, array $passSessions = [])
     {
         $this->homePage = $homePage;
         $this->schedule = $schedule;
         $this->performers = $performers;
         $this->detailPages = $detailPages;
         $this->venues = $venues;
+        $this->passSessions = $passSessions;
     }
 }

@@ -114,11 +114,7 @@ class UserRepository implements IUserRepository
 
     public function updateUser(UserModel $user): UserModel
     {
-        $stmt = $this->db->prepare(
-            "UPDATE users SET name = :name, email = :email, phone_number = :phone_number, country = :country, city = :city, addres = :addres, postcode = :postcode, password = :password, role_id = :role_id WHERE id = :id"
-        );
-
-        $stmt->execute([
+        $params = [
             ':name'=> $user->name,
             ':email' => $user->email,
             ':phone_number' => $user->phoneNumber,
@@ -126,10 +122,22 @@ class UserRepository implements IUserRepository
             ':city' => $user->city,
             ':addres' => $user->addres,
             ':postcode' => $user->postcode,
-            ':password' => password_hash($user->password, PASSWORD_DEFAULT),
             ':role_id' => $user->userRole->value,
             ':id'=> $user->id
-        ]);
+        ];
+
+        if ($user->password !== '') {
+            $stmt = $this->db->prepare(
+                "UPDATE users SET name = :name, email = :email, phone_number = :phone_number, country = :country, city = :city, addres = :addres, postcode = :postcode, password = :password, role_id = :role_id WHERE id = :id"
+            );
+            $params[':password'] = password_hash($user->password, PASSWORD_DEFAULT);
+        } else {
+            $stmt = $this->db->prepare(
+                "UPDATE users SET name = :name, email = :email, phone_number = :phone_number, country = :country, city = :city, addres = :addres, postcode = :postcode, role_id = :role_id WHERE id = :id"
+            );
+        }
+
+        $stmt->execute($params);
 
         return $this->findById($user->id);
     }

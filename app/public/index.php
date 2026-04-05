@@ -325,9 +325,6 @@ try {
             break;
     }
 } catch (\Throwable $e) {
-    if ($showDebug) {
-        var_dump($e);
-    }
     $debugError = $e->getMessage();
     $renderErrorPage(
         503,

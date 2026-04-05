@@ -11,7 +11,7 @@ if (!$section instanceof Section) {
         <h2 class="faq-title"><?= htmlspecialchars($section->title ?? 'Frequently Asked Questions') ?></h2>
 
         <div class="faq-list">
-            <?php foreach ($section->getItemsByCategorie('faq_item') as $item): ?>
+            <?php foreach ($section->getItemsByCategorie('faq') as $item): ?>
                 <details class="faq-item">
                     <summary class="faq-question"><?= htmlspecialchars($item->title) ?></summary>
                     <div class="faq-answer"><?= htmlspecialchars($item->content) ?></div>

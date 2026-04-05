@@ -65,6 +65,7 @@
             sectionItemId = 0,
             currentPath = '',
             extraFields = null,
+            missingFileMessage = typeConfig.missingFileMessage,
             missingSectionItemMessage = 'Missing media row. Please refresh the page and try again.',
             missingModuleMessage = 'Missing media upload module.',
         } = options;

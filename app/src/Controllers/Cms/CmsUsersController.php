@@ -41,7 +41,19 @@ class CmsUsersController extends BaseController
     {
         $this->requireAdmin();
         try {
-           $user=new UserModel(null,null,$_POST['email'] ?? '',  $_POST['password'] ?? '',null,null,null,null, null, $_POST['role_id'] ?? 3, null);
+           $user = new UserModel(
+                0,
+                trim((string)($_POST['name'] ?? '')),
+                trim((string)($_POST['email'] ?? '')),
+                (string)($_POST['password'] ?? ''),
+                trim((string)($_POST['phoneNumber'] ?? '')),
+                trim((string)($_POST['country'] ?? '')),
+                trim((string)($_POST['city'] ?? '')),
+                trim((string)($_POST['addres'] ?? '')),
+                trim((string)($_POST['postcode'] ?? '')),
+                (int)($_POST['role_id'] ?? 3),
+                ''
+            );
    
             $this->cmsService->addUser($user);
             header('Location: /cms/users');
@@ -106,7 +118,19 @@ class CmsUsersController extends BaseController
     private function editUser(): void
     {
         try {
-            $user=new UserModel((int)($_POST['id'] ?? 0), $_POST['name'],$_POST['email'] ?? '',  $_POST['password'] ?? '',$_POST['phoneNumber'], $_POST['country'],$_POST['city'],$_POST['addres'],$_POST['postcode'],  $_POST['role_id'] ?? 3, "");
+            $user = new UserModel(
+                (int)($_POST['id'] ?? 0),
+                trim((string)($_POST['name'] ?? '')),
+                trim((string)($_POST['email'] ?? '')),
+                (string)($_POST['password'] ?? ''),
+                trim((string)($_POST['phoneNumber'] ?? '')),
+                trim((string)($_POST['country'] ?? '')),
+                trim((string)($_POST['city'] ?? '')),
+                trim((string)($_POST['addres'] ?? '')),
+                trim((string)($_POST['postcode'] ?? '')),
+                (int)($_POST['role_id'] ?? 3),
+                ''
+            );
    
             $this->cmsService->updateUser($user);
             header('Location: /cms/users');

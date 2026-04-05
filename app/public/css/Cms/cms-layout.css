@@ -46,6 +46,10 @@ a {
     max-width: 1240px;
 }
 
+.cms-content .cms-users-page.container-lg {
+    max-width: 1480px;
+}
+
 .cms-sidebar {
     padding: 1.25rem 1rem;
     border-right: 1px solid rgba(255, 255, 255, 0.06);
@@ -593,6 +597,34 @@ a {
     padding: 2rem 1.25rem;
     color: var(--cms-muted);
     text-align: center;
+}
+
+.cms-users-table {
+    min-width: 84rem;
+}
+
+.cms-users-page .cms-users-table > :not(caption) > * > * {
+    padding: 0.8rem 0.9rem;
+}
+
+.cms-users-page .cms-users-table thead th {
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+}
+
+.cms-users-page .cms-users-table tbody td,
+.cms-users-page .cms-users-table tbody td a {
+    font-size: 0.95rem;
+}
+
+.cms-users-table__number {
+    width: 1%;
+    white-space: nowrap;
+}
+
+.cms-users-table__nowrap,
+.cms-users-table__nowrap a {
+    white-space: nowrap;
 }
 
 .cms-content .form-label {
