@@ -1,26 +1,11 @@
 <?php
 $paymentResult = is_array($paymentResult ?? null) ? $paymentResult : [];
+$paymentView = is_array($paymentView ?? null) ? $paymentView : [];
 $status = (string) ($paymentResult['status'] ?? 'unknown');
 $orderId = (int) ($paymentResult['orderId'] ?? 0);
-$isPaid = (bool) ($paymentResult['isPaid'] ?? false);
-
-$title = 'Payment Status';
-$message = 'Your payment is currently marked as ' . $status . '.';
-$eyebrow = 'Payment update';
-
-if ($isPaid) {
-    $title = 'Payment Successful';
-    $message = 'Your payment has been confirmed successfully.';
-    $eyebrow = 'Order confirmed';
-} elseif ($status === 'cancelled') {
-    $title = 'Payment Cancelled';
-    $message = 'You left the payment page before completing the payment.';
-    $eyebrow = 'Payment update';
-} elseif ($status === 'processing' || $status === 'pending') {
-    $title = 'Payment Pending';
-    $message = 'Your payment is still being processed. Please check again shortly.';
-    $eyebrow = 'Payment in progress';
-}
+$title = (string) ($paymentView['title'] ?? 'Payment Status');
+$message = (string) ($paymentView['message'] ?? ('Your payment is currently marked as ' . $status . '.'));
+$eyebrow = (string) ($paymentView['eyebrow'] ?? 'Payment update');
 ?>
 
 <div class="container-fluid px-0 checkout-page payment-result-page">

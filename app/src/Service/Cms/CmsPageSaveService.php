@@ -63,6 +63,10 @@ class CmsPageSaveService implements ICmsPageSaveService
                 continue;
             }
 
+            if ($sectionType === 'page_title') {
+                continue;
+            }
+
             $sectionItems = is_array($items[$sectionType] ?? null) ? $items[$sectionType] : [];
             $normalizedSections[] = [
                 'type' => (string) $sectionType,

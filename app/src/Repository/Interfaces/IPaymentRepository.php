@@ -23,4 +23,8 @@ interface IPaymentRepository
     public function markOrderAsPaid(int $orderId): void;
 
     public function markCartAsPaid(int $cartId): void;
+
+    public function acquireFulfillmentLock(int $orderId, int $timeoutSeconds = 10): bool;
+
+    public function releaseFulfillmentLock(int $orderId): void;
 }
