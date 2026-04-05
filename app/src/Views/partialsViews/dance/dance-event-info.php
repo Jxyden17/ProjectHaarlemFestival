@@ -36,15 +36,23 @@ $sectionClass = is_string($danceEventInfoClass ?? null) ? trim((string)$danceEve
                     <?php
                     $label = trim((string)($pass['label'] ?? ''));
                     $price = trim((string)($pass['price'] ?? ''));
+                    $bookUrl = trim((string)($pass['bookUrl'] ?? ''));
                     if ($label === '' || $price === '') {
                         continue;
                     }
                     $rowClass = !empty($pass['highlight']) ? 'dance-pass-row dance-pass-row-highlight' : 'dance-pass-row';
                     ?>
-                    <div class="<?= htmlspecialchars($rowClass) ?>">
-                        <span><?= htmlspecialchars($label) ?></span>
-                        <strong><?= htmlspecialchars($price) ?></strong>
-                    </div>
+                    <?php if ($bookUrl !== ''): ?>
+                        <a class="<?= htmlspecialchars($rowClass) ?> dance-pass-row-link" href="<?= htmlspecialchars($bookUrl) ?>">
+                            <span><?= htmlspecialchars($label) ?></span>
+                            <strong><?= htmlspecialchars($price) ?></strong>
+                        </a>
+                    <?php else: ?>
+                        <div class="<?= htmlspecialchars($rowClass) ?>">
+                            <span><?= htmlspecialchars($label) ?></span>
+                            <strong><?= htmlspecialchars($price) ?></strong>
+                        </div>
+                    <?php endif; ?>
                 <?php endforeach; ?>
             </article>
 

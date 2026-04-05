@@ -247,6 +247,20 @@
     border-bottom: 0;
 }
 
+.dance-pass-row-link {
+    text-decoration: none;
+    transition: color 180ms ease, background-color 180ms ease, transform 180ms ease;
+    border-radius: 0.35rem;
+}
+
+.dance-pass-row-link:hover,
+.dance-pass-row-link:focus-visible {
+    color: var(--natural-light);
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateX(0.12rem);
+    outline: none;
+}
+
 .dance-pass-row strong {
     font-size: 0.95rem;
 }

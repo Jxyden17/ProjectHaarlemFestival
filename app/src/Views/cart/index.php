@@ -89,7 +89,8 @@ $subtotal = (float) ($subtotal ?? 0);
 
                                     $itemTitle = trim((string) ($item['performer_names'] ?? ''));
                                     if ($itemTitle === '') {
-                                        $itemTitle = 'Session #' . (int) ($item['session_id'] ?? 0);
+                                        $sessionLabel = trim((string) ($item['label'] ?? ''));
+                                        $itemTitle = $sessionLabel !== '' ? $sessionLabel : ('Session #' . (int) ($item['session_id'] ?? 0));
                                     }
 
                                     $venueName = (string) ($item['venue_name'] ?? 'Unknown venue');

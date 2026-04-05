@@ -6,6 +6,7 @@ use App\Models\Dance\DanceDetailData;
 use App\Models\Dance\DanceIndexData;
 use App\Models\Event\EventDetailPageModel;
 use App\Models\Event\PerformerModel;
+use App\Models\Event\SessionModel;
 use App\Models\Page\Section;
 use App\Models\Page\SectionItem;
 use App\Models\ViewModels\Dance\DanceDetailViewModel;
@@ -57,7 +58,7 @@ class DanceViewModelMapper
             $infoSection?->title,
             $infoSection?->description,
             $passesSection?->title,
-            $this->buildPasses($passesSection),
+            $this->buildPasses($indexData->passSessions),
             $capacitySection?->title,
             $capacitySection?->description,
             $specialSection?->title,
@@ -94,14 +95,18 @@ class DanceViewModelMapper
         );
     }
 
-    // Builds the public pass cards so dance home pricing rows only include complete label and price pairs.
-    private function buildPasses(?Section $passesSection): array
+    // Builds the public pass rows from dance pass sessions so the homepage uses the same source as booking.
+    private function buildPasses(array $passSessions): array
     {
         $passes = [];
 
-        foreach ($this->getSectionItemsByCategory($passesSection, self::ITEM_CATEGORY_PASS) as $item) {
-            $label = trim($item->title);
-            $price = trim((string)($item->content ?? ''));
+        foreach ($passSessions as $session) {
+            if (!$session instanceof SessionModel) {
+                continue;
+            }
+
+            $label = trim((string)($session->label ?? ''));
+            $price = 'EUR ' . number_format($session->price, 2, ',', '.');
             if ($label === '' || $price === '') {
                 continue;
             }
@@ -109,7 +114,8 @@ class DanceViewModelMapper
             $passes[] = [
                 'label' => $label,
                 'price' => $price,
-                'highlight' => (string)($item->url ?? '') === 'highlight',
+                'highlight' => false,
+                'bookUrl' => '/book/' . $session->id,
             ];
         }
 

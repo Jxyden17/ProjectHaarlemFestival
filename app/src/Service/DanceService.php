@@ -6,6 +6,8 @@ use App\Models\Dance\DanceDetailData;
 use App\Models\Dance\DanceIndexData;
 use App\Models\Event\EventDetailPageModel;
 use App\Models\Event\EventModel;
+use App\Models\Event\SessionModel;
+use App\Models\Event\VenueModel;
 use App\Models\Page\Page;
 use App\Models\Schedule\ScheduleData;
 use App\Repository\Interfaces\IDanceRepository;
@@ -42,6 +44,7 @@ class DanceService implements IDanceService
                 new ScheduleData($scheduleTitle, self::DANCE_EVENT_NAME, [], false),
                 [],
                 [],
+                [],
                 []
             );
         }
@@ -51,7 +54,13 @@ class DanceService implements IDanceService
             ? $resources['schedule']
             : new ScheduleData($scheduleTitle, self::DANCE_EVENT_NAME, [], false);
         $performers = is_array($resources['performers'] ?? null) ? $resources['performers'] : [];
-        $venues = is_array($resources['venues'] ?? null) ? $resources['venues'] : [];
+        $passSessions = $this->filterPassSessions($schedule->sessions);
+        $nonPassSessions = $this->filterNonPassSessions($schedule->sessions);
+        $schedule = new ScheduleData($schedule->title, $schedule->eventName, $nonPassSessions, $schedule->includeEventFilters);
+        $venues = $this->filterVenuesBySessions(
+            is_array($resources['venues'] ?? null) ? $resources['venues'] : [],
+            $nonPassSessions
+        );
         $detailPages = $event instanceof EventModel
             ? $this->danceRepository->getDetailPagesByEventId($event->id)
             : [];
@@ -61,7 +70,8 @@ class DanceService implements IDanceService
             $schedule,
             $performers,
             $detailPages,
-            $venues
+            $venues,
+            $passSessions
         );
     }
 
@@ -133,5 +143,42 @@ class DanceService implements IDanceService
         }
 
         return $scheduleTitle;
+    }
+
+    // Removes synthetic pass sessions from the public dance schedule so only actual performance slots are shown.
+    private function filterNonPassSessions(array $sessions): array
+    {
+        return array_values(array_filter(
+            $sessions,
+            static fn($session): bool => $session instanceof SessionModel && !$session->isPass
+        ));
+    }
+
+    // Extracts dance pass sessions so the pass card can be built from the same session source used for booking.
+    private function filterPassSessions(array $sessions): array
+    {
+        return array_values(array_filter(
+            $sessions,
+            static fn($session): bool => $session instanceof SessionModel && $session->isPass
+        ));
+    }
+
+    // Keeps only venues that still host at least one non-pass dance session so pass-only venues stay hidden on the homepage.
+    private function filterVenuesBySessions(array $venues, array $sessions): array
+    {
+        $venueIds = [];
+
+        foreach ($sessions as $session) {
+            if (!$session instanceof SessionModel) {
+                continue;
+            }
+
+            $venueIds[$session->venueId] = true;
+        }
+
+        return array_values(array_filter(
+            $venues,
+            static fn($venue): bool => $venue instanceof VenueModel && isset($venueIds[$venue->id])
+        ));
     }
 }
