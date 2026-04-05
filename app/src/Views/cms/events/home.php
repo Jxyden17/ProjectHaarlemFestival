@@ -18,9 +18,10 @@
             <input type="hidden" name="sections[hero][subtitle]" value="<?= htmlspecialchars($hero?->subTitle ?? '') ?>">
             <input type="hidden" name="sections[hero][description]" value="<?= htmlspecialchars($hero?->description ?? '') ?>">
             <?php foreach ($hero->items ?? [] as $index => $item): ?>
-                <div class="mb-3">
-                    <input type="hidden" name="items[hero][<?= (int)$index ?>][id]" value="<?= (int)$item->id ?>">
-                    <input type="hidden" name="items[hero][<?= (int)$index ?>][item_category]" value="<?= htmlspecialchars($item->item_category) ?>">
+                <div class="mb-3" data-home-upload-row="1" data-home-section-type="hero">
+                    <input type="hidden" name="items[hero][<?= (int)$index ?>][id]" class="home-item-id" value="<?= (int)$item->id ?>">
+                    <input type="hidden" name="items[hero][<?= (int)$index ?>][item_category]" value="<?= htmlspecialchars($item->category ?? '') ?>">
+                    <input type="hidden" name="items[hero][<?= (int)$index ?>][image_path]" class="home-image-path" value="<?= htmlspecialchars($item->image ?? '') ?>">
                     <label class="form-label">Foto</label>
                     <input type="file" class="form-control form-control-sm performer-upload-input" accept="image/jpeg,image/png,image/webp">
                     <button type="button" class="btn btn-sm btn-outline-primary upload-performer-image">Upload</button>
@@ -56,8 +57,11 @@
             <label class="form-label">Section Title</label>
             <input type="text" name="sections[discover_events][title]" class="form-control mb-2" value="<?= htmlspecialchars($discover?->title ?? '') ?>">
             <?php foreach ($discover?->items ?? [] as $index => $item): ?>
-                <div class="mb-3">
-                    <input type="hidden" name="items[discover_events][<?= (int)$index ?>][id]" value="<?= (int)$item->id ?>">
+                <div class="mb-3" data-home-upload-row="1" data-home-section-type="discover_events">
+                    <input type="hidden" name="items[discover_events][<?= (int)$index ?>][id]" class="home-item-id" value="<?= (int)$item->id ?>">
+                    <input type="hidden" name="items[discover_events][<?= (int)$index ?>][item_category]" value="<?= htmlspecialchars($item->category ?? '') ?>">
+                    <input type="hidden" name="items[discover_events][<?= (int)$index ?>][image_path]" class="home-image-path" value="<?= htmlspecialchars($item->image ?? '') ?>">
+                    <input type="hidden" name="items[discover_events][<?= (int)$index ?>][link_url]" value="<?= htmlspecialchars($item->url ?? '') ?>">
                     <label class="form-label">Foto</label>
                     <input type="file" class="form-control form-control-sm performer-upload-input" accept="image/jpeg,image/png,image/webp">
                     <button type="button" class="btn btn-sm btn-outline-primary upload-performer-image">Upload</button>
@@ -88,6 +92,7 @@
             <?php foreach ($faq?->items ?? [] as $index => $item): ?>
                 <div class="mb-3">
                     <input type="hidden" name="items[faq][<?= (int)$index ?>][id]" value="<?= (int)$item->id ?>">
+                    <input type="hidden" name="items[faq][<?= (int)$index ?>][item_category]" value="<?= htmlspecialchars($item->category ?? 'faq') ?>">
                     <label class="form-label">Question</label>
                     <input type="text" name="items[faq][<?= (int)$index ?>][title]" class="form-control mb-2" value="<?= htmlspecialchars($item->title ?? '') ?>">
                     <label class="form-label">Answer</label>
@@ -100,6 +105,12 @@
     </form>
 </div>
 
+<?php include __DIR__ . '/../../partialsViews/cms/upload-feedback-modal.php'; ?>
+
+<script src="/js/cms/upload-feedback.js"></script>
+<script src="/js/cms/media-upload.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
 <?php $tourDetailsJsVersion = @filemtime(__DIR__ . '/../../../../public/js/cms/tour-details.js') ?: time(); ?>
 <script src="/js/cms/tour-details.js?v=<?= (int)$tourDetailsJsVersion ?>"></script>
+<?php $homeJsVersion = @filemtime(__DIR__ . '/../../../../public/js/cms/home.js') ?: time(); ?>
+<script src="/js/cms/home.js?v=<?= (int)$homeJsVersion ?>"></script>

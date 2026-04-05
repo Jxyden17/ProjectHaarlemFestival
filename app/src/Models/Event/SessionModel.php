@@ -16,6 +16,7 @@ class SessionModel
     public float $price;
     public int $availableSpots;
     public int $amountSold;
+    public bool $isPass;
     public ?EventModel $event;
     public ?VenueModel $venue;
     public array $sessionPerformers;
@@ -31,6 +32,7 @@ class SessionModel
         float $price,
         int $availableSpots,
         int $amountSold,
+        bool $isPass = false,
         ?EventModel $event = null,
         ?VenueModel $venue = null,
         array $sessionPerformers = []
@@ -45,6 +47,7 @@ class SessionModel
         $this->price = $price;
         $this->availableSpots = $availableSpots;
         $this->amountSold = $amountSold;
+        $this->isPass = $isPass;
         $this->event = $event;
         $this->venue = $venue;
         $this->sessionPerformers = $sessionPerformers;
