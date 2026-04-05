@@ -162,4 +162,30 @@ class PaymentRepository implements IPaymentRepository
             ':id' => $orderId,
         ]);
     }
+
+    public function acquireFulfillmentLock(int $orderId, int $timeoutSeconds = 10): bool
+    {
+        $stmt = $this->db->prepare('SELECT GET_LOCK(:lock_name, :timeout_seconds) AS lock_acquired');
+        $stmt->execute([
+            ':lock_name' => $this->buildFulfillmentLockName($orderId),
+            ':timeout_seconds' => max(1, $timeoutSeconds),
+        ]);
+
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return (int) ($result['lock_acquired'] ?? 0) === 1;
+    }
+
+    public function releaseFulfillmentLock(int $orderId): void
+    {
+        $stmt = $this->db->prepare('SELECT RELEASE_LOCK(:lock_name)');
+        $stmt->execute([
+            ':lock_name' => $this->buildFulfillmentLockName($orderId),
+        ]);
+    }
+
+    private function buildFulfillmentLockName(int $orderId): string
+    {
+        return 'ticket_fulfillment_order_' . $orderId;
+    }
 }

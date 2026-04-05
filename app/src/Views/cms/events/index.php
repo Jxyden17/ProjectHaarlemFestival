@@ -111,11 +111,10 @@ $detailPageCount = count($danceDetailPages) + count($storyDetailPages) + count($
                     <div class="card-body p-3">
                     <div class="mb-3">
                         <h2 class="h5 mb-2">Stories</h2>
-                        <p class="text-muted mb-0">Edit Stories home content, schedule content, and each story detail page from the same section.</p>
+                        <p class="text-muted mb-0">Edit Stories home content and each story detail page from the same section.</p>
                     </div>
                     <div class="d-flex flex-wrap gap-2 mb-3">
                         <a href="/cms/events/stories-home" class="btn btn-primary btn-sm">Edit Stories Home</a>
-                        <a href="/cms/events/stories/schedule" class="btn btn-outline-primary btn-sm">Edit Schedule</a>
                     </div>
                     <div class="border-top pt-3">
                         <div class="d-flex flex-wrap gap-2 mb-3">
