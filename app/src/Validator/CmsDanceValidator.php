@@ -72,6 +72,10 @@ class CmsDanceValidator
             throw new \InvalidArgumentException('At least one track is required.');
         }
 
+        if ($request->scheduleTitle() === '') {
+            throw new \InvalidArgumentException('Schedule title is required.');
+        }
+
         if ($request->importantInformationTitle() === '' || $importantInformationHtml === '') {
             throw new \InvalidArgumentException('Important information is required.');
         }

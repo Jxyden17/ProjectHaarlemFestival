@@ -22,6 +22,7 @@ class CmsDanceMapper
     private const SECTION_DETAIL_HERO = 'dance_detail_hero';
     private const SECTION_DETAIL_HIGHLIGHTS = 'dance_detail_highlights';
     private const SECTION_DETAIL_TRACKS = 'dance_detail_tracks';
+    private const SECTION_DETAIL_SCHEDULE = 'dance_detail_schedule';
     private const SECTION_DETAIL_INFO = 'dance_detail_info';
 
     private const ITEM_HIGHLIGHT_FLAG = 'highlight';
@@ -83,6 +84,13 @@ class CmsDanceMapper
                 $request->tracksNote(),
                 30,
                 $this->mapTrackRows($tracks)
+            ),
+            $this->createSectionPayload(
+                self::SECTION_DETAIL_SCHEDULE,
+                $request->scheduleTitle(),
+                null,
+                null,
+                35
             ),
             $this->createSectionPayload(
                 self::SECTION_DETAIL_INFO,
@@ -368,6 +376,7 @@ class CmsDanceMapper
             && $sectionType !== self::SECTION_CAPACITY
             && $sectionType !== self::SECTION_SPECIAL
             && $sectionType !== self::SECTION_DETAIL_HIGHLIGHTS
+            && $sectionType !== self::SECTION_DETAIL_SCHEDULE
             && $sectionType !== self::SECTION_DETAIL_INFO;
     }
 
@@ -377,6 +386,7 @@ class CmsDanceMapper
         return $sectionType !== self::SECTION_SCHEDULE
             && $sectionType !== self::SECTION_ARTISTS
             && $sectionType !== self::SECTION_PASSES
+            && $sectionType !== self::SECTION_DETAIL_SCHEDULE
             && $sectionType !== self::SECTION_DETAIL_HIGHLIGHTS;
     }
 }

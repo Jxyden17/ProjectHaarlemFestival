@@ -18,10 +18,11 @@ class DanceDetailEditViewModel
     public string $tracksTitle;
     public string $tracksNote;
     public array $tracks;
+    public string $scheduleTitle;
     public string $importantInformationTitle;
     public string $importantInformationHtml;
 
-    public function __construct(string $pageSlug, string $editorTitle, string $publicPath, string $pageTitle, string $performerName, string $heroTitle, string $heroBadge, string $heroSubtitle, array $heroImages, string $highlightsTitle, array $highlights, string $tracksTitle, string $tracksNote, array $tracks, string $importantInformationTitle, string $importantInformationHtml) {
+    public function __construct(string $pageSlug, string $editorTitle, string $publicPath, string $pageTitle, string $performerName, string $heroTitle, string $heroBadge, string $heroSubtitle, array $heroImages, string $highlightsTitle, array $highlights, string $tracksTitle, string $tracksNote, array $tracks, string $scheduleTitle, string $importantInformationTitle, string $importantInformationHtml) {
         $this->pageSlug = $pageSlug;
         $this->editorTitle = $editorTitle;
         $this->publicPath = $publicPath;
@@ -36,6 +37,7 @@ class DanceDetailEditViewModel
         $this->tracksTitle = $tracksTitle;
         $this->tracksNote = $tracksNote;
         $this->tracks = $tracks;
+        $this->scheduleTitle = $scheduleTitle;
         $this->importantInformationTitle = $importantInformationTitle;
         $this->importantInformationHtml = $importantInformationHtml;
     }

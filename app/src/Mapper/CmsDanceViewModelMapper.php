@@ -32,6 +32,7 @@ class CmsDanceViewModelMapper
     private const SECTION_DETAIL_HERO = 'dance_detail_hero';
     private const SECTION_DETAIL_HIGHLIGHTS = 'dance_detail_highlights';
     private const SECTION_DETAIL_TRACKS = 'dance_detail_tracks';
+    private const SECTION_DETAIL_SCHEDULE = 'dance_detail_schedule';
     private const SECTION_DETAIL_INFO = 'dance_detail_info';
     private const ITEM_CATEGORY_PASS = 'pass';
     private const ITEM_CATEGORY_HERO_IMAGE = 'hero_image';
@@ -98,6 +99,7 @@ class CmsDanceViewModelMapper
         $hero = $page->getSection(self::SECTION_DETAIL_HERO);
         $highlights = $page->getSection(self::SECTION_DETAIL_HIGHLIGHTS);
         $tracks = $page->getSection(self::SECTION_DETAIL_TRACKS);
+        $schedule = $page->getSection(self::SECTION_DETAIL_SCHEDULE);
         $info = $page->getSection(self::SECTION_DETAIL_INFO);
 
         return new DanceDetailEditViewModel(
@@ -115,6 +117,7 @@ class CmsDanceViewModelMapper
             $tracks !== null ? $tracks->title : '',
             $tracks !== null ? (string)$tracks->description : '',
             $this->mapTrackViewModels($tracks),
+            $schedule !== null ? $schedule->title : 'DANCE! Festival Schedule',
             $info !== null ? $info->title : '',
             $info !== null ? (string)$info->description : ''
         );
@@ -138,6 +141,7 @@ class CmsDanceViewModelMapper
             $request->tracksTitle(),
             $request->tracksNote(),
             $this->mapTrackRequestViewModels($request->tracks()),
+            $request->scheduleTitle(),
             $request->importantInformationTitle(),
             $request->importantInformationHtml()
         );

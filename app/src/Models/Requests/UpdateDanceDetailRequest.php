@@ -18,10 +18,11 @@ class UpdateDanceDetailRequest
     private string $tracksTitle;
     private string $tracksNote;
     private array $tracks;
+    private string $scheduleTitle;
     private string $importantInformationTitle;
     private string $importantInformationHtml;
 
-    private function __construct(string $pageTitle, string $heroTitle, string $heroBadge, string $heroSubtitle, array $heroImages, string $highlightsTitle, array $highlights, string $tracksTitle, string $tracksNote, array $tracks, string $importantInformationTitle, string $importantInformationHtml) {
+    private function __construct(string $pageTitle, string $heroTitle, string $heroBadge, string $heroSubtitle, array $heroImages, string $highlightsTitle, array $highlights, string $tracksTitle, string $tracksNote, array $tracks, string $scheduleTitle, string $importantInformationTitle, string $importantInformationHtml) {
         $this->pageTitle = $pageTitle;
         $this->heroTitle = $heroTitle;
         $this->heroBadge = $heroBadge;
@@ -32,6 +33,7 @@ class UpdateDanceDetailRequest
         $this->tracksTitle = $tracksTitle;
         $this->tracksNote = $tracksNote;
         $this->tracks = $tracks;
+        $this->scheduleTitle = $scheduleTitle;
         $this->importantInformationTitle = $importantInformationTitle;
         $this->importantInformationHtml = $importantInformationHtml;
     }
@@ -49,6 +51,7 @@ class UpdateDanceDetailRequest
             trim((string)($input['tracks_title'] ?? '')),
             trim((string)($input['tracks_note'] ?? '')),
             self::mapTracks(is_array($input['tracks'] ?? null) ? $input['tracks'] : []),
+            trim((string)($input['schedule_title'] ?? '')),
             trim((string)($input['important_information_title'] ?? '')),
             trim((string)($input['important_information_html'] ?? ''))
         );
@@ -101,6 +104,7 @@ class UpdateDanceDetailRequest
     public function tracksTitle(): string { return $this->tracksTitle; }
     public function tracksNote(): string { return $this->tracksNote; }
     public function tracks(): array { return $this->tracks; }
+    public function scheduleTitle(): string { return $this->scheduleTitle; }
     public function importantInformationTitle(): string { return $this->importantInformationTitle; }
     public function importantInformationHtml(): string { return $this->importantInformationHtml; }
 }
