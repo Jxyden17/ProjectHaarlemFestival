@@ -6,7 +6,7 @@ use App\Models\ViewModels\Cms\Dance\DanceDetailTrackRowViewModel;
 
 $contentViewModel = (isset($contentViewModel) && $contentViewModel instanceof DanceDetailEditViewModel)
     ? $contentViewModel
-    : new DanceDetailEditViewModel('', 'Dance Detail Content', '', '', '', '', '', '', [], '', [], '', '', [], '', '');
+    : new DanceDetailEditViewModel('', 'Dance Detail Content', '', '', '', '', '', '', [], '', [], '', '', [], 'DANCE! Festival Schedule', '', '');
 $pageSlug = trim((string)$contentViewModel->pageSlug);
 $encodedPageSlug = rawurlencode($pageSlug);
 $heroImages = $contentViewModel->heroImages;
@@ -228,6 +228,22 @@ $detailTrackAudioModule = $buildModuleName('dance_detail_track_audio');
                             <div class="mb-0">
                                 <label for="important_information_html" class="form-label">Content (HTML/Text)</label>
                                 <textarea id="important_information_html" name="important_information_html" class="form-control" data-quill="1" rows="6" required><?= htmlspecialchars($contentViewModel->importantInformationHtml) ?></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="dance-detail-schedule-heading">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#dance-detail-schedule-panel" aria-expanded="false" aria-controls="dance-detail-schedule-panel">
+                            Schedule
+                        </button>
+                    </h2>
+                    <div id="dance-detail-schedule-panel" class="accordion-collapse collapse" aria-labelledby="dance-detail-schedule-heading" data-bs-parent="#danceDetailAccordion">
+                        <div class="accordion-body p-4">
+                            <div class="mb-0">
+                                <label for="schedule_title" class="form-label">Schedule Title</label>
+                                <input type="text" id="schedule_title" name="schedule_title" class="form-control" value="<?= htmlspecialchars($contentViewModel->scheduleTitle) ?>" required>
                             </div>
                         </div>
                     </div>
