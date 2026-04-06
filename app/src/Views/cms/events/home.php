@@ -1,3 +1,4 @@
+
 <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
 
 <div class="container py-4">
@@ -38,8 +39,6 @@
                                     <input type="text" name="items[hero][<?= (int)$index ?>][title]" class="form-control mb-2" value="<?= htmlspecialchars($item->title ?? '') ?>">
                                     <label class="form-label">Date</label>
                                     <input type="text" name="items[hero][<?= (int)$index ?>][content]" class="form-control mb-2" value="<?= htmlspecialchars($item->content ?? '') ?>">
-                                    <label class="form-label">SubTitle</label>
-                                    <input type="text" name="items[hero][<?= (int)$index ?>][subTitle]" class="form-control mb-2" value="<?= htmlspecialchars($item->subTitle ?? '') ?>">
                                 </div>
                             <?php endforeach; ?>
                         </div>
