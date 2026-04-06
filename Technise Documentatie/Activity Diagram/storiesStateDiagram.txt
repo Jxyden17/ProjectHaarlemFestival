@@ -3,7 +3,6 @@
 This state diagram describes the lifecycle of a Stories booking from browsing a session through payment and ticket handling.
 
 ```mermaid
-stateDiagram-v2
     [*] --> BrowsingStories
 
     BrowsingStories --> SessionSelected : user selects story session
