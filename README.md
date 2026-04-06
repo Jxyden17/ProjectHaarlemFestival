@@ -253,7 +253,6 @@ Relevant files:
 Notes:
 
 - The project demonstrates server-side validation, output escaping, hashed credentials, and authorization checks.
-- CSRF protection is not yet implemented globally, so this remains an improvement area.
 
 ## Accessibility Notes
 

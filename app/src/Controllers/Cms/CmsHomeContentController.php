@@ -47,15 +47,15 @@ class CmsHomeContentController extends BaseController
     public function update(): void
     {
         $this->requireAdmin();
-        $sections = is_array($_POST['sections']) ? $_POST['sections'] : [];
-        $items = is_array($_POST['items']) ? $_POST['items'] : [];
+        $sections = $_POST['sections'];
+        $items = $_POST['items'];
         try {
             $this->cmsEventEditorService->savePageContent(15, $sections, $items);
-            $_SESSION['cms_home_success'] = 'Home content opgeslagen.';
+            $_SESSION['success'] = 'Home content opgeslagen.';
             header('Location: /cms/events/home?saved=1');
             exit;
         } catch (\Throwable $e) {
-             $_SESSION['cms_home_error'] = 'Opslaan mislukt.' . $e->getMessage();
+             $_SESSION['error'] = 'Opslaan mislukt.' . $e->getMessage();
         }
         header('Location: /cms/events/home');
     }
