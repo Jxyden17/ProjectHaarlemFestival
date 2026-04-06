@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?= htmlspecialchars((string)($pageTitle ?? 'Haarlem Festival')) ?></title>
+    <title><?= htmlspecialchars($title) ?></title>
     <link href="/css/Tour/index.css" rel="stylesheet">
 </head>
 <body>
@@ -16,8 +16,8 @@
         <?php $section = $history; include __DIR__ . '/../partialsViews/Tour/info-grid.php'; ?>
     <?php endif; ?>
 
-    <?php if ($did_you_know): ?>
-        <?php $section = $did_you_know; include __DIR__ . '/../partialsViews/Tour/info-grid.php'; ?>
+    <?php if ($didYouKnow): ?>
+        <?php $section = $didYouKnow; include __DIR__ . '/../partialsViews/Tour/info-grid.php'; ?>
     <?php endif; ?>
 
     <?php if ($openingTime): ?>

@@ -26,14 +26,14 @@ class CmsHomeContentController extends BaseController
         if (!$page) {
             http_response_code(404);
             $this->render('shared/error', [
-                'errorTitle' => 'Page not found',
+                'title' => 'Page not found',
                 'errorMessage' => 'The page you requested does not exist.',
             ]);
             return;
         }
 
             $viewData = [
-            'pageTitle' => $page->title,
+            'title' => $page->title,
             'hero'      => $page->getSection('hero'),
             'about'     => $page->getSection('about'),
             'discover'  => $page->getSection('discover_events'),

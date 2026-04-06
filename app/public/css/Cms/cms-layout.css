@@ -841,6 +841,44 @@ a {
     color: #dbeafe;
 }
 
+.cms-content .cms-accordion {
+    --bs-accordion-bg: transparent;
+    --bs-accordion-color: var(--cms-text);
+    --bs-accordion-border-color: var(--cms-border-soft);
+    --bs-accordion-border-radius: 0.9rem;
+    --bs-accordion-inner-border-radius: 0.9rem;
+    --bs-accordion-btn-color: var(--cms-text);
+    --bs-accordion-btn-bg: rgba(77, 163, 255, 0.06);
+    --bs-accordion-active-color: #eff6ff;
+    --bs-accordion-active-bg: rgba(77, 163, 255, 0.14);
+    --bs-accordion-btn-focus-box-shadow: 0 0 0 0.2rem rgba(77, 163, 255, 0.18);
+    --bs-accordion-btn-icon-filter: brightness(0) saturate(100%) invert(92%) sepia(8%) saturate(353%) hue-rotate(180deg) brightness(99%) contrast(95%);
+    --bs-accordion-btn-active-icon-filter: brightness(0) saturate(100%) invert(92%) sepia(8%) saturate(353%) hue-rotate(180deg) brightness(99%) contrast(95%);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.cms-content .cms-accordion .accordion-item {
+    border: 1px solid var(--cms-border-soft);
+    border-radius: 0.9rem;
+    overflow: hidden;
+    background: rgba(10, 18, 32, 0.75);
+}
+
+.cms-content .cms-accordion .accordion-button {
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+
+.cms-content .cms-accordion .accordion-button:not(.collapsed) {
+    box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.cms-content .cms-accordion .accordion-body {
+    background: rgba(7, 14, 26, 0.5);
+}
+
 .cms-content .text-bg-success {
     background: rgba(34, 197, 94, 0.16) !important;
     color: #bbf7d0 !important;

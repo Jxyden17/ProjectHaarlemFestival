@@ -77,7 +77,7 @@ class CmsStoriesContentController extends BaseController
         if (!$page) {
             http_response_code(404);
             $this->render('shared/error', [
-                'errorTitle' => 'Page not found',
+                'title' => 'Page not found',
                 'errorMessage' => 'The page you requested does not exist.',
             ]);
             return;
