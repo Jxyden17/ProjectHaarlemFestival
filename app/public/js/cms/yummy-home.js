@@ -39,37 +39,20 @@ async function uploadYummyImage(row, button, form) {
     const pageSlug = form.dataset.yummyPageSlug || '';
     const sectionType = row.dataset.yummySectionType || '';
 
-    if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
-        window.CmsMediaUpload
-            .getUploadFeedback()
-            .showUploadFeedback('Upload failed', 'Please choose an image first.', 'danger');
-        return;
-    }
-
     const sectionItemId = sectionItemIdInput ? Number(sectionItemIdInput.value || 0) : 0;
+    const moduleName = pageSlug === '' || sectionType === ''
+        ? ''
+        : `yummy:${pageSlug}:${sectionType}`;
 
-    if (sectionItemId <= 0 || pageSlug === '' || sectionType === '') {
-        window.CmsMediaUpload
-            .getUploadFeedback()
-            .showUploadFeedback('Upload failed', 'Missing upload metadata.', 'danger');
-        return;
-    }
-
-    const path = await window.CmsMediaUpload.uploadFile({
+    const path = await window.CmsMediaUpload.uploadImage({
         button,
         fileInput,
-        endpoint: '/cms/media/upload-image',
-        fileFieldName: 'image',
-        moduleName: `yummy`,
-
+        moduleName,
         sectionItemId,
         currentPath: currentPathInput ? currentPathInput.value : '',
-
-        missingMetadataMessage: 'Missing upload metadata.',
+        missingSectionItemMessage: 'Missing Yummy image row. Please refresh the page and try again.',
+        missingModuleMessage: 'Missing Yummy upload metadata.',
         missingFileMessage: 'Please choose an image first.',
-        failureMessage: 'Image upload failed.',
-        successTitle: 'Upload complete',
-        successMessage: 'Image uploaded successfully.',
     });
 
     if (path) {

@@ -200,6 +200,7 @@ try {
         $r->addRoute('POST', '/cms/events/stories/delete', ['CmsStoriesContentController', 'delete']);
         $r->addRoute('GET', '/cms/events/stories-details', ['CmsStoriesContentController', 'details']);
         $r->addRoute('POST', '/cms/events/stories-details', ['CmsStoriesContentController', 'detailsUpdate']);
+        $r->addRoute('POST', '/cms/events/stories-details/updateAPI', ['CmsStoriesContentController', 'detailsUpdateAPI']);
         $r->addRoute('POST', '/cms/media/upload-image', ['CmsMediaController', 'uploadImage']);
         $r->addRoute('POST', '/cms/media/upload-audio', ['CmsMediaController', 'uploadAudio']);
         $r->addRoute('GET', '/cms/users', ['CmsUsersController', 'index']);

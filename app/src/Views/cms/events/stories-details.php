@@ -92,7 +92,7 @@ $renderHiddenItemFields = static function (string $prefix, StoriesItemRowViewMod
     include __DIR__ . '/../../partialsViews/cms/form-feedback.php';
     ?>
 
-    <form method="POST" action="/cms/events/stories-details" class="card border-0 shadow-sm cms-editor-form cms-stories-editor" data-stories-page-slug="<?= htmlspecialchars($pageSlug) ?>">
+    <form method="POST" action="/cms/events/stories-details" class="card border-0 shadow-sm cms-editor-form cms-stories-editor" data-stories-page-slug="<?= htmlspecialchars($pageSlug) ?>" data-save-api="/cms/events/stories-details/updateAPI">
         <div class="card-body p-4">
             <input type="hidden" name="page_id" value="<?= (int)$pageId ?>">
             <div class="mb-4">
@@ -261,13 +261,20 @@ $renderHiddenItemFields = static function (string $prefix, StoriesItemRowViewMod
                                         <div class="border rounded-3 p-3 cms-editor-item-card" data-stories-audio-upload-row="1" data-stories-audio-section-type="featured">
                                             <h3 class="h6 mb-3">Feature <?= (int)$index + 1 ?></h3>
                                             <input type="hidden" name="items[featured][<?= (int)$index ?>][id]" class="stories-item-id" value="<?= (int)$item->id ?>">
-                                            <input type="hidden" name="items[featured][<?= (int)$index ?>][item_category]" value="<?= htmlspecialchars($item->category ?? '') ?>">
                                             <div class="mb-3">
-                                                <label class="form-label">Feature Label</label>
+                                                <label class="form-label">Card Title</label>
                                                 <input type="text" name="items[featured][<?= (int)$index ?>][title]" class="form-control" value="<?= htmlspecialchars($item->title ?? '') ?>">
                                             </div>
                                             <div class="mb-3">
-                                                <label class="form-label">Feature Link</label>
+                                                <label class="form-label">Description</label>
+                                                <textarea name="items[featured][<?= (int)$index ?>][content]" class="form-control" rows="4"><?= htmlspecialchars($item->content ?? '') ?></textarea>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Button Label</label>
+                                                <input type="text" name="items[featured][<?= (int)$index ?>][item_category]" class="form-control" value="<?= htmlspecialchars($item->category ?? '') ?>" placeholder="Listen">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Audio Link</label>
                                                 <input type="text" name="items[featured][<?= (int)$index ?>][link_url]" class="form-control stories-audio-path" value="<?= htmlspecialchars($item->url ?? '') ?>">
                                             </div>
                                             <div class="cms-upload-row">
@@ -275,7 +282,6 @@ $renderHiddenItemFields = static function (string $prefix, StoriesItemRowViewMod
                                                 <button type="button" class="btn btn-sm btn-outline-primary upload-performer-audio">Upload</button>
                                                 <a href="<?= htmlspecialchars($item->url ?? '') ?>" class="btn btn-sm btn-outline-secondary performer-audio-download-link<?= ($item->url ?? '') === '' ? ' d-none' : '' ?>" download>Download</a>
                                             </div>
-                                            <input type="hidden" name="items[featured][<?= (int)$index ?>][content]" value="<?= htmlspecialchars($item->content ?? '') ?>">
                                             <input type="hidden" name="items[featured][<?= (int)$index ?>][image_path]" value="<?= htmlspecialchars($item->image ?? '') ?>">
                                             <input type="hidden" name="items[featured][<?= (int)$index ?>][duration]" value="<?= htmlspecialchars($item->duration ?? '') ?>">
                                             <input type="hidden" name="items[featured][<?= (int)$index ?>][icon_class]" value="<?= htmlspecialchars($item->icon ?? '') ?>">
@@ -359,4 +365,5 @@ $renderHiddenItemFields = static function (string $prefix, StoriesItemRowViewMod
 <?php $storiesDetailJsVersion = @filemtime(__DIR__ . '/../../../../public/js/cms/stories-detail.js') ?: time(); ?>
 <script src="/js/cms/upload-feedback.js"></script>
 <script src="/js/cms/media-upload.js"></script>
+<script src="/js/cms/form-save-api.js"></script>
 <script src="/js/cms/stories-detail.js?v=<?= (int)$storiesDetailJsVersion ?>"></script>

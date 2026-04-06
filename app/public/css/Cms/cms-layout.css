@@ -261,6 +261,29 @@ a {
     background: rgba(255, 255, 255, 0.015);
 }
 
+.cms-content input[type="file"].form-control {
+    padding: 0.35rem 0.5rem;
+    color: var(--cms-text);
+    background-color: rgba(11, 18, 32, 0.55);
+    border-color: var(--cms-border);
+}
+
+.cms-content input[type="file"].form-control::file-selector-button {
+    margin-right: 0.75rem;
+    padding: 0.45rem 0.85rem;
+    border: 1px solid rgba(77, 163, 255, 0.32);
+    border-radius: 0.75rem;
+    background: linear-gradient(180deg, rgba(77, 163, 255, 0.18), rgba(77, 163, 255, 0.08));
+    color: #f8fbff;
+    font-weight: 600;
+    transition: background-color 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+}
+
+.cms-content input[type="file"].form-control:hover::file-selector-button {
+    border-color: rgba(77, 163, 255, 0.46);
+    background: linear-gradient(180deg, rgba(77, 163, 255, 0.26), rgba(77, 163, 255, 0.12));
+}
+
 .cms-stat-chip {
     display: flex;
     flex-direction: column;
