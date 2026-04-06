@@ -2,6 +2,7 @@
 $session = is_array($session ?? null) ? $session : [];
 
 $eventNameRaw = (string) ($session['event_name'] ?? '');
+$isDanceEvent = strtolower(str_replace(' ', '', $eventNameRaw)) === 'dance';
 $eventLabel = match (strtolower(str_replace(' ', '', $eventNameRaw))) {
     'tellingstory' => 'Stories',
     'astrollthroughhistory' => 'Tour',
@@ -36,7 +37,7 @@ $availableSpots = max(0, (int) (($session['available_spots'] ?? 0) - ($session['
 $isSoldOut = $availableSpots <= 0;
 $initialUnitPrice = $pricingType === 'pay_as_you_like' ? $minimumPrice : $fixedPrice;
 $familyTicketSize = 4;
-$familyPackageAvailable = $pricingType !== 'pay_as_you_like' && $availableSpots >= $familyTicketSize;
+$familyPackageAvailable = !$isDanceEvent && $pricingType !== 'pay_as_you_like' && $availableSpots >= $familyTicketSize;
 $initialDisplayQuantity = 1;
 $initialMultiplier = 1;
 $initialSubmittedQuantity = $initialDisplayQuantity * $initialMultiplier;
@@ -73,7 +74,7 @@ $initialMaxDisplayQuantity = max(1, $availableSpots);
                     </div>
                 </div>
 
-                <?php if ($languageLabel !== ''): ?>
+                <?php if ($languageLabel !== '' && !$isDanceEvent): ?>
                     <div>
                         <label class="form-label small text-white">Available language</label>
                         <div class="rounded-3 px-3 py-3 book-info-box">
@@ -167,21 +168,23 @@ $initialMaxDisplayQuantity = max(1, $availableSpots);
                                         </span>
                                     </label>
 
-                                    <label class="book-ticket-option <?= $familyPackageAvailable ? '' : 'book-ticket-option--disabled' ?>">
-                                        <input
-                                            type="radio"
-                                            name="ticket_mode"
-                                            value="family"
-                                            class="book-ticket-option-input"
-                                            <?= (!$familyPackageAvailable || $isSoldOut) ? 'disabled' : '' ?>
-                                        >
-                                        <span class="book-ticket-option-card">
-                                            <span class="book-ticket-option-title">Family package</span>
-                                            <span class="book-ticket-option-copy">
-                                                4 people, &euro;<?= number_format($fixedPrice, 2) ?> per person
+                                    <?php if (!$isDanceEvent): ?>
+                                        <label class="book-ticket-option <?= $familyPackageAvailable ? '' : 'book-ticket-option--disabled' ?>">
+                                            <input
+                                                type="radio"
+                                                name="ticket_mode"
+                                                value="family"
+                                                class="book-ticket-option-input"
+                                                <?= (!$familyPackageAvailable || $isSoldOut) ? 'disabled' : '' ?>
+                                            >
+                                            <span class="book-ticket-option-card">
+                                                <span class="book-ticket-option-title">Family package</span>
+                                                <span class="book-ticket-option-copy">
+                                                    4 people, &euro;<?= number_format($fixedPrice, 2) ?> per person
+                                                </span>
                                             </span>
-                                        </span>
-                                    </label>
+                                        </label>
+                                    <?php endif; ?>
                                 </div>
                             </div>
 
@@ -218,7 +221,9 @@ $initialMaxDisplayQuantity = max(1, $availableSpots);
                 <div class="rounded-3 px-3 py-3 d-flex align-items-center gap-2 book-confirm-box">
                     <input class="form-check-input mt-0" type="checkbox" value="1" id="booking-confirm" name="booking_confirm" required <?= $isSoldOut ? 'disabled' : '' ?>>
                     <label class="form-check-label small" for="booking-confirm">
-                        I confirm: all participants are 12+ years old and no strollers.
+                        <?= $isDanceEvent
+                            ? 'I confirm: all participants are 18+ years old.'
+                            : 'I confirm: all participants are 12+ years old and no strollers.' ?>
                     </label>
                 </div>
 
@@ -233,7 +238,7 @@ $initialMaxDisplayQuantity = max(1, $availableSpots);
                 </button>
             </form>
 
-            <?php if ($pricingType === 'pay_as_you_like'): ?>
+            <?php if (!$isDanceEvent && $pricingType === 'pay_as_you_like'): ?>
                 <div class="book-note-card mt-4">
                     <div class="book-note-title">Important Information</div>
                     <ul class="book-note-list mb-0">
@@ -242,7 +247,7 @@ $initialMaxDisplayQuantity = max(1, $availableSpots);
                         <li>You choose your amount per ticket before adding it to your shopping cart.</li>
                     </ul>
                 </div>
-            <?php else: ?>
+            <?php elseif (!$isDanceEvent): ?>
                 <div class="book-note-card mt-4">
                     <div class="book-note-title">Important Information</div>
                     <ul class="book-note-list mb-0">
