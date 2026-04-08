@@ -221,9 +221,310 @@ a {
     border: 1px solid var(--cms-border-soft) !important;
 }
 
+.cms-content .accordion {
+    --bs-accordion-bg: var(--cms-surface);
+    --bs-accordion-border-color: var(--cms-border-soft);
+    --bs-accordion-color: var(--cms-text);
+    --bs-accordion-btn-bg: rgba(255, 255, 255, 0.02);
+    --bs-accordion-btn-color: var(--cms-text);
+    --bs-accordion-active-bg: rgba(77, 163, 255, 0.12);
+    --bs-accordion-active-color: #f8fbff;
+    --bs-accordion-btn-focus-box-shadow: 0 0 0 0.2rem rgba(77, 163, 255, 0.14);
+}
+
+.cms-content .accordion-item {
+    overflow: hidden;
+    border-radius: var(--cms-radius-sm);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 10rem), var(--cms-surface);
+}
+
+.cms-content .accordion-button {
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+
+.cms-content .accordion-button:not(.collapsed) {
+    box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.cms-content .accordion-button::after {
+    filter: brightness(0) invert(1);
+    opacity: 0.72;
+}
+
+.cms-content .accordion-body {
+    background: rgba(255, 255, 255, 0.015);
+}
+
 .cms-content .card-footer {
     border-top: 1px solid var(--cms-border-soft);
     background: rgba(255, 255, 255, 0.015);
+}
+
+.cms-content input[type="file"].form-control {
+    padding: 0.35rem 0.5rem;
+    color: var(--cms-text);
+    background-color: rgba(11, 18, 32, 0.55);
+    border-color: var(--cms-border);
+}
+
+.cms-content input[type="file"].form-control::file-selector-button {
+    margin-right: 0.75rem;
+    padding: 0.45rem 0.85rem;
+    border: 1px solid rgba(77, 163, 255, 0.32);
+    border-radius: 0.75rem;
+    background: linear-gradient(180deg, rgba(77, 163, 255, 0.18), rgba(77, 163, 255, 0.08));
+    color: #f8fbff;
+    font-weight: 600;
+    transition: background-color 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+}
+
+.cms-content input[type="file"].form-control:hover::file-selector-button {
+    border-color: rgba(77, 163, 255, 0.46);
+    background: linear-gradient(180deg, rgba(77, 163, 255, 0.26), rgba(77, 163, 255, 0.12));
+}
+
+.cms-stat-chip {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    height: 100%;
+    padding: 0.95rem 1rem;
+    border: 1px solid var(--cms-border-soft);
+    border-radius: var(--cms-radius-sm);
+    background: rgba(255, 255, 255, 0.025);
+}
+
+.cms-stat-chip__label {
+    color: var(--cms-muted);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.cms-stat-chip__value {
+    color: var(--cms-text);
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.cms-ticket-focus-strip .card-body {
+    background: linear-gradient(180deg, rgba(77, 163, 255, 0.08), rgba(255, 255, 255, 0.01));
+}
+
+.cms-ticket-overview-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.7fr) minmax(300px, 0.95fr);
+    gap: 1rem;
+}
+
+.cms-ticket-overview-main,
+.cms-ticket-overview-side {
+    border: 1px solid var(--cms-border-soft);
+    border-radius: var(--cms-radius-sm);
+    background: rgba(255, 255, 255, 0.02);
+    padding: 1rem;
+}
+
+.cms-ticket-overview-main {
+    align-self: start;
+}
+
+.cms-ticket-overview-main__eyebrow,
+.cms-ticket-overview-side__label,
+.cms-ticket-overview-side__meta-label,
+.cms-ticket-status-inline__label,
+.cms-ticket-overview-main__label {
+    color: var(--cms-muted);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.cms-ticket-overview-main__stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-top: 0.85rem;
+}
+
+.cms-ticket-overview-action {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding: 1rem 1.05rem;
+    border: 1px dashed rgba(77, 163, 255, 0.28);
+    border-radius: var(--cms-radius-sm);
+    background: rgba(77, 163, 255, 0.06);
+}
+
+.cms-ticket-overview-action__label {
+    display: block;
+    color: #dbeafe;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 0.3rem;
+}
+
+.cms-ticket-overview-action__text {
+    color: var(--cms-text);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    max-width: 38rem;
+}
+
+.cms-ticket-overview-main__stat {
+    padding: 0.95rem 1rem;
+    border: 1px solid var(--cms-border-soft);
+    border-radius: var(--cms-radius-sm);
+    background: rgba(255, 255, 255, 0.025);
+}
+
+.cms-ticket-overview-main__value,
+.cms-ticket-overview-side__value,
+.cms-ticket-overview-side__meta-value {
+    display: block;
+    color: var(--cms-text);
+    font-size: 1.65rem;
+    font-weight: 700;
+    line-height: 1.08;
+    margin-top: 0.35rem;
+}
+
+.cms-ticket-overview-side {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    align-self: start;
+}
+
+.cms-ticket-overview-side__alert {
+    padding: 1rem;
+    border: 1px solid rgba(77, 163, 255, 0.26);
+    border-radius: var(--cms-radius-sm);
+    background: linear-gradient(180deg, rgba(77, 163, 255, 0.14), rgba(77, 163, 255, 0.04));
+}
+
+.cms-ticket-overview-side__meta {
+    color: #dbeafe;
+    font-size: 0.92rem;
+    margin-top: 0.2rem;
+}
+
+.cms-ticket-overview-side__meta-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+}
+
+.cms-ticket-overview-side__meta-card {
+    padding: 0.85rem 0.95rem;
+    border: 1px solid var(--cms-border-soft);
+    border-radius: var(--cms-radius-sm);
+    background: rgba(255, 255, 255, 0.025);
+}
+
+.cms-ticket-status-inline {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    padding-top: 0.15rem;
+}
+
+.cms-ticket-event-card .card-body {
+    display: flex;
+    flex-direction: column;
+}
+
+.cms-ticket-event-metrics {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.75rem;
+}
+
+.cms-ticket-event-metric {
+    padding: 0.85rem 0.95rem;
+    border: 1px solid var(--cms-border-soft);
+    border-radius: var(--cms-radius-sm);
+    background: rgba(255, 255, 255, 0.025);
+}
+
+.cms-ticket-event-metric__label {
+    color: var(--cms-muted);
+    font-size: 0.76rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.cms-ticket-event-metric__value {
+    display: block;
+    margin-top: 0.3rem;
+    color: var(--cms-text);
+    font-size: 1.3rem;
+    font-weight: 700;
+    line-height: 1.08;
+}
+
+@media (max-width: 991.98px) {
+    .cms-ticket-overview-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .cms-ticket-overview-main__stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .cms-ticket-event-metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 575.98px) {
+
+    .cms-ticket-overview-main__stats,
+    .cms-ticket-overview-side__meta-grid,
+    .cms-ticket-event-metrics {
+        grid-template-columns: 1fr;
+    }
+}
+
+.cms-content .accordion-item {
+    overflow: hidden;
+    border: 1px solid var(--cms-border-soft);
+    border-radius: var(--cms-radius-sm);
+    background: rgba(7, 13, 24, 0.38);
+}
+
+.cms-content .accordion-item+.accordion-item {
+    margin-top: 1rem;
+}
+
+.cms-content .accordion-button {
+    background: linear-gradient(180deg, rgba(77, 163, 255, 0.14), rgba(77, 163, 255, 0.05));
+    color: var(--cms-text);
+    font-weight: 600;
+    box-shadow: none;
+}
+
+.cms-content .accordion-button:not(.collapsed) {
+    background: linear-gradient(180deg, rgba(77, 163, 255, 0.22), rgba(77, 163, 255, 0.08));
+    color: #f8fbff;
+}
+
+.cms-content .accordion-button::after {
+    filter: invert(93%) sepia(17%) saturate(294%) hue-rotate(183deg) brightness(102%) contrast(96%);
+}
+
+.cms-content .accordion-body {
+    background: rgba(255, 255, 255, 0.01);
 }
 
 .cms-content .text-muted,
@@ -244,6 +545,71 @@ a {
     border-color: var(--cms-border-soft) !important;
     border-radius: var(--cms-radius-sm) !important;
     background: rgba(255, 255, 255, 0.02);
+}
+
+.cms-content .bg-body-tertiary {
+    background: rgba(7, 14, 26, 0.45) !important;
+    color: var(--cms-text) !important;
+}
+
+.cms-editor-form .cms-editor-field-card,
+.cms-editor-form .cms-editor-item-card {
+    border-color: var(--cms-border-soft) !important;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(77, 163, 255, 0.02));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+}
+
+.cms-editor-form .cms-editor-item-card h3,
+.cms-editor-form .cms-editor-field-card h3,
+.cms-editor-form .cms-editor-item-card .h6 {
+    color: var(--cms-text);
+}
+
+.cms-editor-section-note {
+    padding: 0.9rem 1rem;
+    border: 1px dashed rgba(77, 163, 255, 0.35);
+    border-radius: var(--cms-radius-sm);
+    background: rgba(77, 163, 255, 0.08);
+    color: var(--cms-muted);
+    font-size: 0.92rem;
+}
+
+.cms-editor-form .form-label {
+    color: #dbe7fb;
+    font-weight: 600;
+}
+
+.cms-editor-form .form-control,
+.cms-editor-form .form-select,
+.cms-editor-form textarea {
+    border-color: rgba(255, 255, 255, 0.09);
+    background: rgba(7, 13, 24, 0.6);
+    color: var(--cms-text);
+}
+
+.cms-editor-form .form-control:focus,
+.cms-editor-form .form-select:focus,
+.cms-editor-form textarea:focus {
+    border-color: rgba(77, 163, 255, 0.55);
+    box-shadow: 0 0 0 0.25rem rgba(77, 163, 255, 0.16);
+    background: rgba(7, 13, 24, 0.82);
+    color: var(--cms-text);
+}
+
+.cms-editor-form .form-control::placeholder,
+.cms-editor-form textarea::placeholder {
+    color: var(--cms-muted-soft);
+}
+
+.cms-upload-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.cms-stories-editor .card-footer {
+    padding: 1rem 1.5rem;
 }
 
 .cms-content .table {
@@ -301,7 +667,7 @@ a {
     min-width: 84rem;
 }
 
-.cms-users-page .cms-users-table > :not(caption) > * > * {
+.cms-users-page .cms-users-table> :not(caption)>*>* {
     padding: 0.8rem 0.9rem;
 }
 
@@ -496,6 +862,44 @@ a {
     background: rgba(77, 163, 255, 0.12);
     border-color: rgba(77, 163, 255, 0.22);
     color: #dbeafe;
+}
+
+.cms-content .cms-accordion {
+    --bs-accordion-bg: transparent;
+    --bs-accordion-color: var(--cms-text);
+    --bs-accordion-border-color: var(--cms-border-soft);
+    --bs-accordion-border-radius: 0.9rem;
+    --bs-accordion-inner-border-radius: 0.9rem;
+    --bs-accordion-btn-color: var(--cms-text);
+    --bs-accordion-btn-bg: rgba(77, 163, 255, 0.06);
+    --bs-accordion-active-color: #eff6ff;
+    --bs-accordion-active-bg: rgba(77, 163, 255, 0.14);
+    --bs-accordion-btn-focus-box-shadow: 0 0 0 0.2rem rgba(77, 163, 255, 0.18);
+    --bs-accordion-btn-icon-filter: brightness(0) saturate(100%) invert(92%) sepia(8%) saturate(353%) hue-rotate(180deg) brightness(99%) contrast(95%);
+    --bs-accordion-btn-active-icon-filter: brightness(0) saturate(100%) invert(92%) sepia(8%) saturate(353%) hue-rotate(180deg) brightness(99%) contrast(95%);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.cms-content .cms-accordion .accordion-item {
+    border: 1px solid var(--cms-border-soft);
+    border-radius: 0.9rem;
+    overflow: hidden;
+    background: rgba(10, 18, 32, 0.75);
+}
+
+.cms-content .cms-accordion .accordion-button {
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+
+.cms-content .cms-accordion .accordion-button:not(.collapsed) {
+    box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.cms-content .cms-accordion .accordion-body {
+    background: rgba(7, 14, 26, 0.5);
 }
 
 .cms-content .text-bg-success {

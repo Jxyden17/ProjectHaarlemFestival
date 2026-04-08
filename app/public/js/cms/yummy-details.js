@@ -45,17 +45,6 @@ async function uploadYummyImage(row, button, form) {
     const sectionItemIdInput = row.querySelector('.yummy-item-id');
     const currentPathInput = row.querySelector('.yummy-image-path');
 
-    if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
-        window.CmsMediaUpload
-            .getUploadFeedback()
-            .showUploadFeedback(
-                'Upload failed',
-                'Please choose an image first.',
-                'danger'
-            );
-        return;
-    }
-
     const sectionItemId = Number(sectionItemIdInput?.value || 0);
 
     const moduleName =
@@ -63,36 +52,15 @@ async function uploadYummyImage(row, button, form) {
         form.dataset.imageUploadModule ||
         '';
 
-    if (!moduleName || sectionItemId <= 0) {
-        window.CmsMediaUpload
-            .getUploadFeedback()
-            .showUploadFeedback(
-                'Upload failed',
-                'Missing upload metadata.',
-                'danger'
-            );
-        return;
-    }
-
-    console.log('Uploading yummy detail image', {
-        moduleName,
-        sectionItemId
-    });
-
-    const path = await window.CmsMediaUpload.uploadFile({
+    const path = await window.CmsMediaUpload.uploadImage({
         button,
         fileInput,
-        endpoint: '/cms/media/upload-image',
-        fileFieldName: 'image',
-
         moduleName,
         sectionItemId,
         currentPath: currentPathInput?.value || '',
-
+        missingSectionItemMessage: 'Missing Yummy image row. Please refresh the page and try again.',
+        missingModuleMessage: 'Missing Yummy upload metadata.',
         missingFileMessage: 'Please choose an image first.',
-        failureMessage: 'Image upload failed.',
-        successTitle: 'Upload complete',
-        successMessage: 'Image uploaded successfully.',
     });
 
     if (path) {

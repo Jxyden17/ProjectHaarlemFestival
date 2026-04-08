@@ -72,27 +72,33 @@ $renderHiddenItemFields = static function (string $prefix, StoriesItemRowViewMod
 ?>
 
 <div class="container-lg py-4 py-md-5">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <div>
-            <h1 class="h3 mb-1"><?= htmlspecialchars($contentViewModel->editorTitle) ?></h1>
-        </div>
-        <div class="d-flex align-items-center gap-2">
+    <section class="cms-page-hero mb-3">
+        <div class="d-flex flex-wrap align-items-start justify-content-between gap-3">
+            <div>
+                <h1 class="cms-page-hero__title"><?= htmlspecialchars($contentViewModel->editorTitle) ?></h1>
+            </div>
+            <div class="d-flex align-items-center gap-2">
             <form method="POST" action="/cms/events/stories/delete" onsubmit="return confirm('Are you sure you want to delete this Stories subpage? This action cannot be undone.');" class="m-0">
                 <input type="hidden" name="page_id" value="<?= (int)$pageId ?>">
                 <button type="submit" class="btn btn-outline-danger">Delete Subpage</button>
             </form>
             <a href="/cms/events" class="btn btn-outline-secondary">Back to Events</a>
+            </div>
         </div>
-    </div>
+    </section>
 
     <?php
     $successMessage = 'Stories detail content updated.';
     include __DIR__ . '/../../partialsViews/cms/form-feedback.php';
     ?>
 
-    <form method="POST" action="/cms/events/stories-details" class="card border-0 shadow-sm" data-stories-page-slug="<?= htmlspecialchars($pageSlug) ?>">
+    <form method="POST" action="/cms/events/stories-details" class="card border-0 shadow-sm cms-editor-form cms-stories-editor" data-stories-page-slug="<?= htmlspecialchars($pageSlug) ?>" data-save-api="/cms/events/stories-details/updateAPI">
         <div class="card-body p-4">
             <input type="hidden" name="page_id" value="<?= (int)$pageId ?>">
+            <div class="mb-4">
+                <label for="stories_page_title" class="form-label">Page Title</label>
+                <input id="stories_page_title" type="text" name="sections[page_title][title]" class="form-control" value="<?= htmlspecialchars($contentViewModel->editorTitle) ?>">
+            </div>
 
             <div class="accordion cms-editor-accordion" id="storiesDetailAccordion">
                 <div class="accordion-item">
@@ -103,21 +109,15 @@ $renderHiddenItemFields = static function (string $prefix, StoriesItemRowViewMod
                     </h2>
                     <div id="stories-detail-hero-panel" class="accordion-collapse collapse show" data-bs-parent="#storiesDetailAccordion">
                         <div class="accordion-body">
-                            <div class="border rounded-3 p-3 cms-editor-field-card mb-3">
-                                <label class="form-label">Title</label>
-                                <input type="hidden" name="sections[hero][title]" value="<?= htmlspecialchars($hero?->title ?? '') ?>">
-                                <div class="cms-readonly-title"><?= htmlspecialchars($hero?->title ?? '') ?></div>
-                            </div>
-
                             <div class="row g-3">
                                 <div class="col-12 col-xl-6">
-                                    <div class="border rounded-3 p-3 cms-editor-field-card h-100">
+                                    <div class="h-100">
                                         <label class="form-label">Subtitle</label>
                                         <textarea name="sections[hero][subtitle]" class="form-control" rows="3"><?= htmlspecialchars($hero?->subTitle ?? '') ?></textarea>
                                     </div>
                                 </div>
                                 <div class="col-12 col-xl-6">
-                                    <div class="border rounded-3 p-3 cms-editor-field-card h-100">
+                                    <div class="h-100">
                                         <label class="form-label">Description</label>
                                         <textarea name="sections[hero][description]" class="form-control" rows="4"><?= htmlspecialchars($hero?->description ?? '') ?></textarea>
                                     </div>
@@ -171,7 +171,7 @@ $renderHiddenItemFields = static function (string $prefix, StoriesItemRowViewMod
                     </h2>
                     <div id="stories-detail-about-panel" class="accordion-collapse collapse" data-bs-parent="#storiesDetailAccordion">
                         <div class="accordion-body">
-                            <div class="border rounded-3 p-3 cms-editor-field-card mb-3">
+                            <div class="mb-3">
                                 <label class="form-label">Section Title</label>
                                 <textarea name="sections[about][title]" class="form-control" rows="2"><?= htmlspecialchars($about?->title ?? '') ?></textarea>
                                 <input type="hidden" name="sections[about][subtitle]" value="<?= htmlspecialchars($about?->subTitle ?? '') ?>">
@@ -203,7 +203,7 @@ $renderHiddenItemFields = static function (string $prefix, StoriesItemRowViewMod
                     </h2>
                     <div id="stories-detail-gallery-panel" class="accordion-collapse collapse" data-bs-parent="#storiesDetailAccordion">
                         <div class="accordion-body">
-                            <div class="border rounded-3 p-3 cms-editor-field-card mb-3">
+                            <div class="mb-3">
                                 <label class="form-label">Section Title</label>
                                 <textarea name="sections[gallery][title]" class="form-control" rows="2"><?= htmlspecialchars($gallery?->title ?? '') ?></textarea>
                                 <input type="hidden" name="sections[gallery][subtitle]" value="<?= htmlspecialchars($gallery?->subTitle ?? '') ?>">
@@ -248,7 +248,7 @@ $renderHiddenItemFields = static function (string $prefix, StoriesItemRowViewMod
                     </h2>
                     <div id="stories-detail-featured-panel" class="accordion-collapse collapse" data-bs-parent="#storiesDetailAccordion">
                         <div class="accordion-body">
-                            <div class="border rounded-3 p-3 cms-editor-field-card mb-3">
+                            <div class="mb-3">
                                 <label class="form-label">Section Title</label>
                                 <textarea name="sections[featured][title]" class="form-control" rows="2"><?= htmlspecialchars($featured?->title ?? '') ?></textarea>
                                 <input type="hidden" name="sections[featured][subtitle]" value="<?= htmlspecialchars($featured?->subTitle ?? '') ?>">
@@ -261,13 +261,20 @@ $renderHiddenItemFields = static function (string $prefix, StoriesItemRowViewMod
                                         <div class="border rounded-3 p-3 cms-editor-item-card" data-stories-audio-upload-row="1" data-stories-audio-section-type="featured">
                                             <h3 class="h6 mb-3">Feature <?= (int)$index + 1 ?></h3>
                                             <input type="hidden" name="items[featured][<?= (int)$index ?>][id]" class="stories-item-id" value="<?= (int)$item->id ?>">
-                                            <input type="hidden" name="items[featured][<?= (int)$index ?>][item_category]" value="<?= htmlspecialchars($item->category ?? '') ?>">
                                             <div class="mb-3">
-                                                <label class="form-label">Feature Label</label>
+                                                <label class="form-label">Card Title</label>
                                                 <input type="text" name="items[featured][<?= (int)$index ?>][title]" class="form-control" value="<?= htmlspecialchars($item->title ?? '') ?>">
                                             </div>
                                             <div class="mb-3">
-                                                <label class="form-label">Feature Link</label>
+                                                <label class="form-label">Description</label>
+                                                <textarea name="items[featured][<?= (int)$index ?>][content]" class="form-control" rows="4"><?= htmlspecialchars($item->content ?? '') ?></textarea>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Button Label</label>
+                                                <input type="text" name="items[featured][<?= (int)$index ?>][item_category]" class="form-control" value="<?= htmlspecialchars($item->category ?? '') ?>" placeholder="Listen">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Audio Link</label>
                                                 <input type="text" name="items[featured][<?= (int)$index ?>][link_url]" class="form-control stories-audio-path" value="<?= htmlspecialchars($item->url ?? '') ?>">
                                             </div>
                                             <div class="cms-upload-row">
@@ -275,7 +282,6 @@ $renderHiddenItemFields = static function (string $prefix, StoriesItemRowViewMod
                                                 <button type="button" class="btn btn-sm btn-outline-primary upload-performer-audio">Upload</button>
                                                 <a href="<?= htmlspecialchars($item->url ?? '') ?>" class="btn btn-sm btn-outline-secondary performer-audio-download-link<?= ($item->url ?? '') === '' ? ' d-none' : '' ?>" download>Download</a>
                                             </div>
-                                            <input type="hidden" name="items[featured][<?= (int)$index ?>][content]" value="<?= htmlspecialchars($item->content ?? '') ?>">
                                             <input type="hidden" name="items[featured][<?= (int)$index ?>][image_path]" value="<?= htmlspecialchars($item->image ?? '') ?>">
                                             <input type="hidden" name="items[featured][<?= (int)$index ?>][duration]" value="<?= htmlspecialchars($item->duration ?? '') ?>">
                                             <input type="hidden" name="items[featured][<?= (int)$index ?>][icon_class]" value="<?= htmlspecialchars($item->icon ?? '') ?>">
@@ -298,19 +304,19 @@ $renderHiddenItemFields = static function (string $prefix, StoriesItemRowViewMod
                         <div class="accordion-body">
                             <div class="row g-3">
                                 <div class="col-12 col-xl-4">
-                                    <div class="border rounded-3 p-3 cms-editor-field-card h-100">
+                                    <div class="h-100">
                                         <label class="form-label">Section Title</label>
                                         <textarea name="sections[booking][title]" class="form-control" rows="2"><?= htmlspecialchars($booking?->title ?? '') ?></textarea>
                                     </div>
                                 </div>
                                 <div class="col-12 col-xl-4">
-                                    <div class="border rounded-3 p-3 cms-editor-field-card h-100">
+                                    <div class="h-100">
                                         <label class="form-label">Section Subtitle</label>
                                         <textarea name="sections[booking][subtitle]" class="form-control" rows="2"><?= htmlspecialchars($booking?->subTitle ?? '') ?></textarea>
                                     </div>
                                 </div>
                                 <div class="col-12 col-xl-4">
-                                    <div class="border rounded-3 p-3 cms-editor-field-card h-100">
+                                    <div class="h-100">
                                         <label class="form-label">Section Description</label>
                                         <textarea name="sections[booking][description]" class="form-control" rows="3"><?= htmlspecialchars($booking?->description ?? '') ?></textarea>
                                     </div>
@@ -359,4 +365,5 @@ $renderHiddenItemFields = static function (string $prefix, StoriesItemRowViewMod
 <?php $storiesDetailJsVersion = @filemtime(__DIR__ . '/../../../../public/js/cms/stories-detail.js') ?: time(); ?>
 <script src="/js/cms/upload-feedback.js"></script>
 <script src="/js/cms/media-upload.js"></script>
+<script src="/js/cms/form-save-api.js"></script>
 <script src="/js/cms/stories-detail.js?v=<?= (int)$storiesDetailJsVersion ?>"></script>

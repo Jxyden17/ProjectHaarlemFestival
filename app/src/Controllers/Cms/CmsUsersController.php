@@ -40,7 +40,6 @@ class CmsUsersController extends BaseController
     public function addUser(): void
     {
         $this->requireAdmin();
-        try {
            $user = new UserModel(
                 0,
                 trim((string)($_POST['name'] ?? '')),
@@ -57,11 +56,6 @@ class CmsUsersController extends BaseController
    
             $this->cmsService->addUser($user);
             header('Location: /cms/users');
-        } catch (\Exception $e) {
-            error_log($e->getMessage());
-            $this->renderCms('cms/users/create', ['title' => 'Create User', 'error' => 'Failed to create user.']);
-        }
-        exit;
     }
     public function showAdminEditForm(): void
     {
@@ -117,7 +111,7 @@ class CmsUsersController extends BaseController
     }
     private function editUser(): void
     {
-        try {
+        $this->requireAdmin();
             $user = new UserModel(
                 (int)($_POST['id'] ?? 0),
                 trim((string)($_POST['name'] ?? '')),
@@ -134,11 +128,6 @@ class CmsUsersController extends BaseController
    
             $this->cmsService->updateUser($user);
             header('Location: /cms/users');
-        } catch (\Exception $e) {
-            error_log($e->getMessage());
-            header('Location: /cms/users');
-        }
-        exit;
     }
 
     public function showDeleteConfirmation(): void
@@ -156,13 +145,7 @@ class CmsUsersController extends BaseController
     public function deleteUser(): void
     {
         $this->requireAdmin();
-        try {
             $this->cmsService->deleteUser((int)($_POST['id'] ?? 0));
             header('Location: /cms/users');
-        } catch (\Exception $e) {
-            error_log($e->getMessage());
-            header('Location: /cms/users');
-        }
-        exit;
     }
 }

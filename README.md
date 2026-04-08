@@ -9,6 +9,12 @@ Server-rendered PHP web application for the Haarlem Festival website and CMS.
 - Authentication and role-gated CMS access
 - Media upload flows for CMS-managed images and dance track audio snippets
 
+## Login Accounts:
+- Email:password
+- user@test.nl:welkom123
+- employee@test.nl:welkom123
+- admin@test.nl:welkom123
+
 ## Tech Stack
 
 - PHP (FPM)
@@ -253,7 +259,6 @@ Relevant files:
 Notes:
 
 - The project demonstrates server-side validation, output escaping, hashed credentials, and authorization checks.
-- CSRF protection is not yet implemented globally, so this remains an improvement area.
 
 ## Accessibility Notes
 

@@ -25,6 +25,7 @@ class DanceViewModelMapper
     private const DETAIL_SECTION_HERO = 'dance_detail_hero';
     private const DETAIL_SECTION_HIGHLIGHTS = 'dance_detail_highlights';
     private const DETAIL_SECTION_TRACKS = 'dance_detail_tracks';
+    private const DETAIL_SECTION_SCHEDULE = 'dance_detail_schedule';
     private const DETAIL_SECTION_INFO = 'dance_detail_info';
     private const ITEM_CATEGORY_PASS = 'pass';
     private const ITEM_CATEGORY_ARTIST = 'artist';
@@ -74,6 +75,7 @@ class DanceViewModelMapper
         $heroSection = $contentPage->getSection(self::DETAIL_SECTION_HERO);
         $highlightsSection = $contentPage->getSection(self::DETAIL_SECTION_HIGHLIGHTS);
         $tracksSection = $contentPage->getSection(self::DETAIL_SECTION_TRACKS);
+        $scheduleSection = $contentPage->getSection(self::DETAIL_SECTION_SCHEDULE);
         $infoSection = $contentPage->getSection(self::DETAIL_SECTION_INFO);
         $performerName = $this->resolvePerformerName($detailData->detailMeta, $heroSection);
 
@@ -88,7 +90,7 @@ class DanceViewModelMapper
             $tracksSection?->title,
             $tracksSection?->description,
             $this->buildTrackItems($tracksSection),
-            '',
+            $scheduleSection?->title,
             array_values(array_filter($scheduleRows, static fn($row) => $row instanceof ScheduleRowViewModel)),
             $infoSection?->title,
             $infoSection?->description

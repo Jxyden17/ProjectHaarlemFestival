@@ -39,37 +39,28 @@ class DanceService implements IDanceService
         $resources = $this->scheduleService->getEventResources(self::DANCE_EVENT_NAME, $scheduleTitle);
 
         if (!is_array($resources)) {
-            return new DanceIndexData(
-                $homePage,
-                new ScheduleData($scheduleTitle, self::DANCE_EVENT_NAME, [], false),
-                [],
-                [],
-                [],
-                []
-            );
+            $resources = [];
         }
 
         $event = $resources['event'] ?? null;
-        $schedule = $resources['schedule'] instanceof ScheduleData
-            ? $resources['schedule']
-            : new ScheduleData($scheduleTitle, self::DANCE_EVENT_NAME, [], false);
-        $performers = is_array($resources['performers'] ?? null) ? $resources['performers'] : [];
-        $passSessions = $this->filterPassSessions($schedule->sessions);
+        $schedule = $resources['schedule'] ?? null;
+
+        if (!$schedule instanceof ScheduleData) {
+            $schedule = new ScheduleData($scheduleTitle, self::DANCE_EVENT_NAME, [], false);
+        }
+
         $nonPassSessions = $this->filterNonPassSessions($schedule->sessions);
-        $schedule = new ScheduleData($schedule->title, $schedule->eventName, $nonPassSessions, $schedule->includeEventFilters);
+        $passSessions = $this->filterPassSessions($schedule->sessions);
         $venues = $this->filterVenuesBySessions(
             is_array($resources['venues'] ?? null) ? $resources['venues'] : [],
             $nonPassSessions
         );
-        $detailPages = $event instanceof EventModel
-            ? $this->danceRepository->getDetailPagesByEventId($event->id)
-            : [];
 
         return new DanceIndexData(
             $homePage,
-            $schedule,
-            $performers,
-            $detailPages,
+            new ScheduleData($schedule->title, $schedule->eventName, $nonPassSessions, $schedule->includeEventFilters),
+            is_array($resources['performers'] ?? null) ? $resources['performers'] : [],
+            $event instanceof EventModel ? $this->danceRepository->getDetailPagesByEventId($event->id) : [],
             $venues,
             $passSessions
         );

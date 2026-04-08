@@ -43,18 +43,16 @@ class CmsDanceService implements ICmsDanceService
         return $this->pageService->getPageBySlug('dance-home', 'Dance Home');
     }
 
-    // Saves the dance home CMS form so HTML is sanitized, rows are normalized, and only valid content reaches storage.
+    // Saves the dance home CMS form so HTML is sanitized and only valid content reaches storage.
     public function saveDanceHomePage(UpdateDanceHomeRequest $request): void
     {
         $bannerDescription = $this->sanitizeWysiwygField($request->bannerDescription());
         $importantInformationHtml = $this->sanitizeWysiwygField($request->importantInformationHtml());
-        $passItems = $this->cmsDanceMapper->normalizePasses($request->passes());
         $capacityHtml = $this->sanitizeWysiwygField($request->capacityHtml());
         $specialHtml = $this->sanitizeWysiwygField($request->specialHtml());
 
         $this->danceValidator->validateHomePageInput(
             $request,
-            $passItems,
             $bannerDescription,
             $importantInformationHtml,
             $capacityHtml,
@@ -66,7 +64,6 @@ class CmsDanceService implements ICmsDanceService
             $request->pageTitle(),
             $this->cmsDanceMapper->mapHomeRequestSectionsForSave(
                 $request,
-                $passItems,
                 $bannerDescription,
                 $importantInformationHtml,
                 $capacityHtml,

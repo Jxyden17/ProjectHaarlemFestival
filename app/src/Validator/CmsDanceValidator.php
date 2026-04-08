@@ -7,7 +7,7 @@ use App\Models\Requests\UpdateDanceHomeRequest;
 
 class CmsDanceValidator
 {
-    public function validateHomePageInput(UpdateDanceHomeRequest $request, array $passItems, string $bannerDescription, string $importantInformationHtml, string $capacityHtml, string $specialHtml): void
+    public function validateHomePageInput(UpdateDanceHomeRequest $request, string $bannerDescription, string $importantInformationHtml, string $capacityHtml, string $specialHtml): void
     {
         if ($request->pageTitle() === '') {
             throw new \InvalidArgumentException('Browser tab title is required.');
@@ -33,8 +33,8 @@ class CmsDanceValidator
             throw new \InvalidArgumentException('Important information is required.');
         }
 
-        if ($request->passesTitle() === '' || count($passItems) === 0) {
-            throw new \InvalidArgumentException('At least one pass row is required.');
+        if ($request->passesTitle() === '') {
+            throw new \InvalidArgumentException('Passes title is required.');
         }
 
         if ($request->capacityTitle() === '' || $capacityHtml === '') {
@@ -70,6 +70,10 @@ class CmsDanceValidator
 
         if ($request->tracksTitle() === '' || count($tracks) === 0) {
             throw new \InvalidArgumentException('At least one track is required.');
+        }
+
+        if ($request->scheduleTitle() === '') {
+            throw new \InvalidArgumentException('Schedule title is required.');
         }
 
         if ($request->importantInformationTitle() === '' || $importantInformationHtml === '') {

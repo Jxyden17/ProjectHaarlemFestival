@@ -77,7 +77,7 @@ class CmsStoriesContentController extends BaseController
         if (!$page) {
             http_response_code(404);
             $this->render('shared/error', [
-                'errorTitle' => 'Page not found',
+                'title' => 'Page not found',
                 'errorMessage' => 'The page you requested does not exist.',
             ]);
             return;
@@ -108,6 +108,28 @@ class CmsStoriesContentController extends BaseController
         }
 
         header('Location: /cms/events/stories-details?id=' . $pageId);
+    }
+
+    public function detailsUpdateAPI(): void
+    {
+        $this->requireAdmin();
+
+        $pageId = (int)($_POST['page_id'] ?? $_GET['id'] ?? 0);
+        $sections = is_array($_POST['sections'] ?? null) ? $_POST['sections'] : [];
+        $items = is_array($_POST['items'] ?? null) ? $_POST['items'] : [];
+
+        try {
+            $this->cmsEventEditorService->savePageContent($pageId, $sections, $items);
+            $this->json([
+                'success' => true,
+                'message' => 'Stories detail content updated.',
+            ]);
+        } catch (\Throwable $e) {
+            $this->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 422);
+        }
     }
 
     public function create(): void

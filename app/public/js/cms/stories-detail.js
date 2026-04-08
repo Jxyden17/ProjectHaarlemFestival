@@ -12,30 +12,20 @@
         const pageSlug = storiesDetailForm.dataset.storiesPageSlug || '';
         const sectionType = row.dataset.storiesSectionType || '';
 
-        if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
-            window.CmsMediaUpload.getUploadFeedback().showUploadFeedback('Upload failed', 'Please choose an image first.', 'danger');
-            return;
-        }
-
         const sectionItemId = sectionItemIdInput ? Number(sectionItemIdInput.value || 0) : 0;
-        if (sectionItemId <= 0 || pageSlug === '' || sectionType === '') {
-            window.CmsMediaUpload.getUploadFeedback().showUploadFeedback('Upload failed', 'Image upload failed.', 'danger');
-            return;
-        }
+        const moduleName = pageSlug === '' || sectionType === ''
+            ? ''
+            : `stories_home:${pageSlug}:${sectionType}`;
 
-        const path = await window.CmsMediaUpload.uploadFile({
+        const path = await window.CmsMediaUpload.uploadImage({
             button,
             fileInput,
-            endpoint: '/cms/media/upload-image',
-            fileFieldName: 'image',
-            moduleName: `stories_home:${pageSlug}:${sectionType}`,
+            moduleName,
             sectionItemId,
             currentPath: currentPathInput ? currentPathInput.value : '',
-            missingMetadataMessage: 'Missing Stories upload metadata for this image row.',
+            missingSectionItemMessage: 'Missing Stories image row. Please refresh the page and try again.',
+            missingModuleMessage: 'Missing Stories upload metadata for this image row.',
             missingFileMessage: 'Please choose an image first.',
-            failureMessage: 'Image upload failed.',
-            successTitle: 'Upload complete',
-            successMessage: 'Image uploaded successfully.',
         });
 
         if (path) {
@@ -56,30 +46,18 @@
         const currentPathInput = row.querySelector('.stories-audio-path');
         const pageSlug = storiesDetailForm.dataset.storiesPageSlug || '';
 
-        if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
-            window.CmsMediaUpload.getUploadFeedback().showUploadFeedback('Upload failed', 'Please choose an audio file first.', 'danger');
-            return;
-        }
-
         const sectionItemId = sectionItemIdInput ? Number(sectionItemIdInput.value || 0) : 0;
-        if (sectionItemId <= 0 || pageSlug === '') {
-            window.CmsMediaUpload.getUploadFeedback().showUploadFeedback('Upload failed', 'Audio upload failed.', 'danger');
-            return;
-        }
+        const moduleName = pageSlug === '' ? '' : `stories_detail_audio:${pageSlug}`;
 
-        const path = await window.CmsMediaUpload.uploadFile({
+        const path = await window.CmsMediaUpload.uploadAudio({
             button,
             fileInput,
-            endpoint: '/cms/media/upload-audio',
-            fileFieldName: 'audio',
-            moduleName: `stories_detail_audio:${pageSlug}`,
+            moduleName,
             sectionItemId,
             currentPath: currentPathInput ? currentPathInput.value : '',
-            missingMetadataMessage: 'Missing Stories audio upload metadata for this row.',
+            missingSectionItemMessage: 'Missing Stories audio row. Please refresh the page and try again.',
+            missingModuleMessage: 'Missing Stories audio upload metadata for this row.',
             missingFileMessage: 'Please choose an audio file first.',
-            failureMessage: 'Audio upload failed.',
-            successTitle: 'Upload complete',
-            successMessage: 'Audio uploaded successfully.',
         });
 
         if (path) {
@@ -116,5 +94,9 @@
                 uploadStoriesAudio(row, target);
             }
         });
+    }
+
+    if (storiesDetailForm && window.CmsFormSaveAPI) {
+        window.CmsFormSaveAPI.initialize(storiesDetailForm);
     }
 })();

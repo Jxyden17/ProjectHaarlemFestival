@@ -30,7 +30,7 @@ class CmsYummyContentController extends BaseController
             return;
         }
 
-        $this->render('cms/events/yummy-home', [
+        $this->renderCms('cms/events/yummy-home', [
             'heroSection' => $page->getSection('yummy_header'),
             'mapSection' => $page->getSection('yummy-map'),
             'restaurantSection' => $page->getSection('yummy-restaurants')
@@ -71,7 +71,7 @@ class CmsYummyContentController extends BaseController
         $introSection = $page->getSection('restaurant_concept');
         $contactSection = $page->getSection('restaurant_contact');
 
-        $this->render('cms/events/yummy-details', [
+        $this->renderCms('cms/events/yummy-details', [
             'page' => $page,
             'heroSection' => $heroSection,
             'introSection' => $introSection,

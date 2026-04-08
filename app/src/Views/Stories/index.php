@@ -25,7 +25,7 @@
         <?php $section = $venues; include __DIR__ . '/../partialsViews/Stories/venues.php'; ?>
     <?php endif; ?>
 
-    <section class="stories-schedule-wrapper">
+    <section id="schedule" class="stories-schedule-wrapper">
      <?php $section = $schedule; include __DIR__ . '/../partialsViews/schedule.php'; ?>
     </section>
 
