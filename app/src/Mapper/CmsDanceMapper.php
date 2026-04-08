@@ -6,7 +6,6 @@ use App\Models\Page\SectionItem;
 use App\Models\Edit\Dance\DanceDetailHeroImageEditRow;
 use App\Models\Edit\Dance\DanceDetailHighlightEditRow;
 use App\Models\Edit\Dance\DanceDetailTrackEditRow;
-use App\Models\Edit\Dance\DanceHomePassEditRow;
 use App\Models\Requests\UpdateDanceDetailRequest;
 use App\Models\Requests\UpdateDanceHomeRequest;
 
@@ -25,8 +24,6 @@ class CmsDanceMapper
     private const SECTION_DETAIL_SCHEDULE = 'dance_detail_schedule';
     private const SECTION_DETAIL_INFO = 'dance_detail_info';
 
-    private const ITEM_HIGHLIGHT_FLAG = 'highlight';
-    private const ITEM_CATEGORY_PASS = 'pass';
     private const ITEM_CATEGORY_HERO_IMAGE = 'hero_image';
     private const ITEM_CATEGORY_HIGHLIGHT = 'highlight';
     private const ITEM_CATEGORY_TRACK = 'track';
@@ -35,7 +32,6 @@ class CmsDanceMapper
     // Builds the dance home save payload directly from the CMS request so saves do not need a temporary Page object.
     public function mapHomeRequestSectionsForSave(
         UpdateDanceHomeRequest $request,
-        array $passItems,
         string $bannerDescription,
         string $importantInformationHtml,
         string $capacityHtml,
@@ -46,7 +42,7 @@ class CmsDanceMapper
             $this->createSectionPayload(self::SECTION_BANNER, $request->bannerTitle(), $request->bannerBadge(), $bannerDescription, 10),
             $this->createSectionPayload(self::SECTION_ARTISTS, $request->featuredArtistsTitle(), null, null, 15),
             $this->createSectionPayload(self::SECTION_INFO, $request->importantInformationTitle(), null, $importantInformationHtml, 20),
-            $this->createSectionPayload(self::SECTION_PASSES, $request->passesTitle(), null, null, 40, $this->mapPassRows($passItems)),
+            $this->createSectionPayload(self::SECTION_PASSES, $request->passesTitle(), null, null, 40),
             $this->createSectionPayload(self::SECTION_CAPACITY, $request->capacityTitle(), null, $capacityHtml, 50),
             $this->createSectionPayload(self::SECTION_SPECIAL, $request->specialTitle(), null, $specialHtml, 60),
         ];
@@ -100,38 +96,6 @@ class CmsDanceMapper
                 40
             ),
         ];
-    }
-
-    // Normalizes posted pass rows into section items so validation and persistence use the same internal shape.
-    public function normalizePasses(array $passes): array
-    {
-        $result = [];
-        foreach ($passes as $pass) {
-            if (!$pass instanceof DanceHomePassEditRow) {
-                continue;
-            }
-
-            $label = $pass->label();
-            $price = $pass->price();
-            if ($label === '' || $price === '') {
-                continue;
-            }
-
-            $result[] = new SectionItem(
-                $pass->id(),
-                $label,
-                $price,
-                null,
-                $pass->highlight() ? self::ITEM_HIGHLIGHT_FLAG : null,
-                self::ITEM_CATEGORY_PASS,
-                null,
-                null,
-                null,
-                count($result) + 1
-            );
-        }
-
-        return $result;
     }
 
     // Normalizes posted hero image rows into section items so detail page media can be saved in order.
@@ -224,41 +188,6 @@ class CmsDanceMapper
         }
 
         return $result;
-    }
-
-    // Converts normalized pass items into repository save rows so CMS pass edits match the page item schema.
-    public function mapPassRows(array $passes): array
-    {
-        $rows = [];
-        $index = 1;
-
-        foreach ($passes as $pass) {
-            if (!$pass instanceof SectionItem) {
-                continue;
-            }
-
-            $label = trim($pass->title);
-            $price = trim((string)($pass->content ?? ''));
-            $highlight = ($pass->url ?? '') === self::ITEM_HIGHLIGHT_FLAG;
-            if ($label === '' || $price === '') {
-                continue;
-            }
-
-            $rows[] = [
-                'id' => $pass->id,
-                'title' => $label,
-                'item_subtitle' => null,
-                'content' => $price,
-                'image_path' => null,
-                'link_url' => $highlight ? self::ITEM_HIGHLIGHT_FLAG : null,
-                'duration' => null,
-                'icon_class' => null,
-                'order_index' => $index++,
-                'item_category' => self::ITEM_CATEGORY_PASS,
-            ];
-        }
-
-        return $rows;
     }
 
     // Converts normalized hero image items into repository save rows so hero media persists with alt text and order.

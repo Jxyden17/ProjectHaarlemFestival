@@ -10,7 +10,6 @@ use App\Models\Page\SectionItem;
 use App\Models\Edit\Dance\DanceDetailHeroImageEditRow;
 use App\Models\Edit\Dance\DanceDetailHighlightEditRow;
 use App\Models\Edit\Dance\DanceDetailTrackEditRow;
-use App\Models\Edit\Dance\DanceHomePassEditRow;
 use App\Models\Requests\UpdateDanceDetailRequest;
 use App\Models\Requests\UpdateDanceHomeRequest;
 use App\Models\ViewModels\Cms\Dance\DanceDetailEditViewModel;
@@ -18,7 +17,6 @@ use App\Models\ViewModels\Cms\Dance\DanceDetailHeroImageRowViewModel;
 use App\Models\ViewModels\Cms\Dance\DanceDetailHighlightRowViewModel;
 use App\Models\ViewModels\Cms\Dance\DanceDetailTrackRowViewModel;
 use App\Models\ViewModels\Cms\Dance\DanceHomeEditViewModel;
-use App\Models\ViewModels\Cms\Dance\DanceHomePassRowViewModel;
 
 class CmsDanceViewModelMapper
 {
@@ -34,7 +32,6 @@ class CmsDanceViewModelMapper
     private const SECTION_DETAIL_TRACKS = 'dance_detail_tracks';
     private const SECTION_DETAIL_SCHEDULE = 'dance_detail_schedule';
     private const SECTION_DETAIL_INFO = 'dance_detail_info';
-    private const ITEM_CATEGORY_PASS = 'pass';
     private const ITEM_CATEGORY_HERO_IMAGE = 'hero_image';
     private const ITEM_CATEGORY_HIGHLIGHT = 'highlight';
     private const ITEM_CATEGORY_TRACK = 'track';
@@ -60,7 +57,6 @@ class CmsDanceViewModelMapper
             $info !== null ? $info->title : '',
             $info !== null ? (string)$info->description : '',
             $passes !== null ? $passes->title : '',
-            $this->mapPassViewModels($passes),
             $capacity !== null ? $capacity->title : '',
             $capacity !== null ? (string)$capacity->description : '',
             $special !== null ? $special->title : '',
@@ -81,7 +77,6 @@ class CmsDanceViewModelMapper
             $request->importantInformationTitle(),
             $request->importantInformationHtml(),
             $request->passesTitle(),
-            $this->mapPassRequestViewModels($request->passes()),
             $request->capacityTitle(),
             $request->capacityHtml(),
             $request->specialTitle(),
@@ -145,50 +140,6 @@ class CmsDanceViewModelMapper
             $request->importantInformationTitle(),
             $request->importantInformationHtml()
         );
-    }
-
-    // Maps stored pass items into CMS pass rows so the home editor can show editable pass fields.
-    private function mapPassViewModels(?Section $passes): array
-    {
-        if ($passes === null) {
-            return [];
-        }
-
-        $rows = [];
-        foreach ($passes->getItemsByCategorie(self::ITEM_CATEGORY_PASS) as $item) {
-            if (!$item instanceof SectionItem) {
-                continue;
-            }
-
-            $rows[] = new DanceHomePassRowViewModel(
-                $item->id,
-                $item->title,
-                (string)($item->content ?? ''),
-                (string)($item->url ?? '') === 'highlight'
-            );
-        }
-
-        return $rows;
-    }
-
-    // Maps posted pass edit rows into CMS pass rows so failed saves preserve submitted pass values.
-    private function mapPassRequestViewModels(array $passes): array
-    {
-        $rows = [];
-        foreach ($passes as $pass) {
-            if (!$pass instanceof DanceHomePassEditRow) {
-                continue;
-            }
-
-            $rows[] = new DanceHomePassRowViewModel(
-                $pass->id(),
-                $pass->label(),
-                $pass->price(),
-                $pass->highlight()
-            );
-        }
-
-        return $rows;
     }
 
     // Maps stored hero image items into CMS hero image rows so the detail editor can show existing images and alt text.

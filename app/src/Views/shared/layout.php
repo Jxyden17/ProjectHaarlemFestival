@@ -74,7 +74,7 @@ $canManage = $roleId === 1; // 1=Administrator
                 </a>
             </li>
             <li>
-                <a href="/contact">
+                <a href="/#">
                     <span class="hf-icon" aria-hidden="true">
                         <i data-lucide="mail"></i>
                     </span>

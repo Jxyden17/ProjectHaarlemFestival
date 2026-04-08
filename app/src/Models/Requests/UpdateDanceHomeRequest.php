@@ -2,8 +2,6 @@
 
 namespace App\Models\Requests;
 
-use App\Models\Edit\Dance\DanceHomePassEditRow;
-
 class UpdateDanceHomeRequest
 {
     private string $pageTitle;
@@ -15,13 +13,12 @@ class UpdateDanceHomeRequest
     private string $importantInformationTitle;
     private string $importantInformationHtml;
     private string $passesTitle;
-    private array $passes;
     private string $capacityTitle;
     private string $capacityHtml;
     private string $specialTitle;
     private string $specialHtml;
 
-    private function __construct(string $pageTitle, string $scheduleTitle, string $featuredArtistsTitle, string $bannerBadge, string $bannerTitle, string $bannerDescription, string $importantInformationTitle, string $importantInformationHtml, string $passesTitle, array $passes, string $capacityTitle, string $capacityHtml, string $specialTitle, string $specialHtml) {
+    private function __construct(string $pageTitle, string $scheduleTitle, string $featuredArtistsTitle, string $bannerBadge, string $bannerTitle, string $bannerDescription, string $importantInformationTitle, string $importantInformationHtml, string $passesTitle, string $capacityTitle, string $capacityHtml, string $specialTitle, string $specialHtml) {
         $this->pageTitle = $pageTitle;
         $this->scheduleTitle = $scheduleTitle;
         $this->featuredArtistsTitle = $featuredArtistsTitle;
@@ -31,7 +28,6 @@ class UpdateDanceHomeRequest
         $this->importantInformationTitle = $importantInformationTitle;
         $this->importantInformationHtml = $importantInformationHtml;
         $this->passesTitle = $passesTitle;
-        $this->passes = $passes;
         $this->capacityTitle = $capacityTitle;
         $this->capacityHtml = $capacityHtml;
         $this->specialTitle = $specialTitle;
@@ -50,7 +46,6 @@ class UpdateDanceHomeRequest
             trim((string)($input['important_information_title'] ?? '')),
             trim((string)($input['important_information_html'] ?? '')),
             trim((string)($input['passes_title'] ?? '')),
-            self::mapPasses(is_array($input['passes'] ?? null) ? $input['passes'] : []),
             trim((string)($input['capacity_title'] ?? '')),
             trim((string)($input['capacity_html'] ?? '')),
             trim((string)($input['special_title'] ?? '')),
@@ -61,20 +56,6 @@ class UpdateDanceHomeRequest
     public function pageTitle(): string
     {
         return $this->pageTitle;
-    }
-
-    private static function mapPasses(array $input): array
-    {
-        $rows = [];
-        foreach ($input as $row) {
-            if (!is_array($row)) {
-                continue;
-            }
-
-            $rows[] = DanceHomePassEditRow::fromArray($row);
-        }
-
-        return $rows;
     }
 
     public function scheduleTitle(): string
@@ -115,11 +96,6 @@ class UpdateDanceHomeRequest
     public function passesTitle(): string
     {
         return $this->passesTitle;
-    }
-
-    public function passes(): array
-    {
-        return $this->passes;
     }
 
     public function capacityTitle(): string

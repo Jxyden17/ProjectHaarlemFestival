@@ -2,8 +2,7 @@
 use App\Models\ViewModels\Cms\Dance\DanceHomeEditViewModel;
 $contentViewModel = (isset($contentViewModel) && $contentViewModel instanceof DanceHomeEditViewModel)
     ? $contentViewModel
-    : new DanceHomeEditViewModel('', '', '', '', '', '', '', '', '', [], '', '', '', '');
-$passes = $contentViewModel->passes;
+    : new DanceHomeEditViewModel('', '', '', '', '', '', '', '', '', '', '', '', '');
 ?>
 <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
 
@@ -177,32 +176,6 @@ $passes = $contentViewModel->passes;
                                     value="<?= htmlspecialchars($contentViewModel->passesTitle) ?>"
                                     required
                                 >
-                            </div>
-                            <div id="passes-container">
-                                <?php foreach ($passes as $index => $pass): ?>
-                                    <?php if (!$pass instanceof \App\Models\ViewModels\Cms\Dance\DanceHomePassRowViewModel) { continue; } ?>
-                                    <div class="border rounded p-3 mb-2 pass-row">
-                                        <div class="mb-2">
-                                            <label class="form-label">Label</label>
-                                            <input type="text" name="passes[<?= (int)$index ?>][label]" class="form-control pass-label" value="<?= htmlspecialchars($pass->label) ?>">
-                                        </div>
-                                        <div class="mb-2">
-                                            <label class="form-label">Price</label>
-                                            <input type="text" name="passes[<?= (int)$index ?>][price]" class="form-control pass-price" value="<?= htmlspecialchars($pass->price) ?>">
-                                        </div>
-                                        <input type="hidden" name="passes[<?= (int)$index ?>][id]" value="<?= (int)$pass->id ?>">
-                                        <div class="form-check mb-0">
-                                            <input
-                                                type="checkbox"
-                                                class="form-check-input pass-highlight"
-                                                name="passes[<?= (int)$index ?>][highlight]"
-                                                value="1"
-                                                <?= $pass->highlight ? 'checked' : '' ?>
-                                            >
-                                            <label class="form-check-label">Highlighted row</label>
-                                        </div>
-                                    </div>
-                                <?php endforeach; ?>
                             </div>
                         </div>
                     </div>
